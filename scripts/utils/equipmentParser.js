@@ -98,7 +98,7 @@ export class EquipmentParser {
    */
   async getStartingEquipment(type) {
     const { selectedId } = HM.CONFIG.SELECT_STORAGE[type] || {};
-    HM.log(3, `Fetching starting equipment for type: ${type}, selectedId: ${selectedId}`);
+    HM.log(3, `START getStartingEquipment - type: ${type}, selectedId: ${selectedId}`);
 
     if (!selectedId) {
       HM.log(2, `No selection found for type: ${type}. Ignore this warning if first-render.`);
@@ -106,14 +106,171 @@ export class EquipmentParser {
     }
 
     const doc = await this.findItemInCompendiums(selectedId);
+    HM.log(3, `Found doc for ${type}:`, doc?.name);
 
     if (doc) {
       this.proficiencies = await this.getProficiencies(doc.system.advancement || []);
+
+      // Handle default startingEquipment if it exists and has items
+      if (doc.system?.startingEquipment?.length > 0) {
+        HM.log(3, `Found startingEquipment for ${doc.name}:`, doc.system.startingEquipment);
+        return doc.system.startingEquipment;
+      }
+
+      // Parse from description if no startingEquipment items
+      if (type === 'background' || type === 'class') {
+        return await this.parseEquipmentFromDescription(doc);
+      }
     } else {
       HM.log(2, `No document found for type ${type} with selectedId ${selectedId}`, { doc: doc });
     }
 
-    return doc?.system.startingEquipment || [];
+    HM.log(3, `END getStartingEquipment - type: ${type} - returning empty array`);
+    return [];
+  }
+
+  async parseEquipmentFromDescription(doc) {
+    HM.log(3, `Attempting to parse equipment from description for ${doc.name}`);
+    const description = doc.system.description.value;
+    const equipmentMatch = description.match(/<strong>Equipment:<\/strong>([^<]+)/);
+
+    if (!equipmentMatch) {
+      HM.log(2, `No equipment section found in description for ${doc.name}`);
+      return [];
+    }
+
+    const equipment = equipmentMatch[1].trim();
+    const items = equipment
+      .split(/,|\sand\s/)
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0); // Filter out empty strings
+    HM.log(3, 'Raw equipment items:', items);
+
+    // Clean and normalize each item name
+    const cleanedItems = items.map((item) => {
+      const cleaned = item
+        .replace(/^(a|an|the)\s+/i, '') // Remove articles
+        .replace(/\s+of\s+(?:your\s+)?choice$/i, '') // Remove "of choice"
+        .trim();
+
+      // Extract quantity if present
+      const quantityMatch = cleaned.match(/^(\d+)\s+(.+)$/);
+      return {
+        name: quantityMatch ? quantityMatch[2] : cleaned,
+        count: quantityMatch ? parseInt(quantityMatch[1]) : null
+      };
+    });
+
+    HM.log(3, 'Cleaned items for search:', cleanedItems);
+
+    const itemPacks = await game.settings.get('hero-mancer', 'itemPacks');
+    const matches = [];
+
+    for (const item of cleanedItems) {
+      let bestMatch = null;
+      let bestScore = 0;
+
+      for (const packId of itemPacks) {
+        const pack = game.packs.get(packId);
+        if (!pack?.documentName === 'Item') continue;
+
+        const index = await pack.getIndex();
+
+        for (const entry of index) {
+          const searchTerms = [item.name.toLowerCase(), ...item.name.toLowerCase().split(/\s+/)];
+
+          for (const term of searchTerms) {
+            // Skip very short terms
+            if (term.length < 3) continue;
+
+            const score = this.calculateSimilarity(term, entry.name.toLowerCase());
+            if (score > bestScore && score > 0.4) {
+              // 40% similarity threshold
+              bestScore = score;
+              bestMatch = entry;
+            }
+          }
+        }
+      }
+
+      if (bestMatch) {
+        HM.log(3, `Found match for "${item.name}": "${bestMatch.name}" (score: ${bestScore.toFixed(2)})`);
+        matches.push({
+          type: 'linked',
+          count: item.count,
+          key: bestMatch.uuid,
+          requiresProficiency: false,
+          _id: foundry.utils.randomID(16),
+          group: '',
+          sort: matches.length * 100000 + 100000,
+          _source: {
+            key: bestMatch.uuid
+          }
+        });
+      } else {
+        HM.log(2, `No match found for item: "${item.name}"`);
+      }
+    }
+
+    if (matches.length > 0) {
+      HM.log(3, `Returning ${matches.length} parsed equipment items for ${doc.name}:`, matches);
+      return matches;
+    }
+
+    return [];
+  }
+
+  calculateSimilarity(str1, str2) {
+    const maxLength = Math.max(str1.length, str2.length);
+    if (maxLength === 0) return 1.0;
+
+    // Perfect substring match
+    if (str2.includes(str1) || str1.includes(str2)) {
+      return 0.9;
+    }
+
+    // Check word by word
+    const words1 = str1.split(/\s+/);
+    const words2 = str2.split(/\s+/);
+    for (const word1 of words1) {
+      for (const word2 of words2) {
+        if (word1.length > 2 && word2.length > 2) {
+          if (word2.includes(word1) || word1.includes(word2)) {
+            return 0.8;
+          }
+        }
+      }
+    }
+
+    return 1.0 - this.levenshteinDistance(str1, str2) / maxLength;
+  }
+
+  levenshteinDistance(str1, str2) {
+    const m = str1.length;
+    const n = str2.length;
+    const dp = Array(m + 1)
+      .fill()
+      .map(() => Array(n + 1).fill(0));
+
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] =
+            1 +
+            Math.min(
+              dp[i - 1][j], // deletion
+              dp[i][j - 1], // insertion
+              dp[i - 1][j - 1] // substitution
+            );
+        }
+      }
+    }
+    return dp[m][n];
   }
 
   /**
@@ -141,12 +298,15 @@ export class EquipmentParser {
    * @async
    */
   async fetchEquipmentData() {
+    HM.log(3, 'Starting fetchEquipmentData...');
     const classEquipment = await this.getStartingEquipment('class');
     const backgroundEquipment = await this.getStartingEquipment('background');
+    HM.log(3, 'Equipment fetched:', { class: classEquipment, background: backgroundEquipment });
     this.equipmentData = {
       class: classEquipment || [],
       background: backgroundEquipment || []
     };
+    HM.log(3, 'equipmentData set:', this.equipmentData);
   }
 
   /**
@@ -171,6 +331,7 @@ export class EquipmentParser {
       HM.log(1, 'Failed to fetch equipment data');
     }
 
+    HM.log(3, 'Rendering equipment choices:', { type: type, equipmentData: this.equipmentData });
     let container = document.querySelector('.equipment-choices');
     if (!container) {
       container = document.createElement('div');
@@ -288,7 +449,7 @@ export class EquipmentParser {
     let result;
     switch (item.type) {
       case 'OR':
-        HM.log(3, `DEBUG: Rendering OR block for item: ${item._source.key}`, { item: item });
+        HM.log(3, `DEBUG: Rendering OR block for item: ${item._source?.key}`, { item: item });
         result = await this.renderOrBlock(item, itemContainer);
         break;
       case 'AND':
@@ -298,11 +459,11 @@ export class EquipmentParser {
         }
         break;
       case 'linked':
-        HM.log(3, `DEBUG: Rendering linked item: ${item._source.key}`, { item: item });
+        HM.log(3, `DEBUG: Rendering linked item: ${item._source?.key}`, { item: item });
         result = await this.renderLinkedItem(item, itemContainer);
         break;
       case 'focus':
-        HM.log(3, `DEBUG: Rendering focus item: ${item._source.key}`, { item: item });
+        HM.log(3, `DEBUG: Rendering focus item: ${item._source?.key}`, { item: item });
         result = await this.renderFocusItem(item, itemContainer);
         break;
       default:
@@ -1084,7 +1245,7 @@ export class EquipmentParser {
    * @returns {HTMLElement|null} Modified container or null if skipped
    */
   renderLinkedItem(item, itemContainer) {
-    if (!item?._source?.key) {
+    if (!item?.key) {
       HM.log(1, 'Invalid linked item:', item);
       return null;
     }
