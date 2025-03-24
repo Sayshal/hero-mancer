@@ -290,9 +290,6 @@ export class SummaryManager {
    * @static
    */
   static initializeSummaryListeners() {
-    // Clean up existing listeners and observers first
-    // this.cleanup();
-
     const raceDropdown = document.querySelector('#race-dropdown');
     const classDropdown = document.querySelector('#class-dropdown');
     const backgroundDropdown = document.querySelector('#background-dropdown');

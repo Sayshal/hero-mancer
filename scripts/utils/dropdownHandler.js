@@ -177,13 +177,14 @@ export class DropdownHandler {
       HM.log(1, `Dropdown for ${type} not found.`);
       return;
     }
+
     try {
-      // Clean up existing listeners
+      // Store the original handler from Listeners if it exists
+      const originalHandler = dropdown._changeHandler;
+
+      // Clean up existing handler from DropdownHandler
       if (dropdown._descriptionUpdateHandler) {
         EventDispatcher.off('description-update', dropdown._descriptionUpdateHandler);
-      }
-      if (dropdown._changeHandler) {
-        dropdown.removeEventListener('change', dropdown._changeHandler);
       }
 
       dropdown._descriptionUpdateHandler = function ({ elementId, content }) {
@@ -197,17 +198,31 @@ export class DropdownHandler {
         }
       };
 
-      dropdown._changeHandler = this.handleDropdownChange.bind(this, type, html, context);
+      // Create a combined handler that runs both functionalities
+      const combinedHandler = async (event) => {
+        // First run DropdownHandler's logic
+        await this.handleDropdownChange(type, html, context, event);
 
-      // Add new listeners
-      EventDispatcher.on('description-update', dropdown._descriptionUpdateHandler);
-      dropdown.addEventListener('change', (event) => {
-        try {
-          requestAnimationFrame(() => dropdown._changeHandler(event));
-        } catch (error) {
-          HM.log(1, `Error in dropdown change handler for ${type}:`, error);
+        // Then run the original handler from Listeners if it exists
+        if (originalHandler) {
+          await originalHandler(event);
         }
-      });
+      };
+
+      // Remove existing change handler
+      if (dropdown._changeHandler) {
+        dropdown.removeEventListener('change', dropdown._changeHandler);
+      }
+
+      // Set the new combined handler
+      dropdown._changeHandler = combinedHandler;
+
+      // Add the listeners
+      EventDispatcher.on('description-update', dropdown._descriptionUpdateHandler);
+      dropdown.addEventListener('change', dropdown._changeHandler);
+
+      // Flag that this dropdown has been fully initialized
+      dropdown._fullyInitialized = true;
     } catch (error) {
       HM.log(1, `Failed to initialize dropdown for ${type}:`, error);
     }

@@ -41,8 +41,18 @@ export class Listeners {
     const totalPoints = StatRoller.getTotalPoints();
     const diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
 
-    abilityDropdowns.forEach((dropdown, index) => {
-      dropdown.addEventListener('change', (event) => {
+    // Clean up existing listeners first to prevent duplicates
+    abilityDropdowns.forEach((dropdown, i) => {
+      // Add data-index attribute for reliable index reference
+      dropdown.dataset.index = i;
+
+      if (dropdown._abilityChangeHandler) {
+        dropdown.removeEventListener('change', dropdown._abilityChangeHandler);
+      }
+
+      dropdown._abilityChangeHandler = (event) => {
+        const index = parseInt(dropdown.dataset.index, 10);
+
         if (diceRollingMethod === 'manualFormula') {
           const value = event.target.value;
           selectedValues[index] = value;
@@ -66,9 +76,8 @@ export class Listeners {
           // Update our tracking array
           selectedValues[index] = newValue;
 
+          // Apply standard array mode without unnecessary logging
           requestAnimationFrame(() => {
-            HM.log(3, 'Initializing standard array dropdowns');
-            // Force a second application of the standard array handling
             DropdownHandler.handleStandardArrayMode(abilityDropdowns, selectedValues);
           });
         } else {
@@ -76,7 +85,9 @@ export class Listeners {
           selectedValues[index] = event.target.value || '';
           DropdownHandler.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, diceRollingMethod === 'pointBuy' ? 'pointBuy' : 'manualFormula');
         }
-      });
+      };
+
+      dropdown.addEventListener('change', dropdown._abilityChangeHandler);
     });
 
     if (diceRollingMethod === 'pointBuy') {
@@ -84,6 +95,9 @@ export class Listeners {
       this.updatePlusButtonState(selectedAbilities, context.remainingPoints);
       this.updateMinusButtonState(selectedAbilities);
     } else if (diceRollingMethod === 'standardArray') {
+      // Only log once during initial setup
+      HM.log(3, 'Initializing standard array dropdowns');
+
       // Ensure DOM is fully populated before initializing standard array mode
       requestAnimationFrame(() => {
         // Re-collect current values to ensure we have the latest
@@ -98,40 +112,29 @@ export class Listeners {
    * @static
    */
   static initializeSelectionListeners() {
-    HM.log(3, 'Starting initializeSelectionListeners');
     const classDropdown = document.querySelector('#class-dropdown');
     const backgroundDropdown = document.querySelector('#background-dropdown');
     const raceDropdown = document.querySelector('#race-dropdown');
 
-    HM.log(3, `Dropdowns found: class=${!!classDropdown}, background=${!!backgroundDropdown}, race=${!!raceDropdown}`);
-    HM.log(3, `ELKAN compatibility mode: ${HM.COMPAT.ELKAN}`);
+    HM.log(3, `Elkan5e compatibility mode: ${HM.COMPAT.ELKAN}`);
 
     // Handle equipment initialization if not in ELKAN compatibility mode
     if (!HM.COMPAT.ELKAN) {
-      HM.log(3, 'Initializing equipment UI');
       this.#initializeEquipmentUI();
     }
 
     // Set up class dropdown handler
     if (classDropdown) {
-      HM.log(3, `Initial class dropdown value: ${classDropdown.value}`);
-
-      // Clean up existing handler first
-      if (classDropdown._changeHandler) {
-        classDropdown.removeEventListener('change', classDropdown._changeHandler);
-      }
-
-      classDropdown._changeHandler = async (event) => {
+      // Store our handler logic, whether adding a new listener or integrating with existing
+      const classHandler = async (event) => {
         const value = event.target.value;
-        HM.log(3, `Class change detected: ${value}`);
-
         HM.SELECTED.class = {
           value,
           id: value.split(' ')[0],
           uuid: value.match(/\[(.*?)]/)?.[1]
         };
 
-        HM.log(3, `Class storage updated: ${JSON.stringify(HM.SELECTED.class)}`);
+        HM.log(3, `Class updated: ${JSON.stringify(HM.SELECTED.class)}`);
 
         // Call SummaryManager to update abilities highlighting
         SummaryManager.updateAbilitiesSummary();
@@ -147,29 +150,39 @@ export class Listeners {
         this.updateDescriptionElement('class', HM.SELECTED.class.id);
       };
 
-      classDropdown.addEventListener('change', classDropdown._changeHandler);
+      if (classDropdown._dropdownHandlerInitialized) {
+        // If already set up by DropdownHandler, store our logic and preserve the existing handler
+        const existingHandler = classDropdown._changeHandler;
+        classDropdown._changeHandler = async (event) => {
+          await existingHandler(event); // Run original handler first
+          await classHandler(event); // Then run our logic
+        };
+        // Re-attach with the combined handler
+        classDropdown.removeEventListener('change', existingHandler);
+        classDropdown.addEventListener('change', classDropdown._changeHandler);
+      } else {
+        // Regular initialization if DropdownHandler hasn't been here yet
+        if (classDropdown._changeHandler) {
+          classDropdown.removeEventListener('change', classDropdown._changeHandler);
+        }
+        classDropdown._changeHandler = classHandler;
+        classDropdown.addEventListener('change', classDropdown._changeHandler);
+        classDropdown._listenerInitialized = true;
+      }
     }
 
     // Set up background dropdown handler
     if (backgroundDropdown) {
-      HM.log(3, `Initial background dropdown value: ${backgroundDropdown.value}`);
-
-      // Clean up existing handler first
-      if (backgroundDropdown._changeHandler) {
-        backgroundDropdown.removeEventListener('change', backgroundDropdown._changeHandler);
-      }
-
-      backgroundDropdown._changeHandler = async (event) => {
+      // Store our handler logic, whether adding a new listener or integrating with existing
+      const backgroundHandler = async (event) => {
         const value = event.target.value;
-        HM.log(3, `Background change detected: ${value}`);
-
         HM.SELECTED.background = {
           value,
           id: value.split(' ')[0],
           uuid: value.match(/\[(.*?)]/)?.[1]
         };
 
-        HM.log(3, `Background storage updated: ${JSON.stringify(HM.SELECTED.background)}`);
+        HM.log(3, `Background updated: ${JSON.stringify(HM.SELECTED.background)}`);
 
         SummaryManager.updateBackgroundSummary(event.target);
         await SummaryManager.processBackgroundSelectionChange(HM.SELECTED.background);
@@ -185,29 +198,39 @@ export class Listeners {
         this.updateDescriptionElement('background', HM.SELECTED.background.id);
       };
 
-      backgroundDropdown.addEventListener('change', backgroundDropdown._changeHandler);
+      if (backgroundDropdown._dropdownHandlerInitialized) {
+        // If already set up by DropdownHandler, store our logic and preserve the existing handler
+        const existingHandler = backgroundDropdown._changeHandler;
+        backgroundDropdown._changeHandler = async (event) => {
+          await existingHandler(event); // Run original handler first
+          await backgroundHandler(event); // Then run our logic
+        };
+        // Re-attach with the combined handler
+        backgroundDropdown.removeEventListener('change', existingHandler);
+        backgroundDropdown.addEventListener('change', backgroundDropdown._changeHandler);
+      } else {
+        // Regular initialization if DropdownHandler hasn't been here yet
+        if (backgroundDropdown._changeHandler) {
+          backgroundDropdown.removeEventListener('change', backgroundDropdown._changeHandler);
+        }
+        backgroundDropdown._changeHandler = backgroundHandler;
+        backgroundDropdown.addEventListener('change', backgroundDropdown._changeHandler);
+        backgroundDropdown._listenerInitialized = true;
+      }
     }
 
     // Set up race dropdown handler
     if (raceDropdown) {
-      HM.log(3, `Initial race dropdown value: ${raceDropdown.value}`);
-
-      // Clean up existing handler first
-      if (raceDropdown._changeHandler) {
-        raceDropdown.removeEventListener('change', raceDropdown._changeHandler);
-      }
-
-      raceDropdown._changeHandler = async (event) => {
+      // Store our handler logic, whether adding a new listener or integrating with existing
+      const raceHandler = async (event) => {
         const value = event.target.value;
-        HM.log(3, `Race change detected: ${value}`);
-
         HM.SELECTED.race = {
           value,
           id: value.split(' ')[0],
           uuid: value.match(/\[(.*?)]/)?.[1]
         };
 
-        HM.log(3, `Race storage updated: ${JSON.stringify(HM.SELECTED.race)}`);
+        HM.log(3, `Race updated: ${JSON.stringify(HM.SELECTED.race)}`);
 
         // Race-specific summary updates
         SummaryManager.updateClassRaceSummary();
@@ -216,12 +239,28 @@ export class Listeners {
         this.updateDescriptionElement('race', HM.SELECTED.race.id);
       };
 
-      raceDropdown.addEventListener('change', raceDropdown._changeHandler);
+      if (raceDropdown._dropdownHandlerInitialized) {
+        // If already set up by DropdownHandler, store our logic and preserve the existing handler
+        const existingHandler = raceDropdown._changeHandler;
+        raceDropdown._changeHandler = async (event) => {
+          await existingHandler(event); // Run original handler first
+          await raceHandler(event); // Then run our logic
+        };
+        // Re-attach with the combined handler
+        raceDropdown.removeEventListener('change', existingHandler);
+        raceDropdown.addEventListener('change', raceDropdown._changeHandler);
+      } else {
+        // Regular initialization if DropdownHandler hasn't been here yet
+        if (raceDropdown._changeHandler) {
+          raceDropdown.removeEventListener('change', raceDropdown._changeHandler);
+        }
+        raceDropdown._changeHandler = raceHandler;
+        raceDropdown.addEventListener('change', raceDropdown._changeHandler);
+        raceDropdown._listenerInitialized = true;
+      }
     }
 
-    // Initialize descriptions for initial values
-    HM.log(3, 'Initializing descriptions for initial values');
-
+    // Initialize descriptions for current values if available
     if (classDropdown && classDropdown.value) {
       const classId = classDropdown.value.split(' ')[0];
       HM.log(3, `Setting initial class description for ID: ${classId}`);
@@ -240,7 +279,7 @@ export class Listeners {
       this.updateDescriptionElement('race', raceId);
     }
 
-    HM.log(3, 'Finished initializeSelectionListeners');
+    HM.log(3, 'Selection Listeners Initialized');
   }
 
   /**
@@ -268,8 +307,6 @@ export class Listeners {
         HM.log(3, `Searching through ${HM.documents.race.length} race folders`);
 
         for (const folder of HM.documents.race) {
-          HM.log(3, `Looking in folder: ${folder.folderName}`);
-
           const doc = folder.docs.find((d) => d.id === id);
           if (doc) {
             foundDoc = doc;
@@ -279,14 +316,14 @@ export class Listeners {
         }
 
         if (foundDoc) {
-          HM.log(3, `Setting race description for ${foundDoc.name}, content length: ${foundDoc.enrichedDescription?.length || 0}`);
+          HM.log(3, 'Loaded race description successfully.');
           descriptionEl.innerHTML = foundDoc.enrichedDescription || '';
         } else {
+          if (!id) return;
           HM.log(1, `No matching race doc found for ID: ${id}`);
           descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
         }
       } else {
-        // For other document types (class, background), they're direct arrays
         const docsArray = HM.documents[type] || [];
         HM.log(3, `Looking for ${type} doc with ID ${id} among ${docsArray.length} docs`);
 
@@ -296,13 +333,14 @@ export class Listeners {
           HM.log(3, `Found matching ${type} doc: ${doc.name}`);
 
           if (doc.enrichedDescription) {
-            HM.log(3, `Setting ${type} description, content length: ${doc.enrichedDescription.length}`);
+            HM.log(3, `Loaded ${type} description successfully.`);
             descriptionEl.innerHTML = doc.enrichedDescription;
           } else {
             HM.log(2, `No enriched description for ${type} doc`);
             descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
           }
         } else {
+          if (!id) return;
           HM.log(1, `No matching ${type} doc found for ID: ${id}`);
           descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
         }
@@ -322,32 +360,27 @@ export class Listeners {
    * @static
    */
   static #initializeEquipmentUI() {
-    HM.log(3, 'Starting initializeEquipmentUI');
     const equipmentContainer = document.querySelector('#equipment-container');
     const classDropdown = document.querySelector('#class-dropdown');
     const backgroundDropdown = document.querySelector('#background-dropdown');
 
-    HM.log(3, `Equipment container found: ${!!equipmentContainer}`);
+    HM.log(3, `Equipment container found? ${!!equipmentContainer}`);
     HM.log(3, `Class dropdown value: ${classDropdown?.value}`);
     HM.log(3, `Background dropdown value: ${backgroundDropdown?.value}`);
 
     if (equipmentContainer) {
-      // Clear any existing content
-      HM.log(3, 'Clearing equipment container');
       equipmentContainer.innerHTML = '';
 
       // Create a new instance for this render cycle
       const classId = classDropdown?.value?.split(' ')[0];
       const backgroundId = backgroundDropdown?.value?.split(' ')[0];
-      HM.log(3, `Creating EquipmentParser with classId=${classId}, backgroundId=${backgroundId}`);
+      HM.log(3, `Creating EquipmentParser with class=${classId}, background=${backgroundId}`);
 
       const equipment = new EquipmentParser(classId, backgroundId);
 
-      HM.log(3, 'Generating equipment selection UI');
       equipment
         .generateEquipmentSelectionUI()
         .then((choices) => {
-          HM.log(3, 'Equipment UI generated successfully');
           equipmentContainer.appendChild(choices);
         })
         .catch((error) => {
@@ -355,7 +388,7 @@ export class Listeners {
         });
     }
 
-    HM.log(3, 'Finished initializeEquipmentUI');
+    HM.log(3, 'Equipment UI Initialized');
   }
 
   /**
