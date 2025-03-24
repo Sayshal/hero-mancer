@@ -104,7 +104,6 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async formHandler(_event, form, formData) {
-    const requiresWorldReload = true;
     try {
       // First handle allowed methods
       const allowedMethods = {
@@ -189,33 +188,12 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
       // Don't call validateAndSetCustomStandardArray separately, we already fixed it above
 
-      this.constructor.reloadConfirm({ world: requiresWorldReload });
+      HM.reloadConfirm({ world: true });
 
       ui.notifications.info('hm.settings.dice-rolling.saved', { localize: true });
     } catch (error) {
       HM.log(1, `Error in formHandler: ${error}`);
       ui.notifications.error('hm.settings.dice-rolling.error-saving', { localize: true });
     }
-  }
-
-  /**
-   * Shows a confirmation dialog for reloading the world/application
-   * @param {object} options - Configuration options
-   * @param {boolean} options.world - Whether to reload the entire world
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async reloadConfirm({ world = false } = {}) {
-    const reload = await DialogV2.confirm({
-      id: 'reload-world-confirm',
-      modal: true,
-      rejectClose: false,
-      window: { title: 'SETTINGS.ReloadPromptTitle' },
-      position: { width: 400 },
-      content: `<p>${game.i18n.localize('SETTINGS.ReloadPromptBody')}</p>`
-    });
-    if (!reload) return;
-    if (world && game.user.can('SETTINGS_MODIFY')) game.socket.emit('reload');
-    foundry.utils.debouncedReload();
   }
 }

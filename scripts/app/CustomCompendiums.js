@@ -155,7 +155,6 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
    */
   static async formHandler(_event, _form, _formData) {
     const types = ['class', 'race', 'background', 'item'];
-    const requiresWorldReload = true; // Settings changes require world reload
 
     try {
       const packPromises = types.map((type) => CustomCompendiums.#collectValidPacks(type, false));
@@ -171,35 +170,13 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
       CustomCompendiums.#validPacksCache.clear();
 
-      this.constructor.reloadConfirm({ world: requiresWorldReload });
+      HM.reloadConfirm({ world: true });
 
       ui.notifications.info('hm.settings.custom-compendiums.form-saved', { localize: true });
     } catch (error) {
       HM.log(1, 'Error in form submission:', error);
       ui.notifications.error('hm.settings.custom-compendiums.error-saving', { localize: true });
     }
-  }
-
-  /**
-   * Shows a confirmation dialog for reloading the world/application
-   * @async
-   * @param {object} options - Configuration options
-   * @param {boolean} options.world - Whether to reload the entire world
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async reloadConfirm({ world = false } = {}) {
-    const reload = await DialogV2.confirm({
-      id: 'reload-world-confirm',
-      modal: true,
-      rejectClose: false,
-      window: { title: 'SETTINGS.ReloadPromptTitle' },
-      position: { width: 400 },
-      content: `<p>${game.i18n.localize('SETTINGS.ReloadPromptBody')}</p>`
-    });
-    if (!reload) return;
-    if (world && game.user.can('SETTINGS_MODIFY')) game.socket.emit('reload');
-    foundry.utils.debouncedReload();
   }
 
   /* -------------------------------------------- */

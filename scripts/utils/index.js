@@ -18,6 +18,9 @@ export { DocumentService } from './documentService.js';
 /** Controls dropdown behavior and updates */
 export { DropdownHandler, EventDispatcher } from './dropdownHandler.js';
 
+/** Form Validation for Mandatory Fields Class */
+export { FormValidation } from './formValidation.js';
+
 /** Application for all Hero Mancer creation */
 export { HeroMancer } from '../app/HeroMancer.js';
 

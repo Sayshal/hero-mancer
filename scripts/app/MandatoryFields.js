@@ -1,6 +1,6 @@
-import { HM } from '../utils/index.js';
+import { FormValidation, HM } from '../utils/index.js';
 
-const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
@@ -170,7 +170,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async formHandler(_event, form, formData) {
-    const requiresWorldReload = true; // Settings changes require world reload
     try {
       const checkboxes = form.querySelectorAll('input[type="checkbox"]');
       const mandatoryFields = Array.from(checkboxes)
@@ -179,7 +178,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
       await game.settings.set(HM.ID, 'mandatoryFields', mandatoryFields);
 
-      this.constructor.reloadConfirm({ world: requiresWorldReload });
+      HM.reloadConfirm({ world: true });
 
       ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
     } catch (error) {
@@ -223,12 +222,12 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
         const abilityBlock = element.closest('.ability-block');
         const label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
         if (label) {
-          mandatoryIndicatorUpdates.push(() => this.addIndicator(label, false));
+          mandatoryIndicatorUpdates.push(() => FormValidation.addIndicator(label, false));
         }
       } else {
-        const label = this.findAssociatedLabel(element);
+        const label = FormValidation.findAssociatedLabel(element);
         if (label) {
-          mandatoryIndicatorUpdates.push(() => this.addIndicator(label, false));
+          mandatoryIndicatorUpdates.push(() => FormValidation.addIndicator(label, false));
         }
       }
     });
@@ -247,17 +246,17 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
       if (field.startsWith('abilities[')) {
         const abilityBlock = element.closest('.ability-block');
-        isComplete = this.isAbilityFieldComplete(element, abilityBlock);
+        isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
 
         const label = abilityBlock.querySelector('.ability-label') || abilityBlock.querySelector('label');
         if (label) {
-          fieldCompletionUpdates.push(() => this.addIndicator(label, isComplete));
+          fieldCompletionUpdates.push(() => FormValidation.addIndicator(label, isComplete));
         }
       } else {
-        isComplete = this.isFormFieldComplete(element);
-        const label = this.findAssociatedLabel(element);
+        isComplete = FormValidation.isFieldComplete(element);
+        const label = FormValidation.findAssociatedLabel(element);
         if (label) {
-          fieldCompletionUpdates.push(() => this.addIndicator(label, isComplete));
+          fieldCompletionUpdates.push(() => FormValidation.addIndicator(label, isComplete));
         }
       }
 
@@ -286,132 +285,5 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     });
 
     return missingFields.length === 0;
-  }
-
-  /**
-   * Checks if an ability score field is complete based on the current roll method
-   * @param {HTMLElement} element - The ability input element
-   * @param {HTMLElement} abilityBlock - The parent ability block element
-   * @returns {boolean} Whether the field is complete
-   * @static
-   */
-  static isAbilityFieldComplete(element, abilityBlock) {
-    if (!abilityBlock) return false;
-
-    // Standard Array - single dropdown
-    if (element.classList.contains('ability-dropdown') && !abilityBlock.classList.contains('point-buy')) {
-      return element.value && element.value !== '';
-    }
-    // Point Buy - hidden input with control buttons
-    else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) {
-      const score = parseInt(element.value);
-      return !isNaN(score) && score >= 8;
-    } else {
-      const dropdown = abilityBlock.querySelector('.ability-dropdown');
-      const scoreInput = abilityBlock.querySelector('.ability-score');
-      return dropdown?.value && scoreInput?.value && dropdown.value !== '' && scoreInput.value !== '';
-    }
-  }
-
-  /**
-   * Checks if a form field contains valid content
-   * @param {HTMLElement} element - The form field to check
-   * @returns {boolean} Whether the field has valid content
-   * @static
-   */
-  static isFormFieldComplete(element) {
-    if (!element) return false;
-
-    const type = element?.localName || element?.type || '';
-    const value = element?.value;
-    const checked = element?.checked;
-    const emptyStates = ['', '<p></p>', '<p><br></p>', '<p><br class="ProseMirror-trailingBreak"></p>'];
-    const proseMirrorValue = value || '';
-    const editorContent = element.querySelector('.editor-content.ProseMirror')?.innerHTML || '';
-    const isComplete = !emptyStates.includes(proseMirrorValue) && proseMirrorValue.trim() !== '' && !emptyStates.includes(editorContent) && editorContent.trim() !== '';
-
-    switch (type) {
-      case 'checkbox':
-        return checked;
-      case 'text':
-      case 'textarea':
-        return value && value.trim() !== '';
-      case 'color-picker':
-        return value && value !== '#000000';
-      case 'select-one':
-        return value && value !== '';
-      case 'prose-mirror':
-        return isComplete;
-      default:
-        return value && value.trim() !== '';
-    }
-  }
-
-  /**
-   * Finds the label element associated with a form field
-   * Handles special cases like ProseMirror editors and various form layouts
-   * @param {HTMLElement} element - The form element to find a label for
-   * @returns {HTMLElement|null} The associated label element or null if not found
-   * @static
-   */
-  static findAssociatedLabel(element) {
-    if (element.localName === 'prose-mirror') {
-      let h2Element = element.closest('.notes-section')?.querySelector('h2');
-      return h2Element;
-    }
-
-    return element
-      .closest('.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group')
-      ?.querySelector('label, span.ability-label');
-  }
-
-  /**
-   * Adds a visual indicator to show field completion status
-   * Creates or updates an icon prepended to the label
-   * @param {HTMLElement} labelElement - The label element to modify
-   * @param {boolean} [isComplete=false] - Whether the associated field is complete
-   * @static
-   */
-  static addIndicator(labelElement, isComplete = false) {
-    // Remove existing indicator if any
-    const existingIcon = labelElement.querySelector('.mandatory-indicator');
-    if (existingIcon) {
-      // Only remove if the state changed
-      const currentIsComplete = existingIcon.classList.contains('fa-circle-check');
-      if (currentIsComplete === isComplete) {
-        return; // No change needed
-      }
-      existingIcon.remove();
-    }
-
-    // Create new indicator
-    const icon = document.createElement('i');
-    if (isComplete) {
-      icon.className = 'fa-duotone fa-solid fa-circle-check mandatory-indicator complete';
-    } else {
-      icon.className = 'fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete';
-    }
-    labelElement.prepend(icon);
-  }
-
-  /**
-   * Shows a confirmation dialog for reloading the world/application
-   * @param {object} options - Configuration options
-   * @param {boolean} options.world - Whether to reload the entire world
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async reloadConfirm({ world = false } = {}) {
-    const reload = await DialogV2.confirm({
-      id: 'reload-world-confirm',
-      modal: true,
-      rejectClose: false,
-      window: { title: 'SETTINGS.ReloadPromptTitle' },
-      position: { width: 400 },
-      content: `<p>${game.i18n.localize('SETTINGS.ReloadPromptBody')}</p>`
-    });
-    if (!reload) return;
-    if (world && game.user.can('SETTINGS_MODIFY')) game.socket.emit('reload');
-    foundry.utils.debouncedReload();
   }
 }

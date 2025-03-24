@@ -100,6 +100,26 @@ export class HM {
   }
 
   /**
+   * Shows a confirmation dialog for reloading the world/application
+   * @param {object} options - Configuration options
+   * @param {boolean} [options.world=false] - Whether to reload the entire world
+   * @returns {Promise<void>}
+   */
+  static async reloadConfirm({ world = false } = {}) {
+    const reload = await foundry.applications.api.DialogV2.confirm({
+      id: 'reload-world-confirm',
+      modal: true,
+      rejectClose: false,
+      window: { title: 'SETTINGS.ReloadPromptTitle' },
+      position: { width: 400 },
+      content: `<p>${game.i18n.localize('SETTINGS.ReloadPromptBody')}</p>`
+    });
+    if (!reload) return;
+    if (world && game.user.can('SETTINGS_MODIFY')) game.socket.emit('reload');
+    foundry.utils.debouncedReload();
+  }
+
+  /**
    * Prepares and caches game documents
    * @throws {Error} If document preparation fails
    * @async
