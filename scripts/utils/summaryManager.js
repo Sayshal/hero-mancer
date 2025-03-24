@@ -30,7 +30,7 @@ class TableManager {
       return;
     }
 
-    HM.log(3, 'Initializing tables for background:', background.id);
+    HM.log(3, `Loading tables for background: ${background.name} (${background.id})`);
     this.currentTables.delete(background.id);
 
     try {
@@ -64,7 +64,6 @@ class TableManager {
               }
             });
 
-            HM.log(3, 'Loaded table:', table);
             return table;
           } catch (error) {
             HM.log(1, `Error loading table with UUID ${uuid}:`, error);
@@ -72,6 +71,7 @@ class TableManager {
           }
         })
       );
+      HM.log(3, 'Loaded tables:', { tables });
 
       const validTables = tables.filter((table) => table !== null);
       if (validTables.length) {
@@ -291,14 +291,12 @@ export class SummaryManager {
    */
   static initializeSummaryListeners() {
     // Clean up existing listeners and observers first
-    this.cleanup();
+    // this.cleanup();
 
     const raceDropdown = document.querySelector('#race-dropdown');
     const classDropdown = document.querySelector('#class-dropdown');
     const backgroundDropdown = document.querySelector('#background-dropdown');
     const equipmentContainer = document.querySelector('#equipment-container');
-    const abilityBlocks = document.querySelectorAll('.ability-block');
-    const proseMirror = document.querySelector('prose-mirror[name="backstory"]');
     const rollMethodSelect = document.querySelector('#roll-method');
 
     this.initializePortrait();
@@ -311,7 +309,6 @@ export class SummaryManager {
 
     if (raceDropdown) {
       raceDropdown._summaryChangeHandler = (event) => {
-        HM.log(3, 'Race dropdown changed:', event.target.value);
         this.updateClassRaceSummary();
         this._debouncedEquipmentUpdate();
       };
@@ -320,7 +317,6 @@ export class SummaryManager {
 
     if (classDropdown) {
       classDropdown._summaryChangeHandler = (event) => {
-        HM.log(3, 'Class dropdown changed:', event.target.value);
         this.updateClassRaceSummary();
         this._debouncedEquipmentUpdate();
       };
@@ -329,7 +325,6 @@ export class SummaryManager {
 
     if (backgroundDropdown) {
       backgroundDropdown._summaryChangeHandler = (event) => {
-        HM.log(3, 'Background dropdown changed:', event.target.value);
         this.updateBackgroundSummary();
         this._debouncedEquipmentUpdate();
       };

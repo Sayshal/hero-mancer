@@ -86,7 +86,6 @@ export class EquipmentParser {
     this.backgroundId = HM.SELECTED.background.id;
     this.backgroundUUID = HM.SELECTED.background.uuid;
     this.proficiencies = new Set();
-    EquipmentParser.preloadCompendiumIndices();
   }
 
   /* -------------------------------------------- */
@@ -2219,19 +2218,6 @@ export class EquipmentParser {
     const racePacks = (await game.settings.get(HM.ID, 'racePacks')) || [];
 
     return [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
-  }
-
-  /**
-   * Initializes the content cache by loading indices from all Item-type compendium packs
-   * @static
-   * @async
-   * @throws {Error} If pack index loading fails
-   */
-  static async preloadCompendiumIndices() {
-    const selectedPacks = await this.getSelectedPacks();
-    const packs = selectedPacks.map((id) => game.packs.get(id)).filter((p) => p?.documentName === 'Item');
-    await Promise.all(packs.map((p) => p.getIndex({ fields: ['system.contents', 'uuid'] })));
-    HM.log(3, `EquipmentParser cache initialized with ${this.contentCache.size} entries`);
   }
 
   /**

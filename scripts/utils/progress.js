@@ -23,14 +23,7 @@ export class ProgressBar {
       const [filledCount, totalFields, unfilledFields, filledFields] = this.#calculateCompletionFromForm(form);
       const percentage = (filledCount / totalFields) * 100;
 
-      HM.log(3, `Progress Update: ${filledCount}/${totalFields} fields filled (${percentage.toFixed(2)}%)`);
-
-      if (unfilledFields.length > 0) {
-        HM.log(3, 'Unfilled fields:', unfilledFields);
-      }
-      if (filledFields.length > 0) {
-        HM.log(3, 'Filled fields:', filledFields);
-      }
+      HM.log(3, `Progress Update: ${filledCount}/${totalFields} fields filled (${percentage.toFixed(2)}%)`, { Filled: filledFields, Empty: unfilledFields });
 
       // Batch DOM updates
       requestAnimationFrame(() => {
@@ -138,15 +131,6 @@ export class ProgressBar {
         } else if (input.type === 'select-one') {
           isFilled = Boolean(input.value);
         }
-
-        // Log equipment field state
-        HM.log(3, 'Equipment field status:', {
-          name: input.name,
-          type: input.type,
-          value: input.value,
-          checked: input.checked,
-          isFilled: isFilled
-        });
 
         if (isFilled) {
           filledCount++;

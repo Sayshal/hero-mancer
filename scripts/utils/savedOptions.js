@@ -30,9 +30,11 @@ export class SavedOptions {
    * @static
    */
   static async loadOptions() {
-    HM.log(3, 'Loading saved options');
     const data = await game.user.getFlag(HM.ID, this.FLAG);
-    HM.log(3, 'Loaded flag data:', data);
+    if (data) {
+      HM.log(3, `Loaded saved data for ${game.user.name}:`, data);
+    }
+
     return data || {};
   }
 
@@ -51,9 +53,14 @@ export class SavedOptions {
       if (!formElement) return true;
 
       // Reset all form elements
-      formElement.querySelectorAll('select, input').forEach((elem) => {
+      // Reset all form elements
+      formElement.querySelectorAll('select, input, color-picker').forEach((elem) => {
+        HM.log(1, elem);
         if (elem.type === 'checkbox') {
           elem.checked = false;
+        } else if (elem.tagName.toLowerCase() === 'color-picker' || elem.type === 'color') {
+          // Set color-picker element to a valid default color
+          elem.value = '#000000'; // Black
         } else {
           elem.value = '';
         }

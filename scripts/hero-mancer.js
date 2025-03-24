@@ -177,7 +177,7 @@ Hooks.once('ready', async () => {
   CustomCompendiums.backgroundPacks = game.settings.get(HM.ID, 'backgroundPacks');
   CustomCompendiums.itemPacks = game.settings.get(HM.ID, 'itemPacks');
 
-  HM.log(3, {
+  HM.log(3, 'Custom Compendiums Loaded:', {
     class: CustomCompendiums.classPacks,
     race: CustomCompendiums.racePacks,
     background: CustomCompendiums.backgroundPacks,

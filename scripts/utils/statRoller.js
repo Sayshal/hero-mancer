@@ -375,6 +375,8 @@ export class StatRoller {
     // Select first allowed method if current isn't valid
     if (!diceRollingMethod || !validMethods.includes(diceRollingMethod)) {
       diceRollingMethod = validMethods[0];
+      game.settings.set(HM.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => HM.log(1, 'Failed to update diceRollingMethod setting:', err));
+
       HM.log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
     }
 
@@ -392,10 +394,8 @@ export class StatRoller {
     const extraAbilities = abilitiesCount > 6 ? abilitiesCount - 6 : 0;
     const { MIN, MAX } = HM.ABILITY_SCORES;
 
-    // Use provided method or get it if not provided
-    const method = diceRollingMethod || this.getDiceRollingMethod();
-
-    if (method === 'standardArray') {
+    // Only use the provided method, don't call getDiceRollingMethod again
+    if (diceRollingMethod === 'standardArray') {
       const customArray = game.settings.get(HM.ID, 'customStandardArray');
       if (customArray) {
         const parsedArray = customArray.split(',').map(Number);

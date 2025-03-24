@@ -146,11 +146,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _preparePartContext(partId, context) {
-    const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
-    HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
-
-    // Get dice rolling method
-    const diceRollMethod = StatRoller.getDiceRollingMethod();
+    let abilitiesCount, diceRollMethod;
     try {
       // Set tab data for all parts that have a tab
       if (context.tabs?.[partId]) {
@@ -165,6 +161,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.isGM = game.user.isGM;
           break;
         case 'abilities':
+          abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
+          diceRollMethod = StatRoller.getDiceRollingMethod();
+          HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
           context.abilities = StatRoller.buildAbilitiesContext();
           context.rollStat = this.rollStat;
           context.rollMethods = StatRoller.getRollMethods();
@@ -298,16 +297,15 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       this.#isRendering = true;
 
-      // Clean up existing listeners
-      await HeroMancer.cleanupEventListeners(this);
+      // Clean up existing event listeners
       EventDispatcher.clearAll();
 
-      // Initialize dropdowns
+      // Initialize dropdowns first with DropdownHandler
       ['class', 'race', 'background'].forEach((type) => {
         DropdownHandler.initializeDropdown({ type, html: this.element, context });
       });
 
-      // Initialize listeners that need refreshing on each render
+      // Initialize other listeners - our modified selectionListeners will integrate with existing handlers
       Listeners.initializeListeners(this.element, context, HeroMancer.selectedAbilities);
       await MandatoryFields.checkMandatoryFields(this.element);
       Listeners.initializeFormValidationListeners(this.element);
