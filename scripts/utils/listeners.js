@@ -168,6 +168,7 @@ export class Listeners {
 
         // Call SummaryManager to update abilities highlighting
         SummaryManager.updateAbilitiesSummary();
+        SummaryManager.updateClassRaceSummary();
 
         // Update equipment only if not in ELKAN mode
         if (!HM.COMPAT.ELKAN) {

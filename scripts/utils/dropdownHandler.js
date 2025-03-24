@@ -275,9 +275,13 @@ export class DropdownHandler {
       await this.updateDescription(type, id, context);
 
       // Explicitly trigger summary updates
+      // For race or class, ALWAYS update the class-race summary
       if (type === 'race' || type === 'class') {
         SummaryManager.updateClassRaceSummary();
-      } else if (type === 'background') {
+      }
+
+      // For background, update background summary
+      if (type === 'background') {
         SummaryManager.updateBackgroundSummary();
         SummaryManager.processBackgroundSelectionChange(HM.SELECTED.background);
       }

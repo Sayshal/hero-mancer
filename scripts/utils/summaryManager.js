@@ -476,10 +476,10 @@ export class SummaryManager {
 
     if (!summary || !backgroundSelect) return;
 
-    const selectedOption = backgroundSelect.options[backgroundSelect.selectedIndex];
+    const selectedOption = backgroundSelect.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
 
     // Handle default/no selection case
-    if (!selectedOption?.value || selectedOption.value === '') {
+    if (!selectedOption?.value) {
       const article = game.i18n.localize('hm.app.equipment.article-plural');
       summary.innerHTML = game.i18n.format('hm.app.finalize.summary.background', {
         article: article,
@@ -488,17 +488,20 @@ export class SummaryManager {
       return;
     }
 
-    const [itemId, packId] = selectedOption.value.split(' (');
-    if (!itemId || !packId) return;
+    // Make sure we have the UUID
+    if (!HM.SELECTED.background?.uuid) {
+      return;
+    }
 
-    const uuid = HM.SELECTED.background.uuid;
     const backgroundName = selectedOption.text;
     const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
 
     const content = game.i18n.format('hm.app.finalize.summary.background', {
       article: article,
-      background: `@UUID[${uuid}]{${backgroundName}}`
+      background: `@UUID[${HM.SELECTED.background.uuid}]`
     });
+
+    HM.log(1, `DEBUG: Updating background summary with: ${content}`);
     summary.innerHTML = await TextEditor.enrichHTML(content);
   }
 
@@ -512,20 +515,17 @@ export class SummaryManager {
     const classSelect = document.querySelector('#class-dropdown');
     const summary = document.querySelector('.class-race-summary');
 
-    if (!summary || !raceSelect || !classSelect) return;
+    if (!summary) return;
 
     // Get race details
     let raceLink = game.i18n.format('hm.unknown', { type: 'race' });
     if (HM.SELECTED.race?.uuid) {
-      // Get the race name directly from the dropdown if possible
-      const selectedRaceOption = raceSelect.selectedIndex > 0 ? raceSelect.options[raceSelect.selectedIndex] : null;
-
-      // If dropdown selection doesn't match stored UUID, try to find matching option
+      const selectedRaceOption = raceSelect?.selectedIndex > 0 ? raceSelect.options[raceSelect.selectedIndex] : null;
       let raceName;
       if (selectedRaceOption) {
         raceName = selectedRaceOption.text;
-      } else {
-        // Look for option that contains the UUID
+      } else if (raceSelect) {
+        // Find matching option
         for (let i = 0; i < raceSelect.options.length; i++) {
           if (raceSelect.options[i].value.includes(HM.SELECTED.race.uuid)) {
             raceName = raceSelect.options[i].text;
@@ -534,19 +534,19 @@ export class SummaryManager {
         }
       }
 
-      // If we found a name, create the link
       if (raceName) {
-        raceLink = `@UUID[${HM.SELECTED.race.uuid}]{${raceName}}`;
+        raceLink = `@UUID[${HM.SELECTED.race.uuid}]`;
       }
     }
 
     // Similar process for class
     let classLink = game.i18n.format('hm.unknown', { type: 'class' });
     if (HM.SELECTED.class?.uuid) {
-      const className = classSelect.selectedIndex > 0 ? classSelect.options[classSelect.selectedIndex].text : 'unknown class';
-      classLink = `@UUID[${HM.SELECTED.class.uuid}]{${className}}`;
+      const className = classSelect?.selectedIndex > 0 ? classSelect.options[classSelect.selectedIndex].text : 'unknown class';
+      classLink = `@UUID[${HM.SELECTED.class.uuid}]`;
     }
 
+    // Always update summary, even with partial data
     const content = game.i18n.format('hm.app.finalize.summary.classRace', {
       race: raceLink,
       class: classLink
