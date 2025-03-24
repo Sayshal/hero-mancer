@@ -91,9 +91,9 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Retrieves all configurable form fields organized by category
-   * @returns {Promise<object>} Object containing categorized form fields
+   * @returns {object} Object containing categorized form fields
    */
-  async getAllFormFields() {
+  getAllFormFields() {
     const abilityFields = Object.entries(CONFIG.DND5E.abilities).map(([key, ability]) => ({
       key: `abilities[${key}]`,
       label: game.i18n.format('DND5E.ABILITY.SECTIONS.Score', { ability: ability.label }),
@@ -165,11 +165,11 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * Processes form submission for mandatory field settings
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} form - The form element
-   * @param {FormDataExtended} formData - The processed form data
+   * @param {FormDataExtended} _formData - The processed form data
    * @returns {Promise<void>}
    * @static
    */
-  static async formHandler(_event, form, formData) {
+  static async formHandler(_event, form, _formData) {
     try {
       const checkboxes = form.querySelectorAll('input[type="checkbox"]');
       const mandatoryFields = Array.from(checkboxes)
@@ -200,88 +200,61 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
     if (!submitButton || !mandatoryFields.length) return true;
 
-    // Collect all DOM updates
-    const mandatoryIndicatorUpdates = [];
-    const fieldCompletionUpdates = [];
-
-    // First pass: collect all field elements and mark as mandatory
-    const fieldElements = new Map();
-    mandatoryFields.forEach((field) => {
-      const element = form.querySelector(`[name="${field}"]`);
-      if (!element) return;
-
-      fieldElements.set(field, element);
-
-      // Add mandatory class if not already present
-      if (!element.classList.contains('mandatory-field')) {
-        mandatoryIndicatorUpdates.push(() => element.classList.add('mandatory-field'));
-      }
-
-      // Setup indicator on label
-      if (field.startsWith('abilities[')) {
-        const abilityBlock = element.closest('.ability-block');
-        const label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
-        if (label) {
-          mandatoryIndicatorUpdates.push(() => FormValidation.addIndicator(label, false));
-        }
-      } else {
-        const label = FormValidation.findAssociatedLabel(element);
-        if (label) {
-          mandatoryIndicatorUpdates.push(() => FormValidation.addIndicator(label, false));
-        }
-      }
-    });
-
-    // Apply initial mandatory field marking
-    if (mandatoryIndicatorUpdates.length > 0) {
-      requestAnimationFrame(() => {
-        mandatoryIndicatorUpdates.forEach((update) => update());
-      });
-    }
-
-    // Second pass: check field completion status
+    // Track missing fields for validation result
     const missingFields = [];
-    fieldElements.forEach((element, field) => {
-      let isComplete = false;
 
-      if (field.startsWith('abilities[')) {
-        const abilityBlock = element.closest('.ability-block');
-        isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
+    // Create a promise that resolves after UI updates
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        // Process all mandatory fields in one pass
+        mandatoryFields.forEach((field) => {
+          const element = form.querySelector(`[name="${field}"]`);
+          if (!element) return;
 
-        const label = abilityBlock.querySelector('.ability-label') || abilityBlock.querySelector('label');
-        if (label) {
-          fieldCompletionUpdates.push(() => FormValidation.addIndicator(label, isComplete));
-        }
-      } else {
-        isComplete = FormValidation.isFieldComplete(element);
-        const label = FormValidation.findAssociatedLabel(element);
-        if (label) {
-          fieldCompletionUpdates.push(() => FormValidation.addIndicator(label, isComplete));
-        }
-      }
+          // Add mandatory class if not already present
+          if (!element.classList.contains('mandatory-field')) {
+            element.classList.add('mandatory-field');
+          }
 
-      fieldCompletionUpdates.push(() => element.classList.toggle('complete', isComplete));
+          // Determine field completion status
+          let isComplete = false;
+          let label = null;
 
-      if (!isComplete) {
-        missingFields.push(field);
-      }
-    });
+          if (field.startsWith('abilities[')) {
+            const abilityBlock = element.closest('.ability-block');
+            label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
+            isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
+          } else {
+            isComplete = FormValidation.isFieldComplete(element);
+            label = FormValidation.findAssociatedLabel(element);
+          }
 
-    // Apply all field completion updates at once
-    requestAnimationFrame(() => {
-      fieldCompletionUpdates.forEach((update) => update());
+          // Update UI to reflect completion status
+          if (label) {
+            FormValidation.addIndicator(label, isComplete);
+          }
 
-      // Update submit button state
-      const isValid = missingFields.length === 0;
-      submitButton.disabled = !isValid;
+          element.classList.toggle('complete', isComplete);
 
-      if (!isValid) {
-        submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', {
-          fields: missingFields.join(', ')
+          // Track missing fields
+          if (!isComplete) {
+            missingFields.push(field);
+          }
         });
-      } else {
-        submitButton.title = game.i18n.localize('hm.app.save-description');
-      }
+
+        // Update submit button state
+        const isValid = missingFields.length === 0;
+        submitButton.disabled = !isValid;
+
+        if (!isValid) {
+          submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', {
+            fields: missingFields.join(', ')
+          });
+        }
+
+        // Resolve the promise after UI updates
+        resolve();
+      });
     });
 
     return missingFields.length === 0;

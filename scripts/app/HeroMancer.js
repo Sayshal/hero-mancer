@@ -100,13 +100,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Prepares the main context data for the character creation application
    * Initializes abilities, processes compatibility settings, and prepares all tab data
-   * @async
    * @param {object} options - Application render options
-   * @returns {Promise<object>} Complete context for character creation rendering
+   * @returns {object} Complete context for character creation rendering
    * @protected
    * @override
    */
-  async _prepareContext(options) {
+  _prepareContext(options) {
     if (!HM.documents.race || !HM.documents.class || !HM.documents.background) {
       ui.notifications.info('hm.actortab-button.loading', { localize: true });
     }
@@ -261,12 +260,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Actions performed after the first render of the Application.
-   * @param {ApplicationRenderContext} context Prepared context data
-   * @param {RenderOptions} options Provided render options
+   * @param {ApplicationRenderContext} _context Prepared context data
+   * @param {RenderOptions} _options Provided render options
+   * @returns {void}
    * @protected
    * @override
    */
-  _onFirstRender(context, options) {
+  _onFirstRender(_context, _options) {
     // Setup player dropdown - only needs to happen once
     if (game.user.isGM) {
       const playerElement = this.element?.querySelector('#player-assignment');
@@ -289,6 +289,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * Actions performed after any render of the Application.
    * @param {ApplicationRenderContext} context Prepared context data
    * @param {RenderOptions} _options Provided render options
+   * @returns {void}
    * @protected
    * @override
    */
@@ -333,7 +334,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Actions to perform when the application is closed
    * Cleans up resources and references
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Returns true to allow the application to close
    * @protected
    * @override
    */
@@ -448,7 +449,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Cleans up all event handlers and observers when a HeroMancer instance is closed
    * @param {object} instance The HeroMancer instance being closed
-   * @returns {Promise<void>}
+   * @returns {void}
    * @static
    */
   static cleanupEventListeners(instance) {

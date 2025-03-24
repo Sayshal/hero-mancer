@@ -78,7 +78,9 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    * Sets up event listeners for the roll delay slider
    * @param {object} _context - The rendered context data
    * @param {object} _options - The render options
+   * @returns {void}
    * @protected
+   * @override
    */
   _onRender(_context, _options) {
     const html = this.element;
