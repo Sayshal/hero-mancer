@@ -39,6 +39,9 @@ export { Listeners, MutationObserverRegistry } from './listeners.js';
 /** Handles mandatory fields settings */
 export { MandatoryFields } from '../app/MandatoryFields.js';
 
+/** Fantasy Name Generator */
+export { NameGenerator } from './nameGenerator.js';
+
 /** Handles header progress bar in Hero Mancer */
 export { ProgressBar } from './progress.js';
 

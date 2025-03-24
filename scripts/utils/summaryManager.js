@@ -295,9 +295,22 @@ export class SummaryManager {
     const backgroundDropdown = document.querySelector('#background-dropdown');
     const equipmentContainer = document.querySelector('#equipment-container');
     const rollMethodSelect = document.querySelector('#roll-method');
+    const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
 
     this.initializePortrait();
     this.initializeRollButtons();
+
+    // Perform initial summary updates if HM.SELECTED has data
+    requestAnimationFrame(() => {
+      if (HM.SELECTED.race?.uuid || HM.SELECTED.class?.uuid) {
+        this.updateClassRaceSummary();
+      }
+      if (HM.SELECTED.background?.uuid) {
+        this.updateBackgroundSummary();
+      }
+      this.updateAbilitiesSummary();
+      this.updateEquipmentSummary();
+    });
 
     HM.log(3, 'Found dropdowns:', { race: raceDropdown, class: classDropdown, background: backgroundDropdown });
 
@@ -315,6 +328,7 @@ export class SummaryManager {
     if (classDropdown) {
       classDropdown._summaryChangeHandler = (event) => {
         this.updateClassRaceSummary();
+        this.updateAbilitiesSummary(); // Update abilities when class changes
         this._debouncedEquipmentUpdate();
       };
       classDropdown.addEventListener('change', classDropdown._summaryChangeHandler);
@@ -330,13 +344,19 @@ export class SummaryManager {
 
     if (rollMethodSelect) {
       rollMethodSelect._summaryChangeHandler = (event) => {
-        HM.log(3, 'Roll method changed:', event.target.value);
+        HM.log(1, `Roll method changed to: ${event.target.value}`);
+        // Wait for DOM updates before refreshing listeners
         requestAnimationFrame(() => {
+          // Re-attach listeners to any new ability dropdowns after roll method change
+          this.initializeAbilityDropdownListeners();
           this.updateAbilitiesSummary();
         });
       };
       rollMethodSelect.addEventListener('change', rollMethodSelect._summaryChangeHandler);
     }
+
+    // Initialize ability dropdown listeners
+    this.initializeAbilityDropdownListeners();
 
     if (equipmentContainer) {
       MutationObserverRegistry.register('summary-equipment', equipmentContainer, { childList: true, subtree: true, attributes: true }, (mutations) => {
@@ -374,6 +394,59 @@ export class SummaryManager {
         }
       });
     }
+
+    if (abilitiesTab) {
+      MutationObserverRegistry.register('summary-abilities-tab', abilitiesTab, { childList: true, subtree: true }, (mutations) => {
+        for (const mutation of mutations) {
+          if (mutation.addedNodes.length) {
+            // If new ability blocks were added, re-initialize listeners
+            this.initializeAbilityDropdownListeners();
+            this.updateAbilitiesSummary();
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * Attaches listeners to ability dropdown elements
+   * @static
+   */
+  static initializeAbilityDropdownListeners() {
+    const abilityDropdowns = document.querySelectorAll('.ability-dropdown');
+    const abilityScores = document.querySelectorAll('.ability-score');
+
+    HM.log(1, `Setting up ${abilityDropdowns.length} ability dropdown listeners`);
+
+    // Attach dropdown listeners
+    abilityDropdowns.forEach((dropdown) => {
+      if (dropdown._summaryUpdateHandler) {
+        dropdown.removeEventListener('change', dropdown._summaryUpdateHandler);
+      }
+
+      dropdown._summaryUpdateHandler = () => {
+        HM.log(1, `Ability dropdown changed: ${dropdown.value}`);
+        this.updateAbilitiesSummary();
+      };
+
+      dropdown.addEventListener('change', dropdown._summaryUpdateHandler);
+    });
+
+    // Attach score input listeners
+    abilityScores.forEach((input) => {
+      if (input._summaryUpdateHandler) {
+        input.removeEventListener('change', input._summaryUpdateHandler);
+        input.removeEventListener('input', input._summaryUpdateHandler);
+      }
+
+      input._summaryUpdateHandler = () => {
+        HM.log(1, `Ability score changed: ${input.value}`);
+        this.updateAbilitiesSummary();
+      };
+
+      input.addEventListener('change', input._summaryUpdateHandler);
+      input.addEventListener('input', input._summaryUpdateHandler);
+    });
   }
 
   /**
@@ -613,54 +686,70 @@ export class SummaryManager {
     const abilityBlocks = document.querySelectorAll('.ability-block');
     const abilityScores = {};
     const rollMethodSelect = document.getElementById('roll-method');
-    const rollMethod = rollMethodSelect ? rollMethodSelect.value : 'standardArray'; // Default to standardArray if not found
+    const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
+    const rollMethod = abilitiesTab?.dataset.currentMethod || rollMethodSelect?.value || 'standardArray';
+
+    HM.log(1, `DEBUG: Starting ability summary update - roll method: ${rollMethod}`);
+    HM.log(1, `DEBUG: HM.SELECTED class: ${JSON.stringify(HM.SELECTED?.class || 'none')}`);
 
     // First, remove any existing highlights
-    document.querySelectorAll('.primary-ability').forEach((el) => {
+    const previousHighlights = document.querySelectorAll('.primary-ability');
+    HM.log(1, `DEBUG: Removing ${previousHighlights.length} existing highlights`);
+    previousHighlights.forEach((el) => {
       el.classList.remove('primary-ability');
+      el.removeAttribute('data-tooltip');
     });
 
     // Get the primary abilities from the class item
     const primaryAbilities = new Set();
     try {
-      const classUUID = HM.SELECTED.class.uuid;
+      const classUUID = HM.SELECTED.class?.uuid;
       if (classUUID) {
+        HM.log(1, `DEBUG: Fetching class with UUID: ${classUUID}`);
         const classItem = fromUuidSync(classUUID);
 
-        // Get primary ability
-        if (classItem?.system?.primaryAbility?.value?.length) {
-          for (const ability of classItem.system.primaryAbility.value) {
-            primaryAbilities.add(ability.toLowerCase());
+        if (!classItem) {
+          HM.log(1, `DEBUG: Failed to fetch class with UUID: ${classUUID}`);
+        } else {
+          HM.log(1, `DEBUG: Found class: ${classItem.name}`);
+
+          // Get primary ability
+          if (classItem?.system?.primaryAbility?.value?.length) {
+            for (const ability of classItem.system.primaryAbility.value) {
+              primaryAbilities.add(ability.toLowerCase());
+            }
           }
-        }
 
-        // Get spellcasting ability
-        if (classItem?.system?.spellcasting?.ability) {
-          primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
-        }
+          // Get spellcasting ability
+          if (classItem?.system?.spellcasting?.ability) {
+            primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
+          }
 
-        // Get saving throw proficiencies from level 1 traits
-        if (classItem?.advancement?.byType?.Trait) {
-          const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
+          // Get saving throw proficiencies
+          if (classItem?.advancement?.byType?.Trait) {
+            const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
 
-          for (const trait of level1Traits) {
-            const grants = trait.configuration.grants;
-            for (const grant of grants) {
-              if (grant.startsWith('saves:')) {
-                primaryAbilities.add(grant.split(':')[1].toLowerCase());
+            for (const trait of level1Traits) {
+              const grants = trait.configuration.grants;
+              for (const grant of grants) {
+                if (grant.startsWith('saves:')) {
+                  primaryAbilities.add(grant.split(':')[1].toLowerCase());
+                }
               }
             }
           }
         }
 
-        HM.log(3, 'Primary abilities for class:', Array.from(primaryAbilities));
+        HM.log(1, `DEBUG: Primary abilities identified: ${Array.from(primaryAbilities).join(', ')}`);
+      } else {
+        HM.log(1, "DEBUG: No class UUID found, can't determine primary abilities");
       }
     } catch (error) {
-      HM.log(1, 'Error fetching class abilities:', error);
+      HM.log(1, `DEBUG: Error fetching class abilities: ${error.message}`);
     }
 
     // Process each ability block
-    abilityBlocks.forEach((block) => {
+    abilityBlocks.forEach((block, index) => {
       let score = 0;
       let abilityKey = '';
 
@@ -674,6 +763,7 @@ export class SummaryManager {
           }
         }
         score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
+        HM.log(1, `DEBUG: PointBuy block ${index}: abilityKey='${abilityKey}', score=${score}`);
       } else if (rollMethod === 'standardArray') {
         const dropdown = block.querySelector('.ability-dropdown');
         if (dropdown) {
@@ -683,21 +773,28 @@ export class SummaryManager {
             abilityKey = nameMatch[1].toLowerCase();
           }
           score = parseInt(dropdown.value) || 0;
+          HM.log(1, `DEBUG: StandardArray block ${index}: abilityKey='${abilityKey}', score=${score}`);
         }
       } else if (rollMethod === 'manualFormula') {
         const dropdown = block.querySelector('.ability-dropdown');
-        if (dropdown && dropdown.value) {
-          abilityKey = dropdown.value.toLowerCase();
+        if (dropdown) {
+          // Use dropdown value for highlighting regardless of score value
+          abilityKey = dropdown.value?.toLowerCase() || '';
+          // We still get score for summary calculations
+          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
+          HM.log(1, `DEBUG: Manual block ${index}: dropdown value='${dropdown.value}', abilityKey='${abilityKey}', score=${score}`);
+        } else {
+          HM.log(1, `DEBUG: Manual block ${index}: dropdown not found`);
         }
-        score = parseInt(block.querySelector('.ability-score')?.value) || 0;
       }
 
       // Apply highlighting if this is a primary ability
       if (abilityKey && primaryAbilities.has(abilityKey)) {
-        HM.log(3, `Highlighting ${rollMethod} ability: ${abilityKey} in block:`, block.id);
-        const classUUID = HM.SELECTED.class.uuid;
+        HM.log(1, `DEBUG: Will highlight ability: ${abilityKey} in block ${index} (${rollMethod} mode)`);
+        const classUUID = HM.SELECTED.class?.uuid;
         const classItem = classUUID ? fromUuidSync(classUUID) : null;
         const className = classItem?.name || game.i18n.localize('hm.app.abilities.your-class');
+
         // For standardArray and pointBuy, highlight the label
         const label = block.querySelector('.ability-label');
         if (label) {
@@ -709,6 +806,7 @@ export class SummaryManager {
             class: className
           });
           label.setAttribute('data-tooltip', tooltipText);
+          HM.log(1, `DEBUG: Added highlight to label for ${abilityKey}`);
         }
 
         // For standardArray, also highlight the dropdown
@@ -716,16 +814,29 @@ export class SummaryManager {
           const dropdown = block.querySelector('.ability-dropdown');
           if (dropdown) {
             dropdown.classList.add('primary-ability');
+            HM.log(1, `DEBUG: Added highlight to standardArray dropdown for ${abilityKey}`);
           }
         }
 
-        // For manualFormula, highlight the dropdown only if it matches a primary ability
+        // For manualFormula, always highlight the dropdown if the ability matches
         if (rollMethod === 'manualFormula') {
           const dropdown = block.querySelector('.ability-dropdown');
-          if (dropdown && dropdown.value && primaryAbilities.has(dropdown.value.toLowerCase())) {
+          if (dropdown) {
             dropdown.classList.add('primary-ability');
+            // Add tooltip to dropdown for better visibility
+            const abilityName = CONFIG.DND5E.abilities[abilityKey]?.label || abilityKey.toUpperCase();
+            const tooltipText = game.i18n.format('hm.app.abilities.primary-tooltip', {
+              ability: abilityName,
+              class: className
+            });
+            dropdown.setAttribute('data-tooltip', tooltipText);
+            HM.log(1, `DEBUG: Added highlight to manualFormula dropdown for ${abilityKey}`);
           }
         }
+      } else if (abilityKey) {
+        HM.log(1, `DEBUG: No highlight for ability: ${abilityKey} (not in primary set: ${Array.from(primaryAbilities).join(', ')})`);
+      } else {
+        HM.log(1, `DEBUG: No ability key found for block ${index}`);
       }
 
       // Store score for summary calculations
@@ -749,6 +860,8 @@ export class SummaryManager {
       })
       .map(([ability]) => ability.toLowerCase());
 
+    HM.log(1, `DEBUG: Sorted abilities for summary: ${sortedAbilities.join(', ')}`);
+
     // Select the top 2 abilities
     const selectedAbilities = [];
     for (const ability of sortedAbilities) {
@@ -766,6 +879,8 @@ export class SummaryManager {
       }
     }
 
+    HM.log(1, `DEBUG: Selected abilities for summary: ${selectedAbilities.join(', ')}`);
+
     // Update the summary HTML
     const abilitiesSummary = document.querySelector('.abilities-summary');
     if (abilitiesSummary && selectedAbilities.length >= 2) {
@@ -774,8 +889,12 @@ export class SummaryManager {
         second: `&Reference[${selectedAbilities[1]}]`
       });
       abilitiesSummary.innerHTML = await TextEditor.enrichHTML(content);
+      HM.log(1, `DEBUG: Updated abilities summary with ${selectedAbilities[0]} and ${selectedAbilities[1]}`);
     } else if (abilitiesSummary) {
       abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
+      HM.log(1, 'DEBUG: Set default abilities summary (not enough abilities)');
+    } else {
+      HM.log(1, 'DEBUG: Abilities summary element not found');
     }
   }
 

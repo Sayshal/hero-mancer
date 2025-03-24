@@ -172,7 +172,8 @@
         "token-art-placeholder": "Choose token art for your character",
         "token-same-as-character": "Use same image for token?",
         "token-visibility-placeholder": "Choose display status",
-        "tooltip": "Start your character creation"
+        "tooltip": "Start your character creation",
+        "generate-random-name": "Generate random name"
       },
       "submit": "Submit",
       "submit-description": "Submit your Hero Mancer",

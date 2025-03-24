@@ -270,7 +270,17 @@ export class DropdownHandler {
 
       HM.log(3, { value: value, id: id, uuid: validUuid });
       HM.SELECTED[type] = { value, id, uuid: validUuid };
+
+      // Ensure SELECTED data is updated before firing description updates
       await this.updateDescription(type, id, context);
+
+      // Explicitly trigger summary updates
+      if (type === 'race' || type === 'class') {
+        SummaryManager.updateClassRaceSummary();
+      } else if (type === 'background') {
+        SummaryManager.updateBackgroundSummary();
+        SummaryManager.processBackgroundSelectionChange(HM.SELECTED.background);
+      }
     } catch (error) {
       HM.log(1, `Error handling dropdown change for ${type}:`, error);
 

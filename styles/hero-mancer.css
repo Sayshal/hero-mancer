@@ -315,6 +315,11 @@ h6 {
   flex: 0 0 auto;
   width: auto;
   white-space: nowrap;
+  height: 32px;
+}
+
+button {
+  margin-right: unset;
 }
 
 /* Fieldset styling */

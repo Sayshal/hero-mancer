@@ -9,6 +9,7 @@ import {
   Listeners,
   MandatoryFields,
   MutationObserverRegistry,
+  NameGenerator,
   ProgressBar,
   SavedOptions,
   StatRoller,
@@ -42,7 +43,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       selectTokenArt: CharacterArtPicker.selectTokenArt,
       selectPlayerAvatar: CharacterArtPicker.selectPlayerAvatar,
       resetOptions: HeroMancer.resetOptions,
-      nosubmit: HeroMancer.noSubmit
+      nosubmit: HeroMancer.noSubmit,
+      randomizeCharacterName: HeroMancer.randomizeCharacterName
     },
     classes: ['hm-app'],
     position: {
@@ -592,6 +594,18 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       HM.log(3, 'Closing HeroMancer application via noSubmit.');
       await HM.heroMancer.close(options);
     }
+  }
+
+  /**
+   * Handle randomizing the character name
+   */
+  static randomizeCharacterName(event) {
+    event.preventDefault();
+    const nameInput = document.getElementById('character-name');
+
+    // Set the random name
+    nameInput.value = NameGenerator.randomFantasyName();
+    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   /**

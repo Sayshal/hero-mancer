@@ -53,9 +53,7 @@ export class SavedOptions {
       if (!formElement) return true;
 
       // Reset all form elements
-      // Reset all form elements
       formElement.querySelectorAll('select, input, color-picker').forEach((elem) => {
-        HM.log(1, elem);
         if (elem.type === 'checkbox') {
           elem.checked = false;
         } else if (elem.tagName.toLowerCase() === 'color-picker' || elem.type === 'color') {

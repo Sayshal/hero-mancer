@@ -9,11 +9,14 @@
     <p>{{localize 'hm.app.start.preamble.conclusion'}}</p>
     <hr />
 
-    <div class="form-row flex items-center gap-sm mb-sm">
+    <div class="customization-row flex items-center gap-sm mb-sm" id="character-name-row">
       <label for="character-name" class="label-15">{{localize 'hm.app.start.name-label'}}</label>
-      <input id="character-name" type="text" name="name" class="input-35 form-input" data-dtype="String"
-        data-type="character-name" placeholder="{{localize 'hm.app.start.name-placeholder'}}"
-        aria-label="{{localize 'hm.app.start.name-label'}}" />
+      <input id="character-name" type="text" name="character-name" class="name-input input-35 form-input"
+        placeholder="{{localize 'hm.app.start.name-placeholder'}}" />
+      <button data-action="randomizeCharacterName" type="button" class="select-button button-7"
+        data-tooltip="{{localize 'hm.app.start.generate-random-name'}}">
+        <i class="fa-solid fa-shuffle"></i>
+      </button>
     </div>
     {{#if isGM}}
       <div class="form-row flex items-center gap-sm mb-sm">

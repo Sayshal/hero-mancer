@@ -104,6 +104,36 @@ export class Listeners {
         const currentValues = Array.from(abilityDropdowns).map((dropdown) => dropdown.value);
         DropdownHandler.handleStandardArrayMode(abilityDropdowns, currentValues);
       });
+    } else if (diceRollingMethod === 'manualFormula') {
+      // Add dedicated change handlers for Manual Formula mode dropdowns
+      document.querySelectorAll('.ability-dropdown').forEach((dropdown) => {
+        const scoreInput = dropdown.parentElement.querySelector('.ability-score');
+
+        // Add change handler for ability summary updates
+        if (dropdown._abilitySummaryHandler) {
+          dropdown.removeEventListener('change', dropdown._abilitySummaryHandler);
+        }
+
+        dropdown._abilitySummaryHandler = () => {
+          requestAnimationFrame(() => {
+            SummaryManager.updateAbilitiesSummary();
+          });
+        };
+
+        dropdown.addEventListener('change', dropdown._abilitySummaryHandler);
+
+        // Also add handler for score inputs
+        if (scoreInput && !scoreInput._abilitySummaryHandler) {
+          scoreInput._abilitySummaryHandler = () => {
+            requestAnimationFrame(() => {
+              SummaryManager.updateAbilitiesSummary();
+            });
+          };
+
+          scoreInput.addEventListener('change', scoreInput._abilitySummaryHandler);
+          scoreInput.addEventListener('input', scoreInput._abilitySummaryHandler);
+        }
+      });
     }
   }
 
@@ -412,7 +442,7 @@ export class Listeners {
     if (characterNameInput) {
       // Remove any existing listener to prevent duplicates
       if (characterNameInput._titleUpdateHandler) {
-        characterNameInput.removeEventListener('blur', characterNameInput._titleUpdateHandler);
+        characterNameInput.removeEventListener('input', characterNameInput._titleUpdateHandler);
       }
 
       characterNameInput._titleUpdateHandler = (event) => {
@@ -421,7 +451,7 @@ export class Listeners {
         });
       };
 
-      characterNameInput.addEventListener('blur', characterNameInput._titleUpdateHandler);
+      characterNameInput.addEventListener('input', characterNameInput._titleUpdateHandler);
     }
 
     const classDropdown = document.querySelector('#class-dropdown');
@@ -524,12 +554,19 @@ export class Listeners {
       HM.log(3, `Roll method changed to: ${method}`);
 
       await game.settings.set(HM.ID, 'diceRollingMethod', method);
-
       HeroMancer.selectedAbilities = Array(Object.keys(CONFIG.DND5E.abilities).length).fill(8);
 
       const app = HM.heroMancer;
       if (app) {
-        app.render({ parts: ['abilities'] });
+        // Re-render just the abilities tab
+        await app.render({ parts: ['abilities'] });
+
+        // After re-render, manually force summary update
+        requestAnimationFrame(() => {
+          // Important: Store current method in a data attribute for reference
+          document.querySelector(".tab[data-tab='abilities']").dataset.currentMethod = method;
+          SummaryManager.updateAbilitiesSummary();
+        });
       } else {
         HM.log(1, 'App instance not found for re-render');
       }
