@@ -273,7 +273,7 @@
         "backgrounds-label": "Set Background Compendiums:",
         "class": "Class",
         "classes-label": "Set Class Compendiums:",
-        "description": "Configure your custom compendiums for classes, races, and backgrounds.",
+        "description": "Configure your custom compendiums for classes, races, and backgrounds. If you fail to select any compendiums for any category, all valid compendiums will be loaded as a fallback.",
         "error": "Failed to retrieve documents from compendium pack: {pack}",
         "error-saving": "There was an error saving your compendium settings. Please see console (F12).",
         "form-saved": "Compendium form settings have been saved.",
@@ -293,7 +293,8 @@
         "races-label": "Set Race Compendiums:",
         "saved": "{type} compendium settings have been saved.",
         "select-all": "Select All",
-        "title": "Select your {type} compendiums!"
+        "title": "Select your {type} compendiums!",
+        "all-selected": "No packs selected! All available {type} compendiums have been selected as a fallback."
       },
       "custom-point-buy-total": {
         "hint": "Specify the point buy total if not using standard calculations.",
