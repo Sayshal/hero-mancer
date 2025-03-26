@@ -1,14 +1,12 @@
 import {
   ActorCreationService,
   CharacterArtPicker,
-  DropdownHandler,
+  DOMManager,
   EquipmentParser,
-  EventDispatcher,
   HM,
   HtmlManipulator,
   Listeners,
   MandatoryFields,
-  MutationObserverRegistry,
   NameGenerator,
   ProgressBar,
   SavedOptions,
@@ -269,49 +267,64 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _onFirstRender(_context, _options) {
-    // Setup player dropdown - only needs to happen once
-    if (game.user.isGM) {
-      const playerElement = this.element?.querySelector('#player-assignment');
-      if (playerElement) {
-        playerElement.addEventListener('change', (event) => {
-          const playerId = event.currentTarget.value;
-          const colorPicker = this.element.querySelector('#player-color');
-          if (colorPicker) {
-            colorPicker.value = HeroMancer.ORIGINAL_PLAYER_COLORS.get(playerId);
-          }
-        });
-      }
+    // Initialize all event handlers through the centralized DOMManager
+    DOMManager.initialize(this.element);
+
+    // Initialize empty equipment sections
+    const equipmentContainer = this.element.querySelector('#equipment-container');
+    if (equipmentContainer && !HM.COMPAT.ELKAN) {
+      // Create empty section containers to preserve layout
+      ['class', 'background'].forEach((type) => {
+        const section = document.createElement('div');
+        section.className = `${type}-equipment-section`;
+        equipmentContainer.appendChild(section);
+      });
     }
 
-    // Initialize one-time listeners
-    SummaryManager.initializeSummaryListeners();
+    // Perform initial summaries
+    requestAnimationFrame(() => {
+      if (HM.SELECTED.race?.uuid || HM.SELECTED.class?.uuid) {
+        SummaryManager.updateClassRaceSummary();
+      }
+      if (HM.SELECTED.background?.uuid) {
+        SummaryManager.updateBackgroundSummary();
+      }
+      SummaryManager.updateAbilitiesSummary();
+      SummaryManager.updateEquipmentSummary();
+    });
   }
 
   /**
    * Actions performed after any render of the Application.
-   * @param {ApplicationRenderContext} context Prepared context data
+   * @param {ApplicationRenderContext} _context Prepared context data
    * @param {RenderOptions} _options Provided render options
    * @returns {void}
    * @protected
    * @override
    */
-  async _onRender(context, _options) {
+  async _onRender(_context, _options) {
     if (this.#isRendering) return;
     try {
       this.#isRendering = true;
 
-      // Clean up existing event listeners
-      EventDispatcher.clearAll();
+      // Check if we need to re-init roll method listeners
+      const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
+      if (abilitiesTab) {
+        DOMManager.initializeAbilities(this.element);
+      }
 
-      // Initialize dropdowns first with DropdownHandler
-      ['class', 'race', 'background'].forEach((type) => {
-        DropdownHandler.initializeDropdown({ type, html: this.element, context });
-      });
+      // Re-initialize DOM event handlers after rendering
+      DOMManager.initialize(this.element);
 
-      // Initialize other listeners - our modified selectionListeners will integrate with existing handlers
-      Listeners.initializeListeners(this.element, context, HeroMancer.selectedAbilities);
+      // Check mandatory fields
       await MandatoryFields.checkMandatoryFields(this.element);
-      Listeners.initializeFormValidationListeners(this.element);
+
+      // Restore any saved options
+      await SavedOptions.loadOptions().then((options) => {
+        if (Object.keys(options).length > 0) {
+          Listeners.restoreFormOptions(this.element);
+        }
+      });
     } finally {
       this.#isRendering = false;
     }
@@ -345,9 +358,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     await super._preClose();
     HM.log(3, 'Preparing to close application');
 
-    // Clean up all listeners and observers
-    await HeroMancer.cleanupEventListeners(this);
-    EventDispatcher.clearAll();
+    // Clean up all DOM interactions with a single call
+    DOMManager.cleanup();
 
     return true;
   }
@@ -432,8 +444,29 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     const success = await SavedOptions.resetOptions(form);
 
     if (success) {
+      // First update any summaries
       SummaryManager.updateClassRaceSummary();
-      this.render(true);
+
+      // Re-render the entire application
+      const app = HM.heroMancer;
+      if (app) {
+        await app.render(true);
+
+        // Reinitialize all event handlers after render
+        requestAnimationFrame(() => {
+          DOMManager.initialize(app.element);
+
+          // Force update descriptions for main dropdowns
+          ['class', 'race', 'background'].forEach((type) => {
+            const dropdown = app.element.querySelector(`#${type}-dropdown`);
+            if (dropdown && dropdown.value) {
+              const id = dropdown.value.split(' ')[0];
+              DOMManager.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
+            }
+          });
+        });
+      }
+
       ui.notifications.info('hm.app.optionsReset', { localize: true });
     }
   }
@@ -446,119 +479,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static rollStat(_event, form) {
     StatRoller.rollAbilityScore(form);
-  }
-
-  /**
-   * Cleans up all event handlers and observers when a HeroMancer instance is closed
-   * @param {object} instance The HeroMancer instance being closed
-   * @returns {void}
-   * @static
-   */
-  static cleanupEventListeners(instance) {
-    if (!instance.element) return;
-
-    const html = instance.element;
-    const cleanupIssues = [];
-
-    // Helper function to safely remove event listeners and properties
-    const cleanElement = (element, handlers, name) => {
-      if (!element) return;
-
-      try {
-        handlers.forEach(({ prop, event }) => {
-          if (element[prop]) {
-            if (event) element.removeEventListener(event, element[prop]);
-            element[prop] = null;
-          }
-        });
-      } catch (error) {
-        HM.log(1, `Error cleaning up ${name}:`, error);
-        cleanupIssues.push(name);
-      }
-    };
-
-    // Helper for batch element cleanup
-    const cleanElementSet = (selector, handlers, nameFormatter) => {
-      try {
-        const elements = html.querySelectorAll(selector);
-        elements.forEach((el, i) => cleanElement(el, handlers, nameFormatter(i)));
-      } catch (error) {
-        HM.log(1, `Error cleaning up ${selector}:`, error);
-        cleanupIssues.push(selector);
-      }
-    };
-
-    // Clean dropdowns
-    ['class', 'race', 'background'].forEach((type) => {
-      cleanElement(
-        html.querySelector(`#${type}-dropdown`),
-        [{ prop: '_descriptionUpdateHandler' }, { prop: '_changeHandler', event: 'change' }, { prop: '_equipmentChangeHandler', event: 'change' }, { prop: '_summaryChangeHandler', event: 'change' }],
-        `${type} dropdown`
-      );
-    });
-
-    // Clean ability blocks
-    cleanElementSet('.ability-block', [], (i) => `ability block ${i}`);
-
-    // Handle nested elements in ability blocks
-    html.querySelectorAll('.ability-block').forEach((block, i) => {
-      cleanElement(block.querySelector('.ability-dropdown'), [{ prop: '_abilityChangeHandler', event: 'change' }], `ability dropdown ${i}`);
-
-      cleanElement(block.querySelector('.ability-score'), [{ prop: '_abilityChangeHandler', event: 'change' }], `ability score ${i}`);
-
-      const currentScore = block.querySelector('.current-score');
-      if (currentScore?._summaryObserver) {
-        currentScore._summaryObserver.disconnect();
-        currentScore._summaryObserver = null;
-      }
-    });
-
-    // Clean equipment container
-    cleanElement(
-      html.querySelector('#equipment-container'),
-      [
-        { prop: '_summaryChangeHandler', event: 'change' },
-        { prop: '_summaryObserver', hasDisconnect: true }
-      ],
-      'equipment container'
-    );
-
-    // Clean prose mirror elements
-    cleanElementSet(
-      'prose-mirror',
-      [
-        { prop: '_summaryObserver', hasDisconnect: true },
-        { prop: '_observer', hasDisconnect: true }
-      ],
-      (i) => `prose-mirror ${i}`
-    );
-
-    // Clean roll buttons
-    cleanElementSet('.roll-btn', [{ prop: '_clickHandler', event: 'click' }], (i) => `roll button ${i}`);
-
-    // Clean form validation handlers
-    cleanElementSet(
-      'input, select, textarea',
-      [
-        { prop: '_mandatoryFieldChangeHandler', event: 'change' },
-        { prop: '_mandatoryFieldInputHandler', event: 'input' }
-      ],
-      (i) => `form element ${i}`
-    );
-
-    // Final cleanup for managers and registries
-    [
-      { fn: () => SummaryManager.cleanup(), name: 'SummaryManager' },
-      { fn: () => MutationObserverRegistry.unregisterByPrefix('heromancer-'), name: 'MutationObserverRegistry' },
-      { fn: () => EventDispatcher.clearAll(), name: 'EventDispatcher' }
-    ].forEach(({ fn, name }) => {
-      try {
-        fn();
-      } catch (error) {
-        HM.log(1, `Error cleaning up ${name}:`, error);
-        cleanupIssues.push(name);
-      }
-    });
   }
 
   /**

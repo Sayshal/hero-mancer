@@ -15,8 +15,11 @@ export { DiceRolling } from '../app/DiceRolling.js';
 /** Handles document storage and retrieval */
 export { DocumentService } from './documentService.js';
 
+/** DOM Manager for all events/mutations. */
+export { DOMManager } from './DOMManager.js';
+
 /** Controls dropdown behavior and updates */
-export { DropdownHandler, EventDispatcher } from './dropdownHandler.js';
+export { DropdownHandler } from './dropdownHandler.js';
 
 /** Form Validation for Mandatory Fields Class */
 export { FormValidation } from './formValidation.js';
@@ -34,7 +37,7 @@ export { EquipmentParser } from './equipmentParser.js';
 export { HtmlManipulator } from './htmlManipulator.js';
 
 /** Handles event listeners and callbacks */
-export { Listeners, MutationObserverRegistry } from './listeners.js';
+export { Listeners } from './listeners.js';
 
 /** Handles mandatory fields settings */
 export { MandatoryFields } from '../app/MandatoryFields.js';

@@ -1,4 +1,4 @@
-import { HM, HeroMancer, Listeners, SummaryManager } from './index.js';
+import { DropdownHandler, HeroMancer, HM, Listeners, SummaryManager } from './index.js';
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -420,6 +420,51 @@ export class StatRoller {
     if (isNaN(index)) return;
     const adjustment = parseInt(element.getAttribute('data-adjust'), 10) || 0;
     Listeners.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
+  }
+
+  /**
+   * Handle ability dropdown change events
+   * @param {Event} event - The change event
+   * @param {string} diceRollingMethod - Current dice rolling method
+   */
+  static handleAbilityDropdownChange(event, diceRollingMethod) {
+    const dropdown = event.target;
+    const index = parseInt(dropdown.dataset.index, 10);
+    const abilityDropdowns = document.querySelectorAll('.ability-dropdown');
+    const selectedValues = Array.from(abilityDropdowns).map((dropdown) => dropdown.value);
+    const totalPoints = this.getTotalPoints();
+
+    if (diceRollingMethod === 'manualFormula') {
+      const value = dropdown.value;
+      const scoreInput = dropdown.parentElement.querySelector('.ability-score');
+
+      // Both dropdown and input should reference the selected ability
+      dropdown.setAttribute('name', `abilities[${value}]`);
+      if (scoreInput) {
+        scoreInput.setAttribute('name', `abilities[${value}].score`);
+      }
+
+      // Disable options that are already selected elsewhere
+      abilityDropdowns.forEach((otherDropdown, otherIndex) => {
+        Array.from(otherDropdown.options).forEach((option) => {
+          if (option.value && option.value !== '') {
+            option.disabled = selectedValues.includes(option.value) && selectedValues[otherIndex] !== option.value;
+          }
+        });
+      });
+    } else if (diceRollingMethod === 'standardArray') {
+      // Update tracking array with new value
+      selectedValues[index] = dropdown.value;
+
+      // Apply standard array handling
+      requestAnimationFrame(() => {
+        DropdownHandler.handleStandardArrayMode(abilityDropdowns, selectedValues);
+      });
+    } else if (diceRollingMethod === 'pointBuy') {
+      // Handle point buy case
+      selectedValues[index] = dropdown.value || '';
+      DropdownHandler.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
+    }
   }
 
   /* -------------------------------------------- */

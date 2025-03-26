@@ -11,94 +11,6 @@ const MODES = {
 };
 
 /**
- * Event bus for pub/sub pattern
- * @namespace
- */
-export const EventDispatcher = {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
-  listeners: new Map(),
-
-  listenerSources: new Map(),
-
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
-  /**
-   * Subscribe to an event
-   * @param {string} event - Event name
-   * @param {Function} callback - Callback function
-   * @param {object} source - Source object for callback
-   */
-  on(event, callback, source) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set());
-      this.listenerSources.set(event, new Map());
-    }
-    this.listeners.get(event).add(callback);
-    this.listenerSources.get(event).set(callback, source);
-  },
-
-  /**
-   * Emit an event with data
-   * @param {string} event - Event name
-   * @param {*} data - Event data
-   */
-  emit(event, data) {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event).forEach((callback) => callback(data));
-    }
-  },
-
-  /**
-   * Unsubscribe from an event
-   * @param {string} event - Event name
-   * @param {Function} callback - Callback function to remove
-   */
-  off(event, callback) {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event).delete(callback);
-      this.listenerSources.get(event)?.delete(callback);
-    }
-  },
-
-  /**
-   * Remove all listeners from a specific source
-   * @param {object} source - Source object to remove listeners from
-   */
-  removeAllFromSource(source) {
-    this.listenerSources.forEach((sourceMap, event) => {
-      sourceMap.forEach((listenerSource, callback) => {
-        if (listenerSource === source) {
-          this.listeners.get(event)?.delete(callback);
-          sourceMap.delete(callback);
-        }
-      });
-    });
-  },
-
-  /**
-   * Clear all listeners and sources
-   */
-  clearAll() {
-    try {
-      const totalEvents = this.listeners.size;
-      const totalListeners = Array.from(this.listeners.values()).reduce((sum, listeners) => sum + listeners.size, 0);
-
-      HM.log(3, `Clearing ${totalListeners} listeners from ${totalEvents} events`);
-
-      this.listeners.clear();
-      this.listenerSources.clear();
-    } catch (error) {
-      HM.log(1, 'Error clearing event bus:', error);
-    }
-  }
-};
-
-/**
  * Cache implementation for document storage
  * @class
  */
@@ -166,69 +78,6 @@ class DocumentCache {
  */
 export class DropdownHandler {
   /**
-   * Initializes a dropdown with event listeners and description updates
-   * @param {DropdownConfig} config - Configuration object for dropdown initialization
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async initializeDropdown({ type, html, context }) {
-    const dropdown = this.findDropdownElementByType(html, type);
-    if (!dropdown) {
-      HM.log(1, `Dropdown for ${type} not found.`);
-      return;
-    }
-
-    try {
-      // Store the original handler from Listeners if it exists
-      const originalHandler = dropdown._changeHandler;
-
-      // Clean up existing handler from DropdownHandler
-      if (dropdown._descriptionUpdateHandler) {
-        EventDispatcher.off('description-update', dropdown._descriptionUpdateHandler);
-      }
-
-      dropdown._descriptionUpdateHandler = function ({ elementId, content }) {
-        try {
-          const element = html.querySelector(elementId);
-          if (element) {
-            element.innerHTML = content;
-          }
-        } catch (error) {
-          HM.log(1, `Error updating description for ${elementId}:`, error);
-        }
-      };
-
-      // Create a combined handler that runs both functionalities
-      const combinedHandler = async (event) => {
-        // First run DropdownHandler's logic
-        await this.handleDropdownChange(type, html, context, event);
-
-        // Then run the original handler from Listeners if it exists
-        if (originalHandler) {
-          await originalHandler(event);
-        }
-      };
-
-      // Remove existing change handler
-      if (dropdown._changeHandler) {
-        dropdown.removeEventListener('change', dropdown._changeHandler);
-      }
-
-      // Set the new combined handler
-      dropdown._changeHandler = combinedHandler;
-
-      // Add the listeners
-      EventDispatcher.on('description-update', dropdown._descriptionUpdateHandler);
-      dropdown.addEventListener('change', dropdown._changeHandler);
-
-      // Flag that this dropdown has been fully initialized
-      dropdown._fullyInitialized = true;
-    } catch (error) {
-      HM.log(1, `Failed to initialize dropdown for ${type}:`, error);
-    }
-  }
-
-  /**
    * Retrieves dropdown element from DOM
    * @param {HTMLElement} html - Parent element
    * @param {string} type - Dropdown type
@@ -241,95 +90,6 @@ export class DropdownHandler {
       HM.log(1, `Dropdown for ${type} not found.`);
     }
     return dropdown;
-  }
-
-  /**
-   * Handles dropdown change events
-   * @param {string} type - Dropdown type
-   * @param {HTMLElement} html - Parent element
-   * @param {object} context - Application context
-   * @param {Event} event - Change event
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async handleDropdownChange(type, html, context, event) {
-    try {
-      const value = event.target.value;
-      const id = value.split(' ')[0].trim();
-      const uuid = value.match(/\[(.*?)]/)?.[1] || '';
-
-      // Validate UUID format if present
-      let validUuid = uuid;
-      if (uuid) {
-        try {
-          foundry.utils.parseUuid(uuid);
-        } catch (e) {
-          validUuid = '';
-        }
-      }
-
-      HM.log(3, { value: value, id: id, uuid: validUuid });
-      HM.SELECTED[type] = { value, id, uuid: validUuid };
-
-      // Ensure SELECTED data is updated before firing description updates
-      await this.updateDescription(type, id, context);
-
-      // Explicitly trigger summary updates
-      // For race or class, ALWAYS update the class-race summary
-      if (type === 'race' || type === 'class') {
-        SummaryManager.updateClassRaceSummary();
-      }
-
-      // For background, update background summary
-      if (type === 'background') {
-        SummaryManager.updateBackgroundSummary();
-        SummaryManager.processBackgroundSelectionChange(HM.SELECTED.background);
-      }
-    } catch (error) {
-      HM.log(1, `Error handling dropdown change for ${type}:`, error);
-
-      // Clear description area on error
-      const descriptionElement = html.querySelector(`#${type}-description`);
-      if (descriptionElement) {
-        descriptionElement.innerHTML = game.i18n.localize('hm.app.no-description');
-      }
-    }
-  }
-
-  /**
-   * Updates description based on selected item
-   * @param {string} type - Dropdown type
-   * @param {string} id - Selected item ID
-   * @param {object} context - Application context
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async updateDescription(type, id, context) {
-    try {
-      const docs = this.getDocumentsFromCacheOrContext(context, `${type}Docs`);
-      if (!docs) {
-        HM.log(2, `No ${type} documents found for description update`);
-        return;
-      }
-
-      const selectedDoc = docs.find((doc) => doc.id === id);
-      const content = selectedDoc?.enrichedDescription || '';
-
-      HM.log(3, { selectedDoc: selectedDoc, content: content });
-
-      EventDispatcher.emit('description-update', {
-        elementId: `#${type}-description`,
-        content: content || game.i18n.localize('hm.app.no-description')
-      });
-    } catch (error) {
-      HM.log(1, `Error updating description for ${type}:`, error);
-
-      // Emit a fallback error message
-      EventDispatcher.emit('description-update', {
-        elementId: `#${type}-description`,
-        content: game.i18n.localize('hm.app.no-description')
-      });
-    }
   }
 
   /**
@@ -396,7 +156,8 @@ export class DropdownHandler {
         if (mode === MODES.POINT_BUY) {
           const pointsSpent = StatRoller.calculateTotalPointsSpent(selectedAbilities);
           const remainingPoints = totalPoints - pointsSpent;
-          EventDispatcher.emit('points-update', remainingPoints);
+
+          // Directly update the remaining points display
           Listeners.updateRemainingPointsDisplay(remainingPoints);
         }
       });
