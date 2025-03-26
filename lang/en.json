@@ -293,7 +293,7 @@
         "races-label": "Set Race Compendiums:",
         "saved": "{type} compendium settings have been saved.",
         "select-all": "Select All",
-        "title": "Select your {type} compendiums!",
+        "title": "Select {type} compendiums!",
         "all-selected": "No packs selected! All available {type} compendiums have been selected as a fallback."
       },
       "custom-point-buy-total": {

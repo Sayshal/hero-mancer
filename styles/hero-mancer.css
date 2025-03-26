@@ -314,8 +314,8 @@ h6 {
 .button-7 {
   flex: 0 0 auto;
   width: auto;
-  white-space: nowrap;
   height: 32px;
+  white-space: nowrap;
 }
 
 button {
@@ -1310,7 +1310,10 @@ fieldset#start > h2 {
 }
 
 .hm-compendiums-popup-dialog .window-content {
+  min-width: 260px;
+  max-width: 520px;
   height: fit-content;
+  min-height: 300px;
   max-height: calc(100vh - 200px);
 }
 

@@ -28,7 +28,7 @@ export { HeroMancer } from '../app/HeroMancer.js';
 export { HM } from '../hero-mancer.js';
 
 /** Parses and manages equipment data */
-export { EquipmentParser } from './equipmentParser.js';
+export { EquipmentParser } from './equipment/index.js';
 
 /** Handles mandatory fields settings */
 export { MandatoryFields } from '../app/MandatoryFields.js';

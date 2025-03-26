@@ -198,46 +198,73 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     // Check if all packs are selected
     const allSelected = validPacksArray.every((pack) => selectedPacksSet.has(pack.packId));
 
-    // Generate content HTML
-    let content = `
-      <div>
-        <div class="hm-compendium-global-header">
-          <label class="checkbox">
-            <input type="checkbox" class="hm-select-all-global" ${allSelected ? 'checked' : ''}>
-            ${game.i18n.localize('hm.settings.custom-compendiums.select-all')}
-          </label>
-        </div>
-    `;
+    // Generate content HTML using DOM methods for better reliability
+    const container = document.createElement('div');
+
+    // Create global header with "Select All" checkbox
+    const globalHeader = document.createElement('div');
+    globalHeader.className = 'hm-compendium-global-header';
+
+    const globalLabel = document.createElement('label');
+    globalLabel.className = 'checkbox';
+
+    const globalCheckbox = document.createElement('input');
+    globalCheckbox.type = 'checkbox';
+    globalCheckbox.className = 'hm-select-all-global';
+    if (allSelected) globalCheckbox.checked = true;
+
+    globalLabel.append(globalCheckbox, game.i18n.localize('hm.settings.custom-compendiums.select-all'));
+    globalHeader.appendChild(globalLabel);
+    container.appendChild(globalHeader);
 
     // Add each source group
     for (const [source, group] of sourceGroups) {
-      content += `
-        <div class="hm-compendium-group">
-          <hr>
-          <div class="hm-compendium-group-header">
-            <label class="checkbox">
-              <input type="checkbox" class="hm-select-all" data-source="${source}" ${group.allSelected ? 'checked' : ''}>
-              ${group.name}
-            </label>
-          </div>
-          <div class="hm-compendium-group-items">
-            ${group.packs
-              .map(
-                (pack) => `
-              <label class="checkbox hm-compendium-item">
-                <input type="checkbox" name="compendiumMultiSelect" value="${pack.value}"
-                       data-source="${source}" ${pack.selected ? 'checked' : ''}>
-                ${pack.label}
-              </label>
-            `
-              )
-              .join('')}
-          </div>
-        </div>
-      `;
-    }
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'hm-compendium-group';
 
-    content += '</div>';
+      // Add separator
+      groupDiv.appendChild(document.createElement('hr'));
+
+      // Create group header with "Select All" checkbox
+      const groupHeader = document.createElement('div');
+      groupHeader.className = 'hm-compendium-group-header';
+
+      const groupLabel = document.createElement('label');
+      groupLabel.className = 'checkbox';
+
+      const groupCheckbox = document.createElement('input');
+      groupCheckbox.type = 'checkbox';
+      groupCheckbox.className = 'hm-select-all';
+      groupCheckbox.dataset.source = source;
+      if (group.allSelected) groupCheckbox.checked = true;
+
+      groupLabel.append(groupCheckbox, group.name);
+      groupHeader.appendChild(groupLabel);
+      groupDiv.appendChild(groupHeader);
+
+      // Create group items container
+      const itemsContainer = document.createElement('div');
+      itemsContainer.className = 'hm-compendium-group-items';
+
+      // Add each pack checkbox
+      for (const pack of group.packs) {
+        const itemLabel = document.createElement('label');
+        itemLabel.className = 'checkbox hm-compendium-item';
+
+        const itemCheckbox = document.createElement('input');
+        itemCheckbox.type = 'checkbox';
+        itemCheckbox.name = 'compendiumMultiSelect';
+        itemCheckbox.value = pack.value;
+        itemCheckbox.dataset.source = source;
+        if (pack.selected) itemCheckbox.checked = true;
+
+        itemLabel.append(itemCheckbox, pack.label);
+        itemsContainer.appendChild(itemLabel);
+      }
+
+      groupDiv.appendChild(itemsContainer);
+      container.appendChild(groupDiv);
+    }
 
     // Create and render dialog
     const dialog = new DialogV2({
@@ -245,7 +272,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         title: game.i18n.format('hm.settings.custom-compendiums.title', { type }),
         icon: this.#getCompendiumTypeIcon(type)
       },
-      content,
+      content: container.outerHTML,
       classes: ['hm-compendiums-popup-dialog'],
       buttons: [
         {
@@ -280,7 +307,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       ],
       rejectClose: false,
       modal: false,
-      position: { width: 400 }
+      position: { width: 'auto' }
     });
 
     const rendered = await dialog.render(true);
