@@ -1,4 +1,4 @@
-import { DropdownHandler, HeroMancer, HM, Listeners, SummaryManager } from './index.js';
+import { DOMManager, HeroMancer, HM } from './index.js';
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -169,7 +169,7 @@ export class StatRoller {
           // Continue with the next ability
         }
       }
-      SummaryManager.updateAbilitiesSummary();
+      DOMManager.updateAbilitiesSummary();
     } catch (error) {
       HM.log(1, 'Error in chain rolling:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
@@ -419,7 +419,7 @@ export class StatRoller {
     const index = parseInt(element.getAttribute('data-ability-index'), 10);
     if (isNaN(index)) return;
     const adjustment = parseInt(element.getAttribute('data-adjust'), 10) || 0;
-    Listeners.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
+    DOMManager.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
   }
 
   /**
@@ -458,12 +458,12 @@ export class StatRoller {
 
       // Apply standard array handling
       requestAnimationFrame(() => {
-        DropdownHandler.handleStandardArrayMode(abilityDropdowns, selectedValues);
+        DOMManager.handleStandardArrayMode(abilityDropdowns, selectedValues);
       });
     } else if (diceRollingMethod === 'pointBuy') {
       // Handle point buy case
       selectedValues[index] = dropdown.value || '';
-      DropdownHandler.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
+      DOMManager.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
     }
   }
 

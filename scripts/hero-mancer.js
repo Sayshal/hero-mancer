@@ -1,5 +1,5 @@
 import { registerSettings } from './settings.js';
-import { CustomCompendiums, DiceRolling, DocumentService, EquipmentParser, HtmlManipulator, StatRoller } from './utils/index.js';
+import { CustomCompendiums, DiceRolling, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
 
 /**
  * Main Hero Mancer class, define some statics that will be used everywhere in the module.
@@ -213,5 +213,32 @@ Hooks.once('ready', async () => {
 });
 
 Hooks.on('renderActorDirectory', () => {
-  HtmlManipulator.registerButton();
+  // Find header actions container
+  const headerActions = document.querySelector('section[class*="actors-sidebar"] header[class*="directory-header"] div[class*="header-actions"]');
+  if (!headerActions) return;
+
+  // Don't create duplicate buttons
+  if (headerActions.querySelector('.hm-actortab-button')) return;
+
+  // Create button
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.classList.add('hm-actortab-button');
+  button.setAttribute('title', game.i18n.localize('hm.actortab-button.hint'));
+  button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
+
+  // Add click handler
+  button.addEventListener('click', () => {
+    if (HM.heroMancer) {
+      HM.heroMancer.close();
+      HM.heroMancer = null;
+    }
+
+    HM.heroMancer = new HeroMancer();
+    HM.heroMancer.render(true);
+  });
+
+  // Insert button before the create folder button
+  const createFolderButton = headerActions.querySelector('button[class*="create-folder"]');
+  headerActions.insertBefore(button, createFolderButton);
 });

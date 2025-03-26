@@ -18,9 +18,6 @@ export { DocumentService } from './documentService.js';
 /** DOM Manager for all events/mutations. */
 export { DOMManager } from './DOMManager.js';
 
-/** Controls dropdown behavior and updates */
-export { DropdownHandler } from './dropdownHandler.js';
-
 /** Form Validation for Mandatory Fields Class */
 export { FormValidation } from './formValidation.js';
 
@@ -32,12 +29,6 @@ export { HM } from '../hero-mancer.js';
 
 /** Parses and manages equipment data */
 export { EquipmentParser } from './equipmentParser.js';
-
-/** Manages DOM manipulation and HTML updates */
-export { HtmlManipulator } from './htmlManipulator.js';
-
-/** Handles event listeners and callbacks */
-export { Listeners } from './listeners.js';
 
 /** Handles mandatory fields settings */
 export { MandatoryFields } from '../app/MandatoryFields.js';
@@ -54,8 +45,8 @@ export { SavedOptions } from './savedOptions.js';
 /** Manages ability score calculations and updates */
 export { StatRoller } from './statRoller.js';
 
-/** Manages all listener and building activities for the Finalization tab */
-export { SummaryManager } from './summaryManager.js';
+/** Manages RollTable interactions for backgrounds */
+export { TableManager } from './tableManager.js';
 
 /** Utility to export relevant information for bug reporting */
 export { Troubleshooter } from '../app/Troubleshooter.js';

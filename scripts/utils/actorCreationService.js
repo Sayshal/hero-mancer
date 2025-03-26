@@ -1,4 +1,4 @@
-import { EquipmentParser, HeroMancer, HM, SummaryManager } from './index.js';
+import { EquipmentParser, HeroMancer, HM } from './index.js';
 
 export class ActorCreationService {
   static ADVANCEMENT_DELAY = { transitionDelay: 300, renderTimeout: 3000, retryAttempts: 3 };
@@ -548,7 +548,7 @@ export class ActorCreationService {
     try {
       await ChatMessage.create({
         speaker: ChatMessage.getSpeaker(),
-        content: SummaryManager.generateCharacterSummaryChatMessage(),
+        content: DOMManager.generateCharacterSummaryChatMessage(),
         flags: {
           'hero-mancer': { type: 'character-summary' }
         }

@@ -1,18 +1,4 @@
-import {
-  ActorCreationService,
-  CharacterArtPicker,
-  DOMManager,
-  EquipmentParser,
-  HM,
-  HtmlManipulator,
-  Listeners,
-  MandatoryFields,
-  NameGenerator,
-  ProgressBar,
-  SavedOptions,
-  StatRoller,
-  SummaryManager
-} from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, DOMManager, EquipmentParser, HM, MandatoryFields, NameGenerator, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -284,13 +270,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     // Perform initial summaries
     requestAnimationFrame(() => {
       if (HM.SELECTED.race?.uuid || HM.SELECTED.class?.uuid) {
-        SummaryManager.updateClassRaceSummary();
+        DOMManager.updateClassRaceSummary();
       }
       if (HM.SELECTED.background?.uuid) {
-        SummaryManager.updateBackgroundSummary();
+        DOMManager.updateBackgroundSummary();
       }
-      SummaryManager.updateAbilitiesSummary();
-      SummaryManager.updateEquipmentSummary();
+      DOMManager.updateAbilitiesSummary();
+      DOMManager.updateEquipmentSummary();
     });
   }
 
@@ -322,7 +308,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       // Restore any saved options
       await SavedOptions.loadOptions().then((options) => {
         if (Object.keys(options).length > 0) {
-          Listeners.restoreFormOptions(this.element);
+          DOMManager.restoreFormOptions(this.element);
         }
       });
     } finally {
@@ -370,9 +356,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _onClose() {
-    // Recreate button listener after application is fully closed
-    HtmlManipulator.registerButton();
-
     // Clear the instance reference
     HM.heroMancer = null;
 
@@ -445,7 +428,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     if (success) {
       // First update any summaries
-      SummaryManager.updateClassRaceSummary();
+      DOMManager.updateClassRaceSummary();
 
       // Re-render the entire application
       const app = HM.heroMancer;
