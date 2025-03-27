@@ -39,6 +39,9 @@ export { NameGenerator } from './nameGenerator.js';
 /** Handles header progress bar in Hero Mancer */
 export { ProgressBar } from './progress.js';
 
+/** Handles randomization functionality for character name & character */
+export { Randomizer } from './randomizer.js';
+
 /** Manages saved data across sessions per-user */
 export { SavedOptions } from './savedOptions.js';
 

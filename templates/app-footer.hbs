@@ -1,10 +1,20 @@
 <footer>
   <div class='hm-app-footer-actions'>
-    <button type='submit' data-action="submit" class='hm-app-footer-submit' data-tooltip='{{localize "hm.app.submit-description"}}'
-      aria-label='{{localize "hm.app.submit"}}' aria-describedby='submit-description' role='button'>
+    <button type='submit' data-action="submit" class='hm-app-footer-submit'
+      data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
+      aria-describedby='submit-description' role='button'>
       {{localize 'hm.app.submit'}}
     </button>
     <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
+
+    {{#if randomizeButton}}
+      <button type='button' data-action='randomize' class='hm-app-footer-randomize'
+        data-tooltip='{{localize "hm.app.randomize-character"}}' aria-label='{{localize "hm.app.randomize-character"}}'
+        aria-describedby='randomize-character' role='button'>
+        {{localize 'hm.app.randomize'}}
+      </button>
+      <span id='reset-description' class='sr-only'>{{localize 'hm.app.reset-description'}}</span>
+    {{/if}}
 
     <button type='submit' data-action='saveOptions' class='hm-app-footer-save'
       data-tooltip='{{localize "hm.app.save-description"}}' aria-label='{{localize "hm.app.save"}}'

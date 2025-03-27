@@ -177,7 +177,20 @@ HM.SELECTED = {
 
 Hooks.on('init', () => {
   HM.init();
-  CONFIG.Item.compendiumIndexFields = ['_id', 'name', 'pack', 'system.description.value', 'system.identifier', 'system.properties', 'system.type.value', 'type', 'uuid'];
+  CONFIG.Item.compendiumIndexFields = [
+    '_id',
+    'name',
+    'pack',
+    'system.description.value',
+    'system.identifier',
+    'system.properties',
+    'system.type.value',
+    'type',
+    'uuid',
+    'system.source.rules',
+    'system.wealth',
+    'system.startingEquipment'
+  ];
 });
 
 Hooks.once('ready', async () => {

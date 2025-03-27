@@ -99,6 +99,56 @@ export function registerSettings() {
     restricted: true
   });
 
+  game.settings.register(HM.ID, 'eyeColors', {
+    name: 'hm.settings.eye-colors.name',
+    hint: 'hm.settings.eye-colors.hint',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'Blue,Green,Brown,Hazel,Gray,Amber,Black',
+    restricted: true
+  });
+
+  game.settings.register(HM.ID, 'hairColors', {
+    name: 'hm.settings.hair-colors.name',
+    hint: 'hm.settings.hair-colors.hint',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'Black,Brown,Blonde,Red,Gray,White,Chestnut,Auburn',
+    restricted: true
+  });
+
+  game.settings.register(HM.ID, 'skinTones', {
+    name: 'hm.settings.skin-tones.name',
+    hint: 'hm.settings.skin-tones.hint',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'Pale,Fair,Light,Medium,Tan,Dark,Brown,Black',
+    restricted: true
+  });
+
+  game.settings.register(HM.ID, 'genders', {
+    name: 'hm.settings.genders.name',
+    hint: 'hm.settings.genders.hint',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'Male,Female,Non-Binary,Genderfluid,Agender',
+    restricted: true
+  });
+
+  // In your settings registration code
+  game.settings.register(HM.ID, 'enableRandomize', {
+    name: 'hm.settings.randomize.name',
+    hint: 'hm.settings.randomize.hint',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register(HM.ID, 'loggingLevel', {
     name: 'hm.settings.logger.name',
     hint: 'hm.settings.logger.hint',

@@ -143,6 +143,10 @@
         "select-placeholder": "Choose a race",
         "tooltip": "Select a race for your character"
       },
+      "randomization-complete": "Character randomization complete!",
+      "randomize": "Randomize",
+      "randomize-character": "Randomize Character",
+      "randomizing": "Randomizing character...",
       "reset": "Reset",
       "reset-description": "Reset Hero Mancer",
       "save": "Save For Later",
@@ -150,6 +154,7 @@
       "start": {
         "character-art-label": "Character Art",
         "character-art-placeholder": "Choose art for your character",
+        "generate-random-name": "Generate random name",
         "name-label": "Character Name",
         "name-placeholder": "Choose a name for your character",
         "player-assignment-label": "Assign to Player",
@@ -172,8 +177,7 @@
         "token-art-placeholder": "Choose token art for your character",
         "token-same-as-character": "Use same image for token?",
         "token-visibility-placeholder": "Choose display status",
-        "tooltip": "Start your character creation",
-        "generate-random-name": "Generate random name"
+        "tooltip": "Start your character creation"
       },
       "submit": "Submit",
       "submit-description": "Submit your Hero Mancer",
@@ -219,6 +223,7 @@
       "no-background": "The selected background could not be found.",
       "no-class": "The selected class could not be found.",
       "no-race": "The selected race could not be found.",
+      "randomization-failed": "Character randomization failed",
       "roll-failed": "Failed to roll ability score. Please try again.",
       "save-options-failed": "Failed to save your options. Please try again.",
       "select-background": "Please select a background before submitting.",
@@ -269,6 +274,7 @@
       "configure-mandatory": "Configure Mandatory Fields",
       "configure-rolling": "Configure Roll Options",
       "custom-compendiums": {
+        "all-selected": "No packs selected! All available {type} compendiums have been selected as a fallback.",
         "background": "Background",
         "backgrounds-label": "Set Background Compendiums:",
         "class": "Class",
@@ -293,8 +299,7 @@
         "races-label": "Set Race Compendiums:",
         "saved": "{type} compendium settings have been saved.",
         "select-all": "Select All",
-        "title": "Select {type} compendiums!",
-        "all-selected": "No packs selected! All available {type} compendiums have been selected as a fallback."
+        "title": "Select {type} compendiums!"
       },
       "custom-point-buy-total": {
         "hint": "Specify the point buy total if not using standard calculations.",
@@ -339,6 +344,18 @@
         "hint": "Adds a button to use Hero Mancer on the Actors tab.",
         "name": "Enable Hero Mancer?"
       },
+      "eye-colors": {
+        "hint": "Comma-separated list of eye colors used for character randomization.",
+        "name": "Eye Colors"
+      },
+      "genders": {
+        "hint": "Comma-separated list of genders used for character randomization.",
+        "name": "Genders"
+      },
+      "hair-colors": {
+        "hint": "Comma-separated list of hair colors used for character randomization.",
+        "name": "Hair Colors"
+      },
       "item-packs": {
         "name": "Item Packs"
       },
@@ -382,9 +399,17 @@
       "race-packs": {
         "name": "Race Packs"
       },
+      "randomize": {
+        "hint": "Allows users to randomize aspects of their character creation process. Useful for one shots, randomizer games, and loose cannons.",
+        "name": "Enable Randomizer?"
+      },
       "roll-delay": {
         "hint": "Controls the delay (in milliseconds) between each roll when using chained rolling. Lower values make the process faster, while higher values make it easier to follow. This setting has no effect if you are manually rolling with physical dice.",
         "name": "Roll Animation Delay"
+      },
+      "skin-tones": {
+        "hint": "Comma-separated list of skin tones used for character randomization.",
+        "name": "Skin Tones"
       },
       "token-customization": {
         "hint": "Allow your players to set some default token settings usually reserved for the GM, such as display name status, dynamic token ring settings, and display bars.",
