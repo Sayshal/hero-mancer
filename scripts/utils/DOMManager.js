@@ -27,6 +27,12 @@ export class DOMManager {
   /** @type {boolean} */
   static _updatingAbilities = false;
 
+  /** @type {boolean} */
+  static #equipmentUpdateInProgress = false;
+
+  /** @type {Promise|null} */
+  static #pendingEquipmentUpdate = null;
+
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
@@ -101,7 +107,7 @@ export class DOMManager {
    * Initialize all event handlers for the application
    * @param {HTMLElement} element - Root element
    */
-  static initialize(element) {
+  static async initialize(element) {
     if (!element) return;
 
     this.initializeEquipmentContainer(element);
@@ -119,7 +125,7 @@ export class DOMManager {
    * Initialize dropdown-related handlers
    * @param {HTMLElement} element - Application root element
    */
-  static initializeDropdowns(element) {
+  static async initializeDropdowns(element) {
     const dropdowns = {
       race: element.querySelector('#race-dropdown'),
       class: element.querySelector('#class-dropdown'),
@@ -129,7 +135,7 @@ export class DOMManager {
     Object.entries(dropdowns).forEach(([type, dropdown]) => {
       if (!dropdown) return;
 
-      this.on(dropdown, 'change', (event) => {
+      this.on(dropdown, 'change', async (event) => {
         // Update selection data
         const value = event.target.value;
         const id = value.split(' ')[0].trim();
@@ -161,7 +167,7 @@ export class DOMManager {
 
         // Update equipment if needed
         if (!HM.COMPAT.ELKAN && (type === 'class' || type === 'background')) {
-          this.updateEquipment(element, type);
+          await this.updateEquipment(element, type);
         }
 
         // Update application title
@@ -1107,10 +1113,22 @@ export class DOMManager {
    */
   static updateEquipment(element, type) {
     const equipmentContainer = element.querySelector('#equipment-container');
-    if (!equipmentContainer) return;
+    if (!equipmentContainer) return Promise.resolve();
 
-    try {
-      // Reset rendered flags
+    // If update already in progress, queue this one
+    if (this.#equipmentUpdateInProgress) {
+      return new Promise((resolve) => {
+        this.#pendingEquipmentUpdate = { element, type, resolve };
+      });
+    }
+
+    this.#equipmentUpdateInProgress = true;
+
+    // Create and return the promise without using async in the executor
+    return new Promise((resolve) => {
+      // Reset the render tracking
+      EquipmentParser.renderedItems = new Set();
+
       if (EquipmentParser.lookupItems) {
         Object.values(EquipmentParser.lookupItems).forEach((category) => {
           if (category.items?.forEach) {
@@ -1123,22 +1141,28 @@ export class DOMManager {
         });
       }
 
-      // Create equipment parser
-      const equipment = new EquipmentParser(HM.SELECTED.class?.id, HM.SELECTED.background?.id);
-
-      // Let it update just the requested section
+      // Use the promise chain approach instead
+      const equipment = EquipmentParser.getInstance();
       equipment
         .generateEquipmentSelectionUI(type)
-        .then((choices) => {
-          // Attach listeners to new elements
+        .then(() => {
           this.attachEquipmentListeners(equipmentContainer);
         })
         .catch((error) => {
-          HM.log(1, `Error updating ${type} equipment choices:`, error);
+          HM.log(1, `Error in updateEquipment for ${type}:`, error);
+        })
+        .finally(() => {
+          this.#equipmentUpdateInProgress = false;
+          resolve();
+
+          // Process any pending update
+          if (this.#pendingEquipmentUpdate) {
+            const { element, type, resolve: pendingResolve } = this.#pendingEquipmentUpdate;
+            this.#pendingEquipmentUpdate = null;
+            this.updateEquipment(element, type).then(pendingResolve);
+          }
         });
-    } catch (error) {
-      HM.log(1, `Error in updateEquipment for ${type}:`, error);
-    }
+    });
   }
 
   /**

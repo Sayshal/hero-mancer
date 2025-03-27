@@ -350,8 +350,8 @@ export class EquipmentRenderer {
 
     const results = await Promise.all(
       items.map(async (item) => {
-        if (!item.key) {
-          HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Item has no key: ${item._id || 'unknown'}`);
+        if (!item.key && !(item.group === '')) {
+          HM.log(2, `EquipmentRenderer.preFetchItemDocuments: Item has no key: ${item._id || 'unknown'}`, { item: item });
           return { item, doc: null };
         }
 
@@ -360,7 +360,7 @@ export class EquipmentRenderer {
           HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Fetched document ${doc?.name || 'not found'} for item ${item._id}`);
           return { item, doc };
         } catch (error) {
-          HM.log(1, `EquipmentRenderer.preFetchItemDocuments: Error fetching document for ${item.key}: ${error.message}`);
+          HM.log(1, `EquipmentRenderer.preFetchItemDocuments: Error fetching document for ${item.key}: ${error.message}`, { item: item });
           return { item, doc: null };
         }
       })

@@ -46,6 +46,13 @@ export class EquipmentParser {
    */
   static itemUuidMap = new Map();
 
+  /**
+   * Track instance of parser.
+   * @type {EquipmentParser}
+   * @static
+   */
+  static _instance = null;
+
   /* -------------------------------------------- */
   /*  Instance Properties                         */
   /* -------------------------------------------- */
@@ -104,10 +111,16 @@ export class EquipmentParser {
 
   /**
    * Creates a new EquipmentParser instance
-   * Initializes properties and preloads compendium indices
+   * @param {boolean} [private=false] - Internal flag for singleton creation
    */
-  constructor() {
-    HM.log(3, 'EquipmentParser.constructor: Creating new parser instance');
+  constructor(isPrivate = false) {
+    // Enforce singleton pattern
+    if (!isPrivate && EquipmentParser._instance) {
+      HM.log(3, 'EquipmentParser: Returning existing instance');
+      return EquipmentParser._instance;
+    }
+
+    HM.log(3, 'EquipmentParser: Creating new parser instance');
 
     // Initialize basic properties
     this.equipmentData = null;
@@ -362,6 +375,10 @@ export class EquipmentParser {
    * @returns {Promise<HTMLElement>} Container element with rendered equipment choices
    */
   async generateEquipmentSelectionUI(type = null) {
+    // Reset tracking sets at the beginning of rendering
+    EquipmentParser.renderedItems = new Set();
+    EquipmentParser.combinedItemIds = new Set();
+
     HM.log(3, `EquipmentParser.generateEquipmentSelectionUI: Generating UI for ${type || 'all types'}`);
     const result = await this.renderer.generateEquipmentSelectionUI(type);
     HM.log(3, 'EquipmentParser.generateEquipmentSelectionUI: UI generation complete');
@@ -383,6 +400,26 @@ export class EquipmentParser {
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
+
+  /**
+   * Get the singleton instance of EquipmentParser
+   * @returns {EquipmentParser} The shared parser instance
+   */
+  static getInstance() {
+    if (!this._instance) {
+      this._instance = new this(true);
+    }
+
+    // Always update IDs to current selection
+    if (this._instance) {
+      this._instance.classId = HM.SELECTED.class.id;
+      this._instance.classUUID = HM.SELECTED.class.uuid;
+      this._instance.backgroundId = HM.SELECTED.background.id;
+      this._instance.backgroundUUID = HM.SELECTED.background.uuid;
+    }
+
+    return this._instance;
+  }
 
   /**
    * Collects equipment selections from the HTML form
