@@ -350,8 +350,8 @@ export class EquipmentRenderer {
 
     const results = await Promise.all(
       items.map(async (item) => {
-        if (!item.key && !(item.group === '')) {
-          HM.log(2, `EquipmentRenderer.preFetchItemDocuments: Item has no key: ${item._id || 'unknown'}`, { item: item });
+        if (!item.key) {
+          HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Item has no key: ${item._id || 'unknown'}`, { item: item });
           return { item, doc: null };
         }
 

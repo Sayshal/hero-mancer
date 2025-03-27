@@ -393,45 +393,18 @@ export class CharacterRandomizer {
       this.#isRandomizing = true;
       ui.notifications.info('hm.app.randomizing', { localize: true });
 
-      // Create a sequential promise chain with completion tracking
-      await this.#executeSequential([
-        async () => {
-          HM.log(3, 'Randomizing background...');
-          await this.randomizeBackground(form);
-          // Extra time for DOM to stabilize and equipment updates to complete
-          await new Promise((resolve) => setTimeout(resolve, 400));
-        },
+      HM.log(3, 'Randomizing character...');
 
-        async () => {
-          HM.log(3, 'Randomizing race...');
-          await this.randomizeRace(form);
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        },
+      this.randomizeName(form);
+      await this.randomizeBackground(form);
+      await this.randomizeClass(form);
+      await this.randomizeRace(form);
+      await this.randomizeAbilities(form);
+      this.randomizeAlignment(form);
+      this.randomizeFaith(form);
+      this.randomizeAppearance(form);
 
-        async () => {
-          HM.log(3, 'Randomizing class...');
-          await this.randomizeClass(form);
-          // Longer delay for class which has more complex effects
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        },
-
-        async () => {
-          HM.log(3, 'Randomizing abilities...');
-          await this.randomizeAbilities(form);
-        },
-
-        async () => {
-          HM.log(3, 'Randomizing name...');
-          this.randomizeName(form);
-        },
-
-        async () => {
-          HM.log(3, 'Randomizing remaining fields...');
-          this.randomizeAlignment(form);
-          this.randomizeFaith(form);
-          this.randomizeAppearance(form);
-        }
-      ]);
+      HM.log(3, 'Randomizing complete...');
 
       ui.notifications.info('hm.app.randomization-complete', { localize: true });
     } catch (error) {
@@ -808,17 +781,5 @@ export class CharacterRandomizer {
    */
   static #capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  /**
-   * Execute an array of functions sequentially
-   * @private
-   * @param {Function[]} functions - Array of async functions to execute
-   * @returns {Promise<void>}
-   */
-  static async #executeSequential(functions) {
-    for (const func of functions) {
-      await func();
-    }
   }
 }
