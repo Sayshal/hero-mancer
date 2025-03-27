@@ -33,14 +33,11 @@ export { EquipmentParser } from './equipment/index.js';
 /** Handles mandatory fields settings */
 export { MandatoryFields } from '../app/MandatoryFields.js';
 
-/** Fantasy Name Generator */
-export { NameGenerator } from './nameGenerator.js';
-
 /** Handles header progress bar in Hero Mancer */
 export { ProgressBar } from './progress.js';
 
 /** Handles randomization functionality for character name & character */
-export { Randomizer } from './randomizer.js';
+export { CharacterRandomizer } from './randomizer.js';
 
 /** Manages saved data across sessions per-user */
 export { SavedOptions } from './savedOptions.js';

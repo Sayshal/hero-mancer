@@ -1,8 +1,385 @@
 import { HM } from './index.js';
 
-export class Randomizer {
+/**
+ * Combined class for character randomization and name generation
+ */
+export class CharacterRandomizer {
   // Flag to prevent duplicate operations
   static #isRandomizing = false;
+
+  /**
+   * Symbol sets for different name components
+   * @private
+   */
+  static #nameSymbols = {
+    s: [
+      'ach',
+      'ack',
+      'ad',
+      'age',
+      'ald',
+      'ale',
+      'an',
+      'ang',
+      'ar',
+      'ard',
+      'as',
+      'ash',
+      'at',
+      'ath',
+      'augh',
+      'aw',
+      'ban',
+      'bel',
+      'bur',
+      'cer',
+      'cha',
+      'che',
+      'dan',
+      'dar',
+      'del',
+      'den',
+      'dra',
+      'dyn',
+      'ech',
+      'eld',
+      'elm',
+      'em',
+      'en',
+      'end',
+      'eng',
+      'enth',
+      'er',
+      'ess',
+      'est',
+      'et',
+      'gar',
+      'gha',
+      'hat',
+      'hin',
+      'hon',
+      'ia',
+      'ight',
+      'ild',
+      'im',
+      'ina',
+      'ine',
+      'ing',
+      'ir',
+      'is',
+      'iss',
+      'it',
+      'kal',
+      'kel',
+      'kim',
+      'kin',
+      'ler',
+      'lor',
+      'lye',
+      'mor',
+      'mos',
+      'nal',
+      'ny',
+      'nys',
+      'old',
+      'om',
+      'on',
+      'or',
+      'orm',
+      'os',
+      'ough',
+      'per',
+      'pol',
+      'qua',
+      'que',
+      'rad',
+      'rak',
+      'ran',
+      'ray',
+      'ril',
+      'ris',
+      'rod',
+      'roth',
+      'ryn',
+      'sam',
+      'say',
+      'ser',
+      'shy',
+      'skel',
+      'sul',
+      'tai',
+      'tan',
+      'tas',
+      'ther',
+      'tia',
+      'tin',
+      'ton',
+      'tor',
+      'tur',
+      'um',
+      'und',
+      'unt',
+      'urn',
+      'usk',
+      'ust',
+      'ver',
+      'ves',
+      'vor',
+      'war',
+      'wor',
+      'yer'
+    ],
+    v: ['a', 'e', 'i', 'o', 'u', 'y'],
+    V: ['a', 'e', 'i', 'o', 'u', 'y', 'ae', 'ai', 'au', 'ay', 'ea', 'ee', 'ei', 'eu', 'ey', 'ia', 'ie', 'oe', 'oi', 'oo', 'ou', 'ui'],
+    c: ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'],
+    B: [
+      'b',
+      'bl',
+      'br',
+      'c',
+      'ch',
+      'chr',
+      'cl',
+      'cr',
+      'd',
+      'dr',
+      'f',
+      'g',
+      'h',
+      'j',
+      'k',
+      'l',
+      'll',
+      'm',
+      'n',
+      'p',
+      'ph',
+      'qu',
+      'r',
+      'rh',
+      's',
+      'sch',
+      'sh',
+      'sl',
+      'sm',
+      'sn',
+      'st',
+      'str',
+      'sw',
+      't',
+      'th',
+      'thr',
+      'tr',
+      'v',
+      'w',
+      'wh',
+      'y',
+      'z',
+      'zh'
+    ],
+    C: [
+      'b',
+      'c',
+      'ch',
+      'ck',
+      'd',
+      'f',
+      'g',
+      'gh',
+      'h',
+      'k',
+      'l',
+      'ld',
+      'll',
+      'lt',
+      'm',
+      'n',
+      'nd',
+      'nn',
+      'nt',
+      'p',
+      'ph',
+      'q',
+      'r',
+      'rd',
+      'rr',
+      'rt',
+      's',
+      'sh',
+      'ss',
+      'st',
+      't',
+      'th',
+      'v',
+      'w',
+      'y',
+      'z'
+    ],
+    i: [
+      'air',
+      'ankle',
+      'ball',
+      'beef',
+      'bone',
+      'bum',
+      'bumble',
+      'bump',
+      'cheese',
+      'clod',
+      'clot',
+      'clown',
+      'corn',
+      'dip',
+      'dolt',
+      'doof',
+      'dork',
+      'dumb',
+      'face',
+      'finger',
+      'foot',
+      'fumble',
+      'goof',
+      'grumble',
+      'head',
+      'knock',
+      'knocker',
+      'knuckle',
+      'loaf',
+      'lump',
+      'lunk',
+      'meat',
+      'muck',
+      'munch',
+      'nit',
+      'numb',
+      'pin',
+      'puff',
+      'skull',
+      'snark',
+      'sneeze',
+      'thimble',
+      'twerp',
+      'twit',
+      'wad',
+      'wimp',
+      'wipe'
+    ],
+    m: [
+      'baby',
+      'booble',
+      'bunker',
+      'cuddle',
+      'cuddly',
+      'cutie',
+      'doodle',
+      'foofie',
+      'gooble',
+      'honey',
+      'kissie',
+      'lover',
+      'lovey',
+      'moofie',
+      'mooglie',
+      'moopie',
+      'moopsie',
+      'nookum',
+      'poochie',
+      'poof',
+      'poofie',
+      'pookie',
+      'schmoopie',
+      'schnoogle',
+      'schnookie',
+      'schnookum',
+      'smooch',
+      'smoochie',
+      'smoosh',
+      'snoogle',
+      'snoogy',
+      'snookie',
+      'snookum',
+      'snuggy',
+      'sweetie',
+      'woogle',
+      'woogy',
+      'wookie',
+      'wookum',
+      'wuddle',
+      'wuddly',
+      'wuggy',
+      'wunny'
+    ],
+    M: [
+      'boo',
+      'bunch',
+      'bunny',
+      'cake',
+      'cakes',
+      'cute',
+      'darling',
+      'dumpling',
+      'dumplings',
+      'face',
+      'foof',
+      'goo',
+      'head',
+      'kin',
+      'kins',
+      'lips',
+      'love',
+      'mush',
+      'pie',
+      'poo',
+      'pooh',
+      'pook',
+      'pums'
+    ],
+    D: ['b', 'bl', 'br', 'cl', 'd', 'f', 'fl', 'fr', 'g', 'gh', 'gl', 'gr', 'h', 'j', 'k', 'kl', 'm', 'n', 'p', 'th', 'w'],
+    d: [
+      'elch',
+      'idiot',
+      'ob',
+      'og',
+      'ok',
+      'olph',
+      'olt',
+      'omph',
+      'ong',
+      'onk',
+      'oo',
+      'oob',
+      'oof',
+      'oog',
+      'ook',
+      'ooz',
+      'org',
+      'ork',
+      'orm',
+      'oron',
+      'ub',
+      'uck',
+      'ug',
+      'ulf',
+      'ult',
+      'um',
+      'umb',
+      'ump',
+      'umph',
+      'un',
+      'unb',
+      'ung',
+      'unk',
+      'unph',
+      'unt',
+      'uzz'
+    ]
+  };
+
+  /**
+   * Common patterns for fantasy names
+   * @private
+   */
+  static #namePatterns = ['BsV', 'BVs', 'CVcs', 'CVsC', 'VcCV', 'BsVc', 'BVsc', 'BVcv', 'BsVCs', 'CVCVs', 'BVCVs'];
 
   /**
    * Randomize all character aspects
@@ -44,6 +421,11 @@ export class Randomizer {
         },
 
         async () => {
+          HM.log(3, 'Randomizing name...');
+          this.randomizeName(form);
+        },
+
+        async () => {
           HM.log(3, 'Randomizing remaining fields...');
           this.randomizeAlignment(form);
           this.randomizeFaith(form);
@@ -58,6 +440,52 @@ export class Randomizer {
     } finally {
       this.#isRandomizing = false;
     }
+  }
+
+  /**
+   * Randomize character name
+   * @param {HTMLElement} form - The HeroMancer form element
+   */
+  static randomizeName(form) {
+    const nameInput = form.querySelector('#character-name');
+    if (!nameInput) {
+      HM.log(3, 'Could not find character name input field');
+      return;
+    }
+
+    nameInput.value = this.generateRandomName();
+    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    HM.log(3, `Generated random name: ${nameInput.value}`);
+  }
+
+  /**
+   * Generate a random fantasy name
+   * @returns {string} A random fantasy name
+   */
+  static generateRandomName() {
+    const pattern = this.#getRandomItem(this.#namePatterns);
+    return this.generateNameFromPattern(pattern);
+  }
+
+  /**
+   * Generate a name from a specific pattern
+   * @param {string} pattern - The pattern to generate a name from
+   * @returns {string} The generated name
+   */
+  static generateNameFromPattern(pattern) {
+    let name = '';
+
+    for (let i = 0; i < pattern.length; i++) {
+      const c = pattern[i];
+
+      if (this.#nameSymbols[c]) {
+        name += this.#getRandomItem(this.#nameSymbols[c]);
+      } else {
+        name += c;
+      }
+    }
+
+    return this.#capitalize(name);
   }
 
   /**
@@ -258,6 +686,7 @@ export class Randomizer {
    * Randomize Standard Array ability assignments
    * @private
    * @param {HTMLElement} form - The form element
+   * @returns {Promise<void>}
    */
   static async #randomizeStandardArray(form) {
     // Get all ability blocks and their labels
@@ -329,21 +758,22 @@ export class Randomizer {
    * Randomize Point Buy ability assignments
    * @private
    * @param {HTMLElement} form - The form element
+   * @returns {Promise<void>}
    */
   static async #randomizePointBuy(form) {
-    // Similar implementation to the original, just ensure primary abilities get highest values
-    // For brevity, I'm not including the full implementation here
-    // The key changes would be to properly identify primary abilities and prioritize them
+    // Implementation would go here
+    HM.log(3, 'Point buy randomization not fully implemented');
   }
 
   /**
    * Randomize Manual Formula ability assignments
    * @private
    * @param {HTMLElement} form - The form element
+   * @returns {Promise<void>}
    */
   static async #randomizeManualFormula(form) {
-    // Similar implementation to the original, just ensure primary abilities get highest values
-    // For brevity, I'm not including the full implementation here
+    // Implementation would go here
+    HM.log(3, 'Manual formula randomization not fully implemented');
   }
 
   /**
@@ -368,6 +798,16 @@ export class Randomizer {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  /**
+   * Capitalize the first letter of a string
+   * @private
+   * @param {string} string - The string to capitalize
+   * @returns {string} The capitalized string
+   */
+  static #capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   /**

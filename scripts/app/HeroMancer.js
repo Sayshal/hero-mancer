@@ -1,4 +1,4 @@
-import { ActorCreationService, CharacterArtPicker, DOMManager, EquipmentParser, HM, MandatoryFields, NameGenerator, ProgressBar, Randomizer, SavedOptions, StatRoller } from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, EquipmentParser, HM, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -503,15 +503,18 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Handle randomizing the character name
+   * Randomize character name and update the name input field
+   * @param {Event} event - The triggering event
    */
   static randomizeCharacterName(event) {
     event.preventDefault();
     const nameInput = document.getElementById('character-name');
 
     // Set the random name
-    nameInput.value = NameGenerator.randomFantasyName();
+    nameInput.value = CharacterRandomizer.generateRandomName();
     nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    HM.log(3, `Generated random name: ${nameInput.value}`);
   }
 
   /**
@@ -526,8 +529,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     const form = event.currentTarget.closest('form');
     if (!form) return;
 
-    // Use the Randomizer utility to randomize all character aspects
-    await Randomizer.randomizeAll(form);
+    // Use the CharacterRandomizer utility to randomize all character aspects
+    await CharacterRandomizer.randomizeAll(form);
   }
 
   /**
