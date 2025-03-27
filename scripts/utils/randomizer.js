@@ -1,4 +1,4 @@
-import { HM } from './index.js';
+import { HeroMancer, HM, StatRoller } from './index.js';
 
 /**
  * Combined class for character randomization and name generation
@@ -734,8 +734,93 @@ export class CharacterRandomizer {
    * @returns {Promise<void>}
    */
   static async #randomizePointBuy(form) {
-    // Implementation would go here
-    HM.log(3, 'Point buy randomization not fully implemented');
+    try {
+      // 1. Identify all ability blocks and which ones are primary
+      const abilityBlocks = form.querySelectorAll('.ability-block.point-buy');
+      if (!abilityBlocks.length) {
+        HM.log(2, 'No ability blocks found for point buy');
+        return;
+      }
+
+      const abilities = Array.from(abilityBlocks).map((block, index) => {
+        const label = block.querySelector('.ability-label');
+        const plusButton = block.querySelector('.plus-button');
+        const currentScore = block.querySelector('.current-score');
+        const input = block.querySelector('input[type="hidden"]');
+
+        return {
+          index,
+          block,
+          isPrimary: label?.classList.contains('primary-ability'),
+          plusButton,
+          minusButton: block.querySelector('.minus-button'),
+          currentScore,
+          input,
+          value: parseInt(currentScore?.textContent || '8')
+        };
+      });
+
+      // 2. Prioritize primary abilities first
+      const primaryAbilities = abilities.filter((a) => a.isPrimary);
+      const nonPrimaryAbilities = abilities.filter((a) => !a.isPrimary);
+
+      // 3. Get total points using StatRoller methods
+      const totalPoints = StatRoller.getTotalPoints();
+
+      let pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+      let remainingPoints = totalPoints - pointsSpent;
+
+      // 4. Max out each primary ability completely before moving to the next one
+      for (const ability of primaryAbilities) {
+        // Continue clicking + until the button is disabled or we run out of points
+        while (!ability.plusButton.disabled && remainingPoints > 0) {
+          ability.plusButton.click();
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Update ability values and recalculate points
+
+          pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+          remainingPoints = totalPoints - pointsSpent;
+        }
+
+        // If we're out of points, stop trying to assign
+        if (remainingPoints <= 0) break;
+      }
+
+      // 5. If we still have points, distribute them among non-primary abilities
+      if (remainingPoints > 0) {
+        // Shuffle non-primary abilities for random distribution
+        this.#shuffleArray(nonPrimaryAbilities);
+
+        // Assign points evenly first
+        let currentNonPrimaryIndex = 0;
+        while (remainingPoints > 0) {
+          const ability = nonPrimaryAbilities[currentNonPrimaryIndex];
+
+          // If button isn't disabled, click it
+          if (!ability.plusButton.disabled) {
+            ability.plusButton.click();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            // Update ability values and recalculate points
+
+            pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+            remainingPoints = totalPoints - pointsSpent;
+          }
+
+          // Move to next non-primary ability in rotation
+          currentNonPrimaryIndex = (currentNonPrimaryIndex + 1) % nonPrimaryAbilities.length;
+
+          // Check if we can still assign points to any ability
+          const canStillAssign = nonPrimaryAbilities.some((a) => !a.plusButton.disabled);
+          if (!canStillAssign) break;
+        }
+      }
+
+      HM.log(3, 'Point buy randomization complete');
+    } catch (error) {
+      HM.log(1, 'Error during point buy randomization:', error);
+    }
   }
 
   /**
@@ -745,8 +830,107 @@ export class CharacterRandomizer {
    * @returns {Promise<void>}
    */
   static async #randomizeManualFormula(form) {
-    // Implementation would go here
-    HM.log(3, 'Manual formula randomization not fully implemented');
+    // Save original dice configuration
+    const originalDiceConfiguration = game.settings.get('core', 'diceConfiguration');
+
+    // Create temporary configuration with automatic dice
+    const tempDiceConfiguration = {
+      d4: '',
+      d6: '',
+      d8: '',
+      d10: '',
+      d12: '',
+      d20: '',
+      d100: ''
+    };
+
+    // Apply temporary configuration
+    await game.settings.set('core', 'diceConfiguration', tempDiceConfiguration);
+
+    try {
+      // Get all ability blocks
+      const abilityBlocks = form.querySelectorAll('.ability-block');
+      if (!abilityBlocks.length) {
+        HM.log(2, 'No ability blocks found');
+        return;
+      }
+
+      // 1. First assign ability types (STR, DEX, etc.) to the dropdowns
+      const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
+      const abilities = Object.keys(CONFIG.DND5E.abilities);
+
+      // Randomly assign each ability once
+      const shuffledAbilities = [...abilities];
+      this.#shuffleArray(shuffledAbilities);
+
+      // Assign abilities to dropdowns
+      for (let i = 0; i < abilityBlocks.length; i++) {
+        const dropdown = abilityBlocks[i].querySelector('.ability-dropdown');
+        if (dropdown && i < shuffledAbilities.length) {
+          dropdown.value = shuffledAbilities[i];
+          dropdown.dispatchEvent(new Event('change', { bubbles: true }));
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      }
+
+      // 2. Roll stats for all abilities
+      const rollResults = [];
+      const rollFormula = await StatRoller.getAbilityScoreRollFormula();
+
+      for (let i = 0; i < abilityBlocks.length; i++) {
+        const roll = new Roll(rollFormula);
+        await roll.evaluate();
+
+        const input = abilityBlocks[i].querySelector('.ability-score');
+        const ability = abilityBlocks[i].querySelector('.ability-dropdown').value;
+        const isPrimary = abilityBlocks[i].querySelector('.primary-ability') !== null;
+
+        rollResults.push({
+          index: i,
+          value: roll.total,
+          ability,
+          isPrimary,
+          input
+        });
+      }
+
+      // 3. Sort roll results (highest to lowest)
+      rollResults.sort((a, b) => b.value - a.value);
+
+      // 4. Identify primary abilities
+      const primaryAbilities = rollResults.filter((r) => r.isPrimary);
+      const nonPrimaryAbilities = rollResults.filter((r) => !r.isPrimary);
+
+      // 5. Re-sort: Primary abilities get highest rolls, non-primary get remaining rolls
+      const finalAssignments = new Array(abilityBlocks.length);
+      let resultIndex = 0;
+
+      // Assign highest values to primary abilities first
+      primaryAbilities.forEach((primary) => {
+        finalAssignments[primary.index] = rollResults[resultIndex++].value;
+      });
+
+      // Assign remaining values to non-primary abilities
+      nonPrimaryAbilities.forEach((nonPrimary) => {
+        finalAssignments[nonPrimary.index] = rollResults[resultIndex++].value;
+      });
+
+      // 6. Update input fields with the new assignments
+      for (let i = 0; i < abilityBlocks.length; i++) {
+        const input = abilityBlocks[i].querySelector('.ability-score');
+        if (input) {
+          input.value = finalAssignments[i];
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+
+      HM.log(3, 'Manual formula randomization complete');
+    } catch (error) {
+      HM.log(1, 'Error during manual formula randomization:', error);
+    } finally {
+      // Restore original dice configuration
+      await game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
+    }
   }
 
   /**
