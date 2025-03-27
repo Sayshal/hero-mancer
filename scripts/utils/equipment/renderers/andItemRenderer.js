@@ -1,5 +1,5 @@
 import { HM } from '../../index.js';
-import { BaseItemRenderer } from '../index.js';
+import { BaseItemRenderer } from './baseItemRenderer.js';
 
 /**
  * Renderer for AND equipment blocks
@@ -12,26 +12,25 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement>} Rendered container
    */
   async render(item, itemContainer) {
-    HM.log(3, `Processing AND block: ${item._id}`, { item, itemContainer });
+    HM.log(3, `AndItemRenderer.render: Processing AND block ${item?._id}`);
 
     const processedIds = new Set();
 
     // Add label if group exists
     if (item.group) {
-      const andLabelElement = document.createElement('h4');
-      andLabelElement.classList.add('parent-label');
-      andLabelElement.innerHTML = `${item.label || game.i18n.localize('hm.app.equipment.choose-all')}`;
-      itemContainer.appendChild(andLabelElement);
+      this.addGroupLabel(itemContainer, item);
     }
 
     // Check for item children
     if (!item?.children?.length) {
+      HM.log(3, `AndItemRenderer.render: AND block ${item._id} has no children`);
       this.addFavoriteStar(itemContainer, item);
       return itemContainer;
     }
 
-    // Process grouped items (weapon/ammo/container combinations)
+    // Process children by category
     const { filteredLinkedItems, lookupItems } = await this.categorizeChildren(item);
+    HM.log(3, `AndItemRenderer.render: Categorized children - ${filteredLinkedItems.length} linked items, ${lookupItems.length} lookup items`);
 
     // Render grouped items (weapons + ammo, etc)
     await this.renderGroupedItems(filteredLinkedItems, processedIds, itemContainer);
@@ -40,7 +39,25 @@ export class AndItemRenderer extends BaseItemRenderer {
     await this.renderLookupItems(lookupItems, itemContainer);
 
     this.addFavoriteStar(itemContainer, item);
+    HM.log(3, `AndItemRenderer.render: Completed rendering AND block ${item._id}`);
     return itemContainer;
+  }
+
+  /**
+   * Add a group label to container
+   * @param {HTMLElement} itemContainer - Container element
+   * @param {Object} item - AND block item
+   * @private
+   */
+  addGroupLabel(itemContainer, item) {
+    HM.log(3, `AndItemRenderer.addGroupLabel: Adding label for AND block ${item._id}`);
+
+    const andLabelElement = document.createElement('h4');
+    andLabelElement.classList.add('parent-label');
+    andLabelElement.innerHTML = `${item.label || game.i18n.localize('hm.app.equipment.choose-all')}`;
+    itemContainer.appendChild(andLabelElement);
+
+    HM.log(3, `AndItemRenderer.addGroupLabel: Added label "${andLabelElement.innerHTML}"`);
   }
 
   /**
@@ -49,10 +66,42 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @returns {Promise<Object>} Categorized items
    */
   async categorizeChildren(item) {
+    HM.log(3, `AndItemRenderer.categorizeChildren: Categorizing children of AND block ${item._id}`);
+
     // Find lookup items (weapon category selectors)
-    const lookupItems = item.children.filter((child) => child.type === 'weapon' && ['sim', 'mar', 'simpleM', 'simpleR', 'martialM', 'martialR'].includes(child.key));
+    const lookupItems = this.findLookupItems(item);
+    HM.log(3, `AndItemRenderer.categorizeChildren: Found ${lookupItems.length} lookup items`);
 
     // Find and categorize linked items
+    const linkedItems = await this.findLinkedItems(item);
+    const filteredLinkedItems = linkedItems.filter((linkedItem) => linkedItem !== null);
+
+    HM.log(3, `AndItemRenderer.categorizeChildren: Found ${filteredLinkedItems.length} linked items to be grouped`);
+    return { filteredLinkedItems, lookupItems };
+  }
+
+  /**
+   * Find lookup items in the children
+   * @param {Object} item - AND block item
+   * @returns {Array<Object>} Array of lookup items
+   * @private
+   */
+  findLookupItems(item) {
+    const lookupItems = item.children.filter((child) => child.type === 'weapon' && ['sim', 'mar', 'simpleM', 'simpleR', 'martialM', 'martialR'].includes(child.key));
+
+    HM.log(3, `AndItemRenderer.findLookupItems: Found ${lookupItems.length} weapon lookup items`);
+    return lookupItems;
+  }
+
+  /**
+   * Find linked items in the children
+   * @param {Object} item - AND block item
+   * @returns {Promise<Array<Object|null>>} Array of linked items
+   * @private
+   */
+  async findLinkedItems(item) {
+    HM.log(3, `AndItemRenderer.findLinkedItems: Finding linked items in AND block ${item._id}`);
+
     const linkedItems = await Promise.all(
       item.children
         .filter((child) => child.type === 'linked')
@@ -62,9 +111,8 @@ export class AndItemRenderer extends BaseItemRenderer {
         })
     );
 
-    const filteredLinkedItems = linkedItems.filter((item) => item !== null);
-
-    return { filteredLinkedItems, lookupItems };
+    HM.log(3, `AndItemRenderer.findLinkedItems: Found ${linkedItems.filter((i) => i !== null).length} linked items that should be grouped`);
+    return linkedItems;
   }
 
   /**
@@ -73,26 +121,36 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @returns {Promise<boolean>} True if should be grouped
    */
   async shouldGroupWithOthers(item) {
+    HM.log(3, `AndItemRenderer.shouldGroupWithOthers: Checking if ${item._id} should be grouped`);
+
     const doc = await fromUuidSync(item._source?.key);
 
-    if (!doc) return false;
+    if (!doc) {
+      HM.log(3, `AndItemRenderer.shouldGroupWithOthers: No document found for ${item._id}`);
+      return false;
+    }
 
     // Check if it's a weapon with ammo property
     if (doc?.type === 'weapon' && doc?.system?.properties && Array.from(doc.system.properties).includes('amm')) {
+      HM.log(3, `AndItemRenderer.shouldGroupWithOthers: Item ${item._id} is a weapon with ammo property`);
       return true;
     }
 
     // Check if it's ammunition
     if (doc?.system?.type?.value === 'ammo') {
+      HM.log(3, `AndItemRenderer.shouldGroupWithOthers: Item ${item._id} is ammunition`);
       return true;
     }
 
     // Check if it's a container (but not a pack)
     if (doc?.type === 'container') {
       const identifier = doc?.system?.identifier?.toLowerCase();
-      return !identifier || !identifier.includes('pack');
+      const result = !identifier || !identifier.includes('pack');
+      HM.log(3, `AndItemRenderer.shouldGroupWithOthers: Item ${item._id} is a container and should${result ? '' : ' not'} be grouped`);
+      return result;
     }
 
+    HM.log(3, `AndItemRenderer.shouldGroupWithOthers: Item ${item._id} should not be grouped`);
     return false;
   }
 
@@ -103,6 +161,26 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @param {HTMLElement} itemContainer - Container element
    */
   async renderGroupedItems(filteredLinkedItems, processedIds, itemContainer) {
+    HM.log(3, `AndItemRenderer.renderGroupedItems: Rendering groups from ${filteredLinkedItems.length} items`);
+
+    const groupedItems = await this.createItemGroups(filteredLinkedItems);
+    HM.log(3, `AndItemRenderer.renderGroupedItems: Created ${groupedItems.length} item groups`);
+
+    // Render each group
+    for (const group of groupedItems) {
+      await this.renderItemGroup(group, processedIds, itemContainer);
+    }
+  }
+
+  /**
+   * Create groups of related items
+   * @param {Array<Object>} filteredLinkedItems - Linked items to group
+   * @returns {Promise<Array<Array<Object>>>} Array of item groups
+   * @private
+   */
+  async createItemGroups(filteredLinkedItems) {
+    HM.log(3, `AndItemRenderer.createItemGroups: Creating groups from ${filteredLinkedItems.length} items`);
+
     const groupedItems = [];
     const processedItems = new Set();
 
@@ -110,21 +188,11 @@ export class AndItemRenderer extends BaseItemRenderer {
     for (const child of filteredLinkedItems) {
       if (processedItems.has(child._source?.key)) continue;
 
-      const relatedItems = await Promise.all(
-        filteredLinkedItems.map(async (item) => {
-          if (processedItems.has(item._source?.key) || item._source?.key === child._source?.key) return null;
+      const relatedItems = await this.findRelatedItems(child, filteredLinkedItems, processedItems);
 
-          // Check if these two items should be grouped
-          const result = await this.areItemsRelated(child, item);
-          return result ? item : null;
-        })
-      );
-
-      const validRelatedItems = relatedItems.filter((item) => item !== null);
-
-      if (validRelatedItems.length > 0) {
-        groupedItems.push([child, ...validRelatedItems]);
-        validRelatedItems.forEach((item) => processedItems.add(item._source?.key));
+      if (relatedItems.length > 0) {
+        groupedItems.push([child, ...relatedItems]);
+        relatedItems.forEach((item) => processedItems.add(item._source?.key));
         processedItems.add(child._source?.key);
       } else if (!processedItems.has(child._source?.key)) {
         groupedItems.push([child]);
@@ -132,10 +200,34 @@ export class AndItemRenderer extends BaseItemRenderer {
       }
     }
 
-    // Render each group
-    for (const group of groupedItems) {
-      await this.renderItemGroup(group, processedIds, itemContainer);
-    }
+    HM.log(3, `AndItemRenderer.createItemGroups: Created ${groupedItems.length} groups`);
+    return groupedItems;
+  }
+
+  /**
+   * Find items related to a specific item
+   * @param {Object} child - Item to find relations for
+   * @param {Array<Object>} filteredLinkedItems - All linked items
+   * @param {Set<string>} processedItems - Already processed items
+   * @returns {Promise<Array<Object>>} Related items
+   * @private
+   */
+  async findRelatedItems(child, filteredLinkedItems, processedItems) {
+    HM.log(3, `AndItemRenderer.findRelatedItems: Finding items related to ${child._id}`);
+
+    const relatedItems = await Promise.all(
+      filteredLinkedItems.map(async (item) => {
+        if (processedItems.has(item._source?.key) || item._source?.key === child._source?.key) return null;
+
+        // Check if these two items should be grouped
+        const result = await this.areItemsRelated(child, item);
+        return result ? item : null;
+      })
+    );
+
+    const validRelatedItems = relatedItems.filter((item) => item !== null);
+    HM.log(3, `AndItemRenderer.findRelatedItems: Found ${validRelatedItems.length} items related to ${child._id}`);
+    return validRelatedItems;
   }
 
   /**
@@ -145,10 +237,15 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @returns {Promise<boolean>} True if related
    */
   async areItemsRelated(item1, item2) {
+    HM.log(3, `AndItemRenderer.areItemsRelated: Checking if ${item1._id} and ${item2._id} are related`);
+
     const doc1 = await fromUuidSync(item1._source?.key);
     const doc2 = await fromUuidSync(item2._source?.key);
 
-    if (!doc1 || !doc2) return false;
+    if (!doc1 || !doc2) {
+      HM.log(3, 'AndItemRenderer.areItemsRelated: Missing document(s), cannot determine relation');
+      return false;
+    }
 
     // Check if one is a weapon and one is ammo
     const isWeaponAndAmmo = (doc1.type === 'weapon' && doc2.system?.type?.value === 'ammo') || (doc2.type === 'weapon' && doc1.system?.type?.value === 'ammo');
@@ -156,7 +253,16 @@ export class AndItemRenderer extends BaseItemRenderer {
     // Check if one is a container and one is a storable item
     const isContainerAndItem = (doc1.type === 'container' && doc2.type !== 'container') || (doc2.type === 'container' && doc1.type !== 'container');
 
-    return isWeaponAndAmmo || isContainerAndItem;
+    const result = isWeaponAndAmmo || isContainerAndItem;
+
+    if (result) {
+      const relationType = isWeaponAndAmmo ? 'weapon and ammo' : 'container and item';
+      HM.log(3, `AndItemRenderer.areItemsRelated: Items ${item1._id} and ${item2._id} are related (${relationType})`);
+    } else {
+      HM.log(3, `AndItemRenderer.areItemsRelated: Items ${item1._id} and ${item2._id} are not related`);
+    }
+
+    return result;
   }
 
   /**
@@ -166,6 +272,29 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @param {HTMLElement} itemContainer - Container element
    */
   async renderItemGroup(group, processedIds, itemContainer) {
+    HM.log(3, `AndItemRenderer.renderItemGroup: Rendering group with ${group.length} items`);
+
+    const { combinedLabel, combinedIds } = await this.createGroupLabelAndIds(group, processedIds);
+
+    if (combinedLabel && group.length > 1) {
+      // Create UI for the grouped items
+      this.addGroupUI(itemContainer, combinedLabel, combinedIds);
+    } else {
+      // If only one item or empty group, reset tracking
+      this.resetGroupTracking(group);
+    }
+  }
+
+  /**
+   * Create label and ID list for a group
+   * @param {Array<Object>} group - Group of items
+   * @param {Set<string>} processedIds - Processed IDs
+   * @returns {Promise<Object>} Label and ID list
+   * @private
+   */
+  async createGroupLabelAndIds(group, processedIds) {
+    HM.log(3, `AndItemRenderer.createGroupLabelAndIds: Creating label for ${group.length} items`);
+
     let combinedLabel = '';
     const combinedIds = [];
 
@@ -190,30 +319,52 @@ export class AndItemRenderer extends BaseItemRenderer {
       child.rendered = true;
     }
 
-    if (combinedLabel && group.length > 1) {
-      // Create heading and label for grouped items
-      const h4 = document.createElement('h4');
-      h4.innerHTML = `${combinedLabel}`;
+    HM.log(3, `AndItemRenderer.createGroupLabelAndIds: Created label "${combinedLabel}" with ${combinedIds.length} IDs`);
+    return { combinedLabel, combinedIds };
+  }
 
-      const label = document.createElement('label');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = combinedIds.join(',');
-      checkbox.checked = true;
+  /**
+   * Add UI elements for a group
+   * @param {HTMLElement} itemContainer - Container element
+   * @param {string} combinedLabel - Group label
+   * @param {Array<string>} combinedIds - Group IDs
+   * @private
+   */
+  addGroupUI(itemContainer, combinedLabel, combinedIds) {
+    HM.log(3, `AndItemRenderer.addGroupUI: Adding UI for group with label "${combinedLabel}"`);
 
-      label.innerHTML = `${combinedLabel}`;
-      label.prepend(checkbox);
+    // Create heading and label for grouped items
+    const h4 = document.createElement('h4');
+    h4.innerHTML = `${combinedLabel}`;
 
-      itemContainer.appendChild(h4);
-      itemContainer.appendChild(label);
-    } else {
-      // If only one item or empty group, reset tracking
-      for (const child of group) {
-        child.rendered = false;
-        child.specialGrouping = false;
-        this.parser.constructor.renderedItems.delete(child._id);
-        this.parser.constructor.combinedItemIds.delete(child._source?.key);
-      }
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = combinedIds.join(',');
+    checkbox.checked = true;
+
+    label.innerHTML = `${combinedLabel}`;
+    label.prepend(checkbox);
+
+    itemContainer.appendChild(h4);
+    itemContainer.appendChild(label);
+
+    HM.log(3, `AndItemRenderer.addGroupUI: Added heading and checkbox with ID ${checkbox.id}`);
+  }
+
+  /**
+   * Reset tracking for group items
+   * @param {Array<Object>} group - Group of items
+   * @private
+   */
+  resetGroupTracking(group) {
+    HM.log(3, `AndItemRenderer.resetGroupTracking: Resetting tracking for ${group.length} items`);
+
+    for (const child of group) {
+      child.rendered = false;
+      child.specialGrouping = false;
+      this.parser.constructor.renderedItems.delete(child._id);
+      this.parser.constructor.combinedItemIds.delete(child._source?.key);
     }
   }
 
@@ -223,35 +374,83 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @param {HTMLElement} itemContainer - Container element
    */
   async renderLookupItems(lookupItems, itemContainer) {
+    HM.log(3, `AndItemRenderer.renderLookupItems: Rendering ${lookupItems.length} lookup items`);
+
     for (const lookupItem of lookupItems) {
-      const lookupLabel = this.getLookupKeyLabel(lookupItem.key);
-      const header = document.createElement('h4');
-      header.innerHTML = lookupLabel;
-      itemContainer.appendChild(header);
-
-      const select = document.createElement('select');
-      select.id = lookupItem._source.key;
-
-      // Determine the lookup key to use
-      const lookupKey =
-        lookupItem.key === 'sim' ? 'sim'
-        : lookupItem.key === 'simpleM' ? 'simpleM'
-        : lookupItem.key === 'simpleR' ? 'simpleR'
-        : lookupItem.key;
-
-      // Get and sort lookup options
-      const lookupOptions = Array.from(this.parser.constructor.lookupItems[lookupKey].items || []);
-      lookupOptions.sort((a, b) => a.name.localeCompare(b.name));
-
-      // Add options to select
-      lookupOptions.forEach((weapon) => {
-        const option = document.createElement('option');
-        option.value = weapon?._source?.key;
-        option.innerHTML = weapon.name;
-        select.appendChild(option);
-      });
-
-      itemContainer.appendChild(select);
+      await this.renderLookupItem(lookupItem, itemContainer);
     }
+  }
+
+  /**
+   * Render a single lookup item
+   * @param {Object} lookupItem - Lookup item
+   * @param {HTMLElement} itemContainer - Container element
+   * @private
+   */
+  async renderLookupItem(lookupItem, itemContainer) {
+    HM.log(3, `AndItemRenderer.renderLookupItem: Rendering lookup item ${lookupItem._id}`);
+
+    const lookupLabel = this.getLookupKeyLabel(lookupItem.key);
+    const header = document.createElement('h4');
+    header.innerHTML = lookupLabel;
+    itemContainer.appendChild(header);
+
+    const select = document.createElement('select');
+    select.id = lookupItem._source.key;
+
+    // Determine the lookup key to use
+    const lookupKey = this.determineLookupKey(lookupItem.key);
+
+    // Get and sort lookup options
+    const lookupOptions = this.getLookupOptions(lookupKey);
+
+    // Add options to select
+    this.addLookupOptions(select, lookupOptions);
+
+    itemContainer.appendChild(select);
+    HM.log(3, `AndItemRenderer.renderLookupItem: Added select with ${select.options.length} options for ${lookupKey}`);
+  }
+
+  /**
+   * Determine the lookup key to use
+   * @param {string} key - Original key
+   * @returns {string} Resolved lookup key
+   * @private
+   */
+  determineLookupKey(key) {
+    if (key === 'sim') return 'sim';
+    if (key === 'simpleM') return 'simpleM';
+    if (key === 'simpleR') return 'simpleR';
+    return key;
+  }
+
+  /**
+   * Get sorted lookup options for a key
+   * @param {string} lookupKey - Lookup key
+   * @returns {Array<Object>} Sorted lookup options
+   * @private
+   */
+  getLookupOptions(lookupKey) {
+    const lookupOptions = Array.from(this.parser.constructor.lookupItems[lookupKey].items || []);
+    lookupOptions.sort((a, b) => a.name.localeCompare(b.name));
+    HM.log(3, `AndItemRenderer.getLookupOptions: Found ${lookupOptions.length} options for key ${lookupKey}`);
+    return lookupOptions;
+  }
+
+  /**
+   * Add options to a lookup select
+   * @param {HTMLSelectElement} select - Select element
+   * @param {Array<Object>} lookupOptions - Lookup options
+   * @private
+   */
+  addLookupOptions(select, lookupOptions) {
+    lookupOptions.forEach((option) => {
+      const optionElement = document.createElement('option');
+      optionElement.value = option?.uuid || option?._source?.key;
+      optionElement.innerHTML = option.name;
+      select.appendChild(optionElement);
+    });
+
+    HM.log(3, `AndItemRenderer.addLookupOptions: Added ${lookupOptions.length} options to select`);
   }
 }

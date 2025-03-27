@@ -200,7 +200,7 @@ export class OrItemRenderer extends BaseItemRenderer {
     // Populate first dropdown with weapons
     weaponOptions.forEach((weapon, index) => {
       const option = document.createElement('option');
-      option.value = weapon?._id || weapon?.uuid || `weapon-${index}`;
+      option.value = weapon?.uuid || weapon?._id || `weapon-${index}`;
       option.innerHTML = weapon.name;
       if (index === 0) option.selected = true; // Select first weapon
       select.appendChild(option);
@@ -213,7 +213,7 @@ export class OrItemRenderer extends BaseItemRenderer {
       // Add weapon options to second dropdown
       weaponOptions.forEach((weapon, index) => {
         const option = document.createElement('option');
-        option.value = weapon?._id || weapon?.uuid || `weapon-${index}`;
+        option.value = weapon?.uuid || weapon?._id || `weapon-${index}`;
         option.innerHTML = weapon.name;
         if (index === 0) option.selected = true;
         secondSelect.appendChild(option);
@@ -225,7 +225,7 @@ export class OrItemRenderer extends BaseItemRenderer {
 
       shieldOptions.forEach((shield) => {
         const option = document.createElement('option');
-        option.value = shield?._id || shield?.uuid || `shield-${index}`;
+        option.value = shield?.uuid || shield?._id || `shield-${index}`;
         option.innerHTML = shield.name;
         secondSelect.appendChild(option);
       });
@@ -273,7 +273,7 @@ export class OrItemRenderer extends BaseItemRenderer {
 
         lookupOptions.forEach((option) => {
           const optionElement = document.createElement('option');
-          optionElement.value = option._source.key;
+          optionElement.value = option?.uuid || option._source.key;
           optionElement.innerHTML = option.name;
           secondSelect.appendChild(optionElement);
         });
@@ -306,7 +306,7 @@ export class OrItemRenderer extends BaseItemRenderer {
       } else if (child.key && !child.type) {
         // Handle edge case of items with key but no type
         const optionElement = document.createElement('option');
-        optionElement.value = child.key || child._id;
+        optionElement.value = child?.uuid || child?.key || child?._id;
         optionElement.innerHTML = `${child.label || child.name || child.key || game.i18n.localize('hm.app.equipment.unknown-choice')}`;
         select.appendChild(optionElement);
         renderedItemNames.add(optionElement.innerHTML);
@@ -334,7 +334,7 @@ export class OrItemRenderer extends BaseItemRenderer {
         renderedItemNames.add('Component Pouch');
 
         const pouchOption = document.createElement('option');
-        pouchOption.value = pouchItem?._source?.key;
+        pouchOption.value = pouchItem?.uuid || pouchItem?._source?.key;
         pouchOption.innerHTML = pouchItem.label || pouchItem.name;
         pouchOption.selected = true;
         select.appendChild(pouchOption);
@@ -399,7 +399,7 @@ export class OrItemRenderer extends BaseItemRenderer {
 
         if (combinedLabel) combinedLabel += ', ';
         combinedLabel += `${subChild.count > 1 || subChild.count !== null ? subChild.count : ''} <a class="content-link" draggable="true" data-uuid="${subChild.key}">${subChildItem.name}</a>`.trim();
-        combinedIds.push(subChild._id);
+        combinedIds.push(subChild?.uuid || subChild?._id);
 
         if (isPartOfOrChoice) {
           subChild.rendered = true;
@@ -464,14 +464,14 @@ export class OrItemRenderer extends BaseItemRenderer {
       renderedItemNames.add(displayName);
 
       const optionElement = document.createElement('option');
-      optionElement.value = child._source.key;
+      optionElement.value = child?.uuid || child._source.key;
       optionElement.innerHTML = `${count > 1 ? `${count} ${cleanDisplayName}` : cleanDisplayName}`;
 
       if (select.options.length === 0) {
         optionElement.selected = true;
         const defaultSelection = select.parentElement.querySelector(`#\\3${select.id}-default`);
         if (defaultSelection) {
-          defaultSelection.value = child._source?.key || child._id;
+          defaultSelection.value = child?.uuid || child._source?.key || child._id;
         }
       }
 

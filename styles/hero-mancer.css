@@ -328,7 +328,7 @@ button {
   min-height: 0;
   max-height: 100%;
   margin: 1rem 0;
-  padding: 2rem;
+  padding: 1rem 2rem;
   border: 1px solid var(--user-color);
   border-radius: 0.375rem;
   overflow: auto;
@@ -505,7 +505,7 @@ button {
 }
 
 .hm-app-tab-content .equipment-choices h3 {
-  font-size: 1.75rem;
+  font-size: 1.64rem;
   font-family: 'modesto condensed', serif;
 }
 
@@ -835,19 +835,17 @@ fieldset#start > h2 {
 }
 
 .equipment-choices {
-  gap: 1.25rem;
+  gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   display: grid;
-  margin-top: 1rem;
 }
 
 .class-equipment-section,
 .background-equipment-section {
-  display: flex;
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  padding: 2rem;
+  padding: 1.25rem;
   border: 1px solid #4a4a4a;
   border-radius: 6px;
   box-shadow: 0 2px 4px #0003;
@@ -899,7 +897,7 @@ fieldset#start > h2 {
 .equipment-choices .parent-label {
   width: fit-content;
   min-width: 140px;
-  max-width: 240px;
+  max-width: 265px;
   margin-right: 0;
   margin-left: 0;
 }
@@ -951,6 +949,9 @@ fieldset#start > h2 {
 
 /* Wealth option container */
 .wealth-option-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin: 10px 0 0;
   padding: 0.625rem;
   border: 1px solid var(--color-border-light-tertiary);
@@ -965,9 +966,22 @@ fieldset#start > h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.2rem;
-  padding: 0 0.625rem;
+  width: fit-content;
+  padding-left: 0.25rem;
   border-radius: 4px;
+}
+
+.wealth-roll-container button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.wealth-roll-container button i {
+  margin: 0;
 }
 
 .application.hm-app .hm-app-tab-content .equipment-container .equipment-choices .wealth-roll-container input[type='text'] {
@@ -979,7 +993,7 @@ fieldset#start > h2 {
 }
 
 .dual-weapon-selection {
-  margin-left: 10px;
+  margin-top: 10px;
 }
 
 .second-weapon-label {

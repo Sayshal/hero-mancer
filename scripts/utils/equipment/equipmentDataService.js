@@ -10,6 +10,7 @@ export class EquipmentDataService {
    */
   constructor(parser) {
     this.parser = parser;
+    HM.log(3, 'EquipmentDataService: Initialized');
   }
 
   /**
@@ -18,13 +19,17 @@ export class EquipmentDataService {
    * @returns {Promise<object>} Combined equipment data
    */
   async fetchEquipmentData() {
+    HM.log(3, 'EquipmentDataService.fetchEquipmentData: Beginning equipment data fetch');
     const classEquipment = await this.getStartingEquipment('class');
     const backgroundEquipment = await this.getStartingEquipment('background');
 
-    return {
+    const result = {
       class: classEquipment || [],
       background: backgroundEquipment || []
     };
+
+    HM.log(3, `EquipmentDataService.fetchEquipmentData: Retrieved ${result.class.length} class items and ${result.background.length} background items`);
+    return result;
   }
 
   /**
@@ -34,14 +39,21 @@ export class EquipmentDataService {
    * @returns {Promise<Item|null>} Found item document or null
    */
   async findItemDocumentById(itemId) {
+    HM.log(3, `EquipmentDataService.findItemDocumentById: Searching for item ${itemId}`);
     const selectedPacks = await this.getSelectedPacks();
+
     for (const packId of selectedPacks) {
       const pack = game.packs.get(packId);
       if (pack?.documentName === 'Item') {
         const item = await pack.getDocument(itemId);
-        if (item) return item;
+        if (item) {
+          HM.log(3, `EquipmentDataService.findItemDocumentById: Found item ${itemId} in pack ${packId}`);
+          return item;
+        }
       }
     }
+
+    HM.log(3, `EquipmentDataService.findItemDocumentById: Item ${itemId} not found in any pack`);
     return null;
   }
 
@@ -52,6 +64,7 @@ export class EquipmentDataService {
    * @returns {Promise<Set<string>>} Set of granted proficiency strings
    */
   async extractProficienciesFromAdvancements(advancements) {
+    HM.log(3, `EquipmentDataService.extractProficienciesFromAdvancements: Processing ${advancements?.length || 0} advancements`);
     const proficiencies = new Set();
 
     for (const advancement of advancements) {
@@ -61,7 +74,8 @@ export class EquipmentDataService {
         }
       }
     }
-    HM.log(3, 'Collected proficiencies:', Array.from(proficiencies));
+
+    HM.log(3, `EquipmentDataService.extractProficienciesFromAdvancements: Collected ${proficiencies.size} proficiencies`);
     return proficiencies;
   }
 
@@ -72,45 +86,73 @@ export class EquipmentDataService {
    * @returns {Promise<Array<object>>} Starting equipment array
    */
   async getStartingEquipment(type) {
+    HM.log(3, `EquipmentDataService.getStartingEquipment: Fetching ${type} equipment`);
+
     const storedData = HM.SELECTED[type] || {};
     const id = storedData.id;
     const uuid = storedData.uuid;
 
     if (!id) {
+      HM.log(3, `EquipmentDataService.getStartingEquipment: No ${type} selected`);
       return [];
     }
 
-    let doc = null;
+    const doc = await this.fetchDocumentByUuidOrId(type, uuid, id);
 
+    if (!doc) {
+      HM.log(2, `EquipmentDataService.getStartingEquipment: No document found for ${type} with id ${id}`);
+      return [];
+    }
+
+    // Extract proficiencies from document
+    this.parser.proficiencies = await this.extractProficienciesFromAdvancements(doc.system.advancement || []);
+
+    // Return equipment if available
+    if (doc.system.startingEquipment) {
+      HM.log(3, `EquipmentDataService.getStartingEquipment: Found ${doc.system.startingEquipment.length} equipment items for ${type} ${doc.name}`);
+      return doc.system.startingEquipment;
+    } else {
+      HM.log(2, `EquipmentDataService.getStartingEquipment: Document found but has no startingEquipment property: ${doc.name}`);
+      return [];
+    }
+  }
+
+  /**
+   * Helper method to fetch document by UUID or ID
+   * @async
+   * @param {string} type - Document type ('class' or 'background')
+   * @param {string} uuid - UUID to try first
+   * @param {string} id - ID to use as fallback
+   * @returns {Promise<Document|null>} Found document or null
+   * @private
+   */
+  async fetchDocumentByUuidOrId(type, uuid, id) {
+    HM.log(3, `EquipmentDataService.fetchDocumentByUuidOrId: Fetching ${type} document with UUID ${uuid} or ID ${id}`);
+
+    let doc = null;
     try {
       // Try to get by UUID first
       if (uuid) {
-        HM.log(3, `Attempting to get document for ${type} by UUID: ${uuid}`);
+        HM.log(3, `EquipmentDataService.fetchDocumentByUuidOrId: Attempting to get document by UUID: ${uuid}`);
         doc = await fromUuidSync(uuid);
       }
 
       // If UUID fails, try by ID
       if (!doc) {
-        HM.log(2, `Attempting to get document for ${type} by ID: ${id}`);
+        HM.log(2, `EquipmentDataService.fetchDocumentByUuidOrId: UUID lookup failed, trying ID: ${id}`);
         doc = await this.findItemDocumentById(id);
       }
     } catch (error) {
-      HM.log(1, `Error retrieving document for ${type}:`, error);
+      HM.log(1, `EquipmentDataService.fetchDocumentByUuidOrId: Error retrieving document for ${type}: ${error.message}`);
     }
 
     if (doc) {
-      this.parser.proficiencies = await this.extractProficienciesFromAdvancements(doc.system.advancement || []);
-
-      if (doc.system.startingEquipment) {
-        return doc.system.startingEquipment;
-      } else {
-        HM.log(2, `Document found but has no startingEquipment property: ${doc.name}`, { doc: doc });
-        return [];
-      }
+      HM.log(3, `EquipmentDataService.fetchDocumentByUuidOrId: Successfully found document ${doc.name}`);
     } else {
-      HM.log(2, `No document found for type ${type} with id ${id}`);
-      return [];
+      HM.log(2, 'EquipmentDataService.fetchDocumentByUuidOrId: Failed to find document');
     }
+
+    return doc;
   }
 
   /**
@@ -119,12 +161,15 @@ export class EquipmentDataService {
    * @returns {Promise<string[]>} Array of compendium pack IDs
    */
   async getSelectedPacks() {
+    HM.log(3, 'EquipmentDataService.getSelectedPacks: Retrieving selected packs');
     const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
     const classPacks = (await game.settings.get(HM.ID, 'classPacks')) || [];
     const backgroundPacks = (await game.settings.get(HM.ID, 'backgroundPacks')) || [];
     const racePacks = (await game.settings.get(HM.ID, 'racePacks')) || [];
 
-    return [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
+    const result = [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
+    HM.log(3, `EquipmentDataService.getSelectedPacks: Retrieved ${result.length} total packs`);
+    return result;
   }
 
   /**
@@ -133,50 +178,100 @@ export class EquipmentDataService {
    * @returns {string|null} - HTML string with equipment description or null if not found
    */
   extractEquipmentDescription(document) {
-    HM.log(3, 'Attempting to extract equipment description from document:', document?.name, document);
+    HM.log(3, `EquipmentDataService.extractEquipmentDescription: Extracting from ${document?.name || 'unknown document'}`);
 
     if (!document) {
-      HM.log(2, 'No document provided to extract equipment from');
+      HM.log(2, 'EquipmentDataService.extractEquipmentDescription: No document provided');
       return null;
     }
 
     // Get the document's description
     const description = document.system?.description?.value;
     if (!description) {
-      HM.log(2, 'Document has no description (system.description.value is empty)');
+      HM.log(2, 'EquipmentDataService.extractEquipmentDescription: Document has no description');
       return null;
     }
 
     const tempDiv = window.document.createElement('div');
     tempDiv.innerHTML = description;
 
-    // Helper function to check if an element is about equipment
-    const isEquipmentHeading = (element) => {
-      const text = element.textContent.toLowerCase();
-      const isEquipment =
-        text.includes(game.i18n.localize('TYPES.Item.equipment').toLowerCase()) || text.toLowerCase().includes(game.i18n.localize('hm.app.equipment.starting-equipment').toLowerCase());
+    // Try all extraction methods in sequence
+    let equipmentHtml =
+      this.findStartingEquipmentPattern(tempDiv) ||
+      this.findEquipmentLabel(tempDiv) ||
+      this.findDefinitionListFormat(tempDiv) ||
+      this.findEquipmentHeadings(tempDiv) ||
+      this.findEquipmentParagraphs(tempDiv) ||
+      this.findPlainTextMentions(description);
 
-      if (!isEquipment) {
-        HM.log(3, `Skipping non-equipment heading: "${element.textContent}"`);
-      }
+    if (equipmentHtml) {
+      HM.log(3, 'EquipmentDataService.extractEquipmentDescription: Successfully extracted equipment description');
+    } else {
+      HM.log(1, 'EquipmentDataService.extractEquipmentDescription: Failed to extract equipment description using any method');
+    }
 
-      return isEquipment;
-    };
+    return equipmentHtml;
+  }
 
-    // Custom function to find elements with specific text
-    const findElementsWithText = (parent, selector, text) => {
-      const elements = parent.querySelectorAll(selector);
-      return Array.from(elements).filter((el) => el.textContent.toLowerCase().includes(text.toLowerCase()));
-    };
+  /**
+   * Checks if an element is related to equipment
+   * @param {HTMLElement} element - Element to check
+   * @returns {boolean} - True if element is equipment-related
+   * @private
+   */
+  isEquipmentHeading(element) {
+    const text = element.textContent.toLowerCase();
+    const isEquipment = text.includes(game.i18n.localize('TYPES.Item.equipment').toLowerCase()) || text.toLowerCase().includes(game.i18n.localize('hm.app.equipment.starting-equipment').toLowerCase());
 
-    // Case 1: Check for "Starting Equipment" pattern
-    const startingEquipmentElements = findElementsWithText(tempDiv, 'b, strong', 'Starting Equipment');
+    if (!isEquipment) {
+      HM.log(3, `EquipmentDataService: Skipping non-equipment heading: "${element.textContent}"`);
+    }
+
+    return isEquipment;
+  }
+
+  /**
+   * Find elements with specific text
+   * @param {HTMLElement} parent - Parent element to search
+   * @param {string} selector - CSS selector
+   * @param {string} text - Text to search for
+   * @returns {HTMLElement[]} - Matching elements
+   * @private
+   */
+  findElementsWithText(parent, selector, text) {
+    const elements = parent.querySelectorAll(selector);
+    const matches = Array.from(elements).filter((el) => el.textContent.toLowerCase().includes(text.toLowerCase()));
+    HM.log(3, `EquipmentDataService.findElementsWithText: Found ${matches.length} elements matching "${text}"`);
+    return matches;
+  }
+
+  /**
+   * Case 1: Find Starting Equipment pattern
+   * @param {HTMLElement} tempDiv - Temporary div with document HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findStartingEquipmentPattern(tempDiv) {
+    HM.log(3, 'EquipmentDataService.findStartingEquipmentPattern: Searching for Starting Equipment pattern');
+    const startingEquipmentElements = this.findElementsWithText(tempDiv, 'b, strong', 'Starting Equipment');
+
     if (startingEquipmentElements.length > 0) {
+      HM.log(3, 'EquipmentDataService.findStartingEquipmentPattern: Found Starting Equipment heading');
       return this.extractStartingEquipmentPattern(startingEquipmentElements[0]);
     }
 
-    // Case 2: Look for Equipment: label
-    const equipmentLabels = findElementsWithText(tempDiv, '.Serif-Character-Style_Bold-Serif, .Bold-Serif, strong, b, span[class*="bold"], span[style*="font-weight"]', 'Equipment:');
+    return null;
+  }
+
+  /**
+   * Case 2: Find Equipment: label
+   * @param {HTMLElement} tempDiv - Temporary div with document HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findEquipmentLabel(tempDiv) {
+    HM.log(3, 'EquipmentDataService.findEquipmentLabel: Searching for Equipment: label');
+    const equipmentLabels = this.findElementsWithText(tempDiv, '.Serif-Character-Style_Bold-Serif, .Bold-Serif, strong, b, span[class*="bold"], span[style*="font-weight"]', 'Equipment:');
 
     if (equipmentLabels.length > 0) {
       const equipmentLabel = equipmentLabels[0];
@@ -184,58 +279,101 @@ export class EquipmentDataService {
 
       if (parentParagraph) {
         const paragraphHTML = parentParagraph.outerHTML;
-        HM.log(3, `Extracted equipment paragraph: ${paragraphHTML.substring(0, 100)}...`);
+        HM.log(3, 'EquipmentDataService.findEquipmentLabel: Found equipment paragraph');
         return paragraphHTML;
       }
     }
 
-    // Case 3: Look for definition list format
+    return null;
+  }
+
+  /**
+   * Case 3: Find definition list format
+   * @param {HTMLElement} tempDiv - Temporary div with document HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findDefinitionListFormat(tempDiv) {
+    HM.log(3, 'EquipmentDataService.findDefinitionListFormat: Searching for definition list format');
     const definitionTerms = tempDiv.querySelectorAll('dt');
+
     for (const dt of definitionTerms) {
       if (dt.textContent.toLowerCase().includes(`${game.i18n.localize('TYPES.Item.equipment').toLowerCase()}:`)) {
-        HM.log(3, 'Found equipment in definition list');
+        HM.log(3, 'EquipmentDataService.findDefinitionListFormat: Found equipment in definition list');
         return dt.outerHTML;
       }
     }
 
-    // Case 4: Look for equipment headings
+    return null;
+  }
+
+  /**
+   * Case 4: Find equipment headings
+   * @param {HTMLElement} tempDiv - Temporary div with document HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findEquipmentHeadings(tempDiv) {
+    HM.log(3, 'EquipmentDataService.findEquipmentHeadings: Searching for equipment headings');
     const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
     for (const heading of headings) {
-      if (isEquipmentHeading(heading)) {
+      if (this.isEquipmentHeading(heading)) {
+        HM.log(3, `EquipmentDataService.findEquipmentHeadings: Found equipment heading: ${heading.textContent}`);
         return this.extractContentFromHeading(heading);
       }
     }
 
-    // Case 5: Generic search for paragraphs
+    return null;
+  }
+
+  /**
+   * Case 5: Find paragraphs mentioning equipment
+   * @param {HTMLElement} tempDiv - Temporary div with document HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findEquipmentParagraphs(tempDiv) {
+    HM.log(3, 'EquipmentDataService.findEquipmentParagraphs: Searching for paragraphs mentioning equipment');
     const paragraphs = tempDiv.querySelectorAll('p');
+
     for (const para of paragraphs) {
-      if (isEquipmentHeading(para)) {
+      if (this.isEquipmentHeading(para)) {
+        HM.log(3, `EquipmentDataService.findEquipmentParagraphs: Found paragraph with equipment: ${para.textContent.substring(0, 40)}...`);
         return this.extractContentFromParagraph(para);
       }
     }
 
-    // Final fallback - check for plain text mentions
+    return null;
+  }
+
+  /**
+   * Final fallback: Find plain text mentions of equipment
+   * @param {string} description - Document description HTML
+   * @returns {string|null} - Extracted HTML or null
+   * @private
+   */
+  findPlainTextMentions(description) {
+    HM.log(3, 'EquipmentDataService.findPlainTextMentions: Searching for plain text mentions');
     const equipmentRegex = /equipment:([^<]+)(?:<\/|<br|$)/i;
     const match = description.match(equipmentRegex);
 
     if (match) {
       const equipmentText = match[1].trim();
-      HM.log(3, `Found equipment via regex: "${equipmentText.substring(0, 40)}..."`);
+      HM.log(3, `EquipmentDataService.findPlainTextMentions: Found equipment via regex: "${equipmentText.substring(0, 40)}..."`);
       return `<p><strong>${game.i18n.localize('TYPES.Item.equipment')}:</strong> ${equipmentText}</p>`;
     }
 
-    HM.log(1, 'Failed to extract equipment description using any method');
     return null;
   }
 
   /**
    * Extract equipment content using Starting Equipment pattern
    * @param {HTMLElement} element - The starting element
-   * @returns {string} HTML content
-   * @private
+   * @returns {string|null} HTML content
    */
   extractStartingEquipmentPattern(element) {
-    HM.log(3, 'Found Starting Equipment heading');
+    HM.log(3, 'EquipmentDataService.extractStartingEquipmentPattern: Processing Starting Equipment pattern');
     let container = element.closest('p') || element.parentElement;
 
     if (container) {
@@ -268,7 +406,7 @@ export class EquipmentDataService {
         currentElement = currentElement.nextElementSibling;
       }
 
-      HM.log(3, `Extracted complete equipment section: ${combinedContent.substring(0, 100)}...`);
+      HM.log(3, 'EquipmentDataService.extractStartingEquipmentPattern: Extracted complete equipment section');
       return combinedContent;
     }
     return null;
@@ -278,10 +416,9 @@ export class EquipmentDataService {
    * Extract content from a heading element
    * @param {HTMLElement} heading - The heading element
    * @returns {string} HTML content
-   * @private
    */
   extractContentFromHeading(heading) {
-    HM.log(3, `Found equipment heading: ${heading.outerHTML}`);
+    HM.log(3, 'EquipmentDataService.extractContentFromHeading: Extracting content from heading');
 
     let content = heading.outerHTML;
     let currentElement = heading.nextElementSibling;
@@ -297,7 +434,7 @@ export class EquipmentDataService {
       currentElement = currentElement.nextElementSibling;
     }
 
-    HM.log(3, `Extracted equipment section from heading: ${content.substring(0, 100)}...`);
+    HM.log(3, 'EquipmentDataService.extractContentFromHeading: Extracted equipment section from heading');
     return content;
   }
 
@@ -305,10 +442,9 @@ export class EquipmentDataService {
    * Extract content from a paragraph
    * @param {HTMLElement} para - The paragraph element
    * @returns {string} HTML content
-   * @private
    */
   extractContentFromParagraph(para) {
-    HM.log(3, `Found paragraph with equipment: ${para.textContent.substring(0, 40)}...`);
+    HM.log(3, `EquipmentDataService.extractContentFromParagraph: Extracting from paragraph starting with "${para.textContent.substring(0, 40)}..."`);
 
     let content = para.outerHTML;
     let nextElement = para.nextElementSibling;
@@ -330,7 +466,7 @@ export class EquipmentDataService {
       }
     }
 
-    HM.log(3, `Extracted equipment paragraph and related content: ${content.substring(0, 100)}...`);
+    HM.log(3, 'EquipmentDataService.extractContentFromParagraph: Extracted equipment paragraph and related content');
     return content;
   }
 }

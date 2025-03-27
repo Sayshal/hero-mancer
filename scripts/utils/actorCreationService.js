@@ -1,4 +1,4 @@
-import { EquipmentParser, HeroMancer, HM } from './index.js';
+import { DOMManager, EquipmentParser, HeroMancer, HM } from './index.js';
 
 export class ActorCreationService {
   static ADVANCEMENT_DELAY = { transitionDelay: 300, renderTimeout: 3000, retryAttempts: 3 };

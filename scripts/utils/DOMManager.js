@@ -717,13 +717,6 @@ export class DOMManager {
         return;
       }
 
-      // Single log before sorting
-      HM.log(
-        3,
-        'Before sorting:',
-        selectedEquipment.map((item) => `${item.text} (favorite: ${item.favorite})`)
-      );
-
       // Sort once - favorites first, then by type priority
       selectedEquipment.sort((a, b) => {
         if (a.favorite && !b.favorite) return -1;
@@ -734,13 +727,6 @@ export class DOMManager {
         const bIndex = priorityTypes.indexOf(b.type);
         return (bIndex === -1 ? -999 : bIndex) - (aIndex === -1 ? -999 : aIndex);
       });
-
-      // Single log after sorting
-      HM.log(
-        3,
-        'After sorting:',
-        selectedEquipment.map((item) => `${item.text} (favorite: ${item.favorite})`)
-      );
 
       // Take up to 3 items
       const displayEquipment = selectedEquipment.slice(0, 3);
