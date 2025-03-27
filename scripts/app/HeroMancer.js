@@ -524,7 +524,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static async randomize(event) {
     event.preventDefault();
-
+    // Re-render the entire application
+    await HM.heroMancer.render(true);
     // Get the form element
     const form = event.currentTarget.closest('form');
     if (!form) return;

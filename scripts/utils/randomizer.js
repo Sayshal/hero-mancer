@@ -399,10 +399,10 @@ export class CharacterRandomizer {
       await this.randomizeBackground(form);
       await this.randomizeClass(form);
       await this.randomizeRace(form);
-      await this.randomizeAbilities(form);
       this.randomizeAlignment(form);
       this.randomizeFaith(form);
       this.randomizeAppearance(form);
+      await this.randomizeAbilities(form);
 
       HM.log(3, 'Randomizing complete...');
 
@@ -521,6 +521,9 @@ export class CharacterRandomizer {
    * @returns {Promise<void>}
    */
   static async randomizeAbilities(form) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    ui.notifications.clear(); // Clear any notifications, we're almost done!
+
     // Get the current roll method
     const rollMethodSelect = form.querySelector('#roll-method');
     if (!rollMethodSelect) return;
@@ -735,28 +738,32 @@ export class CharacterRandomizer {
    */
   static async #randomizePointBuy(form) {
     try {
+      HM.log(3, 'Starting point buy randomization');
+
       // 1. Identify all ability blocks and which ones are primary
       const abilityBlocks = form.querySelectorAll('.ability-block.point-buy');
       if (!abilityBlocks.length) {
-        HM.log(2, 'No ability blocks found for point buy');
+        HM.log(1, 'No ability blocks found for point buy');
         return;
       }
+
+      HM.log(3, `Found ${abilityBlocks.length} ability blocks`);
 
       const abilities = Array.from(abilityBlocks).map((block, index) => {
         const label = block.querySelector('.ability-label');
         const plusButton = block.querySelector('.plus-button');
         const currentScore = block.querySelector('.current-score');
-        const input = block.querySelector('input[type="hidden"]');
+        const isPrimary = label?.classList.contains('primary-ability');
+
+        HM.log(3, `Ability ${index}: ${label?.textContent.trim()} - isPrimary: ${isPrimary}`);
 
         return {
           index,
           block,
-          isPrimary: label?.classList.contains('primary-ability'),
+          isPrimary,
           plusButton,
           minusButton: block.querySelector('.minus-button'),
-          currentScore,
-          input,
-          value: parseInt(currentScore?.textContent || '8')
+          currentScore
         };
       });
 
@@ -764,62 +771,91 @@ export class CharacterRandomizer {
       const primaryAbilities = abilities.filter((a) => a.isPrimary);
       const nonPrimaryAbilities = abilities.filter((a) => !a.isPrimary);
 
+      HM.log(3, `Primary abilities: ${primaryAbilities.length}, Non-primary: ${nonPrimaryAbilities.length}`);
+
       // 3. Get total points using StatRoller methods
       const totalPoints = StatRoller.getTotalPoints();
+      HM.log(3, `Total points available: ${totalPoints}`);
 
+      // 4. First focus exclusively on maxing out all primary abilities
+      HM.log(3, 'Starting to max out primary abilities');
+      for (const primary of primaryAbilities) {
+        HM.log(3, `Working on primary ability index ${primary.index}`);
+
+        // Keep clicking the + button until it becomes disabled
+        let maxAttempts = 20; // More than enough to reach max score
+        let clickCount = 0;
+
+        while (!primary.plusButton.disabled && maxAttempts > 0) {
+          HM.log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
+          primary.plusButton.click();
+          clickCount++;
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          maxAttempts--;
+        }
+
+        HM.log(3, `Finished primary ability ${primary.index} after ${clickCount} clicks. Final value: ${primary.currentScore.textContent}`);
+      }
+
+      // 5. Calculate remaining points after primaries are maxed
       let pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
       let remainingPoints = totalPoints - pointsSpent;
 
-      // 4. Max out each primary ability completely before moving to the next one
-      for (const ability of primaryAbilities) {
-        // Continue clicking + until the button is disabled or we run out of points
-        while (!ability.plusButton.disabled && remainingPoints > 0) {
-          ability.plusButton.click();
-          await new Promise((resolve) => setTimeout(resolve, 50));
+      HM.log(3, `After maxing primaries - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
 
-          // Update ability values and recalculate points
-
-          pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
-          remainingPoints = totalPoints - pointsSpent;
-        }
-
-        // If we're out of points, stop trying to assign
-        if (remainingPoints <= 0) break;
-      }
-
-      // 5. If we still have points, distribute them among non-primary abilities
+      // 6. Distribute remaining points to non-primary abilities
       if (remainingPoints > 0) {
-        // Shuffle non-primary abilities for random distribution
+        HM.log(3, `Starting to distribute ${remainingPoints} remaining points to non-primary abilities`);
+
+        // Shuffle for random distribution
         this.#shuffleArray(nonPrimaryAbilities);
+        HM.log(3, 'Shuffled non-primary abilities order');
 
-        // Assign points evenly first
-        let currentNonPrimaryIndex = 0;
-        while (remainingPoints > 0) {
-          const ability = nonPrimaryAbilities[currentNonPrimaryIndex];
+        let distributionCounter = 0;
+        let totalClicks = 0;
 
-          // If button isn't disabled, click it
-          if (!ability.plusButton.disabled) {
-            ability.plusButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 50));
+        while (remainingPoints > 0 && distributionCounter < 100) {
+          // Safety counter
+          distributionCounter++;
 
-            // Update ability values and recalculate points
+          for (const ability of nonPrimaryAbilities) {
+            if (remainingPoints <= 0) break;
 
-            pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
-            remainingPoints = totalPoints - pointsSpent;
+            if (!ability.plusButton.disabled) {
+              HM.log(3, `Clicking + for non-primary ability ${ability.index}, current value: ${ability.currentScore.textContent}`);
+              ability.plusButton.click();
+              totalClicks++;
+              await new Promise((resolve) => setTimeout(resolve, 50));
+
+              // Recalculate points
+              pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+              remainingPoints = totalPoints - pointsSpent;
+
+              HM.log(3, `After click - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
+
+              if (remainingPoints <= 0) break;
+            } else {
+              HM.log(3, `Non-primary ability ${ability.index} button is disabled, skipping`);
+            }
           }
-
-          // Move to next non-primary ability in rotation
-          currentNonPrimaryIndex = (currentNonPrimaryIndex + 1) % nonPrimaryAbilities.length;
 
           // Check if we can still assign points to any ability
           const canStillAssign = nonPrimaryAbilities.some((a) => !a.plusButton.disabled);
-          if (!canStillAssign) break;
+          if (!canStillAssign) {
+            HM.log(3, 'No more abilities can be increased, breaking loop');
+            break;
+          }
         }
+
+        HM.log(3, `Completed non-primary distribution. Total clicks: ${totalClicks}`);
+      } else {
+        HM.log(3, 'No points remaining for non-primary abilities');
       }
 
       HM.log(3, 'Point buy randomization complete');
     } catch (error) {
-      HM.log(1, 'Error during point buy randomization:', error);
+      HM.log(1, `Error during point buy randomization: ${error.message}`);
+      console.error(error);
     }
   }
 

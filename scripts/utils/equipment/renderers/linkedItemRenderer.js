@@ -15,7 +15,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
     HM.log(3, `LinkedItemRenderer.render: Processing item ${item?._id}`);
 
     if (!item?._source?.key) {
-      HM.log(1, `LinkedItemRenderer.render: Invalid item - missing _source.key for item ${item?._id}`);
+      HM.log(1, `LinkedItemRenderer.render: Invalid item - missing _source.key for item ${item?._id}`, { item });
       return null;
     }
 
