@@ -540,12 +540,10 @@ export class EquipmentParser {
       try {
         // Try to find the items - value could be single ID/UUID or comma-separated list
         let items = await this.findItemsFromDropdownValue(dropdown, value);
-        HM.log(1, { items: items });
         if (!items.length) return;
 
         // Process each item
         for (const item of items) {
-          HM.log(1, { item: item });
           await this.processDropdownSelectedItem(dropdown, value, item, equipment);
         }
       } catch (error) {
@@ -565,8 +563,6 @@ export class EquipmentParser {
    * @private
    */
   static async findItemsFromDropdownValue(dropdown, value) {
-    HM.log(1, `Finding items for value "${value}"`);
-
     let items = [];
 
     // Check for comma-separated values (2024 format)
@@ -578,7 +574,7 @@ export class EquipmentParser {
       if (item) items = [item];
     }
 
-    HM.log(1, `Found ${items.length} items for value "${value}"`);
+    HM.log(3, `Found ${items.length} items for value "${value}"`);
     return items;
   }
 

@@ -60,6 +60,7 @@
       },
       "cancel": "Cancel",
       "cancel-description": "Cancel and close Hero Mancer",
+      "character-created": "Character has been created successfully.",
       "class": {
         "none": "No classes available.",
         "preamble": "Choose your character's class from the available options.",
@@ -191,8 +192,7 @@
         "start": "Start"
       },
       "tabs": "Hero Mancer Navigation Tabs",
-      "title": "the {components}",
-      "character-created": "Character has been created successfully."
+      "title": "the {components}"
     },
     "dialogs": {
       "reroll": {
@@ -209,7 +209,9 @@
     },
     "errors": {
       "ability-roll-failed": "Unable to roll ability scores. Please try a different rolling method or refresh the application and try again.",
+      "actor-creation-failed": "Failed to create character. Please try again.",
       "advancement-process": "There was an error applying character advancements. Your character may be incomplete.",
+      "advancement-processing-failed": "Error processing character advancements.",
       "advancement-timeout": "Advancement process timed out. Please check your character sheet for completeness.",
       "cache-error": "Error loading cached data. Character creation data will be refreshed.",
       "character-creation-failed": "Character creation failed. Please ensure all required fields are completed and that you have proper permissions to create characters.",
@@ -221,6 +223,9 @@
       "failed-compendium-retrieval": "Failed to retrieve documents from compendium pack: {type}",
       "fetch-fail": "Failed to fetch some documents, please check console for errors.",
       "form-submission": "There was an error submitting the form. Please try again.",
+      "missing-ability-fields": "Missing required ability scores: {fields} ({count} total)",
+      "missing-background-fields": "Missing required background details: {fields} ({count} total)",
+      "missing-basic-fields": "Missing required basic fields: {fields} ({count} total)",
       "missing-equipment": "The selected {type} doesn't contain any Starting Equipment data. Please report this to the creator of the item, not Hero Mancer.",
       "missing-mandatory-fields": "Required fields missing: {fields}",
       "no-background": "The selected background could not be found.",
@@ -235,6 +240,10 @@
       "select-class": "Please select a class before submitting.",
       "select-race": "Please select a race before submitting.",
       "tab-navigation": "There was an error navigating to the selected tab."
+    },
+    "info": {
+      "advancement-progress": "Processing {item} ({current}/{total})",
+      "all-advancements-complete": "All character advancements processed successfully."
     },
     "settings": {
       "ability-scores": {
@@ -329,29 +338,29 @@
         "reset-default": "Custom Standard Array was reset to default values due to invalid length."
       },
       "customization": {
+        "error-art-picker": "Error selecting art picker location. Please try again.",
+        "error-context": "Error loading customization settings. Default values may be shown.",
         "error-saving": "Error saving character customization settings.",
         "menu": {
           "hint": "Determine what customization players can use.",
           "name": "Character Customization"
         },
-        "saved": "Character customization settings saved successfully.",
-        "error-art-picker": "Error selecting art picker location. Please try again.",
-        "error-context": "Error loading customization settings. Default values may be shown.",
-        "save-error": "Failed to save setting: {setting}. Using previous value."
+        "save-error": "Failed to save setting: {setting}. Using previous value.",
+        "saved": "Character customization settings saved successfully."
       },
       "deities": {
         "hint": "Comma-separated list of deities available for character creation.",
         "name": "Available Deities"
       },
       "dice-rolling": {
+        "error-context": "Error loading dice rolling settings. Default values will be used.",
         "error-saving": "Unable to save dice settings, see console and report to the developer.",
         "menu": {
           "hint": "Set stat generation options.",
           "name": "Ability Score Generation"
         },
         "need-roll-method": "At least one ability score generation method must be enabled, changes rejected.",
-        "saved": "Dice rolling settings have been saved.",
-        "error-context": "Error loading dice rolling settings. Default values will be used."
+        "saved": "Dice rolling settings have been saved."
       },
       "dice-rolling-method": {
         "hint": "Select which roll methods your users can choose from.",
@@ -395,6 +404,7 @@
       },
       "mandatory-fields": {
         "core-fields-hint": "Core fields are always mandatory and cannot be disabled as they are essential for functionality.",
+        "error-context": "Error loading mandatory fields settings. Using default values.",
         "error-saving": "Error saving mandatory field settings",
         "groups": {
           "abilities": "Step 5: Abilities",
@@ -413,8 +423,7 @@
           "hint": "Set which fields must be filled out before submitting a character.",
           "name": "Mandatory Fields"
         },
-        "saved": "Mandatory field settings saved",
-        "error-context": "Error loading mandatory fields settings. Using default values."
+        "saved": "Mandatory field settings saved"
       },
       "no-selection": "No compendiums selected. Please select at least one.",
       "player-customization": {
@@ -442,34 +451,39 @@
         "name": "Allow Token Customization"
       },
       "troubleshooter": {
+        "copy-error": "Failed to copy report to clipboard.",
         "copy-success": "Troubleshooter copied to clipboard",
         "copy-to-clipboard": "Copy to Clipboard",
         "discord": "Join Discord",
+        "error-context": "Error loading troubleshooter data.",
+        "error-report": "Error generating troubleshooting report. Please try again.",
         "export": "Export Troubleshooter",
+        "export-error": "Failed to export troubleshooting report.",
         "export-success": "Troubleshooter exported as {filename}",
         "generate-report": "Open Troubleshooter",
         "github": "Report Issue",
+        "link-error": "Failed to open external link.",
         "menu": {
           "hint": "Generate a troubleshooter report to assist with issues.",
           "name": "Troubleshooter"
         },
         "notes": "The troubleshooter contains all relevant information needed to start the bug-squashing process. Using the buttons below, you can save this output as a file or copy it to your clipboard. Feel free to join the Discord or create an issue on Github.",
         "save-to-file": "Download",
-        "title": "Troubleshooter",
-        "error-context": "Error loading troubleshooter data.",
-        "error-report": "Error generating troubleshooting report. Please try again.",
-        "export-error": "Failed to export troubleshooting report.",
-        "copy-error": "Failed to copy report to clipboard.",
-        "link-error": "Failed to open external link."
+        "title": "Troubleshooter"
       }
     },
     "unknown": "unknown {type}",
     "warnings": {
       "advancement-failed": "Failed to apply {item} advancement. Your character may be missing some features.",
       "advancement-timeout": "The advancement process for {item} took too long and was skipped.",
+      "currency-update-failed": "Failed to update character currency.",
+      "equipment-creation-failed": "Failed to create some equipment items.",
       "equipment-extraction-failed": "Note: The document contains equipment information, but it could not be automatically extracted due to its format.",
+      "equipment-processing-failed": "Some equipment items couldn't be processed correctly.",
+      "favorites-processing-failed": "Failed to process favorite items properly.",
       "partial-cleanup": "Some resources could not be properly cleaned up.",
-      "select-background": "You must select a valid background first."
+      "select-background": "You must select a valid background first.",
+      "some-advancements-failed": "Some advancements failed: {failed}. Succeeded: {succeeded}."
     }
   }
 }
