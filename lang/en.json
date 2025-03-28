@@ -239,7 +239,10 @@
       "select-background": "Please select a background before submitting.",
       "select-class": "Please select a class before submitting.",
       "select-race": "Please select a race before submitting.",
-      "tab-navigation": "There was an error navigating to the selected tab."
+      "tab-navigation": "There was an error navigating to the selected tab.",
+      "art-picker-failed": "Failed to open character art picker",
+      "token-art-picker-failed": "Failed to open token art picker",
+      "avatar-picker-failed": "Failed to open player avatar picker"
     },
     "info": {
       "advancement-progress": "Processing {item} ({current}/{total})",
