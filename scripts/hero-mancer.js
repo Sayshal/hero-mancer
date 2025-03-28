@@ -10,22 +10,86 @@ export class HM {
   /*  Static Properties                           */
   /* -------------------------------------------- */
 
+  /**
+   * Module identifier used for settings and prefixing
+   * @static
+   * @type {string}
+   */
   static ID = 'hero-mancer';
 
+  /**
+   * Display name of the module
+   * @static
+   * @type {string}
+   */
   static NAME = 'Hero Mancer';
 
+  /**
+   * Storage for document collections (races, classes, backgrounds)
+   * @static
+   * @type {Object}
+   * @property {Array|null} race - Collection of race documents
+   * @property {Array|null} class - Collection of class documents
+   * @property {Array|null} background - Collection of background documents
+   */
   static DOCS = { race: null, class: null, background: null };
 
+  /**
+   * Compatibility flags for other modules
+   * @static
+   * @type {Object}
+   */
   static COMPAT = {};
 
+  /**
+   * Configuration for ability score limits
+   * @static
+   * @type {Object}
+   * @property {number} DEFAULT - Default ability score value
+   * @property {number} MIN - Minimum allowed ability score
+   * @property {number} MAX - Maximum allowed ability score
+   */
   static ABILITY_SCORES = {};
 
+  /**
+   * Current logging level (0=disabled, 1=errors, 2=warnings, 3=verbose)
+   * @static
+   * @type {number}
+   */
   static LOG_LEVEL = 0;
+
+  /**
+   * Stores the currently selected character options
+   * @static
+   * @type {Object}
+   * @property {Object} class - Selected class
+   * @property {string} class.value - Default value of selected class
+   * @property {string} class.id - ID of selected class
+   * @property {string} class.uuid - UUID of class document
+   * @property {Object} race - Selected race
+   * @property {string} race.value - Default value of selected race
+   * @property {string} race.id - ID of selected race
+   * @property {string} race.uuid - UUID of race document
+   * @property {Object} background - Selected background
+   * @property {string} background.value - Default value of selected background
+   * @property {string} background.id - ID of selected background
+   * @property {string} background.uuid - UUID of background document
+   */
+  static SELECTED = {
+    class: { value: '', id: '', uuid: '' },
+    race: { value: '', id: '', uuid: '' },
+    background: { value: '', id: '', uuid: '' }
+  };
 
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
 
+  /**
+   * Initialize the Hero Mancer module
+   * @static
+   * @returns {void}
+   */
   static init() {
     this.initSettings();
     this.LOG_LEVEL = parseInt(game.settings.get(this.ID, 'loggingLevel'));
@@ -48,7 +112,11 @@ export class HM {
     }
   }
 
-  /* Register Settings */
+  /**
+   * Register and initialize all module settings
+   * @static
+   * @returns {void}
+   */
   static initSettings() {
     console.log(`${HM.ID} | Registering module settings.`);
     registerSettings();
@@ -60,9 +128,11 @@ export class HM {
   }
 
   /**
-   * Custom logger.
-   * @param {number} level 0-3 to define log level to catch. 0 = disabled.
-   * @param {any} args Strings, variables to log to console.
+   * Custom logger with caller context information
+   * @static
+   * @param {number} level - Log level (1=error, 2=warning, 3=verbose)
+   * @param {...any} args - Content to log to console
+   * @returns {void}
    */
   static log(level, ...args) {
     // Get calling context using Error stack trace
@@ -117,9 +187,12 @@ export class HM {
 
   /**
    * Shows a confirmation dialog for reloading the world/application
-   * @param {object} options - Configuration options
-   * @param {boolean} [options.world=false] - Whether to reload the entire world
-   * @returns {Promise<void>}
+   * @static
+   * @async
+   * @param {Object} [options={}] - Configuration options
+   * @param {boolean} [options.world=false] - Whether to reload the entire world (true) or just the client (false)
+   * @returns {Promise<void>} - Resolves after the reload is triggered or canceled
+   * @throws {Error} - If the dialog cannot be displayed
    */
   static async reloadConfirm({ world = false } = {}) {
     const reload = await foundry.applications.api.DialogV2.confirm({
@@ -136,9 +209,11 @@ export class HM {
   }
 
   /**
-   * Prepares and caches game documents
-   * @throws {Error} If document preparation fails
+   * Prepares and caches game documents for races, classes, and backgrounds
+   * @static
    * @async
+   * @returns {Promise<void>}
+   * @throws {Error} If document preparation or enrichment fails
    */
   static async loadAndEnrichDocuments() {
     HM.log(3, 'Preparing documents for Hero Mancer');
@@ -168,24 +243,57 @@ export class HM {
                 .replace(/<\/ h3/g, '</ h2');
             } catch (error) {
               HM.log(1, `Failed to enrich description for '${doc.name}':`, error);
+              // Recovery: use plain description as fallback
+              doc.enrichedDescription = doc.description;
             }
           }
         })
       );
 
+      if (!this.documents.race?.length) {
+        HM.log(2, 'No race documents were loaded. Character creation may be limited.');
+      }
+      if (!this.documents.class?.length) {
+        HM.log(2, 'No class documents were loaded. Character creation may be limited.');
+      }
+      if (!this.documents.background?.length) {
+        HM.log(2, 'No background documents were loaded. Character creation may be limited.');
+      }
+
       HM.log(3, 'Document preparation complete', { doc: this.documents, allDocs: allDocs });
     } catch (error) {
       HM.log(1, 'Failed to prepare documents:', error.message);
-      throw error;
+      ui.notifications.error(`Hero Mancer: Failed to prepare documents: ${error.message}`);
+
+      // Recovery steps
+      this.documents = { race: [], class: [], background: [] };
+
+      // Attempt to recover individual document types
+      try {
+        this.documents.race = await DocumentService.prepareDocumentsByType('race');
+        HM.log(2, 'Successfully recovered race documents');
+      } catch (e) {
+        HM.log(1, 'Could not recover race documents:', e.message);
+      }
+
+      try {
+        this.documents.class = await DocumentService.prepareDocumentsByType('class');
+        HM.log(2, 'Successfully recovered class documents');
+      } catch (e) {
+        HM.log(1, 'Could not recover class documents:', e.message);
+      }
+
+      try {
+        this.documents.background = await DocumentService.prepareDocumentsByType('background');
+        HM.log(2, 'Successfully recovered background documents');
+      } catch (e) {
+        HM.log(1, 'Could not recover background documents:', e.message);
+      }
+
+      throw new Error(`Document preparation failed: ${error.message}. Some features may not work correctly.`);
     }
   }
 }
-
-HM.SELECTED = {
-  class: { value: '', id: '', uuid: '' },
-  race: { value: '', id: '', uuid: '' },
-  background: { value: '', id: '', uuid: '' }
-};
 
 /* -------------------------------------------- */
 /*  Hooks                                       */
