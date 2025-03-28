@@ -186,7 +186,7 @@ export class DOMManager {
    * @param {HTMLElement} element - Root element
    * @returns {Promise<boolean>} Success status
    */
-  static initialize(element) {
+  static async initialize(element) {
     if (!element) {
       HM.log(1, 'Cannot initialize DOMManager: No element provided');
       return false;
@@ -199,7 +199,7 @@ export class DOMManager {
       this.initializeCharacterDetails(element);
       this.initializeFormValidation(element);
       this.initializeTokenCustomization(element);
-      this.initializeRollButtons(element);
+      await this.initializeRollButtons(element);
       this.initializePortrait();
     } catch (error) {
       HM.log(1, 'Error during DOMManager initialization:', error);
@@ -531,7 +531,7 @@ export class DOMManager {
    * Initialize roll buttons for background characteristics
    * @param {HTMLElement} element - Application root element
    */
-  static initializeRollButtons() {
+  static async initializeRollButtons() {
     const rollButtons = document.querySelectorAll('.roll-btn');
     const backgroundSelect = document.querySelector('#background-dropdown');
 
@@ -562,7 +562,7 @@ export class DOMManager {
           return;
         }
 
-        const result = TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
+        const result = await TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
         HM.log(3, 'Roll result:', result);
 
         if (result) {

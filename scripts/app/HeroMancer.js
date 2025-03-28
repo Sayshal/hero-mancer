@@ -308,10 +308,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @protected
    * @override
    */
-  _onFirstRender(_context, _options) {
-    // Initialize all event handlers through the centralized DOMManager
-    DOMManager.initialize(this.element);
-
+  async _onFirstRender(_context, _options) {
     // Initialize empty equipment sections
     const equipmentContainer = this.element.querySelector('#equipment-container');
     if (equipmentContainer && !HM.COMPAT.ELKAN) {
@@ -352,11 +349,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       // Check if we need to re-init roll method listeners
       const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
       if (abilitiesTab) {
-        DOMManager.initializeAbilities(this.element);
+        await DOMManager.initializeAbilities(this.element);
       }
 
       // Re-initialize DOM event handlers after rendering
-      DOMManager.initialize(this.element);
+      await DOMManager.initialize(this.element);
 
       // Check mandatory fields
       await MandatoryFields.checkMandatoryFields(this.element);
@@ -519,8 +516,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           await app.render(true);
 
           // Reinitialize all event handlers after render
-          requestAnimationFrame(() => {
-            DOMManager.initialize(app.element);
+          requestAnimationFrame(async () => {
+            await DOMManager.initialize(app.element);
 
             // Force update descriptions for main dropdowns
             ['class', 'race', 'background'].forEach((type) => {

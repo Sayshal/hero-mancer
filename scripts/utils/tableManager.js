@@ -20,80 +20,157 @@ export class TableManager {
   /**
    * Loads and initializes roll tables for a selected background
    * @param {object} background - Background document
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Success status
    * @static
    */
   static async loadRollTablesForBackground(background) {
     if (!background) {
       HM.log(2, 'No background provided for table initialization');
       TableManager.updateRollButtonsAvailability(null);
-      return;
+      return false;
     }
 
     HM.log(3, `Loading tables for background: ${background.name} (${background.id})`);
     this.currentTables.delete(background.id);
 
     try {
-      const description = background.system.description.value;
-      const uuidPattern = /@UUID\[Compendium\.(.*?)\.(.*?)\.RollTable\.(.*?)]/g;
-      const matches = [...description.matchAll(uuidPattern)];
+      // Validate background has required properties
+      if (!background.system?.description?.value) {
+        HM.log(2, 'Background document missing required properties');
+        TableManager.updateRollButtonsAvailability(null);
+        return false;
+      }
 
-      if (!matches.length) {
+      const description = background.system.description.value;
+      const tableMatches = this.#findTableUuidsInDescription(description);
+
+      if (!tableMatches.length) {
         HM.log(2, 'No RollTable UUIDs found in background description, hiding UI elements.');
         TableManager.updateRollButtonsAvailability(null);
-        return;
+        return false;
       }
 
-      // Load each table and track which types we found
-      const foundTableTypes = new Set();
-      const tables = await Promise.all(
-        matches.map(async (match) => {
-          const uuid = `Compendium.${match[1]}.${match[2]}.RollTable.${match[3]}`;
-          try {
-            const table = await fromUuid(uuid);
-            if (!table) {
-              HM.log(2, `Could not load table with UUID: ${uuid}`);
-              return null;
-            }
-
-            // Check table type based on name
-            const tableName = table.name.toLowerCase();
-            this.tableTypes.forEach((type) => {
-              if (tableName.includes(type.toLowerCase()) || (type === 'Personality Traits' && tableName.includes('personality'))) {
-                foundTableTypes.add(type);
-              }
-            });
-
-            return table;
-          } catch (error) {
-            HM.log(1, `Error loading table with UUID ${uuid}:`, error);
-            return null;
-          }
-        })
-      );
-      HM.log(3, 'Loaded tables:', { tables });
-
-      const validTables = tables.filter((table) => table !== null);
-      if (validTables.length) {
-        // Process all table resets in parallel
-        await Promise.all(
-          validTables.map(async (table) => {
-            try {
-              await table.resetResults();
-            } catch (error) {
-              HM.log(1, `Error resetting table ${table.id}:`, error);
-            }
-          })
-        );
-
-        this.currentTables.set(background.id, validTables);
+      const tableResults = await this.#loadAndResetTables(tableMatches);
+      if (!tableResults.tables.length) {
+        HM.log(2, 'No valid tables were loaded');
+        TableManager.updateRollButtonsAvailability(null);
+        return false;
       }
+
+      // Store valid tables
+      this.currentTables.set(background.id, tableResults.tables);
 
       // Update UI based on which table types were found
-      TableManager.updateRollButtonsAvailability(foundTableTypes);
+      TableManager.updateRollButtonsAvailability(tableResults.foundTableTypes);
+      return true;
     } catch (error) {
       HM.log(1, 'Error initializing tables for background:', error);
       TableManager.updateRollButtonsAvailability(null);
+      return false;
+    }
+  }
+
+  /**
+   * Find table UUIDs in a description string
+   * @param {string} description - The background description text
+   * @returns {Array} Array of UUID matches
+   * @private
+   * @static
+   */
+  static #findTableUuidsInDescription(description) {
+    try {
+      const uuidPattern = /@UUID\[Compendium\.(.*?)\.(.*?)\.RollTable\.(.*?)]/g;
+      return [...description.matchAll(uuidPattern)];
+    } catch (error) {
+      HM.log(1, 'Error parsing description for table UUIDs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Load and reset tables based on matched UUIDs
+   * @param {Array} matches - Array of UUID regex matches
+   * @returns {Promise<Object>} Object containing tables and types
+   * @private
+   * @static
+   */
+  static async #loadAndResetTables(matches) {
+    const foundTableTypes = new Set();
+
+    try {
+      // Load each table in parallel
+      const loadPromises = matches.map((match) => this.#loadSingleTable(match, foundTableTypes));
+      const tables = await Promise.all(loadPromises);
+
+      // Filter out failed loads
+      const validTables = tables.filter((table) => table !== null);
+
+      if (validTables.length) {
+        // Reset all tables in parallel
+        await this.#resetTablesInParallel(validTables);
+      }
+
+      return { tables: validTables, foundTableTypes };
+    } catch (error) {
+      HM.log(1, 'Error in table loading process:', error);
+      return { tables: [], foundTableTypes };
+    }
+  }
+
+  /**
+   * Load a single table from a UUID match
+   * @param {Array} match - Regex match containing UUID parts
+   * @param {Set} foundTableTypes - Set to populate with found table types
+   * @returns {Promise<Object|null>} The loaded table or null
+   * @private
+   * @static
+   */
+  static async #loadSingleTable(match, foundTableTypes) {
+    try {
+      const uuid = `Compendium.${match[1]}.${match[2]}.RollTable.${match[3]}`;
+      const table = await fromUuid(uuid);
+
+      if (!table) {
+        HM.log(2, `Could not load table with UUID: ${uuid}`);
+        return null;
+      }
+
+      // Check table type based on name
+      const tableName = table.name.toLowerCase();
+      this.tableTypes.forEach((type) => {
+        if (tableName.includes(type.toLowerCase()) || (type === 'Personality Traits' && tableName.includes('personality'))) {
+          foundTableTypes.add(type);
+        }
+      });
+
+      return table;
+    } catch (error) {
+      HM.log(1, 'Error loading table from match:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Reset all tables in parallel
+   * @param {Array} tables - Array of tables to reset
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #resetTablesInParallel(tables) {
+    try {
+      const resetPromises = tables.map(async (table) => {
+        try {
+          await table.resetResults();
+        } catch (error) {
+          HM.log(1, `Error resetting table ${table.id}:`, error);
+          // Continue with other tables even if one fails
+        }
+      });
+
+      await Promise.all(resetPromises);
+    } catch (error) {
+      HM.log(1, 'Error in parallel table reset:', error);
     }
   }
 
@@ -103,6 +180,7 @@ export class TableManager {
    * @static
    */
   static updateRollButtonsAvailability(foundTableTypes) {
+    // Create mapping of localized table types to field names
     const typeToFieldMap = {
       [game.i18n.localize('DND5E.PersonalityTraits')]: 'traits',
       [game.i18n.localize('DND5E.Ideals')]: 'ideals',
@@ -110,33 +188,40 @@ export class TableManager {
       [game.i18n.localize('DND5E.Flaws')]: 'flaws'
     };
 
-    // Collect all DOM updates
-    const updates = [];
+    // Collect all DOM updates to apply at once
+    const domUpdates = {};
 
+    // Pre-process all updates
     Object.entries(typeToFieldMap).forEach(([tableType, fieldName]) => {
-      const container = document.querySelector(`.personality-group textarea[name="${fieldName}"]`);
-      const rollButton = document.querySelector(`.personality-group button[data-table="${fieldName}"]`);
+      const hasTable = foundTableTypes?.has(tableType);
+      const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.finalize.${fieldName}-placeholder` : `hm.app.finalize.${fieldName}-placeholder-alt`);
+      const newDisplay = hasTable ? 'block' : 'none';
 
-      if (container && rollButton) {
-        const hasTable = foundTableTypes?.has(tableType);
-        const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.finalize.${fieldName}-placeholder` : `hm.app.finalize.${fieldName}-placeholder-alt`);
-        const newDisplay = hasTable ? 'block' : 'none';
-
-        // Only queue updates if values are changing
-        if (container.placeholder !== newPlaceholder) {
-          updates.push(() => (container.placeholder = newPlaceholder));
-        }
-
-        if (rollButton.style.display !== newDisplay) {
-          updates.push(() => (rollButton.style.display = newDisplay));
-        }
-      }
+      // Store updates to apply as a batch
+      if (!domUpdates[fieldName]) domUpdates[fieldName] = {};
+      domUpdates[fieldName].placeholder = newPlaceholder;
+      domUpdates[fieldName].display = newDisplay;
     });
 
-    // Apply all updates at once
-    if (updates.length) {
-      requestAnimationFrame(() => updates.forEach((update) => update()));
-    }
+    // Apply all updates in a single animation frame
+    requestAnimationFrame(() => {
+      try {
+        Object.entries(domUpdates).forEach(([fieldName, updates]) => {
+          const container = document.querySelector(`.personality-group textarea[name="${fieldName}"]`);
+          const rollButton = document.querySelector(`.personality-group button[data-table="${fieldName}"]`);
+
+          if (container) {
+            container.placeholder = updates.placeholder;
+          }
+
+          if (rollButton) {
+            rollButton.style.display = updates.display;
+          }
+        });
+      } catch (error) {
+        HM.log(1, 'Error updating roll button availability:', error);
+      }
+    });
   }
 
   /**
@@ -147,36 +232,90 @@ export class TableManager {
    * @static
    */
   static async rollOnBackgroundCharacteristicTable(backgroundId, characteristicType) {
-    const tables = this.currentTables.get(backgroundId);
+    if (!backgroundId || !characteristicType) {
+      HM.log(2, 'Missing required parameters for table roll');
+      return null;
+    }
 
-    if (!tables) {
+    const tables = this.currentTables.get(backgroundId);
+    if (!tables || !tables.length) {
       HM.log(2, `No tables found for background ID: ${backgroundId}`);
       return null;
     }
 
-    // Better table matching logic with more debugging
-    const table = tables.find((t) => {
-      const tableName = t.name.toLowerCase();
-      const searchTerm = characteristicType.toLowerCase();
+    try {
+      // Find matching table
+      const matchingTable = this.#findMatchingTable(tables, characteristicType);
+      if (!matchingTable.table) {
+        HM.log(2, `No matching table found for type: ${characteristicType}`);
+        return null;
+      }
+
+      // Check for available results
+      const availableResults = this.#getAvailableTableResults(matchingTable.table);
+      if (availableResults.length === 0) {
+        HM.log(2, `All results have been drawn from table: ${matchingTable.table.name}`);
+        return null;
+      }
+
+      // Draw from the table and await the result
+      const resultText = await this.#drawFromTable(matchingTable.table);
+      return resultText;
+    } catch (error) {
+      HM.log(1, 'Error rolling on background characteristic table:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Find a matching table for the given characteristic type
+   * @param {Array} tables - Array of tables to search
+   * @param {string} characteristicType - Type of characteristic to match
+   * @returns {Object} Object containing table and match info
+   * @private
+   * @static
+   */
+  static #findMatchingTable(tables, characteristicType) {
+    const searchTerm = characteristicType.toLowerCase();
+
+    for (const table of tables) {
+      const tableName = table.name.toLowerCase();
       const isMatch = tableName.includes(searchTerm) || (searchTerm === 'traits' && tableName.includes('personality'));
 
-      HM.log(3, `Checking table match: "${t.name}" for type "${characteristicType}" - Match: ${isMatch}`);
-      return isMatch;
-    });
+      HM.log(3, `Checking table match: "${table.name}" for type "${characteristicType}" - Match: ${isMatch}`);
 
-    if (!table) {
-      HM.log(2, `No matching table found for type: ${characteristicType}`);
-      return null;
+      if (isMatch) {
+        return { table, isMatch };
+      }
     }
 
-    // Check if table has available results
-    const availableResults = table.results.filter((r) => !r.drawn);
-    if (!availableResults.length) {
-      HM.log(2, `All results have been drawn from table: ${table.name}`);
-      return null;
+    return { table: null, isMatch: false };
+  }
+
+  /**
+   * Get available (undrawn) results from a table
+   * @param {Object} table - The table to check
+   * @returns {Array} Array of available results
+   * @private
+   * @static
+   */
+  static #getAvailableTableResults(table) {
+    if (!table?.results) {
+      return [];
     }
 
-    HM.log(3, `Drawing from table: ${table.name} (${availableResults.length} available results)`);
+    return table.results.filter((r) => !r.drawn);
+  }
+
+  /**
+   * Draw a result from a table
+   * @param {Object} table - The table to draw from
+   * @returns {Promise<string|null>} The drawn result text or null
+   * @private
+   * @static
+   */
+  static async #drawFromTable(table) {
+    HM.log(3, `Drawing from table: ${table.name}`);
 
     try {
       // Set replacement to false to prevent duplicates
@@ -201,9 +340,12 @@ export class TableManager {
         }
       ]);
 
-      return result.results[0]?.text || null;
+      // Return the actual text, not a Promise
+      let resultText = result.results[0]?.text || null;
+      HM.log(3, 'Resulting text:', resultText);
+      return resultText;
     } catch (error) {
-      HM.log(1, `Error rolling for characteristic on table ${table.name}:`, error);
+      HM.log(1, `Error drawing from table ${table.name}:`, error);
       return null;
     }
   }
@@ -216,35 +358,77 @@ export class TableManager {
    * @static
    */
   static areAllTableResultsDrawn(backgroundId, characteristicType) {
+    // Validate input parameters
+    if (!backgroundId || !characteristicType) {
+      HM.log(2, 'Missing required parameters for table check');
+      return true; // Treat invalid input as "all drawn" to prevent further actions
+    }
+
+    // Get tables for the background
     const tables = this.currentTables.get(backgroundId);
-    if (!tables) return true;
+    if (!tables || !tables.length) {
+      return true; // No tables means no results available
+    }
 
-    const table = tables.find((t) => {
-      const tableName = t.name.toLowerCase();
-      const searchTerm = characteristicType.toLowerCase();
-      return tableName.includes(searchTerm) || (searchTerm === 'traits' && tableName.includes('personality'));
-    });
-    if (!table) return true;
+    try {
+      // Find matching table
+      const matchingTable = this.#findMatchingTable(tables, characteristicType);
+      if (!matchingTable.table) {
+        return true; // No matching table means no results available
+      }
 
-    // Check if there are any undrawn results left
-    const availableResults = table.results.filter((r) => !r.drawn);
-    return availableResults.length === 0;
+      // Check if there are any undrawn results left
+      const availableResults = this.#getAvailableTableResults(matchingTable.table);
+      return availableResults.length === 0;
+    } catch (error) {
+      HM.log(1, 'Error checking if all table results are drawn:', error);
+      return true; // On error, assume all drawn to prevent problematic actions
+    }
   }
 
   /**
    * Resets tables to make all results available again
    * @param {string} backgroundId - Background document ID
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Success status
    * @static
    */
   static async resetTables(backgroundId) {
+    // Validate input
+    if (!backgroundId) {
+      HM.log(2, 'No background ID provided for table reset');
+      return false;
+    }
+
     const tables = this.currentTables.get(backgroundId);
-    if (!tables) return;
+    if (!tables || !tables.length) {
+      HM.log(2, `No tables found for background ID: ${backgroundId}`);
+      return false;
+    }
 
     try {
-      await Promise.all(tables.map((table) => table.resetResults()));
+      // Reset all tables in parallel with proper error handling
+      const resetPromises = tables.map(async (table) => {
+        try {
+          await table.resetResults();
+          return true;
+        } catch (error) {
+          HM.log(1, `Error resetting table ${table.name}:`, error);
+          return false;
+        }
+      });
+
+      const results = await Promise.all(resetPromises);
+
+      // Check if all tables were reset successfully
+      const allSuccess = results.every((success) => success);
+      if (!allSuccess) {
+        HM.log(2, 'Some tables failed to reset');
+      }
+
+      return allSuccess;
     } catch (error) {
       HM.log(1, 'Error resetting tables:', error);
+      return false;
     }
   }
 
@@ -260,18 +444,27 @@ export class TableManager {
    * @protected
    */
   static _parseTableUuidsFromDescription(description) {
-    const uuidPattern = /@UUID\[(.*?)]/g;
-    const matches = [...description.matchAll(uuidPattern)];
-    return matches
-      .map((match) => {
-        try {
-          const parsed = foundry.utils.parseUuid(match[1]);
-          // Only return IDs for RollTable documents
-          return parsed.type === 'RollTable' ? parsed.id : null;
-        } catch (e) {
-          return null;
-        }
-      })
-      .filter(Boolean);
+    if (!description) {
+      return [];
+    }
+
+    try {
+      const uuidPattern = /@UUID\[(.*?)]/g;
+      const matches = [...description.matchAll(uuidPattern)];
+      return matches
+        .map((match) => {
+          try {
+            const parsed = foundry.utils.parseUuid(match[1]);
+            // Only return IDs for RollTable documents
+            return parsed.type === 'RollTable' ? parsed.id : null;
+          } catch (e) {
+            return null;
+          }
+        })
+        .filter(Boolean);
+    } catch (error) {
+      HM.log(1, 'Error parsing table UUIDs from description:', error);
+      return [];
+    }
   }
 }
