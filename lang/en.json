@@ -349,7 +349,8 @@
           "name": "Ability Score Generation"
         },
         "need-roll-method": "At least one ability score generation method must be enabled, changes rejected.",
-        "saved": "Dice rolling settings have been saved."
+        "saved": "Dice rolling settings have been saved.",
+        "error-context": "Error loading dice rolling settings. Default values will be used."
       },
       "dice-rolling-method": {
         "hint": "Select which roll methods your users can choose from.",
