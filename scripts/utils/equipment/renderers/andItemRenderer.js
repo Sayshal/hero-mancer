@@ -68,16 +68,26 @@ export class AndItemRenderer extends BaseItemRenderer {
   async categorizeChildren(item) {
     HM.log(3, `Categorizing children of AND block ${item._id}`);
 
-    // Find lookup items (weapon category selectors)
-    const lookupItems = this.findLookupItems(item);
-    HM.log(3, `Found ${lookupItems.length} lookup items`);
+    if (!item || !Array.isArray(item.children)) {
+      HM.log(2, 'Invalid item or missing children array');
+      return { filteredLinkedItems: [], lookupItems: [] };
+    }
 
-    // Find and categorize linked items
-    const linkedItems = await this.findLinkedItems(item);
-    const filteredLinkedItems = linkedItems.filter((linkedItem) => linkedItem !== null);
+    try {
+      // Find lookup items (weapon category selectors)
+      const lookupItems = this.findLookupItems(item);
+      HM.log(3, `Found ${lookupItems.length} lookup items`);
 
-    HM.log(3, `Found ${filteredLinkedItems.length} linked items to be grouped`);
-    return { filteredLinkedItems, lookupItems };
+      // Find and categorize linked items
+      const linkedItems = await this.findLinkedItems(item);
+      const filteredLinkedItems = linkedItems.filter((linkedItem) => linkedItem !== null);
+
+      HM.log(3, `Found ${filteredLinkedItems.length} linked items to be grouped`);
+      return { filteredLinkedItems, lookupItems };
+    } catch (error) {
+      HM.log(1, `Error categorizing children: ${error.message}`);
+      return { filteredLinkedItems: [], lookupItems: [] };
+    }
   }
 
   /**
@@ -121,37 +131,47 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @returns {Promise<boolean>} True if should be grouped
    */
   async shouldGroupWithOthers(item) {
-    HM.log(3, `Checking if ${item._id} should be grouped`);
+    HM.log(3, `Checking if ${item?._id || 'unknown'} should be grouped`);
 
-    const doc = await fromUuidSync(item._source?.key);
-
-    if (!doc) {
-      HM.log(3, `No document found for ${item._id}`);
+    if (!item || !item._source?.key) {
+      HM.log(2, 'Invalid item or missing source key');
       return false;
     }
 
-    // Check if it's a weapon with ammo property
-    if (doc?.type === 'weapon' && doc?.system?.properties && Array.from(doc.system.properties).includes('amm')) {
-      HM.log(3, `Item ${item._id} is a weapon with ammo property`);
-      return true;
-    }
+    try {
+      const doc = await fromUuidSync(item._source.key);
 
-    // Check if it's ammunition
-    if (doc?.system?.type?.value === 'ammo') {
-      HM.log(3, `Item ${item._id} is ammunition`);
-      return true;
-    }
+      if (!doc) {
+        HM.log(3, `No document found for ${item._id}`);
+        return false;
+      }
 
-    // Check if it's a container (but not a pack)
-    if (doc?.type === 'container') {
-      const identifier = doc?.system?.identifier?.toLowerCase();
-      const result = !identifier || !identifier.includes('pack');
-      HM.log(3, `Item ${item._id} is a container and should${result ? '' : ' not'} be grouped`);
-      return result;
-    }
+      // Check if it's a weapon with ammo property
+      if (doc?.type === 'weapon' && doc?.system?.properties && Array.from(doc.system.properties).includes('amm')) {
+        HM.log(3, `Item ${item._id} is a weapon with ammo property`);
+        return true;
+      }
 
-    HM.log(3, `Item ${item._id} should not be grouped`);
-    return false;
+      // Check if it's ammunition
+      if (doc?.system?.type?.value === 'ammo') {
+        HM.log(3, `Item ${item._id} is ammunition`);
+        return true;
+      }
+
+      // Check if it's a container (but not a pack)
+      if (doc?.type === 'container') {
+        const identifier = doc?.system?.identifier?.toLowerCase() || '';
+        const result = !identifier.includes('pack');
+        HM.log(3, `Item ${item._id} is a container and should${result ? '' : ' not'} be grouped`);
+        return result;
+      }
+
+      HM.log(3, `Item ${item._id} should not be grouped`);
+      return false;
+    } catch (error) {
+      HM.log(2, `Error checking if item should be grouped: ${error.message}`);
+      return false;
+    }
   }
 
   /**
@@ -163,12 +183,26 @@ export class AndItemRenderer extends BaseItemRenderer {
   async renderGroupedItems(filteredLinkedItems, processedIds, itemContainer) {
     HM.log(3, `Rendering groups from ${filteredLinkedItems.length} items`);
 
-    const groupedItems = await this.createItemGroups(filteredLinkedItems);
-    HM.log(3, `Created ${groupedItems.length} item groups`);
+    if (filteredLinkedItems.length === 0) {
+      return;
+    }
 
-    // Render each group
-    for (const group of groupedItems) {
-      await this.renderItemGroup(group, processedIds, itemContainer);
+    try {
+      // Create a document fragment to minimize DOM operations
+      const fragment = document.createDocumentFragment();
+
+      const groupedItems = await this.createItemGroups(filteredLinkedItems);
+      HM.log(3, `Created ${groupedItems.length} item groups`);
+
+      // Render each group
+      for (const group of groupedItems) {
+        await this.renderItemGroup(group, processedIds, fragment);
+      }
+
+      // Add all groups to the container at once
+      itemContainer.appendChild(fragment);
+    } catch (error) {
+      HM.log(1, `Error rendering grouped items: ${error.message}`);
     }
   }
 
@@ -213,21 +247,68 @@ export class AndItemRenderer extends BaseItemRenderer {
    * @private
    */
   async findRelatedItems(child, filteredLinkedItems, processedItems) {
-    HM.log(3, `Finding items related to ${child._id}`);
+    HM.log(3, `Finding items related to ${child?._id || 'unknown'}`);
 
-    const relatedItems = await Promise.all(
-      filteredLinkedItems.map(async (item) => {
-        if (processedItems.has(item._source?.key) || item._source?.key === child._source?.key) return null;
+    if (!child || !child._source?.key) {
+      HM.log(2, 'Invalid child item');
+      return [];
+    }
 
-        // Check if these two items should be grouped
-        const result = await this.areItemsRelated(child, item);
-        return result ? item : null;
-      })
-    );
+    try {
+      // Filter out already processed items and the current child
+      const candidateItems = filteredLinkedItems.filter((item) => item && item._source?.key && !processedItems.has(item._source.key) && item._source.key !== child._source.key);
 
-    const validRelatedItems = relatedItems.filter((item) => item !== null);
-    HM.log(3, `Found ${validRelatedItems.length} items related to ${child._id}`);
-    return validRelatedItems;
+      if (candidateItems.length === 0) {
+        return [];
+      }
+
+      // Pre-fetch document for main item to avoid multiple lookups
+      const childDoc = await fromUuidSync(child._source.key);
+      if (!childDoc) {
+        HM.log(2, `Document not found for ${child._id}`);
+        return [];
+      }
+
+      // Process all candidate items
+      const relatedItems = [];
+
+      for (const item of candidateItems) {
+        const isRelated = await this.checkItemRelation(childDoc, item);
+        if (isRelated) {
+          relatedItems.push(item);
+        }
+      }
+
+      HM.log(3, `Found ${relatedItems.length} items related to ${child._id}`);
+      return relatedItems;
+    } catch (error) {
+      HM.log(1, `Error finding related items: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Check if an item is related to the specified document
+   * @param {Object} childDoc - Main item document
+   * @param {Object} item - Item to check
+   * @returns {Promise<boolean>} True if related
+   * @private
+   */
+  async checkItemRelation(childDoc, item) {
+    try {
+      const itemDoc = await fromUuidSync(item._source?.key);
+      if (!itemDoc) return false;
+
+      // Check if one is a weapon and one is ammo
+      const isWeaponAndAmmo = (childDoc.type === 'weapon' && itemDoc.system?.type?.value === 'ammo') || (itemDoc.type === 'weapon' && childDoc.system?.type?.value === 'ammo');
+
+      // Check if one is a container and one is a storable item
+      const isContainerAndItem = (childDoc.type === 'container' && itemDoc.type !== 'container') || (itemDoc.type === 'container' && childDoc.type !== 'container');
+
+      return isWeaponAndAmmo || isContainerAndItem;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
