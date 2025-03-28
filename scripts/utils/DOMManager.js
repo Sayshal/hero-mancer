@@ -45,7 +45,23 @@ export class DOMManager {
    * @returns {Function} The callback for reference
    */
   static on(element, eventType, callback) {
-    if (!element) return callback;
+    // Add error handling for invalid element
+    if (!element) {
+      HM.log(1, `Cannot add ${eventType} event listener: Invalid element provided`);
+      return callback;
+    }
+
+    // Check for valid event type
+    if (!eventType || typeof eventType !== 'string') {
+      HM.log(1, `Cannot add event listener: Invalid event type "${eventType}"`);
+      return callback;
+    }
+
+    // Ensure callback is a function
+    if (typeof callback !== 'function') {
+      HM.log(1, `Cannot add ${eventType} event listener: Callback must be a function`);
+      return callback;
+    }
 
     if (!this.#listeners.has(element)) {
       this.#listeners.set(element, new Map());
@@ -57,7 +73,12 @@ export class DOMManager {
     }
 
     elementEvents.get(eventType).push(callback);
-    element.addEventListener(eventType, callback);
+
+    try {
+      element.addEventListener(eventType, callback);
+    } catch (error) {
+      HM.log(1, `Failed to add ${eventType} event listener:`, error);
+    }
 
     return callback;
   }
@@ -68,169 +89,161 @@ export class DOMManager {
    * @param {HTMLElement} element - Element to observe
    * @param {MutationObserverInit} options - Observer configuration
    * @param {Function} callback - Handler function
-   * @returns {MutationObserver} The created observer
+   * @returns {MutationObserver|null} The created observer or null if failed
    */
   static observe(id, element, options, callback) {
-    if (this.#observers.has(id)) {
-      this.#observers.get(id).disconnect();
+    // Validate parameters
+    if (!id || typeof id !== 'string') {
+      HM.log(1, 'Observer ID must be a non-empty string');
+      return null;
     }
 
-    const observer = new MutationObserver(callback);
-    observer.observe(element, options);
-    this.#observers.set(id, observer);
+    if (!element || !(element instanceof Element)) {
+      HM.log(1, `Cannot create observer "${id}": Invalid element provided`);
+      return null;
+    }
 
-    return observer;
+    if (typeof callback !== 'function') {
+      HM.log(1, `Cannot create observer "${id}": Callback must be a function`);
+      return null;
+    }
+
+    // Clean up existing observer with the same ID
+    if (this.#observers.has(id)) {
+      try {
+        this.#observers.get(id).disconnect();
+        HM.log(3, `Disconnected existing observer with ID "${id}"`);
+      } catch (error) {
+        HM.log(2, `Error disconnecting observer "${id}":`, error);
+      }
+    }
+
+    try {
+      // Create and configure the observer
+      const observer = new MutationObserver(callback);
+      observer.observe(element, options);
+      this.#observers.set(id, observer);
+      HM.log(3, `Created observer "${id}" for element`, element);
+      return observer;
+    } catch (error) {
+      HM.log(1, `Failed to create observer "${id}":`, error);
+      return null;
+    }
   }
 
   /**
    * Clean up all registered listeners and observers
+   * @returns {boolean} True if cleanup was successful
    */
   static cleanup() {
+    let cleanupSuccess = true;
+
     // Clean up event listeners
-    this.#listeners.forEach((events, element) => {
-      events.forEach((callbacks, type) => {
-        callbacks.forEach((callback) => {
-          element.removeEventListener(type, callback);
+    try {
+      this.#listeners.forEach((events, element) => {
+        if (!element) return;
+
+        events.forEach((callbacks, type) => {
+          callbacks.forEach((callback) => {
+            try {
+              element.removeEventListener(type, callback);
+            } catch (error) {
+              HM.log(2, `Failed to remove ${type} event listener:`, error);
+              cleanupSuccess = false;
+            }
+          });
         });
       });
-    });
-    this.#listeners.clear();
+      this.#listeners.clear();
+      HM.log(3, 'DOMManager: cleaned up all event listeners');
+    } catch (error) {
+      HM.log(1, 'Error during event listener cleanup:', error);
+      cleanupSuccess = false;
+    }
 
     // Clean up observers
-    this.#observers.forEach((observer) => observer.disconnect());
-    this.#observers.clear();
+    try {
+      this.#observers.forEach((observer, id) => {
+        try {
+          observer.disconnect();
+        } catch (error) {
+          HM.log(2, `Failed to disconnect observer "${id}":`, error);
+          cleanupSuccess = false;
+        }
+      });
+      this.#observers.clear();
+      HM.log(3, 'DOMManager: cleaned up all observers');
+    } catch (error) {
+      HM.log(1, 'Error during observer cleanup:', error);
+      cleanupSuccess = false;
+    }
 
-    HM.log(3, 'DOMManager: cleaned up all event listeners and observers');
+    return cleanupSuccess;
   }
 
   /**
    * Initialize all event handlers for the application
    * @param {HTMLElement} element - Root element
+   * @returns {Promise<boolean>} Success status
    */
-  static async initialize(element) {
-    if (!element) return;
-
-    this.initializeEquipmentContainer(element);
-    this.initializeDropdowns(element);
-    this.initializeAbilities(element);
-    this.initializeEquipment(element);
-    this.initializeCharacterDetails(element);
-    this.initializeFormValidation(element);
-    this.initializeTokenCustomization(element);
-    this.initializeRollButtons(element);
-    this.initializePortrait();
+  static initialize(element) {
+    if (!element) {
+      HM.log(1, 'Cannot initialize DOMManager: No element provided');
+      return false;
+    }
+    try {
+      this.initializeEquipmentContainer(element);
+      this.initializeDropdowns(element);
+      this.initializeAbilities(element);
+      this.initializeEquipment(element);
+      this.initializeCharacterDetails(element);
+      this.initializeFormValidation(element);
+      this.initializeTokenCustomization(element);
+      this.initializeRollButtons(element);
+      this.initializePortrait();
+    } catch (error) {
+      HM.log(1, 'Error during DOMManager initialization:', error);
+      return false;
+    }
   }
 
   /**
    * Initialize dropdown-related handlers
    * @param {HTMLElement} element - Application root element
+   * @returns {Promise<void>}
    */
   static async initializeDropdowns(element) {
-    const dropdowns = {
-      race: element.querySelector('#race-dropdown'),
-      class: element.querySelector('#class-dropdown'),
-      background: element.querySelector('#background-dropdown')
-    };
+    const dropdownTypes = ['race', 'class', 'background'];
+    const dropdowns = this.#getDropdownElements(element, dropdownTypes);
 
-    Object.entries(dropdowns).forEach(([type, dropdown]) => {
-      if (!dropdown) return;
+    // Process each dropdown type
+    for (const [type, dropdown] of Object.entries(dropdowns)) {
+      if (!dropdown) continue;
 
       this.on(dropdown, 'change', async (event) => {
-        // Update selection data
-        const value = event.target.value;
-        const id = value.split(' ')[0].trim();
-        const uuid = value.match(/\[(.*?)]/)?.[1] || '';
-
-        HM.SELECTED[type] = { value, id, uuid };
-        HM.log(3, `${type} updated:`, HM.SELECTED[type]);
-
-        // Update UI elements
-        const descEl = element.querySelector(`#${type}-description`);
-        if (descEl) {
-          this.updateDescription(type, id, descEl);
+        try {
+          this.#handleDropdownChange(element, type, event);
+        } catch (error) {
+          HM.log(1, `Error handling ${type} dropdown change:`, error);
         }
-
-        // Update summaries
-        if (type === 'race' || type === 'class') {
-          this.updateClassRaceSummary();
-
-          // Update abilities if class changes
-          if (type === 'class') {
-            this.updateAbilitiesSummary();
-          }
-        }
-
-        if (type === 'background') {
-          this.updateBackgroundSummary();
-          this.processBackgroundSelectionChange(HM.SELECTED.background);
-        }
-
-        // Update equipment if needed
-        if (!HM.COMPAT.ELKAN && (type === 'class' || type === 'background')) {
-          await this.updateEquipment(element, type);
-        }
-
-        // Update application title
-        this.updateTitle(element);
       });
-    });
+    }
   }
 
   /**
    * Initialize ability score related handlers
    * @param {HTMLElement} element - Application root element
+   * @returns {Promise<void>}
    */
   static initializeAbilities(element) {
-    const rollMethodSelect = element.querySelector('#roll-method');
-    const abilityDropdowns = element.querySelectorAll('.ability-dropdown');
-    const abilityScores = element.querySelectorAll('.ability-score');
+    // Initialize roll method selector
+    this.#initializeRollMethodSelector(element);
 
-    // Roll method listener with special handling
-    if (rollMethodSelect) {
-      // First, remove any existing listeners to avoid duplicates
-      const oldListeners = this.#listeners.get(rollMethodSelect);
-      if (oldListeners?.get('change')) {
-        oldListeners.get('change').forEach((callback) => {
-          rollMethodSelect.removeEventListener('change', callback);
-        });
-        oldListeners.delete('change');
-      }
+    // Initialize ability dropdowns
+    this.#initializeAbilityDropdowns(element);
 
-      this.on(rollMethodSelect, 'change', async (event) => {
-        const method = event.target.value;
-        HM.log(3, `Roll method changed to: ${method}`);
-
-        // Update the setting
-        await game.settings.set(HM.ID, 'diceRollingMethod', method);
-        HeroMancer.selectedAbilities = Array(Object.keys(CONFIG.DND5E.abilities).length).fill(HM.ABILITY_SCORES.DEFAULT);
-
-        // Force a re-render of just the abilities tab
-        const app = HM.heroMancer;
-        if (app) {
-          // Store current method for detection
-          element.dataset.lastRollMethod = method;
-          await app.render({ parts: ['abilities'] });
-        }
-      });
-    }
-
-    // Ability dropdowns
-    abilityDropdowns.forEach((dropdown, index) => {
-      // Add data-index attribute for reliable reference
-      dropdown.dataset.index = index;
-
-      this.on(dropdown, 'change', (event) => {
-        const diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
-        StatRoller.handleAbilityDropdownChange(event, diceRollingMethod);
-        this.updateAbilitiesSummary();
-      });
-    });
-
-    // Ability score inputs
-    abilityScores.forEach((input) => {
-      this.on(input, 'change', () => this.updateAbilitiesSummary());
-      this.on(input, 'input', () => this.updateAbilitiesSummary());
-    });
+    // Initialize ability score inputs
+    this.#initializeAbilityScoreInputs(element);
   }
 
   /**
@@ -368,13 +381,13 @@ export class DOMManager {
     formElements.forEach((formElement) => {
       // Change event
       this.on(formElement, 'change', async () => {
-        await MandatoryFields.checkMandatoryFields(element);
+        MandatoryFields.checkMandatoryFields(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
-          await MandatoryFields.checkMandatoryFields(element);
+          MandatoryFields.checkMandatoryFields(element);
         });
       }
     });
@@ -385,7 +398,7 @@ export class DOMManager {
       const editorContent = editor.querySelector('.editor-content.ProseMirror');
       if (editorContent) {
         this.observe(`prose-mirror-${index}`, editorContent, { childList: true, characterData: true, subtree: true }, async () => {
-          await MandatoryFields.checkMandatoryFields(element);
+          MandatoryFields.checkMandatoryFields(element);
         });
       }
     });
@@ -549,7 +562,7 @@ export class DOMManager {
           return;
         }
 
-        const result = await TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
+        const result = TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
         HM.log(3, 'Roll result:', result);
 
         if (result) {
@@ -570,37 +583,30 @@ export class DOMManager {
    * @static
    */
   static async updateBackgroundSummary() {
-    const backgroundSelect = document.querySelector('#background-dropdown');
     const summary = document.querySelector('.background-summary');
+    if (!summary) return;
 
-    if (!summary || !backgroundSelect) return;
+    try {
+      const backgroundData = this.#getBackgroundData();
 
-    const selectedOption = backgroundSelect.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
+      // Format and update summary
+      const content = game.i18n.format('hm.app.finalize.summary.background', {
+        article: backgroundData.article,
+        background: backgroundData.link
+      });
 
-    // Handle default/no selection case
-    if (!selectedOption?.value) {
-      const article = game.i18n.localize('hm.app.equipment.article-plural');
-      summary.innerHTML = game.i18n.format('hm.app.finalize.summary.background', {
-        article: article,
+      summary.innerHTML = await TextEditor.enrichHTML(content);
+    } catch (error) {
+      HM.log(1, 'Error updating background summary:', error);
+
+      // Fallback content
+      const fallbackContent = game.i18n.format('hm.app.finalize.summary.background', {
+        article: game.i18n.localize('hm.app.equipment.article-plural'),
         background: game.i18n.localize('hm.app.background.adventurer')
       });
-      return;
+
+      summary.innerHTML = fallbackContent;
     }
-
-    // Make sure we have the UUID
-    if (!HM.SELECTED.background?.uuid) {
-      return;
-    }
-
-    const backgroundName = selectedOption.text;
-    const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
-
-    const content = game.i18n.format('hm.app.finalize.summary.background', {
-      article: article,
-      background: `@UUID[${HM.SELECTED.background.uuid}]`
-    });
-
-    summary.innerHTML = await TextEditor.enrichHTML(content);
   }
 
   /**
@@ -609,150 +615,71 @@ export class DOMManager {
    * @static
    */
   static async updateClassRaceSummary() {
-    const raceSelect = document.querySelector('#race-dropdown');
-    const classSelect = document.querySelector('#class-dropdown');
     const summary = document.querySelector('.class-race-summary');
-
     if (!summary) return;
 
-    // Get race details
-    let raceLink = game.i18n.format('hm.unknown', { type: 'race' });
-    if (HM.SELECTED.race?.uuid) {
-      const selectedRaceOption = raceSelect?.selectedIndex > 0 ? raceSelect.options[raceSelect.selectedIndex] : null;
-      let raceName;
-      if (selectedRaceOption) {
-        raceName = selectedRaceOption.text;
-      } else if (raceSelect) {
-        // Find matching option
-        for (let i = 0; i < raceSelect.options.length; i++) {
-          if (raceSelect.options[i].value.includes(HM.SELECTED.race.uuid)) {
-            raceName = raceSelect.options[i].text;
-            break;
-          }
-        }
-      }
+    try {
+      // Get race and class links
+      const raceLink = this.#getRaceLink();
+      const classLink = this.#getClassLink();
 
-      if (raceName) {
-        raceLink = `@UUID[${HM.SELECTED.race.uuid}]`;
-      }
+      // Update summary with enriched HTML
+      const content = game.i18n.format('hm.app.finalize.summary.classRace', {
+        race: raceLink,
+        class: classLink
+      });
+
+      summary.innerHTML = await TextEditor.enrichHTML(content);
+    } catch (error) {
+      HM.log(1, 'Error updating class/race summary:', error);
+
+      // Fallback content
+      const fallbackContent = game.i18n.format('hm.app.finalize.summary.classRace', {
+        race: game.i18n.format('hm.unknown', { type: 'race' }),
+        class: game.i18n.format('hm.unknown', { type: 'class' })
+      });
+
+      summary.innerHTML = await TextEditor.enrichHTML(fallbackContent);
     }
-
-    // Similar process for class
-    let classLink = game.i18n.format('hm.unknown', { type: 'class' });
-    if (HM.SELECTED.class?.uuid) {
-      const className = classSelect?.selectedIndex > 0 ? classSelect.options[classSelect.selectedIndex].text : 'unknown class';
-      classLink = `@UUID[${HM.SELECTED.class.uuid}]`;
-    }
-
-    // Always update summary, even with partial data
-    const content = game.i18n.format('hm.app.finalize.summary.classRace', {
-      race: raceLink,
-      class: classLink
-    });
-
-    summary.innerHTML = await TextEditor.enrichHTML(content);
   }
 
   /**
    * Updates the equipment summary with selected items
-   * @returns {Promise<void>}
+   * @returns {void}
    * @static
    */
-  static async updateEquipmentSummary() {
+  static updateEquipmentSummary() {
     // Check if we're already processing an update
     if (this._isUpdatingEquipment) return;
     this._isUpdatingEquipment = true;
 
     try {
-      const priorityTypes = ['weapon', 'armor', 'shield'];
-      const equipmentContainer = document.querySelector('#equipment-container');
+      const summary = document.querySelector('.equipment-summary');
+      if (!summary) return;
 
-      // If no container or in ELKAN mode, exit early
+      // If in ELKAN mode or no container, use default message
+      const equipmentContainer = document.querySelector('#equipment-container');
       if (!equipmentContainer || HM.COMPAT.ELKAN) {
-        const summary = document.querySelector('.equipment-summary');
-        if (summary) {
-          summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-        }
+        summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
         return;
       }
 
-      // Collect all equipment items at once
-      const selectedEquipment = Array.from(document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked'))
-        .map((el) => {
-          // For selects
-          if (el.tagName === 'SELECT') {
-            const selectedOption = el.options[el.selectedIndex];
-            if (!selectedOption || !selectedOption.value || !selectedOption.value.includes('Compendium')) return null;
-
-            const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
-            const isFavorite = favoriteCheckbox?.checked || false;
-
-            return {
-              type: selectedOption.dataset.tooltip?.toLowerCase() || '',
-              uuid: selectedOption.value,
-              text: selectedOption.textContent?.trim(),
-              favorite: isFavorite
-            };
-          }
-          // For checkboxes
-          else {
-            const link = el.parentElement?.querySelector('.content-link');
-            const uuid = link?.dataset?.uuid;
-
-            if (!link || !uuid || uuid.includes(',') || !uuid.includes('Compendium')) return null;
-
-            const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
-            const isFavorite = favoriteCheckbox?.checked || false;
-
-            return {
-              type: link.dataset.tooltip?.toLowerCase() || '',
-              uuid: uuid,
-              text: link.textContent?.trim(),
-              favorite: isFavorite
-            };
-          }
-        })
-        .filter(Boolean);
+      // Collect and process equipment
+      const selectedEquipment = this.#collectEquipmentItems();
 
       if (!selectedEquipment.length) {
-        // No equipment? Update summary with default message
-        const summary = document.querySelector('.equipment-summary');
-        if (summary) {
-          summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-        }
+        summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
         return;
       }
 
-      // Sort once - favorites first, then by type priority
-      selectedEquipment.sort((a, b) => {
-        if (a.favorite && !b.favorite) return -1;
-        if (!a.favorite && b.favorite) return 1;
+      // Format and display equipment summary
+      this.#formatAndDisplayEquipmentSummary(summary, selectedEquipment);
+    } catch (error) {
+      HM.log(1, 'Error updating equipment summary:', error);
 
-        // If both have same favorite status, use the type priority
-        const aIndex = priorityTypes.indexOf(a.type);
-        const bIndex = priorityTypes.indexOf(b.type);
-        return (bIndex === -1 ? -999 : bIndex) - (aIndex === -1 ? -999 : aIndex);
-      });
-
-      // Take up to 3 items
-      const displayEquipment = selectedEquipment.slice(0, 3);
-
+      // Fallback to default message on error
       const summary = document.querySelector('.equipment-summary');
-      if (summary && displayEquipment.length) {
-        const formattedItems = displayEquipment.map((item) => {
-          const itemName = item.text;
-          const article = /^[aeiou]/i.test(itemName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
-          return `${article} @UUID[${item.uuid}]{${item.text}}`;
-        });
-
-        const content = game.i18n.format('hm.app.finalize.summary.equipment', {
-          items:
-            formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) +
-            (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') +
-            formattedItems.slice(-1)
-        });
-        summary.innerHTML = await TextEditor.enrichHTML(content);
-      } else if (summary) {
+      if (summary) {
         summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
       }
     } finally {
@@ -781,192 +708,21 @@ export class DOMManager {
       // Create a new update promise
       this._abilityUpdatePromise = (async () => {
         // Add a small delay to ensure the class selection is fully processed
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        new Promise((resolve) => setTimeout(resolve, 10));
 
         // First, ensure the class UUID hasn't changed during our delay
         if (currentClassUUID !== HM.SELECTED.class?.uuid) {
           return; // Another update will happen
         }
 
-        // Rest of the existing function's logic
-        const abilityBlocks = document.querySelectorAll('.ability-block');
-        const abilityScores = {};
-        const rollMethodSelect = document.getElementById('roll-method');
-        const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
-        const rollMethod = abilitiesTab?.dataset.currentMethod || rollMethodSelect?.value || 'standardArray';
-
         if (this._updatingAbilities) return;
         this._updatingAbilities = true;
+
         try {
-          // First, remove any existing highlights
-          const previousHighlights = document.querySelectorAll('.primary-ability');
-          previousHighlights.forEach((el) => {
-            el.classList.remove('primary-ability');
-            el.removeAttribute('data-tooltip');
-          });
-
-          // Get the primary abilities from the class item
-          const primaryAbilities = new Set();
-          try {
-            const classUUID = HM.SELECTED.class?.uuid;
-            if (classUUID) {
-              const classItem = fromUuidSync(classUUID);
-
-              // Get primary ability
-              if (classItem?.system?.primaryAbility?.value?.length) {
-                for (const ability of classItem.system.primaryAbility.value) {
-                  primaryAbilities.add(ability.toLowerCase());
-                }
-              }
-
-              // Get spellcasting ability
-              if (classItem?.system?.spellcasting?.ability) {
-                primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
-              }
-
-              // Get saving throw proficiencies
-              if (classItem?.advancement?.byType?.Trait) {
-                const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
-
-                for (const trait of level1Traits) {
-                  const grants = trait.configuration.grants;
-                  for (const grant of grants) {
-                    if (grant.startsWith('saves:')) {
-                      primaryAbilities.add(grant.split(':')[1].toLowerCase());
-                    }
-                  }
-                }
-              }
-            }
-          } catch (error) {}
-
-          // Process each ability block
-          abilityBlocks.forEach((block, index) => {
-            let score = 0;
-            let abilityKey = '';
-
-            // Find which ability this block represents based on the roll method
-            if (rollMethod === 'pointBuy') {
-              const hiddenInput = block.querySelector('input[type="hidden"]');
-              if (hiddenInput) {
-                const nameMatch = hiddenInput.name.match(/abilities\[(\w+)]/);
-                if (nameMatch && nameMatch[1]) {
-                  abilityKey = nameMatch[1].toLowerCase();
-                }
-              }
-              score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
-            } else if (rollMethod === 'standardArray') {
-              const dropdown = block.querySelector('.ability-dropdown');
-              if (dropdown) {
-                // Extract ability key from the dropdown name attribute
-                const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
-                if (nameMatch && nameMatch[1]) {
-                  abilityKey = nameMatch[1].toLowerCase();
-                }
-                score = parseInt(dropdown.value) || 0;
-              }
-            } else if (rollMethod === 'manualFormula') {
-              const dropdown = block.querySelector('.ability-dropdown');
-              if (dropdown) {
-                // Use dropdown value for highlighting regardless of score value
-                abilityKey = dropdown.value?.toLowerCase() || '';
-                // We still get score for summary calculations
-                score = parseInt(block.querySelector('.ability-score')?.value) || 0;
-              }
-            }
-
-            // Apply highlighting if this is a primary ability
-            if (abilityKey && primaryAbilities.has(abilityKey)) {
-              const classUUID = HM.SELECTED.class?.uuid;
-              const classItem = classUUID ? fromUuidSync(classUUID) : null;
-              const className = classItem?.name || game.i18n.localize('hm.app.abilities.your-class');
-
-              // For standardArray and pointBuy, highlight the label
-              const label = block.querySelector('.ability-label');
-              if (label) {
-                label.classList.add('primary-ability');
-                // Add tooltip text as data attribute
-                const abilityName = CONFIG.DND5E.abilities[abilityKey]?.label || abilityKey.toUpperCase();
-                const tooltipText = game.i18n.format('hm.app.abilities.primary-tooltip', {
-                  ability: abilityName,
-                  class: className
-                });
-                label.setAttribute('data-tooltip', tooltipText);
-              }
-
-              // For standardArray, also highlight the dropdown
-              if (rollMethod === 'standardArray') {
-                const dropdown = block.querySelector('.ability-dropdown');
-                if (dropdown) {
-                  dropdown.classList.add('primary-ability');
-                }
-              }
-
-              // For manualFormula, always highlight the dropdown if the ability matches
-              if (rollMethod === 'manualFormula') {
-                const dropdown = block.querySelector('.ability-dropdown');
-                if (dropdown) {
-                  dropdown.classList.add('primary-ability');
-                  // Add tooltip to dropdown for better visibility
-                  const abilityName = CONFIG.DND5E.abilities[abilityKey]?.label || abilityKey.toUpperCase();
-                  const tooltipText = game.i18n.format('hm.app.abilities.primary-tooltip', {
-                    ability: abilityName,
-                    class: className
-                  });
-                  dropdown.setAttribute('data-tooltip', tooltipText);
-                }
-              }
-            }
-
-            // Store score for summary calculations
-            if (abilityKey) {
-              abilityScores[abilityKey] = score;
-            }
-          });
-
-          // Sort abilities by preference and then by score
-          const sortedAbilities = Object.entries(abilityScores)
-            .sort(([abilityA, scoreA], [abilityB, scoreB]) => {
-              // First sort by preferred status
-              const preferredA = primaryAbilities.has(abilityA);
-              const preferredB = primaryAbilities.has(abilityB);
-
-              if (preferredA && !preferredB) return -1;
-              if (!preferredA && preferredB) return 1;
-
-              // Then sort by score
-              return scoreB - scoreA;
-            })
-            .map(([ability]) => ability.toLowerCase());
-
-          // Select the top 2 abilities
-          const selectedAbilities = [];
-          for (const ability of sortedAbilities) {
-            if (selectedAbilities.length < 2 && !selectedAbilities.includes(ability)) {
-              selectedAbilities.push(ability);
-            }
-          }
-
-          // If we still need more abilities, add highest scoring ones
-          if (selectedAbilities.length < 2) {
-            for (const [ability, score] of Object.entries(abilityScores).sort(([, a], [, b]) => b - a)) {
-              if (!selectedAbilities.includes(ability) && selectedAbilities.length < 2) {
-                selectedAbilities.push(ability);
-              }
-            }
-          }
-
-          // Update the summary HTML
-          const abilitiesSummary = document.querySelector('.abilities-summary');
-          if (abilitiesSummary && selectedAbilities.length >= 2) {
-            const content = game.i18n.format('hm.app.finalize.summary.abilities', {
-              first: `&Reference[${selectedAbilities[0]}]`,
-              second: `&Reference[${selectedAbilities[1]}]`
-            });
-            abilitiesSummary.innerHTML = await TextEditor.enrichHTML(content);
-          } else if (abilitiesSummary) {
-            abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
-          }
+          this.#processAbilityHighlights();
+          this.#updateAbilitySummaryContent();
+        } catch (error) {
+          HM.log(1, 'Error updating abilities summary:', error);
         } finally {
           setTimeout(() => (this._updatingAbilities = false), 50);
         }
@@ -986,12 +742,11 @@ export class DOMManager {
   }
 
   /**
-   * Processes background selection changes to load relevant tables
+   * Process background selection changes to load relevant tables
    * @param {object} selectedBackground - Selected background data
-   * @returns {Promise<void>}
    * @static
    */
-  static async processBackgroundSelectionChange(selectedBackground) {
+  static processBackgroundSelectionChange(selectedBackground) {
     if (!selectedBackground?.value) {
       return;
     }
@@ -999,9 +754,9 @@ export class DOMManager {
     const uuid = HM.SELECTED.background.uuid;
 
     try {
-      const background = await fromUuid(uuid);
+      const background = fromUuid(uuid);
       if (background) {
-        await TableManager.loadRollTablesForBackground(background);
+        TableManager.loadRollTablesForBackground(background);
 
         const rollButtons = document.querySelectorAll('.roll-btn');
         rollButtons.forEach((button) => (button.disabled = false));
@@ -1017,40 +772,20 @@ export class DOMManager {
    * @static
    */
   static generateCharacterSummaryChatMessage() {
-    const characterName = document.querySelector('#character-name')?.value || game.user.name;
+    try {
+      // Get character name and summary sections
+      const characterName = this.#getCharacterName();
+      const summaries = this.#collectSummaryContent();
 
-    const summaries = {
-      classRace: document.querySelector('.class-race-summary')?.innerHTML || '',
-      background: document.querySelector('.background-summary')?.innerHTML || '',
-      abilities: document.querySelector('.abilities-summary')?.innerHTML || '',
-      equipment: document.querySelector('.equipment-summary')?.innerHTML || ''
-    };
+      // Generate formatted HTML message
+      return this.#buildSummaryMessageHTML(characterName, summaries);
+    } catch (error) {
+      HM.log(1, 'Error generating character summary message:', error);
 
-    let message = `
-    <div class="character-summary" style="line-height: 1.7; margin: 0.5em 0;">
-        <h2 style="margin-bottom: 0.5em">${characterName}</h2>
-        <hr style="margin: 0.5em 0">
-    `;
-
-    if (summaries.classRace) {
-      message += `<span class="summary-section class-race">${summaries.classRace}</span> `;
+      // Return basic fallback message on error
+      const fallbackName = document.querySelector('#character-name')?.value || game.user.name;
+      return `<div class="character-summary"><h2>${fallbackName}</h2><p>${game.i18n.localize('hm.app.character-created')}</p></div>`;
     }
-
-    if (summaries.background) {
-      message += `<span class="summary-section background">${summaries.background}</span> `;
-    }
-
-    if (summaries.abilities) {
-      message += `<span class="summary-section abilities">${summaries.abilities}</span> `;
-    }
-
-    if (summaries.equipment) {
-      message += `<span class="summary-section equipment">${summaries.equipment}</span>`;
-    }
-
-    message += '</div>';
-
-    return message;
   }
 
   /* -------------------------------------------- */
@@ -1461,5 +1196,721 @@ export class DOMManager {
     const percentage = (remainingPoints / totalPoints) * 100;
     const hue = Math.max(0, Math.min(120, (percentage * 120) / 100));
     element.style.color = `hsl(${hue}, 100%, 35%)`;
+  }
+
+  /**
+   * Get dropdown elements for specified types
+   * @param {HTMLElement} element - Root element
+   * @param {string[]} types - Dropdown types to find
+   * @returns {Object} Map of dropdown elements by type
+   * @private
+   */
+  static #getDropdownElements(element, types) {
+    const dropdowns = {};
+
+    for (const type of types) {
+      const selector = `#${type}-dropdown`;
+      dropdowns[type] = element.querySelector(selector);
+
+      if (!dropdowns[type]) {
+        HM.log(2, `${type} dropdown not found`);
+      }
+    }
+
+    return dropdowns;
+  }
+
+  /**
+   * Handle dropdown change event
+   * @param {HTMLElement} element - Root element
+   * @param {string} type - Dropdown type
+   * @param {Event} event - Change event
+   * @private
+   */
+  static #handleDropdownChange(element, type, event) {
+    // Extract selection data
+    const value = event.target.value;
+    const id = value.split(' ')[0].trim();
+    const uuid = value.match(/\[(.*?)]/)?.[1] || '';
+
+    // Update selected data
+    HM.SELECTED[type] = { value, id, uuid };
+    HM.log(3, `${type} updated:`, HM.SELECTED[type]);
+
+    // Update description
+    const descEl = element.querySelector(`#${type}-description`);
+    if (descEl) {
+      this.updateDescription(type, id, descEl);
+    }
+
+    // Update UI based on dropdown type
+    this.#updateUIForDropdownType(element, type);
+  }
+
+  /**
+   * Update UI components based on dropdown type
+   * @param {HTMLElement} element - Root element
+   * @param {string} type - Dropdown type
+   * @private
+   */
+  static #updateUIForDropdownType(element, type) {
+    // Update summaries based on type
+    if (type === 'race' || type === 'class') {
+      this.updateClassRaceSummary();
+
+      // Update abilities if class changes
+      if (type === 'class') {
+        this.updateAbilitiesSummary();
+      }
+    }
+
+    if (type === 'background') {
+      this.updateBackgroundSummary();
+      this.processBackgroundSelectionChange(HM.SELECTED.background);
+    }
+
+    // Update equipment if needed
+    if (!HM.COMPAT.ELKAN && (type === 'class' || type === 'background')) {
+      this.updateEquipment(element, type);
+    }
+
+    // Update application title
+    this.updateTitle(element);
+  }
+
+  /**
+   * Initialize roll method selector
+   * @param {HTMLElement} element - Root element
+   * @private
+   */
+  static #initializeRollMethodSelector(element) {
+    const rollMethodSelect = element.querySelector('#roll-method');
+    if (!rollMethodSelect) return;
+
+    // First, remove any existing listeners to avoid duplicates
+    const oldListeners = this.#listeners.get(rollMethodSelect);
+    if (oldListeners?.get('change')) {
+      oldListeners.get('change').forEach((callback) => {
+        rollMethodSelect.removeEventListener('change', callback);
+      });
+      oldListeners.delete('change');
+    }
+
+    this.on(rollMethodSelect, 'change', async (event) => {
+      const method = event.target.value;
+      HM.log(3, `Roll method changed to: ${method}`);
+
+      this.#handleRollMethodChange(element, method);
+    });
+  }
+
+  /**
+   * Handle roll method change
+   * @param {HTMLElement} element - Root element
+   * @param {string} method - Selected roll method
+   * @private
+   */
+  static #handleRollMethodChange(element, method) {
+    // Update the setting
+    game.settings.set(HM.ID, 'diceRollingMethod', method);
+
+    // Reset abilities
+    HeroMancer.selectedAbilities = Array(Object.keys(CONFIG.DND5E.abilities).length).fill(HM.ABILITY_SCORES.DEFAULT);
+
+    // Force a re-render of just the abilities tab
+    const app = HM.heroMancer;
+    if (app) {
+      // Store current method for detection
+      element.dataset.lastRollMethod = method;
+      app.render({ parts: ['abilities'] });
+    }
+  }
+
+  /**
+   * Initialize ability dropdowns
+   * @param {HTMLElement} element - Root element
+   * @private
+   */
+  static #initializeAbilityDropdowns(element) {
+    const abilityDropdowns = element.querySelectorAll('.ability-dropdown');
+
+    abilityDropdowns.forEach((dropdown, index) => {
+      // Add data-index attribute for reliable reference
+      dropdown.dataset.index = index;
+
+      this.on(dropdown, 'change', (event) => {
+        const diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
+        StatRoller.handleAbilityDropdownChange(event, diceRollingMethod);
+        this.updateAbilitiesSummary();
+      });
+    });
+  }
+
+  /**
+   * Initialize ability score inputs
+   * @param {HTMLElement} element - Root element
+   * @private
+   */
+  static #initializeAbilityScoreInputs(element) {
+    const abilityScores = element.querySelectorAll('.ability-score');
+
+    abilityScores.forEach((input) => {
+      // Use a single debounced handler for both input and change events
+      const debouncedUpdate = this.debounce(() => this.updateAbilitiesSummary(), 100);
+      this.on(input, 'change', debouncedUpdate);
+      this.on(input, 'input', debouncedUpdate);
+    });
+  }
+
+  /**
+   * Get formatted race link for summary
+   * @returns {string} Formatted race link or placeholder
+   * @private
+   */
+  static #getRaceLink() {
+    if (!HM.SELECTED.race?.uuid) {
+      return game.i18n.format('hm.unknown', { type: 'race' });
+    }
+
+    const raceSelect = document.querySelector('#race-dropdown');
+    let raceName = null;
+
+    // Try to get race name from selected option
+    if (raceSelect?.selectedIndex > 0) {
+      raceName = raceSelect.options[raceSelect.selectedIndex].text;
+    } else if (raceSelect) {
+      // Find matching option by UUID
+      for (let i = 0; i < raceSelect.options.length; i++) {
+        if (raceSelect.options[i].value.includes(HM.SELECTED.race.uuid)) {
+          raceName = raceSelect.options[i].text;
+          break;
+        }
+      }
+    }
+
+    if (raceName) {
+      return `@UUID[${HM.SELECTED.race.uuid}]`;
+    }
+
+    // Fallback to retrieving from UUID directly
+    try {
+      return `@UUID[${HM.SELECTED.race.uuid}]`;
+    } catch (error) {
+      HM.log(2, `Failed to resolve race UUID: ${HM.SELECTED.race.uuid}`, error);
+      return game.i18n.format('hm.unknown', { type: 'race' });
+    }
+  }
+
+  /**
+   * Get formatted class link for summary
+   * @returns {string} Formatted class link or placeholder
+   * @private
+   */
+  static #getClassLink() {
+    if (!HM.SELECTED.class?.uuid) {
+      return game.i18n.format('hm.unknown', { type: 'class' });
+    }
+
+    const classSelect = document.querySelector('#class-dropdown');
+
+    // Try to get class name from dropdown
+    if (classSelect?.selectedIndex > 0) {
+      return `@UUID[${HM.SELECTED.class.uuid}]`;
+    }
+
+    // Fallback to retrieving from UUID directly
+    try {
+      return `@UUID[${HM.SELECTED.class.uuid}]`;
+    } catch (error) {
+      HM.log(2, `Failed to resolve class UUID: ${HM.SELECTED.class.uuid}`, error);
+      return game.i18n.format('hm.unknown', { type: 'class' });
+    }
+  }
+
+  /**
+   * Get background data for summary
+   * @returns {Object} Background data including article and link
+   * @private
+   */
+  static #getBackgroundData() {
+    const backgroundSelect = document.querySelector('#background-dropdown');
+    const selectedOption = backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
+
+    // Handle default/no selection case
+    if (!selectedOption?.value || !HM.SELECTED.background?.uuid) {
+      return {
+        article: game.i18n.localize('hm.app.equipment.article-plural'),
+        link: game.i18n.localize('hm.app.background.adventurer')
+      };
+    }
+
+    const backgroundName = selectedOption.text;
+    const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
+
+    return {
+      article: article,
+      link: `@UUID[${HM.SELECTED.background.uuid}]`
+    };
+  }
+
+  /**
+   * Collect equipment items from the UI
+   * @returns {Array} Array of selected equipment items
+   * @private
+   */
+  static #collectEquipmentItems() {
+    // Collect all equipment items at once
+    const selectedEquipment = Array.from(document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked'))
+      .map((el) => this.#extractEquipmentItemData(el))
+      .filter(Boolean);
+
+    // Sort items - favorites first, then by type priority
+    const priorityTypes = ['weapon', 'armor', 'shield'];
+
+    selectedEquipment.sort((a, b) => {
+      if (a.favorite && !b.favorite) return -1;
+      if (!a.favorite && b.favorite) return 1;
+
+      // If both have same favorite status, use the type priority
+      const aIndex = priorityTypes.indexOf(a.type);
+      const bIndex = priorityTypes.indexOf(b.type);
+      return (bIndex === -1 ? -999 : bIndex) - (aIndex === -1 ? -999 : aIndex);
+    });
+
+    // Take up to 3 items
+    return selectedEquipment.slice(0, 3);
+  }
+
+  /**
+   * Extract equipment item data from a DOM element
+   * @param {HTMLElement} el - DOM element (select or checkbox)
+   * @returns {Object|null} Equipment item data or null if invalid
+   * @private
+   */
+  static #extractEquipmentItemData(el) {
+    // For selects
+    if (el.tagName === 'SELECT') {
+      const selectedOption = el.options[el.selectedIndex];
+      if (!selectedOption || !selectedOption.value || !selectedOption.value.includes('Compendium')) {
+        return null;
+      }
+
+      const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
+      const isFavorite = favoriteCheckbox?.checked || false;
+
+      return {
+        type: selectedOption.dataset.tooltip?.toLowerCase() || '',
+        uuid: selectedOption.value,
+        text: selectedOption.textContent?.trim(),
+        favorite: isFavorite
+      };
+    }
+    // For checkboxes
+    else {
+      const link = el.parentElement?.querySelector('.content-link');
+      const uuid = link?.dataset?.uuid;
+
+      if (!link || !uuid || uuid.includes(',') || !uuid.includes('Compendium')) {
+        return null;
+      }
+
+      const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
+      const isFavorite = favoriteCheckbox?.checked || false;
+
+      return {
+        type: link.dataset.tooltip?.toLowerCase() || '',
+        uuid: uuid,
+        text: link.textContent?.trim(),
+        favorite: isFavorite
+      };
+    }
+  }
+
+  /**
+   * Format and display equipment summary
+   * @param {HTMLElement} summary - Summary element to update
+   * @param {Array} displayEquipment - Equipment items to display
+   * @returns {Promise<void>}
+   * @private
+   */
+  static async #formatAndDisplayEquipmentSummary(summary, displayEquipment) {
+    if (!displayEquipment.length) {
+      summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
+      return;
+    }
+
+    // Format individual items
+    const formattedItems = displayEquipment.map((item) => {
+      const itemName = item.text;
+      const article = /^[aeiou]/i.test(itemName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
+      return `${article} @UUID[${item.uuid}]{${item.text}}`;
+    });
+
+    // Join items with appropriate separators
+    const content = game.i18n.format('hm.app.finalize.summary.equipment', {
+      items:
+        formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) + (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') + formattedItems.slice(-1)
+    });
+
+    summary.innerHTML = await TextEditor.enrichHTML(content);
+  }
+
+  /**
+   * Process ability highlights based on class preferences
+   * @returns {void}
+   * @private
+   */
+  static #processAbilityHighlights() {
+    // First, remove any existing highlights
+    const previousHighlights = document.querySelectorAll('.primary-ability');
+    previousHighlights.forEach((el) => {
+      el.classList.remove('primary-ability');
+      el.removeAttribute('data-tooltip');
+    });
+
+    // Get current roll method
+    const rollMethodSelect = document.getElementById('roll-method');
+    const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
+    const rollMethod = abilitiesTab?.dataset.currentMethod || rollMethodSelect?.value || 'standardArray';
+
+    // Gather class primary abilities
+    const primaryAbilities = this.#getPrimaryAbilitiesForClass();
+    if (!primaryAbilities.size) return;
+
+    // Process each ability block
+    const abilityBlocks = document.querySelectorAll('.ability-block');
+    abilityBlocks.forEach((block) => {
+      this.#processAbilityBlock(block, primaryAbilities, rollMethod);
+    });
+  }
+
+  /**
+   * Get primary abilities for the selected class
+   * @returns {Set<string>} Set of primary ability keys
+   * @private
+   */
+  static #getPrimaryAbilitiesForClass() {
+    const primaryAbilities = new Set();
+
+    try {
+      const classUUID = HM.SELECTED.class?.uuid;
+      if (!classUUID) return primaryAbilities;
+
+      const classItem = fromUuidSync(classUUID);
+      if (!classItem) return primaryAbilities;
+
+      // Get primary ability
+      if (classItem?.system?.primaryAbility?.value?.length) {
+        for (const ability of classItem.system.primaryAbility.value) {
+          primaryAbilities.add(ability.toLowerCase());
+        }
+      }
+
+      // Get spellcasting ability
+      if (classItem?.system?.spellcasting?.ability) {
+        primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
+      }
+
+      // Get saving throw proficiencies
+      if (classItem?.advancement?.byType?.Trait) {
+        const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
+
+        for (const trait of level1Traits) {
+          const grants = trait.configuration.grants;
+          for (const grant of grants) {
+            if (grant.startsWith('saves:')) {
+              primaryAbilities.add(grant.split(':')[1].toLowerCase());
+            }
+          }
+        }
+      }
+    } catch (error) {
+      HM.log(1, 'Error getting class primary abilities:', error);
+    }
+
+    return primaryAbilities;
+  }
+
+  /**
+   * Process an individual ability block
+   * @param {HTMLElement} block - Ability block element
+   * @param {Set<string>} primaryAbilities - Set of primary abilities
+   * @param {string} rollMethod - Current roll method
+   * @private
+   */
+  static #processAbilityBlock(block, primaryAbilities, rollMethod) {
+    let abilityKey = '';
+    let score = 0;
+
+    // Extract ability key and score based on roll method
+    if (rollMethod === 'pointBuy') {
+      const hiddenInput = block.querySelector('input[type="hidden"]');
+      if (hiddenInput) {
+        const nameMatch = hiddenInput.name.match(/abilities\[(\w+)]/);
+        if (nameMatch && nameMatch[1]) {
+          abilityKey = nameMatch[1].toLowerCase();
+        }
+      }
+      score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
+    } else if (rollMethod === 'standardArray') {
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown) {
+        const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
+        if (nameMatch && nameMatch[1]) {
+          abilityKey = nameMatch[1].toLowerCase();
+        }
+        score = parseInt(dropdown.value) || 0;
+      }
+    } else if (rollMethod === 'manualFormula') {
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown) {
+        abilityKey = dropdown.value?.toLowerCase() || '';
+        score = parseInt(block.querySelector('.ability-score')?.value) || 0;
+      }
+    }
+
+    // If not a primary ability, exit early
+    if (!abilityKey || !primaryAbilities.has(abilityKey)) return;
+
+    // Get class info for tooltip
+    const classUUID = HM.SELECTED.class?.uuid;
+    const classItem = classUUID ? fromUuidSync(classUUID) : null;
+    const className = classItem?.name || game.i18n.localize('hm.app.abilities.your-class');
+
+    // Apply highlighting based on roll method
+    this.#applyAbilityHighlight(block, abilityKey, className, rollMethod);
+  }
+
+  /**
+   * Apply highlighting to ability elements
+   * @param {HTMLElement} block - Ability block element
+   * @param {string} abilityKey - Ability key
+   * @param {string} className - Class name for tooltip
+   * @param {string} rollMethod - Current roll method
+   * @private
+   */
+  static #applyAbilityHighlight(block, abilityKey, className, rollMethod) {
+    const abilityName = CONFIG.DND5E.abilities[abilityKey]?.label || abilityKey.toUpperCase();
+    const tooltipText = game.i18n.format('hm.app.abilities.primary-tooltip', {
+      ability: abilityName,
+      class: className
+    });
+
+    // For all methods, highlight the label
+    const label = block.querySelector('.ability-label');
+    if (label) {
+      label.classList.add('primary-ability');
+      label.setAttribute('data-tooltip', tooltipText);
+    }
+
+    // For standardArray, also highlight the dropdown
+    if (rollMethod === 'standardArray') {
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown) {
+        dropdown.classList.add('primary-ability');
+      }
+    }
+
+    // For manualFormula, always highlight the dropdown
+    if (rollMethod === 'manualFormula') {
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown) {
+        dropdown.classList.add('primary-ability');
+        dropdown.setAttribute('data-tooltip', tooltipText);
+      }
+    }
+  }
+
+  /**
+   * Update the ability summary content in the UI
+   * @private
+   */
+  static #updateAbilitySummaryContent() {
+    // Get ability scores
+    const abilityScores = this.#collectAbilityScores();
+    if (Object.keys(abilityScores).length === 0) return;
+
+    // Get primary abilities
+    const primaryAbilities = this.#getPrimaryAbilitiesForClass();
+
+    // Sort and select top abilities
+    const selectedAbilities = this.#selectTopAbilities(abilityScores, primaryAbilities);
+
+    // Update the summary HTML
+    this.#updateSummaryHTML(selectedAbilities);
+  }
+
+  /**
+   * Collect ability scores from UI
+   * @returns {Object} Map of ability scores
+   * @private
+   */
+  static #collectAbilityScores() {
+    const abilityScores = {};
+    const rollMethodSelect = document.getElementById('roll-method');
+    const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
+    const rollMethod = abilitiesTab?.dataset.currentMethod || rollMethodSelect?.value || 'standardArray';
+
+    const abilityBlocks = document.querySelectorAll('.ability-block');
+    abilityBlocks.forEach((block) => {
+      let abilityKey = '';
+      let score = 0;
+
+      // Logic from earlier method to extract scores based on roll method
+      if (rollMethod === 'pointBuy') {
+        const hiddenInput = block.querySelector('input[type="hidden"]');
+        if (hiddenInput) {
+          const nameMatch = hiddenInput.name.match(/abilities\[(\w+)]/);
+          if (nameMatch && nameMatch[1]) {
+            abilityKey = nameMatch[1].toLowerCase();
+          }
+        }
+        score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
+      } else if (rollMethod === 'standardArray') {
+        const dropdown = block.querySelector('.ability-dropdown');
+        if (dropdown) {
+          const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
+          if (nameMatch && nameMatch[1]) {
+            abilityKey = nameMatch[1].toLowerCase();
+          }
+          score = parseInt(dropdown.value) || 0;
+        }
+      } else if (rollMethod === 'manualFormula') {
+        const dropdown = block.querySelector('.ability-dropdown');
+        if (dropdown) {
+          abilityKey = dropdown.value?.toLowerCase() || '';
+          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
+        }
+      }
+
+      if (abilityKey) {
+        abilityScores[abilityKey] = score;
+      }
+    });
+
+    return abilityScores;
+  }
+
+  /**
+   * Select top abilities for summary
+   * @param {Object} abilityScores - Map of ability scores
+   * @param {Set<string>} primaryAbilities - Set of primary abilities
+   * @returns {string[]} Selected ability keys
+   * @private
+   */
+  static #selectTopAbilities(abilityScores, primaryAbilities) {
+    // Sort abilities by preference and then by score
+    const sortedAbilities = Object.entries(abilityScores)
+      .sort(([abilityA, scoreA], [abilityB, scoreB]) => {
+        // First sort by preferred status
+        const preferredA = primaryAbilities.has(abilityA);
+        const preferredB = primaryAbilities.has(abilityB);
+
+        if (preferredA && !preferredB) return -1;
+        if (!preferredA && preferredB) return 1;
+
+        // Then sort by score
+        return scoreB - scoreA;
+      })
+      .map(([ability]) => ability.toLowerCase());
+
+    // Select the top 2 abilities
+    const selectedAbilities = [];
+    for (const ability of sortedAbilities) {
+      if (selectedAbilities.length < 2 && !selectedAbilities.includes(ability)) {
+        selectedAbilities.push(ability);
+      }
+    }
+
+    // If we still need more abilities, add highest scoring ones
+    if (selectedAbilities.length < 2) {
+      for (const [ability, score] of Object.entries(abilityScores).sort(([, a], [, b]) => b - a)) {
+        if (!selectedAbilities.includes(ability) && selectedAbilities.length < 2) {
+          selectedAbilities.push(ability);
+        }
+      }
+    }
+
+    return selectedAbilities;
+  }
+
+  /**
+   * Update the summary HTML
+   * @param {string[]} selectedAbilities - Selected ability keys
+   * @returns {Promise<void>}
+   * @private
+   */
+  static async #updateSummaryHTML(selectedAbilities) {
+    const abilitiesSummary = document.querySelector('.abilities-summary');
+    if (!abilitiesSummary) return;
+
+    if (selectedAbilities.length >= 2) {
+      const content = game.i18n.format('hm.app.finalize.summary.abilities', {
+        first: `&Reference[${selectedAbilities[0]}]`,
+        second: `&Reference[${selectedAbilities[1]}]`
+      });
+      abilitiesSummary.innerHTML = await TextEditor.enrichHTML(content);
+    } else {
+      abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
+    }
+  }
+
+  /**
+   * Get character name for summary
+   * @returns {string} Character name
+   * @private
+   */
+  static #getCharacterName() {
+    const nameInput = document.querySelector('#character-name');
+    return nameInput?.value || game.user.name;
+  }
+
+  /**
+   * Collect summary content from DOM
+   * @returns {Object} Summary content by section
+   * @private
+   */
+  static #collectSummaryContent() {
+    return {
+      classRace: document.querySelector('.class-race-summary')?.innerHTML || '',
+      background: document.querySelector('.background-summary')?.innerHTML || '',
+      abilities: document.querySelector('.abilities-summary')?.innerHTML || '',
+      equipment: document.querySelector('.equipment-summary')?.innerHTML || ''
+    };
+  }
+
+  /**
+   * Build formatted HTML for summary message
+   * @param {string} characterName - Character name
+   * @param {Object} summaries - Summary content by section
+   * @returns {string} Formatted HTML
+   * @private
+   */
+  static #buildSummaryMessageHTML(characterName, summaries) {
+    let message = `
+    <div class="character-summary" style="line-height: 1.7; margin: 0.5em 0;">
+      <h2 style="margin-bottom: 0.5em">${characterName}</h2>
+      <hr style="margin: 0.5em 0">
+  `;
+
+    // Add each summary section if available
+    if (summaries.classRace) {
+      message += `<span class="summary-section class-race">${summaries.classRace}</span> `;
+    }
+
+    if (summaries.background) {
+      message += `<span class="summary-section background">${summaries.background}</span> `;
+    }
+
+    if (summaries.abilities) {
+      message += `<span class="summary-section abilities">${summaries.abilities}</span> `;
+    }
+
+    if (summaries.equipment) {
+      message += `<span class="summary-section equipment">${summaries.equipment}</span>`;
+    }
+
+    message += '</div>';
+    return message;
   }
 }
