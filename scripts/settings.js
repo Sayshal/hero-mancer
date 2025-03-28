@@ -108,7 +108,7 @@ export function registerSettings() {
     restricted: true
   });
 
-  game.settings.register(HM.ID, 'eyeColors', {
+  game.settings.register(HM.ID, 'eye-colors', {
     name: 'hm.settings.eye-colors.name',
     hint: 'hm.settings.eye-colors.hint',
     scope: 'world',
@@ -118,7 +118,7 @@ export function registerSettings() {
     restricted: true
   });
 
-  game.settings.register(HM.ID, 'hairColors', {
+  game.settings.register(HM.ID, 'hair-colors', {
     name: 'hm.settings.hair-colors.name',
     hint: 'hm.settings.hair-colors.hint',
     scope: 'world',
@@ -128,7 +128,7 @@ export function registerSettings() {
     restricted: true
   });
 
-  game.settings.register(HM.ID, 'skinTones', {
+  game.settings.register(HM.ID, 'skin-tones', {
     name: 'hm.settings.skin-tones.name',
     hint: 'hm.settings.skin-tones.hint',
     scope: 'world',

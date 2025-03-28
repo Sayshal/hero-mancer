@@ -81,16 +81,16 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   async _prepareContext(_options) {
     const context = {
-      alignments: game.settings.get(HM.ID, 'alignments'),
-      deities: game.settings.get(HM.ID, 'deities'),
-      eyeColors: game.settings.get(HM.ID, 'eyeColors'),
-      hairColors: game.settings.get(HM.ID, 'hairColors'),
-      skinTones: game.settings.get(HM.ID, 'skinTones'),
-      genders: game.settings.get(HM.ID, 'genders'),
-      enableRandomize: game.settings.get(HM.ID, 'enableRandomize'),
-      artPickerRoot: game.settings.get(HM.ID, 'artPickerRoot'),
-      enablePlayerCustomization: game.settings.get(HM.ID, 'enablePlayerCustomization'),
-      enableTokenCustomization: game.settings.get(HM.ID, 'enableTokenCustomization')
+      'alignments': game.settings.get(HM.ID, 'alignments'),
+      'deities': game.settings.get(HM.ID, 'deities'),
+      'eye-colors': game.settings.get(HM.ID, 'eye-colors'),
+      'hair-colors': game.settings.get(HM.ID, 'hair-colors'),
+      'skin-tones': game.settings.get(HM.ID, 'skin-tones'),
+      'genders': game.settings.get(HM.ID, 'genders'),
+      'enableRandomize': game.settings.get(HM.ID, 'enableRandomize'),
+      'artPickerRoot': game.settings.get(HM.ID, 'artPickerRoot'),
+      'enablePlayerCustomization': game.settings.get(HM.ID, 'enablePlayerCustomization'),
+      'enableTokenCustomization': game.settings.get(HM.ID, 'enableTokenCustomization')
     };
 
     return context;
@@ -111,14 +111,40 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static async formHandler(_event, form, formData) {
     try {
-      const settings = ['alignments', 'deities', 'eyeColors', 'hairColors', 'skinTones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+      const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
 
+      // Get default values from game settings
+      const defaults = {};
       for (const setting of settings) {
-        await game.settings.set(HM.ID, setting, formData.object[setting]);
+        defaults[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
+      }
+
+      // Keep track of which settings were reset to defaults
+      const resetSettings = [];
+
+      // Apply defaults for blank string values
+      for (const setting of settings) {
+        const value = formData.object[setting];
+        const isEmpty = typeof value === 'string' && value.trim() === '';
+
+        if (isEmpty) {
+          resetSettings.push(setting);
+          await game.settings.set(HM.ID, setting, defaults[setting]);
+        } else {
+          await game.settings.set(HM.ID, setting, value);
+        }
       }
 
       // Update CharacterArtPicker root directory
-      CharacterArtPicker.rootDirectory = formData.object.artPickerRoot;
+      CharacterArtPicker.rootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
+
+      // Show warnings for reset settings
+      if (resetSettings.length > 0) {
+        for (const setting of resetSettings) {
+          let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
+          ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
+        }
+      }
 
       HM.reloadConfirm({ world: true });
 

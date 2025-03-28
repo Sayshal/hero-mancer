@@ -599,15 +599,15 @@ export class CharacterRandomizer {
     // Get appearance traits from settings
     const traits = {
       eyes: game.settings
-        .get(HM.ID, 'eyeColors')
+        .get(HM.ID, 'eye-colors')
         .split(',')
         .map((e) => e.trim()),
       hair: game.settings
-        .get(HM.ID, 'hairColors')
+        .get(HM.ID, 'hair-colors')
         .split(',')
         .map((h) => h.trim()),
       skin: game.settings
-        .get(HM.ID, 'skinTones')
+        .get(HM.ID, 'skin-tones')
         .split(',')
         .map((s) => s.trim()),
       gender: game.settings

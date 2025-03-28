@@ -255,6 +255,7 @@
 .application.hm-app .fa-dice,
 .application.hm-app .fa-list-check,
 .application.hm-app .fa-atlas,
+.application.hm-app .fa-palette,
 .hm-compendiums-popup-dialog .fa-solid {
   color: var(--user-color);
 }
