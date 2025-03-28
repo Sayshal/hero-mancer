@@ -787,11 +787,11 @@ export class CharacterRandomizer {
         let clickCount = 0;
 
         while (!primary.plusButton.disabled && maxAttempts > 0) {
-          HM.log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
-          primary.plusButton.click();
           clickCount++;
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          HM.log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
           maxAttempts--;
+          primary.plusButton.click();
+          await new Promise((resolve) => setTimeout(resolve, 50));
         }
 
         HM.log(3, `Finished primary ability ${primary.index} after ${clickCount} clicks. Final value: ${primary.currentScore.textContent}`);

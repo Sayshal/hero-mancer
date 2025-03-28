@@ -1,4 +1,4 @@
-import { CharacterArtPicker, CustomCompendiums, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
+import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
 
 /**
  * Main registration function that initializes all module settings.
@@ -21,7 +21,7 @@ export function registerSettings() {
     name: 'hm.settings.art-picker-root.name',
     hint: 'hm.settings.art-picker-root.hint',
     scope: 'world',
-    config: true,
+    config: false,
     restricted: true,
     type: String,
     filePicker: 'folder',
@@ -37,7 +37,7 @@ export function registerSettings() {
     default: false,
     type: Boolean,
     scope: 'world',
-    config: true,
+    config: false,
     requiresReload: true
   });
 
@@ -47,7 +47,7 @@ export function registerSettings() {
     default: false,
     type: Boolean,
     scope: 'world',
-    config: true,
+    config: false,
     requiresReload: true
   });
 
@@ -59,6 +59,15 @@ export function registerSettings() {
     type: CustomCompendiums,
     restricted: true,
     requiresReload: true
+  });
+
+  game.settings.registerMenu(HM.ID, 'customizationMenu', {
+    name: 'hm.settings.customization.menu.name',
+    hint: 'hm.settings.customization.menu.hint',
+    icon: 'fa-solid fa-palette',
+    label: 'hm.settings.configure-customization',
+    type: Customization,
+    restricted: true
   });
 
   game.settings.registerMenu(HM.ID, 'diceRollingMenu', {
@@ -83,7 +92,7 @@ export function registerSettings() {
     name: 'hm.settings.alignments.name',
     hint: 'hm.settings.alignments.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Lawful Good, Neutral Good, Chaotic Good, Lawful Neutral, True Neutral, Chaotic Neutral, Lawful Evil, Neutral Evil, Chaotic Evil',
     restricted: true
@@ -93,7 +102,7 @@ export function registerSettings() {
     name: 'hm.settings.deities.name',
     hint: 'hm.settings.deities.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Aphrodite,Apollo,Ares,Artemis,Athena,Demeter,Dionysus,Hades,Hecate,Hephaestus,Hera,Hercules,Hermes,Hestia,Nike,Pan,Poseidon,Tyche,Zeus',
     restricted: true
@@ -103,7 +112,7 @@ export function registerSettings() {
     name: 'hm.settings.eye-colors.name',
     hint: 'hm.settings.eye-colors.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Blue,Green,Brown,Hazel,Gray,Amber,Black',
     restricted: true
@@ -113,7 +122,7 @@ export function registerSettings() {
     name: 'hm.settings.hair-colors.name',
     hint: 'hm.settings.hair-colors.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Black,Brown,Blonde,Red,Gray,White,Chestnut,Auburn',
     restricted: true
@@ -123,7 +132,7 @@ export function registerSettings() {
     name: 'hm.settings.skin-tones.name',
     hint: 'hm.settings.skin-tones.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Pale,Fair,Light,Medium,Tan,Dark,Brown,Black',
     restricted: true
@@ -133,7 +142,7 @@ export function registerSettings() {
     name: 'hm.settings.genders.name',
     hint: 'hm.settings.genders.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     default: 'Male,Female,Non-Binary,Genderfluid,Agender',
     restricted: true
@@ -144,7 +153,7 @@ export function registerSettings() {
     name: 'hm.settings.randomize.name',
     hint: 'hm.settings.randomize.hint',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });

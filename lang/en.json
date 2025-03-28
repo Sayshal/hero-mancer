@@ -256,6 +256,9 @@
         "hint": "Comma-separated list of alignments available for character creation.",
         "name": "Available Alignments"
       },
+      "appearance-options": {
+        "header": "Appearance Options"
+      },
       "art-picker-root": {
         "hint": "The root directory for the Character Art Picker",
         "name": "Art Picker Root Directory"
@@ -267,10 +270,14 @@
         "hint": "Chain 1 stat roll after the other to roll a complete character.",
         "name": "Chained Rolls"
       },
+      "character-options": {
+        "header": "Customization Options"
+      },
       "class-packs": {
         "name": "Class Packs"
       },
       "configure-compendiums": "Configure Compendiums",
+      "configure-customization": "Configure Customization",
       "configure-mandatory": "Configure Mandatory Fields",
       "configure-rolling": "Configure Roll Options",
       "custom-compendiums": {
@@ -315,6 +322,14 @@
         "invalid-format": "Invalid format: please enter numbers separated by commas only.",
         "name": "Custom Standard Array",
         "reset-default": "Custom Standard Array was reset to default values due to invalid length."
+      },
+      "customization": {
+        "error-saving": "Error saving character customization settings.",
+        "menu": {
+          "hint": "Configure character appearance options and customization settings.",
+          "name": "Character Customization"
+        },
+        "saved": "Character customization settings saved successfully."
       },
       "deities": {
         "hint": "Comma-separated list of deities available for character creation.",

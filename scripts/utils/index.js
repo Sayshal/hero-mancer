@@ -9,6 +9,9 @@ export { CharacterArtPicker } from './characterArtPicker.js';
 /** Application to allow compendium selection */
 export { CustomCompendiums } from '../app/CustomCompendiums.js';
 
+/** Application to configure customization options */
+export { Customization } from '../app/Customization.js';
+
 /** Applicaation to configure dice rolling options */
 export { DiceRolling } from '../app/DiceRolling.js';
 

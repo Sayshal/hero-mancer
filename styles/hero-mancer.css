@@ -1408,6 +1408,7 @@ fieldset#start > h2 {
 .hm-mandatory-fields-popup .form-group {
   margin: 5px 0;
   padding-left: 0.625rem;
+  gap: unset;
 }
 
 .hm-mandatory-fields-popup .form-group label {
@@ -1541,6 +1542,45 @@ fieldset#start > h2 {
 .fa-dice-d6.rolling {
   color: #ff6b6b;
   animation: roll-dice 0.5s ease-in-out;
+}
+
+.hm-dice-rolling-popup .form-group {
+  gap: unset;
+}
+
+.customization-application .form-group {
+  width: 100%;
+  gap: unset;
+}
+
+.customization-application .form-group .form-group {
+  width: 100%;
+  gap: unset;
+}
+
+.customization-application .form-group .flex.items-center {
+  width: 100%;
+  gap: unset;
+}
+
+.customization-application .form-group .flex.items-center .form-input {
+  width: 100%;
+  max-width: 100%;
+  gap: unset;
+}
+
+.customization-application .flex.items-center button.file-picker {
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: 100%;
+  margin-left: 5px;
+}
+
+.customization-application .flex.items-center button.file-picker i {
+  margin: 0;
 }
 
 /* ==========================================================================
