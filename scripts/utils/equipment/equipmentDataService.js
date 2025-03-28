@@ -17,19 +17,26 @@ export class EquipmentDataService {
    * Retrieves and combines equipment data from class and background selections
    * @async
    * @returns {Promise<object>} Combined equipment data
+   * @throws {Error} If data fetching fails
    */
   async fetchEquipmentData() {
     HM.log(3, 'Beginning equipment data fetch');
-    const classEquipment = await this.getStartingEquipment('class');
-    const backgroundEquipment = await this.getStartingEquipment('background');
 
-    const result = {
-      class: classEquipment || [],
-      background: backgroundEquipment || []
-    };
+    try {
+      const [classEquipment, backgroundEquipment] = await Promise.all([this.getStartingEquipment('class'), this.getStartingEquipment('background')]);
 
-    HM.log(3, `Retrieved ${result.class.length} class items and ${result.background.length} background items`);
-    return result;
+      const result = {
+        class: classEquipment || [],
+        background: backgroundEquipment || []
+      };
+
+      HM.log(3, `Retrieved ${result.class.length} class items and ${result.background.length} background items`);
+      return result;
+    } catch (error) {
+      HM.log(1, `Failed to fetch equipment data: ${error.message}`);
+      // Return empty data structure rather than null
+      return { class: [], background: [] };
+    }
   }
 
   /**
@@ -415,26 +422,41 @@ export class EquipmentDataService {
   /**
    * Extract content from a heading element
    * @param {HTMLElement} heading - The heading element
-   * @returns {string} HTML content
+   * @returns {string|null} HTML content or null if invalid
    */
   extractContentFromHeading(heading) {
     HM.log(3, 'Extracting content from heading');
 
+    // Validate input
+    if (!heading || !heading.tagName || !heading.tagName.match(/^H[1-6]$/)) {
+      HM.log(2, 'Invalid heading element provided');
+      return null;
+    }
+
     let content = heading.outerHTML;
     let currentElement = heading.nextElementSibling;
+    let elementCount = 0;
+    const MAX_ELEMENTS = 10; // Prevent excessive inclusion
 
     // Include relevant content after the heading
-    while (currentElement && !currentElement.tagName.match(/^H[1-6]$/) && content.length < 1000) {
+    while (currentElement && !currentElement.tagName.match(/^H[1-6]$/) && content.length < 1000 && elementCount < MAX_ELEMENTS) {
       if (['P', 'UL', 'OL'].includes(currentElement.tagName)) {
         content += currentElement.outerHTML;
+        elementCount++;
       } else {
+        // Non-content element encountered
         break;
       }
 
       currentElement = currentElement.nextElementSibling;
     }
 
-    HM.log(3, 'Extracted equipment section from heading');
+    if (content === heading.outerHTML) {
+      HM.log(3, 'No additional content found after heading');
+    } else {
+      HM.log(3, `Extracted equipment section from heading with ${elementCount} additional elements`);
+    }
+
     return content;
   }
 
