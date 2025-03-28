@@ -1,12 +1,13 @@
+{{!-- Equipment Selection Tab --}}
 <div class='tab {{tabs.equipment.cssClass}}' data-tab='equipment' data-group='hero-mancer-tabs'>
   <fieldset>
     <legend>{{localize 'hm.app.equipment.tooltip'}}</legend>
     <p>{{localize 'hm.app.equipment.preamble'}}</p>
-    <h2>Equipment Choices</h2>
+    <h2>{{localize 'hm.app.equipment.choices-header'}}</h2>
 
-    <!-- Container where EquipmentParser will inject equipment choices -->
+    {{!-- Dynamic Equipment Selection Container --}}
     <div id='equipment-container' class='equipment-container flex flex-col'>
-      <!-- This section will be populated by EquipmentParser.generateEquipmentSelectionUI() -->
+      {{!-- This section will be populated by EquipmentParser.generateEquipmentSelectionUI() --}}
     </div>
   </fieldset>
 </div>

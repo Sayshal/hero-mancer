@@ -1,9 +1,10 @@
+{{!-- Navigation Tabs for Hero Mancer Wizard --}}
 <nav class="hero-mancer-tabs tabs" role="tablist" aria-label="{{localize 'hm.app.tabs'}}">
   {{#each tabs as |tab|}}
     <a class="item {{tab.cssClass}}" data-action="tab" data-tab="{{tab.id}}" data-group="{{tab.group}}"
       data-tooltip="{{tab.label}}" aria-label="{{tab.label}}" role="tab" aria-controls="{{tab.id}}-panel"
       aria-selected="{{#if tab.cssClass}}true{{else}}false{{/if}}">
-      <i class="{{tab.icon}}"></i>
+      <i class="{{tab.icon}}" aria-hidden="true"></i>
       {{tab.label}}
     </a>
   {{/each}}

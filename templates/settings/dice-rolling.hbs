@@ -1,23 +1,27 @@
+{{!-- Dice Rolling Configuration Settings --}}
 <div class='dice-rolling-application flex flex-col m-lr overflow-y-auto pr-sm text-left'>
-  <div class="form-group flex flex-col  items-start">
+  {{!-- Dice Rolling Method Selection --}}
+  <div class="form-group flex flex-col items-start">
     <label class="font-bold">{{localize 'hm.settings.dice-rolling-method.name'}}</label>
-    <div class='dice-method-options flex flex-row  items-start'>
+    <div class='dice-method-options flex flex-row items-start'>
       <label class="flex items-start">
-        <input type="checkbox" name="standardArray" {{#if allowedMethods.standardArray}}checked{{/if}}>
+        <input type="checkbox" id="standardArray" name="standardArray"
+          {{#if allowedMethods.standardArray}}checked{{/if}}>
         <span>{{localize 'hm.settings.dice-rolling-method.standard-array'}}</span>
       </label>
       <label class="flex items-start">
-        <input type="checkbox" name="manual" {{#if allowedMethods.manual}}checked{{/if}}>
+        <input type="checkbox" id="manual" name="manual" {{#if allowedMethods.manual}}checked{{/if}}>
         <span>{{localize 'hm.settings.dice-rolling-method.manual-formula'}}</span>
       </label>
       <label class="flex items-start">
-        <input type="checkbox" name="pointBuy" {{#if allowedMethods.pointBuy}}checked{{/if}}>
+        <input type="checkbox" id="pointBuy" name="pointBuy" {{#if allowedMethods.pointBuy}}checked{{/if}}>
         <span>{{localize 'hm.settings.dice-rolling-method.point-buy'}}</span>
       </label>
     </div>
     <p class='hint'>{{localize 'hm.settings.dice-rolling-method.hint'}}</p>
   </div>
 
+  {{!-- Ability Score Limits Configuration --}}
   <div class="form-group flex flex-col items-start">
     <label class="font-bold">{{localize 'hm.settings.ability-scores.header'}}</label>
 
@@ -27,58 +31,72 @@
       <label class="font-bold text-center">{{localize 'hm.settings.ability-scores.max.name'}}</label>
 
       <div class="flex items-center justify-center">
-        <input type="number" name="abilityScoreMin" class="form-input" value="{{abilityScoreMin}}" min="3" max="18" step="1">
-        <i class="fa-solid fa-circle-info ml-xs tooltip-icon" data-tooltip="{{localize 'hm.settings.ability-scores.min.hint'}}"></i>
+        <input type="number" id="abilityScoreMin" name="abilityScoreMin" class="form-input" value="{{abilityScoreMin}}"
+          min="3" max="18" step="1">
+        <i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+          data-tooltip="{{localize 'hm.settings.ability-scores.min.hint'}}"></i>
       </div>
 
       <div class="flex items-center justify-center">
-        <input type="number" name="abilityScoreDefault" class="form-input" value="{{abilityScoreDefault}}" min="3" max="20" step="1">
-        <i class="fa-solid fa-circle-info ml-xs tooltip-icon" data-tooltip="{{localize 'hm.settings.ability-scores.default.hint'}}"></i>
+        <input type="number" id="abilityScoreDefault" name="abilityScoreDefault" class="form-input"
+          value="{{abilityScoreDefault}}" min="3" max="20" step="1">
+        <i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+          data-tooltip="{{localize 'hm.settings.ability-scores.default.hint'}}"></i>
       </div>
 
       <div class="flex items-center justify-center">
-        <input type="number" name="abilityScoreMax" class="form-input" value="{{abilityScoreMax}}" min="10" max="20" step="1">
-        <i class="fa-solid fa-circle-info ml-xs tooltip-icon" data-tooltip="{{localize 'hm.settings.ability-scores.max.hint'}}"></i>
+        <input type="number" id="abilityScoreMax" name="abilityScoreMax" class="form-input" value="{{abilityScoreMax}}"
+          min="10" max="20" step="1">
+        <i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+          data-tooltip="{{localize 'hm.settings.ability-scores.max.hint'}}"></i>
       </div>
     </div>
   </div>
 
-  <div class="form-group flex flex-col  items-start">
-    <label class="font-bold">{{localize 'hm.settings.custom-standard-array.name'}}</label>
-    <div class="flex items-center ">
-      <input type='text' name='customStandardArray' class="form-input" value='{{customStandardArray}}' />
+  {{!-- Custom Standard Array Configuration --}}
+  <div class="form-group flex flex-col items-start">
+    <label for="customStandardArray" class="font-bold">{{localize 'hm.settings.custom-standard-array.name'}}</label>
+    <div class="flex items-center">
+      <input type='text' id="customStandardArray" name='customStandardArray' class="form-input"
+        value='{{customStandardArray}}' />
     </div>
     <p class='hint'>{{localize 'hm.settings.custom-standard-array.hint'}}</p>
   </div>
 
-  <div class="form-group flex flex-col  items-start">
-    <label class="font-bold">{{localize 'hm.settings.custom-roll-formula.name'}}</label>
-    <div class="flex items-center ">
-      <input type='text' name='customRollFormula' class="form-input" value='{{customRollFormula}}' />
+  {{!-- Custom Roll Formula Configuration --}}
+  <div class="form-group flex flex-col items-start">
+    <label for="customRollFormula" class="font-bold">{{localize 'hm.settings.custom-roll-formula.name'}}</label>
+    <div class="flex items-center">
+      <input type='text' id="customRollFormula" name='customRollFormula' class="form-input"
+        value='{{customRollFormula}}' />
     </div>
     <p class='hint'>{{localize 'hm.settings.custom-roll-formula.hint'}}</p>
   </div>
 
-  <div class="form-group flex flex-col  items-start">
-    <label class="font-bold">{{localize "hm.settings.custom-point-buy-total.name"}}</label>
-    <div class="flex items-center ">
-      <input type="number" name="customPointBuyTotal" class="form-input" value="{{customPointBuyTotal}}">
+  {{!-- Custom Point Buy Total Configuration --}}
+  <div class="form-group flex flex-col items-start">
+    <label for="customPointBuyTotal" class="font-bold">{{localize "hm.settings.custom-point-buy-total.name"}}</label>
+    <div class="flex items-center">
+      <input type="number" id="customPointBuyTotal" name="customPointBuyTotal" class="form-input"
+        value="{{customPointBuyTotal}}">
     </div>
     <p class="hint">{{localize "hm.settings.custom-point-buy-total.hint"}}</p>
   </div>
 
-  <div class="form-group flex flex-col  items-start">
-    <div class="flex items-center ">
-      <input type='checkbox' name='chainedRolls' {{#if chainedRolls}}checked{{/if}} />
-      <label class="font-bold">{{localize 'hm.settings.chained-rolls.name'}}</label>
+  {{!-- Chained Rolls Option --}}
+  <div class="form-group flex flex-col items-start">
+    <div class="flex items-center">
+      <input type='checkbox' id="chainedRolls" name='chainedRolls' {{#if chainedRolls}}checked{{/if}} />
+      <label for="chainedRolls" class="font-bold">{{localize 'hm.settings.chained-rolls.name'}}</label>
     </div>
     <p class='hint'>{{localize 'hm.settings.chained-rolls.hint'}}</p>
   </div>
 
-  <div class="form-group flex flex-col  items-start">
-    <label class="font-bold">{{localize 'hm.settings.roll-delay.name'}}</label>
-    <div class="delay-control flex items-center ">
-      <input type='range' name='rollDelay' value='{{rollDelay}}' min='100' max='2000' step='100' />
+  {{!-- Roll Delay Configuration --}}
+  <div class="form-group flex flex-col items-start">
+    <label for="rollDelay" class="font-bold">{{localize 'hm.settings.roll-delay.name'}}</label>
+    <div class="delay-control flex items-center">
+      <input type='range' id="rollDelay" name='rollDelay' value='{{rollDelay}}' min='100' max='2000' step='100' />
       <span class="delay-value">{{rollDelay}}ms</span>
     </div>
     <p class='hint'>{{localize 'hm.settings.roll-delay.hint'}}</p>

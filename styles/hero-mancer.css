@@ -472,7 +472,7 @@ button {
 .wizard-progress-text {
   opacity: 0.9;
   color: #fff;
-  font-size: 0.9em;
+  font-size: 0.9rem;
   text-shadow:
     -1px -1px 0 #000,
     1px -1px 0 #000,
@@ -651,7 +651,7 @@ fieldset#start > h2 {
   flex-direction: column;
   align-items: center;
   width: 85px;
-  line-height: 2.5em;
+  line-height: 2.5rem;
 }
 
 .hm-app .ability-block .ability-dropdown,
@@ -711,9 +711,9 @@ fieldset#start > h2 {
   flex-shrink: 0;
   justify-content: center;
   align-items: center;
-  width: 2em;
-  height: 2em;
-  font-size: 1em;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
 }
 
 .ability-block.point-buy .adjust-button {
@@ -723,14 +723,14 @@ fieldset#start > h2 {
   width: 30px;
   height: 30px;
   border-radius: var(--border-radius-md);
-  font-size: 1.2em;
+  font-size: 1.2rem;
   cursor: pointer;
 }
 
 .ability-block.point-buy .score-value {
   min-width: 40px;
   font-weight: bold;
-  font-size: 1.5em;
+  font-size: 1.5rem;
   text-align: center;
 }
 
@@ -814,24 +814,24 @@ fieldset#start > h2 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 1.5rem;
   text-align: center;
 }
 
 .remaining-label,
 .points-display {
-  margin-bottom: 0.4em;
+  margin-bottom: 0.4rem;
   font-weight: bold;
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 #remaining-points {
-  margin-right: 0.2em;
+  margin-right: 0.2rem;
   color: var(--text-color-highlight, #4cae4f);
 }
 
 #total-points {
-  margin-left: 0.2em;
+  margin-left: 0.2rem;
 }
 
 .theme-light #remaining-points {
@@ -918,7 +918,7 @@ fieldset#start > h2 {
 
 .equipment-choices h4 {
   width: 92%;
-  margin: 1rem 0 0.5rem;
+  margin: unset;
 }
 
 .equipment-choices .parent-label {
@@ -937,7 +937,7 @@ fieldset#start > h2 {
   width: fit-content;
   min-width: 140px;
   max-width: 240px;
-  margin: 0;
+  margin: 0.25rem 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -945,7 +945,7 @@ fieldset#start > h2 {
 
 .application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link {
   display: inline;
-  margin: 0 0 0 0.2em;
+  margin: 0 0 0 0.2rem;
   padding: 0;
   border: none;
   font-style: italic;
@@ -953,7 +953,7 @@ fieldset#start > h2 {
 }
 
 .application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link i {
-  margin: 0 0.2em 0 0;
+  margin: 0 0.2rem 0 0;
   font-size: inherit;
 }
 
@@ -1018,10 +1018,6 @@ fieldset#start > h2 {
   max-width: 65px;
   padding-right: 0.625rem;
   text-align: center;
-}
-
-.dual-weapon-selection {
-  margin-top: 10px;
 }
 
 .second-weapon-label {
@@ -1090,8 +1086,8 @@ fieldset#start > h2 {
   display: inline-flex;
   position: relative;
   align-items: center;
-  width: 1.2em;
-  height: 1.2em;
+  width: 1.2rem;
+  height: 1.2rem;
   margin-left: auto;
   line-height: 1;
   vertical-align: baseline;
@@ -1124,10 +1120,10 @@ fieldset#start > h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1em;
-  height: 1em;
+  width: 1rem;
+  height: 1rem;
   color: #aaa;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   transition: color 0.2s ease;
 }
 
@@ -1182,7 +1178,7 @@ fieldset#start > h2 {
 }
 
 .hm-app-tab-content .character-name {
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 .hm-app-tab-content .character-summary {
@@ -1435,7 +1431,7 @@ fieldset#start > h2 {
 
 .hm-mandatory-fields-popup .field-group h4 {
   margin: 5px 0;
-  font-size: 1em;
+  font-size: 1rem;
 }
 
 .hm-mandatory-fields-popup .form-group {
@@ -1464,7 +1460,7 @@ fieldset#start > h2 {
   justify-content: center;
   align-items: center;
   margin-right: 0.25rem;
-  font-size: 0.9em;
+  font-size: 0.9rem;
 }
 
 .mandatory-indicator.complete {

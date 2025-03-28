@@ -1,34 +1,39 @@
+{{!-- Custom Compendiums Management Form --}}
 <form>
   <p>{{localize 'hm.settings.custom-compendiums.description'}}</p>
 
+  {{!-- Classes Section --}}
   <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
     <p id='class-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.classes-label'}}</p>
     <button type='button' data-action='classes' class="whitespace-nowrap" aria-labelledby='class-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-classes"}}' role='button'>
+      aria-label='{{localize "hm.settings.custom-compendiums.manage-classes"}}'>
       {{localize 'hm.settings.custom-compendiums.manage-classes'}}
     </button>
   </div>
 
+  {{!-- Races Section --}}
   <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
     <p id='race-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.races-label'}}</p>
     <button type='button' data-action='races' class="whitespace-nowrap" aria-labelledby='race-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-races"}}' role='button'>
+      aria-label='{{localize "hm.settings.custom-compendiums.manage-races"}}'>
       {{localize 'hm.settings.custom-compendiums.manage-races'}}
     </button>
   </div>
 
+  {{!-- Backgrounds Section --}}
   <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
     <p id='background-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.backgrounds-label'}}</p>
     <button type='button' data-action='backgrounds' class="whitespace-nowrap" aria-labelledby='background-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-backgrounds"}}' role='button'>
+      aria-label='{{localize "hm.settings.custom-compendiums.manage-backgrounds"}}'>
       {{localize 'hm.settings.custom-compendiums.manage-backgrounds'}}
     </button>
   </div>
 
+  {{!-- Items Section --}}
   <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
     <p id='item-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.items-label'}}</p>
     <button type='button' data-action='items' class="whitespace-nowrap" aria-labelledby='item-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-items"}}' role='button'>
+      aria-label='{{localize "hm.settings.custom-compendiums.manage-items"}}'>
       {{localize 'hm.settings.custom-compendiums.manage-items'}}
     </button>
   </div>

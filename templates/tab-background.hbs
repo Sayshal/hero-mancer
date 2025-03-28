@@ -1,9 +1,11 @@
+{{!-- Background Selection Tab --}}
 <div class='tab {{tabs.background.cssClass}}' data-tab='background' data-group='hero-mancer-tabs'>
   <fieldset>
     <legend>{{localize 'hm.app.background.tooltip'}}</legend>
     <p>{{localize 'hm.app.background.preamble'}}</p>
     <hr />
 
+    {{!-- Background Dropdown Selection --}}
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='background-dropdown'>{{localize 'hm.app.background.select-label'}}</label>
       <select id='background-dropdown' name='background' class="form-select" data-dtype='String'
@@ -18,6 +20,7 @@
       </select>
     </div>
 
+    {{!-- Background Description Display --}}
     <div id='background-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
       {{{enrichedDescription}}}
     </div>

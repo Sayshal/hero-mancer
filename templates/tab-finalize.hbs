@@ -1,11 +1,12 @@
+{{!-- Finalize Character Tab - Summary and Details --}}
 <div class='tab {{tabs.finalize.cssClass}}' data-tab='finalize' data-group='hero-mancer-tabs'>
   <fieldset>
     <legend>{{localize 'hm.app.finalize.tooltip'}}</legend>
 
-    {{! Character Summary }}
+    {{!-- Character Summary Section --}}
     <div class='summary-section grid gap-md mb-md'>
       <div class='character-portrait flex flex-col items-center gap-xs'>
-        <img alt='{{localize "hm.app.finalize.character-portrait"}}' />
+        <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
         <span class='character-name text-lg'>{{name}}</span>
       </div>
       <div class='character-summary p-sm'>
@@ -18,13 +19,13 @@
       </div>
     </div>
 
-    {{! Character Details }}
+    {{!-- Character Details Section --}}
     <section class='character-details-section'>
       <h2>{{localize 'hm.app.finalize.character-details'}}</h2>
       <div class='character-details-row items-center grid grid-2-col gap-md'>
         <div class='form-group items-center flex flex-col gap-xs'>
-          <label>{{localize 'DND5E.Alignment'}}</label>
-          <select name='alignment' class="form-select">
+          <label for="alignment">{{localize 'DND5E.Alignment'}}</label>
+          <select id="alignment" name='alignment' class="form-select">
             <option value=''>{{localize 'None'}}</option>
             {{#each alignments}}
               <option value='{{this}}'>{{this}}</option>
@@ -32,8 +33,8 @@
           </select>
         </div>
         <div class='form-group items-center flex flex-col gap-xs '>
-          <label>{{localize 'DND5E.Faith'}}</label>
-          <select name='faith' class="form-select">
+          <label for="faith">{{localize 'DND5E.Faith'}}</label>
+          <select id="faith" name='faith' class="form-select">
             <option value=''>{{localize 'None'}}</option>
             {{#each deities}}
               <option value='{{this}}'>{{this}}</option>
@@ -43,87 +44,93 @@
       </div>
     </section>
 
-    {{! Physical Characteristics }}
+    {{!-- Physical Characteristics Section --}}
     <section class='physical-char-section'>
       <h2>{{localize 'hm.app.finalize.physical-characteristics'}}</h2>
       <div class='physical-traits-grid grid grid-7-col gap-md mb-sm'>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Eyes'}}</label>
-          <input type='text' name='eyes' class="form-input" />
+          <label for="eyes">{{localize 'DND5E.Eyes'}}</label>
+          <input id="eyes" type='text' name='eyes' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Hair'}}</label>
-          <input type='text' name='hair' class="form-input" />
+          <label for="hair">{{localize 'DND5E.Hair'}}</label>
+          <input id="hair" type='text' name='hair' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Skin'}}</label>
-          <input type='text' name='skin' class="form-input" />
+          <label for="skin">{{localize 'DND5E.Skin'}}</label>
+          <input id="skin" type='text' name='skin' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Height'}}</label>
-          <input type='text' name='height' class="form-input" />
+          <label for="height">{{localize 'DND5E.Height'}}</label>
+          <input id="height" type='text' name='height' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Weight'}}</label>
-          <input type='text' name='weight' class="form-input" />
+          <label for="weight">{{localize 'DND5E.Weight'}}</label>
+          <input id="weight" type='text' name='weight' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Age'}}</label>
-          <input type='text' name='age' class="form-input" />
+          <label for="age">{{localize 'DND5E.Age'}}</label>
+          <input id="age" type='text' name='age' class="form-input" />
         </div>
         <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label>{{localize 'DND5E.Gender'}}</label>
-          <input type='text' name='gender' class="form-input" />
+          <label for="gender">{{localize 'DND5E.Gender'}}</label>
+          <input id="gender" type='text' name='gender' class="form-input" />
         </div>
       </div>
       <div class='description-group mt-md'>
-        <label>{{localize 'hm.app.finalize.physical-description'}}</label>
+        <label for="appearance">{{localize 'hm.app.finalize.physical-description'}}</label>
         <div class='description-input flex gap-md'>
-          <textarea name='appearance' rows='3'></textarea>
+          <textarea id="appearance" name='appearance' rows='3'></textarea>
         </div>
       </div>
     </section>
 
-    {{! Personal Characteristics }}
+    {{!-- Personal Characteristics Section --}}
     <section class='personal-char-section'>
       <h2>{{localize 'hm.app.finalize.personal-characteristics'}}</h2>
       <div class='personality-grid grid gap-md'>
         <div class='personality-group'>
-          <label>{{localize 'hm.app.finalize.personality-traits'}}</label>
+          <label for="traits">{{localize 'hm.app.finalize.personality-traits'}}</label>
           <div class='input-with-roll flex gap-md'>
-            <textarea name='traits' placeholder='{{localize "hm.app.finalize.traits-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='traits'>
-              <i class='fas fa-dice'></i>
+            <textarea id="traits" name='traits'
+              placeholder='{{localize "hm.app.finalize.traits-placeholder"}}'></textarea>
+            <button type='button' class='roll-btn flex items-center gap-xs' data-table='traits'
+              aria-label="{{localize 'DND5E.Roll'}} {{localize 'hm.app.finalize.personality-traits'}}">
+              <i class='fas fa-dice' aria-hidden="true"></i>
               {{localize 'DND5E.Roll'}}
             </button>
           </div>
         </div>
         <div class='personality-group'>
-          <label>{{localize 'DND5E.Ideals'}}</label>
+          <label for="ideals">{{localize 'DND5E.Ideals'}}</label>
           <div class='input-with-roll flex gap-md'>
-            <textarea name='ideals' placeholder='{{localize "hm.app.finalize.ideals-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='ideals'>
-              <i class='fas fa-dice'></i>
+            <textarea id="ideals" name='ideals'
+              placeholder='{{localize "hm.app.finalize.ideals-placeholder"}}'></textarea>
+            <button type='button' class='roll-btn flex items-center gap-xs' data-table='ideals'
+              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Ideals'}}">
+              <i class='fas fa-dice' aria-hidden="true"></i>
               {{localize 'DND5E.Roll'}}
             </button>
           </div>
         </div>
         <div class='personality-group'>
-          <label>{{localize 'DND5E.Bonds'}}</label>
+          <label for="bonds">{{localize 'DND5E.Bonds'}}</label>
           <div class='input-with-roll flex gap-md'>
-            <textarea name='bonds' placeholder='{{localize "hm.app.finalize.bonds-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='bonds'>
-              <i class='fas fa-dice'></i>
+            <textarea id="bonds" name='bonds' placeholder='{{localize "hm.app.finalize.bonds-placeholder"}}'></textarea>
+            <button type='button' class='roll-btn flex items-center gap-xs' data-table='bonds'
+              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Bonds'}}">
+              <i class='fas fa-dice' aria-hidden="true"></i>
               {{localize 'DND5E.Roll'}}
             </button>
           </div>
         </div>
         <div class='personality-group'>
-          <label>{{localize 'DND5E.Flaws'}}</label>
+          <label for="flaws">{{localize 'DND5E.Flaws'}}</label>
           <div class='input-with-roll flex gap-md'>
-            <textarea name='flaws' placeholder='{{localize "hm.app.finalize.flaws-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='flaws'>
-              <i class='fas fa-dice'></i>
+            <textarea id="flaws" name='flaws' placeholder='{{localize "hm.app.finalize.flaws-placeholder"}}'></textarea>
+            <button type='button' class='roll-btn flex items-center gap-xs' data-table='flaws'
+              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Flaws'}}">
+              <i class='fas fa-dice' aria-hidden="true"></i>
               {{localize 'DND5E.Roll'}}
             </button>
           </div>
@@ -131,12 +138,13 @@
       </div>
     </section>
 
-    {{! Notes }}
+    {{!-- Backstory Section --}}
     <section class='notes-section'>
       <h2>{{localize 'hm.app.finalize.backstory'}}</h2>
       <div class='notes-grid grid gap-md'>
         <div class='notes-group'>
-          <prose-mirror name='backstory' data-placeholder='{{localize "hm.app.finalize.backstory-placeholder"}}'>
+          <prose-mirror id="backstory" name='backstory'
+            data-placeholder='{{localize "hm.app.finalize.backstory-placeholder"}}'>
           </prose-mirror>
         </div>
       </div>

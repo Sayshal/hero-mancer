@@ -1,9 +1,11 @@
+{{!-- Class Selection Tab --}}
 <div class='tab {{tabs.class.cssClass}}' data-tab='class' data-group='hero-mancer-tabs'>
   <fieldset>
     <legend>{{localize 'hm.app.class.tooltip'}}</legend>
     <p>{{localize 'hm.app.class.preamble'}}</p>
     <hr />
 
+    {{!-- Class Dropdown Selection --}}
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='class-dropdown'>{{localize 'hm.app.class.select-label'}}</label>
       <select id='class-dropdown' name='class' class="form-select" data-dtype='String'
@@ -18,6 +20,7 @@
       </select>
     </div>
 
+    {{!-- Class Description Display --}}
     <div id='class-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
       {{{enrichedDescription}}}
     </div>

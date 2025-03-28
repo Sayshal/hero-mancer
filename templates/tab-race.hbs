@@ -1,14 +1,13 @@
+{{!-- Race Selection Tab --}}
 <div class='tab {{tabs.race.cssClass}}' data-tab='race' data-group='hero-mancer-tabs'>
   <fieldset>
     <legend>{{localize 'hm.app.race.tooltip'}}</legend>
     <p>{{localize 'hm.app.race.preamble'}}</p>
     <hr />
 
+    {{!-- Race Dropdown Selection --}}
     <div class="form-row flex items-center gap-sm mb-sm">
-      <!-- Label for the race dropdown -->
       <label for='race-dropdown'>{{localize 'hm.app.race.select-label'}}</label>
-
-      <!-- Race Dropdown -->
       <select id='race-dropdown' name='race' class="form-select" data-dtype='String' aria-describedby='race-description'
         aria-label='{{localize "hm.app.race.select-label"}}'>
         <option value=''>{{localize 'hm.app.race.select-placeholder'}}</option>
@@ -35,7 +34,7 @@
       </select>
     </div>
 
-    <!-- Enriched Description Section for the selected race -->
+    {{!-- Race Description Display --}}
     <div id='race-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
       {{{enrichedDescription}}}
     </div>

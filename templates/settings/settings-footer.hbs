@@ -1,19 +1,20 @@
+{{!-- Settings Dialog Footer with Action Buttons --}}
 <footer>
 	<div class='hm-app-footer-actions flex justify-center items-center gap-md whitespace-nowrap'>
-		<!-- Submit Button with aria-label and described by the tooltip -->
+		{{!-- Submit Button --}}
 		<button type='submit' class='hm-app-footer-submit' data-tooltip='{{localize "hm.app.submit"}}'
-			aria-label='{{localize "hm.app.submit"}}' aria-describedby='submit-tooltip' role='button'>
+			aria-label='{{localize "hm.app.submit"}}' aria-describedby='submit-tooltip'>
 			{{localize 'hm.app.submit'}}
 		</button>
-		<!-- Tooltip for Submit Button -->
+		{{!-- Tooltip for Submit Button --}}
 		<span id='submit-tooltip' class='sr-only'>{{localize 'hm.app.submit'}}</span>
 
-		<!-- Cancel Button with aria-label and described by the tooltip -->
+		{{!-- Cancel Button --}}
 		<button type='button' data-action='close' class='hm-app-footer-cancel' data-tooltip='{{localize "hm.app.cancel"}}'
-			aria-label='{{localize "hm.app.cancel"}}' aria-describedby='cancel-tooltip' role='button'>
+			aria-label='{{localize "hm.app.cancel"}}' aria-describedby='cancel-tooltip'>
 			{{localize 'hm.app.cancel'}}
 		</button>
-		<!-- Tooltip for Cancel Button -->
+		{{!-- Tooltip for Cancel Button --}}
 		<span id='cancel-tooltip' class='sr-only'>{{localize 'hm.app.cancel'}}</span>
 	</div>
 </footer>

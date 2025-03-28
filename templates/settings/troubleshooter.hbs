@@ -1,18 +1,32 @@
+{{!-- Troubleshooter Interface for Diagnostics and Support --}}
 <div class="hm-troubleshooter-container">
 	<p class="notes">{{localize "hm.settings.troubleshooter.notes"}}</p>
-	<textarea rows="25" cols="80" readonly>{{output}}</textarea>
+
+	{{!-- Diagnostic Output Display --}}
+	<textarea id="troubleshooter-output" rows="25" cols="80" readonly>{{output}}</textarea>
+
+	{{!-- Action Buttons --}}
 	<div class="troubleshooter-buttons">
-		<button type="button" data-action="exportReport">
-			<i class="fa-solid fa-download"></i> {{localize "hm.settings.troubleshooter.save-to-file"}}
+		{{!-- Export Report Button --}}
+		<button type="button" data-action="exportReport"
+			aria-label="{{localize "hm.settings.troubleshooter.save-to-file"}}">
+			<i class="fa-solid fa-download" aria-hidden="true"></i> {{localize "hm.settings.troubleshooter.save-to-file"}}
 		</button>
-		<button type="button" data-action="copyToClipboard">
-			<i class="fa-solid fa-copy"></i> {{localize "hm.settings.troubleshooter.copy-to-clipboard"}}
+
+		{{!-- Copy to Clipboard Button --}}
+		<button type="button" data-action="copyToClipboard"
+			aria-label="{{localize "hm.settings.troubleshooter.copy-to-clipboard"}}">
+			<i class="fa-solid fa-copy" aria-hidden="true"></i> {{localize "hm.settings.troubleshooter.copy-to-clipboard"}}
 		</button>
-		<button type="button" data-action="openDiscord">
-			<i class="fa-brands fa-discord"></i> {{localize "hm.settings.troubleshooter.discord"}}
+
+		{{!-- Discord Support Button --}}
+		<button type="button" data-action="openDiscord" aria-label="{{localize "hm.settings.troubleshooter.discord"}}">
+			<i class="fa-brands fa-discord" aria-hidden="true"></i> {{localize "hm.settings.troubleshooter.discord"}}
 		</button>
-				<button type="button" data-action="openGithub">
-			<i class="fa-brands fa-github-alt"></i> {{localize "hm.settings.troubleshooter.github"}}
+
+		{{!-- GitHub Issues Button --}}
+		<button type="button" data-action="openGithub" aria-label="{{localize "hm.settings.troubleshooter.github"}}">
+			<i class="fa-brands fa-github-alt" aria-hidden="true"></i> {{localize "hm.settings.troubleshooter.github"}}
 		</button>
 	</div>
 </div>
