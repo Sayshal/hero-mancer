@@ -2,11 +2,33 @@ import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, 
 
 /**
  * Main registration function that initializes all module settings.
- * Sets up core, world, dice, and compendium settings and handles
- * the ready hook for standard array initialization.
+ * Calls specialized registration functions for different setting categories.
  * @function
+ * @returns {void}
  */
 export function registerSettings() {
+  HM.log(3, 'Registering module settings.');
+
+  // Register core settings
+  registerCoreSettings();
+
+  // Register menus and their related settings
+  registerCompendiumSettings();
+  registerCustomizationSettings();
+  registerDiceRollingSettings();
+  registerMandatoryFieldsSettings();
+  registerTroubleshootingSettings();
+
+  // Register compatibility settings
+  registerCompatibilitySettings();
+}
+
+/**
+ * Registers core settings that control basic module functionality
+ * @function
+ * @returns {void}
+ */
+function registerCoreSettings() {
   game.settings.register(HM.ID, 'enable', {
     name: 'hm.settings.enable.name',
     hint: 'hm.settings.enable.hint',
@@ -15,6 +37,103 @@ export function registerSettings() {
     scope: 'client',
     config: true,
     requiresReload: true
+  });
+
+  game.settings.register(HM.ID, 'loggingLevel', {
+    name: 'hm.settings.logger.name',
+    hint: 'hm.settings.logger.hint',
+    scope: 'client',
+    config: true,
+    type: String,
+    choices: {
+      0: 'hm.settings.logger.choices.off',
+      1: 'hm.settings.logger.choices.errors',
+      2: 'hm.settings.logger.choices.warnings',
+      3: 'hm.settings.logger.choices.verbose'
+    },
+    default: 2,
+    onChange: (value) => {
+      const logMessage = `hm.settings.logger.level.${value}`;
+      if (value !== '0') {
+        HM.log(3, logMessage);
+      }
+    }
+  });
+
+  game.settings.register(HM.ID, 'diceRollingMethod', {
+    scope: 'client',
+    config: false,
+    type: String,
+    default: 'standardArray'
+  });
+
+  HM.log(3, 'Core settings registered.');
+}
+
+/**
+ * Registers custom compendium settings and related configuration
+ * @function
+ * @returns {void}
+ */
+function registerCompendiumSettings() {
+  game.settings.registerMenu(HM.ID, 'customCompendiumMenu', {
+    name: 'hm.settings.custom-compendiums.menu.name',
+    hint: 'hm.settings.custom-compendiums.menu.hint',
+    icon: 'fa-solid fa-atlas',
+    label: 'hm.settings.configure-compendiums',
+    type: CustomCompendiums,
+    restricted: true,
+    requiresReload: true
+  });
+
+  game.settings.register(HM.ID, 'classPacks', {
+    name: 'hm.settings.class-packs.name',
+    scope: 'world',
+    config: false,
+    type: Array,
+    default: []
+  });
+
+  game.settings.register(HM.ID, 'racePacks', {
+    name: 'hm.settings.race-packs.name',
+    scope: 'world',
+    config: false,
+    type: Array,
+    default: []
+  });
+
+  game.settings.register(HM.ID, 'backgroundPacks', {
+    name: 'hm.settings.background-packs.name',
+    scope: 'world',
+    config: false,
+    type: Array,
+    default: []
+  });
+
+  game.settings.register(HM.ID, 'itemPacks', {
+    name: 'hm.settings.item-packs.name',
+    scope: 'world',
+    config: false,
+    type: Array,
+    default: []
+  });
+
+  HM.log(3, 'Compendium settings registered.');
+}
+
+/**
+ * Registers customization settings for appearance and character options
+ * @function
+ * @returns {void}
+ */
+function registerCustomizationSettings() {
+  game.settings.registerMenu(HM.ID, 'customizationMenu', {
+    name: 'hm.settings.customization.menu.name',
+    hint: 'hm.settings.customization.menu.hint',
+    icon: 'fa-solid fa-palette',
+    label: 'hm.settings.configure-customization',
+    type: Customization,
+    restricted: true
   });
 
   game.settings.register(HM.ID, 'artPickerRoot', {
@@ -49,43 +168,6 @@ export function registerSettings() {
     scope: 'world',
     config: false,
     requiresReload: true
-  });
-
-  game.settings.registerMenu(HM.ID, 'customCompendiumMenu', {
-    name: 'hm.settings.custom-compendiums.menu.name',
-    hint: 'hm.settings.custom-compendiums.menu.hint',
-    icon: 'fa-solid fa-atlas',
-    label: 'hm.settings.configure-compendiums',
-    type: CustomCompendiums,
-    restricted: true,
-    requiresReload: true
-  });
-
-  game.settings.registerMenu(HM.ID, 'customizationMenu', {
-    name: 'hm.settings.customization.menu.name',
-    hint: 'hm.settings.customization.menu.hint',
-    icon: 'fa-solid fa-palette',
-    label: 'hm.settings.configure-customization',
-    type: Customization,
-    restricted: true
-  });
-
-  game.settings.registerMenu(HM.ID, 'diceRollingMenu', {
-    name: 'hm.settings.dice-rolling.menu.name',
-    hint: 'hm.settings.dice-rolling.menu.hint',
-    icon: 'fa-solid fa-dice',
-    label: 'hm.settings.configure-rolling',
-    type: DiceRolling,
-    restricted: true
-  });
-
-  game.settings.registerMenu(HM.ID, 'mandatoryFieldsMenu', {
-    name: 'hm.settings.mandatory-fields.menu.name',
-    hint: 'hm.settings.mandatory-fields.menu.hint',
-    icon: 'fa-solid fa-list-check',
-    label: 'hm.settings.configure-mandatory',
-    type: MandatoryFields,
-    restricted: true
   });
 
   game.settings.register(HM.ID, 'alignments', {
@@ -148,7 +230,6 @@ export function registerSettings() {
     restricted: true
   });
 
-  // In your settings registration code
   game.settings.register(HM.ID, 'enableRandomize', {
     name: 'hm.settings.randomize.name',
     hint: 'hm.settings.randomize.hint',
@@ -158,55 +239,22 @@ export function registerSettings() {
     default: false
   });
 
-  game.settings.register(HM.ID, 'loggingLevel', {
-    name: 'hm.settings.logger.name',
-    hint: 'hm.settings.logger.hint',
-    scope: 'client',
-    config: true,
-    type: String,
-    choices: {
-      0: 'hm.settings.logger.choices.off',
-      1: 'hm.settings.logger.choices.errors',
-      2: 'hm.settings.logger.choices.warnings',
-      3: 'hm.settings.logger.choices.verbose'
-    },
-    default: 2,
-    onChange: (value) => {
-      const logMessage = `hm.settings.logger.level.${value}`;
-      if (value !== '0') {
-        HM.log(3, logMessage);
-      }
-    }
-  });
+  HM.log(3, 'Customization settings registered.');
+}
 
-  game.settings.registerMenu(HM.ID, 'troubleshootingMenu', {
-    name: 'hm.settings.troubleshooter.menu.name',
-    hint: 'hm.settings.troubleshooter.menu.hint',
-    icon: 'fa-solid fa-bug',
-    label: 'hm.settings.troubleshooter.generate-report',
-    type: Troubleshooter,
-    restricted: false
-  });
-
-  if (game.modules.get('elkan5e')?.active) {
-    game.settings.register(HM.ID, 'elkanCompatibility', {
-      name: 'hm.settings.elkan.name',
-      hint: 'hm.settings.elkan.hint',
-      scope: 'client',
-      config: true,
-      type: Boolean,
-      default: false,
-      requiresReload: true
-    });
-  }
-
-  /** These settings are within menus so their order is based on their class structure. */
-
-  game.settings.register(HM.ID, 'diceRollingMethod', {
-    scope: 'client',
-    config: false,
-    type: String,
-    default: 'standardArray'
+/**
+ * Registers dice rolling settings for ability score generation
+ * @function
+ * @returns {void}
+ */
+function registerDiceRollingSettings() {
+  game.settings.registerMenu(HM.ID, 'diceRollingMenu', {
+    name: 'hm.settings.dice-rolling.menu.name',
+    hint: 'hm.settings.dice-rolling.menu.hint',
+    icon: 'fa-solid fa-dice',
+    label: 'hm.settings.configure-rolling',
+    type: DiceRolling,
+    restricted: true
   });
 
   game.settings.register(HM.ID, 'allowedMethods', {
@@ -315,36 +363,22 @@ export function registerSettings() {
     }
   });
 
-  game.settings.register(HM.ID, 'classPacks', {
-    name: 'hm.settings.class-packs.name',
-    scope: 'world',
-    config: false,
-    type: Array,
-    default: []
-  });
+  HM.log(3, 'Dice Rolling settings registered.');
+}
 
-  game.settings.register(HM.ID, 'racePacks', {
-    name: 'hm.settings.race-packs.name',
-    scope: 'world',
-    config: false,
-    type: Array,
-    default: []
-  });
-
-  game.settings.register(HM.ID, 'backgroundPacks', {
-    name: 'hm.settings.background-packs.name',
-    scope: 'world',
-    config: false,
-    type: Array,
-    default: []
-  });
-
-  game.settings.register(HM.ID, 'itemPacks', {
-    name: 'hm.settings.item-packs.name',
-    scope: 'world',
-    config: false,
-    type: Array,
-    default: []
+/**
+ * Registers mandatory fields settings
+ * @function
+ * @returns {void}
+ */
+function registerMandatoryFieldsSettings() {
+  game.settings.registerMenu(HM.ID, 'mandatoryFieldsMenu', {
+    name: 'hm.settings.mandatory-fields.menu.name',
+    hint: 'hm.settings.mandatory-fields.menu.hint',
+    icon: 'fa-solid fa-list-check',
+    label: 'hm.settings.configure-mandatory',
+    type: MandatoryFields,
+    restricted: true
   });
 
   game.settings.register(HM.ID, 'mandatoryFields', {
@@ -354,4 +388,45 @@ export function registerSettings() {
     type: Array,
     default: []
   });
+
+  HM.log(3, 'Mandatory Field settings registered.');
+}
+
+/**
+ * Registers troubleshooting settings
+ * @function
+ * @returns {void}
+ */
+function registerTroubleshootingSettings() {
+  game.settings.registerMenu(HM.ID, 'troubleshootingMenu', {
+    name: 'hm.settings.troubleshooter.menu.name',
+    hint: 'hm.settings.troubleshooter.menu.hint',
+    icon: 'fa-solid fa-bug',
+    label: 'hm.settings.troubleshooter.generate-report',
+    type: Troubleshooter,
+    restricted: false
+  });
+
+  HM.log(3, 'Troubleshooter settings registered.');
+}
+
+/**
+ * Registers compatibility settings for other modules
+ * @function
+ * @returns {void}
+ */
+function registerCompatibilitySettings() {
+  if (game.modules.get('elkan5e')?.active) {
+    game.settings.register(HM.ID, 'elkanCompatibility', {
+      name: 'hm.settings.elkan.name',
+      hint: 'hm.settings.elkan.hint',
+      scope: 'client',
+      config: true,
+      type: Boolean,
+      default: false,
+      requiresReload: true
+    });
+  }
+
+  HM.log(3, 'Compatibility settings registered.');
 }
