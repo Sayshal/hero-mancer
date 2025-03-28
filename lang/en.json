@@ -412,7 +412,8 @@
           "hint": "Set which fields must be filled out before submitting a character.",
           "name": "Mandatory Fields"
         },
-        "saved": "Mandatory field settings saved"
+        "saved": "Mandatory field settings saved",
+        "error-context": "Error loading mandatory fields settings. Using default values."
       },
       "no-selection": "No compendiums selected. Please select at least one.",
       "player-customization": {
