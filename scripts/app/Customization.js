@@ -54,46 +54,148 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   /*  Protected Methods                           */
   /* -------------------------------------------- */
 
-  static async selectArtPickerRoot(event, target) {
-    const inputField = target.closest('.flex.items-center').querySelector('input[name="artPickerRoot"]');
-    const currentPath = inputField.value || '/';
-
-    HM.log(3, 'Creating FilePicker for folder selection:', { currentPath });
-
-    const pickerConfig = {
-      type: 'folder',
-      current: currentPath,
-      callback: (path) => {
-        inputField.value = path;
-        inputField.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    };
-
-    const filepicker = new FilePicker(pickerConfig);
-    filepicker.render(true);
-  }
-
   /**
    * Prepares context data for the customization settings application
    * @param {object} _options - Application render options
-   * @returns {Promise<object>} Context data for template rendering with customization settings
+   * @returns {object} Context data for template rendering with customization settings
    * @protected
    */
-  async _prepareContext(_options) {
-    const context = {
-      'alignments': game.settings.get(HM.ID, 'alignments'),
-      'deities': game.settings.get(HM.ID, 'deities'),
-      'eye-colors': game.settings.get(HM.ID, 'eye-colors'),
-      'hair-colors': game.settings.get(HM.ID, 'hair-colors'),
-      'skin-tones': game.settings.get(HM.ID, 'skin-tones'),
-      'genders': game.settings.get(HM.ID, 'genders'),
-      'enableRandomize': game.settings.get(HM.ID, 'enableRandomize'),
-      'artPickerRoot': game.settings.get(HM.ID, 'artPickerRoot'),
-      'enablePlayerCustomization': game.settings.get(HM.ID, 'enablePlayerCustomization'),
-      'enableTokenCustomization': game.settings.get(HM.ID, 'enableTokenCustomization')
-    };
+  _prepareContext(_options) {
+    try {
+      const settingsToFetch = [
+        'alignments',
+        'deities',
+        'eye-colors',
+        'hair-colors',
+        'skin-tones',
+        'genders',
+        'enableRandomize',
+        'artPickerRoot',
+        'enablePlayerCustomization',
+        'enableTokenCustomization'
+      ];
 
-    return context;
+      const context = {};
+
+      for (const setting of settingsToFetch) {
+        try {
+          context[setting] = game.settings.get(HM.ID, setting);
+        } catch (settingError) {
+          HM.log(2, `Error fetching setting "${setting}": ${settingError.message}`);
+          context[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
+        }
+      }
+
+      return context;
+    } catch (error) {
+      HM.log(1, `Error preparing context: ${error.message}`);
+      ui.notifications.error('hm.settings.customization.error-context', { localize: true });
+      return {};
+    }
+  }
+
+  /**
+   * Handles the selection of the art picker root directory
+   * Opens a FilePicker dialog to select a folder path for character art
+   * @param {Event} _event - The triggering event
+   * @param {HTMLElement} target - The target element that triggered the action
+   * @returns {Promise<void>} A promise that resolves when the directory selection is complete
+   * @static
+   */
+  static async selectArtPickerRoot(_event, target) {
+    try {
+      const inputField = target.closest('.flex.items-center').querySelector('input[name="artPickerRoot"]');
+      if (!inputField) throw new Error('Could not find artPickerRoot input field');
+
+      const currentPath = inputField.value || '/';
+      HM.log(3, 'Creating FilePicker for folder selection:', { currentPath });
+
+      const pickerConfig = {
+        type: 'folder',
+        current: currentPath,
+        callback: (path) => {
+          inputField.value = path;
+          inputField.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+
+      const filepicker = new FilePicker(pickerConfig);
+      filepicker.render(true);
+    } catch (error) {
+      HM.log(1, `Error selecting art picker root: ${error.message}`);
+      ui.notifications.error('hm.settings.customization.error-art-picker', { localize: true });
+    }
+  }
+
+  /**
+   * Validates form data before saving customization settings
+   * @param {object} formData - The processed form data
+   * @returns {object} Object containing validation results and defaults
+   * @static
+   * @private
+   */
+  static _validateFormData(formData) {
+    const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+
+    // Get default values from game settings
+    const defaults = {};
+    const resetSettings = [];
+
+    for (const setting of settings) {
+      try {
+        defaults[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
+
+        // Check for empty string values
+        const value = formData.object[setting];
+        const isEmpty = typeof value === 'string' && value.trim() === '';
+
+        if (isEmpty) {
+          resetSettings.push(setting);
+        }
+      } catch (error) {
+        HM.log(2, `Error validating setting "${setting}": ${error.message}`);
+        defaults[setting] = null;
+      }
+    }
+
+    return { defaults, resetSettings, settings };
+  }
+
+  /**
+   * Applies validated settings to game configuration
+   * @param {object} formData - The processed form data
+   * @param {object} validation - Validation results from _validateFormData
+   * @returns {Promise<void>}
+   * @static
+   * @private
+   */
+  static async _applySavedSettings(formData, validation) {
+    const { defaults, resetSettings, settings } = validation;
+
+    // Apply settings (using defaults for resetSettings)
+    for (const setting of settings) {
+      try {
+        if (resetSettings.includes(setting)) {
+          await game.settings.set(HM.ID, setting, defaults[setting]);
+        } else {
+          await game.settings.set(HM.ID, setting, formData.object[setting]);
+        }
+      } catch (error) {
+        HM.log(1, `Error saving setting "${setting}": ${error.message}`);
+        ui.notifications.warn(game.i18n.format('hm.settings.customization.save-error', { setting }));
+      }
+    }
+
+    // Update CharacterArtPicker root directory
+    CharacterArtPicker.rootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
+
+    // Show warnings for reset settings
+    if (resetSettings.length > 0) {
+      for (const setting of resetSettings) {
+        let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
+        ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
+      }
+    }
   }
 
   /* -------------------------------------------- */
@@ -104,54 +206,26 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * Processes form submission for customization settings
    * Validates and saves settings for character customization options
    * @param {Event} _event - The form submission event
-   * @param {HTMLFormElement} form - The form element
+   * @param {HTMLFormElement} _form - The form element
    * @param {FormDataExtended} formData - The processed form data
    * @returns {Promise<boolean|void>} Returns false if validation fails
    * @static
    */
-  static async formHandler(_event, form, formData) {
+  static async formHandler(_event, _form, formData) {
     try {
-      const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+      // Validate form data
+      const validation = Customization._validateFormData(formData);
 
-      // Get default values from game settings
-      const defaults = {};
-      for (const setting of settings) {
-        defaults[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
-      }
+      // Apply settings
+      await Customization._applySavedSettings(formData, validation);
 
-      // Keep track of which settings were reset to defaults
-      const resetSettings = [];
-
-      // Apply defaults for blank string values
-      for (const setting of settings) {
-        const value = formData.object[setting];
-        const isEmpty = typeof value === 'string' && value.trim() === '';
-
-        if (isEmpty) {
-          resetSettings.push(setting);
-          await game.settings.set(HM.ID, setting, defaults[setting]);
-        } else {
-          await game.settings.set(HM.ID, setting, value);
-        }
-      }
-
-      // Update CharacterArtPicker root directory
-      CharacterArtPicker.rootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
-
-      // Show warnings for reset settings
-      if (resetSettings.length > 0) {
-        for (const setting of resetSettings) {
-          let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
-          ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
-        }
-      }
-
+      // Notify user of success and prompt for reload
       HM.reloadConfirm({ world: true });
-
       ui.notifications.info('hm.settings.customization.saved', { localize: true });
     } catch (error) {
-      HM.log(1, `Error in formHandler: ${error}`);
+      HM.log(1, `Error in formHandler: ${error.message}`);
       ui.notifications.error('hm.settings.customization.error-saving', { localize: true });
+      return false;
     }
   }
 }

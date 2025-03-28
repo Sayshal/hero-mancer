@@ -333,7 +333,10 @@
           "hint": "Determine what customization players can use.",
           "name": "Character Customization"
         },
-        "saved": "Character customization settings saved successfully."
+        "saved": "Character customization settings saved successfully.",
+        "error-art-picker": "Error selecting art picker location. Please try again.",
+        "error-context": "Error loading customization settings. Default values may be shown.",
+        "save-error": "Failed to save setting: {setting}. Using previous value."
       },
       "deities": {
         "hint": "Comma-separated list of deities available for character creation.",
