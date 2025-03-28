@@ -26,8 +26,8 @@ export class EquipmentParser {
   static renderedItems = new Set();
 
   /**
-   * Lookup items by category
-   * @type {Object}
+   * Lookup map of categorized items
+   * @type {Object<string, Object>}
    * @static
    */
   static lookupItems;
@@ -144,12 +144,20 @@ export class EquipmentParser {
   /**
    * Retrieves and combines equipment data from class and background selections
    * @async
-   * @returns {Promise<void>}
+   * @returns {Promise<Object>} Object containing class and background equipment data
+   * @throws {Error} If data fetching fails
    */
   async fetchEquipmentData() {
     HM.log(3, 'Fetching equipment data');
-    this.equipmentData = await this.dataService.fetchEquipmentData();
-    HM.log(3, `Retrieved data with ${this.equipmentData?.class?.length || 0} class items and ${this.equipmentData?.background?.length || 0} background items`);
+    try {
+      this.equipmentData = await this.dataService.fetchEquipmentData();
+      HM.log(3, `Retrieved data with ${this.equipmentData?.class?.length || 0} class items and ${this.equipmentData?.background?.length || 0} background items`);
+      return this.equipmentData;
+    } catch (error) {
+      HM.log(1, `Failed to fetch equipment data: ${error.message}`);
+      this.equipmentData = { class: [], background: [] };
+      return this.equipmentData;
+    }
   }
 
   /**
@@ -341,29 +349,25 @@ export class EquipmentParser {
    */
   handleWealthCheckboxChange(event, sectionContainer, wealthRollContainer, wealthInput, isModernRules, wealthValue) {
     HM.log(3, `Wealth checkbox changed to ${event.target.checked}`);
+    const isChecked = event.target.checked;
 
+    // Cache selectors to reduce DOM operations
     const equipmentElements = sectionContainer.querySelectorAll('.equipment-item');
+    const selectors = 'select, input[type="checkbox"], label';
+
+    // Update equipment elements in a single pass
     equipmentElements.forEach((el) => {
-      if (event.target.checked) {
-        el.classList.add('disabled');
-        el.querySelectorAll('select, input[type="checkbox"]:not(.equipment-favorite-checkbox), label').forEach((input) => {
-          input.disabled = true;
-        });
-        // Also disable favorite checkboxes
-        el.querySelectorAll('.equipment-favorite-checkbox').forEach((fav) => {
-          fav.disabled = true;
-        });
-      } else {
-        el.classList.remove('disabled');
-        el.querySelectorAll('select, input[type="checkbox"], label').forEach((input) => {
-          input.disabled = false;
-        });
-      }
+      el.classList.toggle('disabled', isChecked);
+      el.querySelectorAll(selectors).forEach((input) => {
+        input.disabled = isChecked;
+      });
     });
 
-    wealthRollContainer.style.display = event.target.checked ? 'flex' : 'none';
+    // Display/hide wealth roll container
+    wealthRollContainer.style.display = isChecked ? 'flex' : 'none';
 
-    if (!event.target.checked) {
+    // Reset wealth input if unchecked
+    if (!isChecked) {
       wealthInput.value = isModernRules ? `${wealthValue} ${CONFIG.DND5E.currencies.gp.abbreviation}` : '';
     }
   }
@@ -558,7 +562,7 @@ export class EquipmentParser {
    * Find items from a dropdown value
    * @param {HTMLSelectElement} dropdown - The dropdown element
    * @param {string} value - The dropdown value
-   * @returns {Promise<Array<object>>} Array of found items
+   * @returns {Promise<Array<Object>>} Array of found items
    * @static
    * @private
    */
@@ -654,9 +658,9 @@ export class EquipmentParser {
 
   /**
    * Determine the quantity of an item from option text
-   * @param {object} item - The item
+   * @param {Object} item - The item document
    * @param {string} optionText - The option text
-   * @returns {number} The determined quantity
+   * @returns {number} The determined quantity (defaults to 1 if not found)
    * @static
    * @private
    */
@@ -869,8 +873,8 @@ export class EquipmentParser {
 
   /**
    * Find a UUID for a given item ID by checking select options
-   * @param {string} itemId - The item ID
-   * @returns {Promise<object|null>} The found item or null
+   * @param {string} itemId - The item ID to find a UUID for
+   * @returns {Promise<Object|null>} The found item or null if not found
    * @static
    * @private
    */
@@ -902,9 +906,9 @@ export class EquipmentParser {
 
   /**
    * Process a container item and its contents
-   * @param {object} containerItem - The container item
-   * @param {number} quantity - The quantity
-   * @param {Array<object>} equipment - The array to add equipment to
+   * @param {Object} containerItem - The container item document
+   * @param {number} quantity - The container quantity
+   * @param {Array<Object>} equipment - The array to add equipment to
    * @returns {Promise<void>}
    * @static
    * @private
@@ -1146,48 +1150,60 @@ export class EquipmentParser {
 
   /**
    * Processes starting wealth form data into currency amounts
-   * @param {object} formData - Form data containing wealth options
-   * @returns {object|null} Currency amounts or null if invalid
+   * @param {Object} formData - Form data containing wealth options
+   * @returns {Object<string, number>|null} Currency amounts or null if invalid
+   * @throws {Error} If currency conversion fails
    * @static
    */
   static async convertWealthStringToCurrency(formData) {
     HM.log(3, 'Converting wealth string to currency');
 
-    // Check both possible wealth sources
-    const useClassWealth = formData['use-starting-wealth-class'];
-    const useBackgroundWealth = formData['use-starting-wealth-background'];
+    try {
+      // Check both possible wealth sources
+      const useClassWealth = formData['use-starting-wealth-class'];
+      const useBackgroundWealth = formData['use-starting-wealth-background'];
 
-    // Determine which wealth to use (or none)
-    if (!useClassWealth && !useBackgroundWealth) {
-      HM.log(3, 'No wealth source checked');
-      return null;
+      // Determine which wealth to use (or none)
+      if (!useClassWealth && !useBackgroundWealth) {
+        HM.log(3, 'No wealth source checked');
+        return null;
+      }
+
+      // Get the appropriate wealth amount
+      let wealthAmount;
+      if (useClassWealth) {
+        wealthAmount = formData['starting-wealth-amount-class'];
+        HM.log(3, `Using class wealth: ${wealthAmount}`);
+      } else if (useBackgroundWealth) {
+        wealthAmount = formData['starting-wealth-amount-background'];
+        HM.log(3, `Using background wealth: ${wealthAmount}`);
+      }
+
+      if (!wealthAmount || typeof wealthAmount !== 'string') {
+        HM.log(3, 'No valid wealth amount found');
+        return this.initializeCurrencies(); // Return empty currencies
+      }
+
+      const currencies = this.initializeCurrencies();
+      const parsedCurrencies = this.parseCurrenciesFromWealthString(wealthAmount, currencies);
+
+      // Validate result has some value
+      const hasValue = Object.values(parsedCurrencies).some((val) => val > 0);
+      if (!hasValue) {
+        HM.log(2, `Wealth string "${wealthAmount}" couldn't be parsed into currency values`);
+      }
+
+      HM.log(3, 'Parsed currencies', parsedCurrencies);
+      return parsedCurrencies;
+    } catch (error) {
+      HM.log(1, `Error converting wealth string: ${error.message}`);
+      return this.initializeCurrencies(); // Return empty currencies on error
     }
-
-    // Get the appropriate wealth amount
-    let wealthAmount;
-    if (useClassWealth) {
-      wealthAmount = formData['starting-wealth-amount-class'];
-      HM.log(3, `Using class wealth: ${wealthAmount}`);
-    } else if (useBackgroundWealth) {
-      wealthAmount = formData['starting-wealth-amount-background'];
-      HM.log(3, `Using background wealth: ${wealthAmount}`);
-    }
-
-    if (!wealthAmount) {
-      HM.log(3, 'No wealth amount found');
-      return null;
-    }
-
-    const currencies = this.initializeCurrencies();
-    const parsedCurrencies = this.parseCurrenciesFromWealthString(wealthAmount, currencies);
-
-    HM.log(3, 'Parsed currencies', parsedCurrencies);
-    return parsedCurrencies;
   }
 
   /**
    * Initialize currencies object with zeros
-   * @returns {Object} Currencies object
+   * @returns {Object<string, number>} Currencies object with zero values
    * @static
    * @private
    */
@@ -1202,9 +1218,9 @@ export class EquipmentParser {
 
   /**
    * Parse currencies from a wealth string
-   * @param {string} wealthAmount - The wealth string
-   * @param {Object} currencies - The currencies object to update
-   * @returns {Object} Updated currencies object
+   * @param {string} wealthAmount - The wealth string to parse
+   * @param {Object<string, number>} currencies - The currencies object to update
+   * @returns {Object<string, number>} Updated currencies object
    * @static
    * @private
    */
@@ -1256,30 +1272,36 @@ export class EquipmentParser {
     HM.log(3, `Collecting items from ${selectedPacks.length} packs`);
     const startTime = performance.now();
 
-    const skipTypes = ['race', 'feat', 'background', 'class', 'natural', 'spell'];
-    const packs = selectedPacks.map((id) => game.packs.get(id)).filter((p) => p?.documentName === 'Item');
-    const focusItemIds = this.collectFocusItemIds();
-
     try {
-      const packIndices = await Promise.all(packs.map((pack) => pack.getIndex()));
-      HM.log(3, `Loaded ${packIndices.length} pack indices`);
+      // Pre-filter packs to avoid processing non-item packs
+      const packs = selectedPacks.map((id) => game.packs.get(id)).filter((p) => p?.documentName === 'Item');
 
-      // Process all items from all packs in parallel
-      const itemProcessingResults = await Promise.all(
-        packIndices.map(async (index) => {
-          return this.processPackIndex(index, skipTypes, focusItemIds);
-        })
-      );
+      if (packs.length === 0) {
+        HM.log(3, 'No valid item packs found');
+        return [];
+      }
 
-      // Combine results
+      const skipTypes = ['race', 'feat', 'background', 'class', 'natural', 'spell'];
+      const focusItemIds = this.collectFocusItemIds();
+
+      // Process packs in batches to reduce memory pressure
+      const BATCH_SIZE = 3;
       const items = [];
-      let totalProcessed = 0;
-      let totalSkipped = 0;
 
-      for (const result of itemProcessingResults) {
-        items.push(...result.packItems);
-        totalProcessed += result.processedCount;
-        totalSkipped += result.skippedCount;
+      for (let i = 0; i < packs.length; i += BATCH_SIZE) {
+        const batchPacks = packs.slice(i, i + BATCH_SIZE);
+        const packIndices = await Promise.all(batchPacks.map((pack) => pack.getIndex()));
+
+        // Process this batch in parallel
+        const batchResults = await Promise.all(packIndices.map((index) => this.processPackIndex(index, skipTypes, focusItemIds)));
+
+        // Add items from this batch
+        batchResults.forEach((result) => items.push(...result.packItems));
+
+        // Free memory between batches
+        if (i + BATCH_SIZE < packs.length) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
       }
 
       const endTime = performance.now();
@@ -1294,7 +1316,7 @@ export class EquipmentParser {
 
   /**
    * Collect focus item IDs from CONFIG
-   * @returns {Set<string>} Set of focus item IDs
+   * @returns {Set<string>} Set of focus item IDs from the system configuration
    * @static
    * @private
    */
@@ -1314,10 +1336,10 @@ export class EquipmentParser {
 
   /**
    * Process an individual pack index
-   * @param {Array<object>} index - The pack index
+   * @param {Array<Object>} index - The pack index
    * @param {Array<string>} skipTypes - Types to skip
    * @param {Set<string>} focusItemIds - IDs of focus items
-   * @returns {Object} Processing results
+   * @returns {Object} Processing results with packItems and counts
    * @static
    * @private
    */
