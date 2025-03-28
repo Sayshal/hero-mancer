@@ -33,24 +33,54 @@ export class StatRoller {
     }
 
     try {
-      const rollFormula = await this.getAbilityScoreRollFormula();
-      const chainedRolls = await game.settings.get(HM.ID, 'chainedRolls');
-      const index = form.getAttribute('data-index');
-      const input = this.getAbilityInput(index);
-      const hasExistingValue = !this.chainRollEnabled && input?.value?.trim() !== '';
+      const rollData = await this.#prepareRollData(form);
+      if (!rollData) return;
 
-      if (hasExistingValue) {
-        await this.#promptForAbilityScoreReroll(rollFormula, chainedRolls, index, input);
-      } else if (chainedRolls) {
-        await this.rollAllStats(rollFormula);
+      if (rollData.hasExistingValue) {
+        await this.#handleExistingValue(rollData);
+      } else if (rollData.chainedRolls) {
+        await this.rollAllStats(rollData.rollFormula);
       } else {
-        await this.rollSingleAbilityScore(rollFormula, index, input);
+        await this.rollSingleAbilityScore(rollData.rollFormula, rollData.index, rollData.input);
       }
     } catch (error) {
       HM.log(1, 'Error while rolling stat:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       this.isRolling = false;
     }
+  }
+
+  /**
+   * Prepares data needed for rolling
+   * @param {HTMLElement} form - The form containing the ability score input
+   * @returns {Promise<Object|null>} Roll data or null if invalid
+   * @private
+   * @static
+   */
+  static async #prepareRollData(form) {
+    if (!form) {
+      HM.log(2, 'Invalid form provided to rollAbilityScore');
+      return null;
+    }
+
+    const rollFormula = await this.getAbilityScoreRollFormula();
+    const chainedRolls = await game.settings.get(HM.ID, 'chainedRolls');
+    const index = form.getAttribute('data-index');
+    const input = this.getAbilityInput(index);
+    const hasExistingValue = !this.chainRollEnabled && input?.value?.trim() !== '';
+
+    return { rollFormula, chainedRolls, index, input, hasExistingValue };
+  }
+
+  /**
+   * Handle the case where there's an existing value in the input
+   * @param {Object} rollData - The prepared roll data
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #handleExistingValue(rollData) {
+    await this.#promptForAbilityScoreReroll(rollData.rollFormula, rollData.chainedRolls, rollData.index, rollData.input);
   }
 
   /**
@@ -75,6 +105,11 @@ export class StatRoller {
    * @static
    */
   static getAbilityInput(index) {
+    if (!index) {
+      HM.log(2, 'Invalid ability index provided to getAbilityInput');
+      return null;
+    }
+
     const block = document.getElementById(`ability-block-${index}`);
     return block?.querySelector('.ability-score');
   }
@@ -93,10 +128,75 @@ export class StatRoller {
    * @param {string} rollFormula - The formula to use for rolling
    * @param {string} index - The ability block index
    * @param {HTMLElement} input - The ability score input element
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Success status
    * @static
    */
   static async rollSingleAbilityScore(rollFormula, index, input) {
+    if (!rollFormula) {
+      HM.log(2, 'No roll formula provided for ability score roll');
+      return false;
+    }
+
+    // Update UI to show rolling status
+    this.#updateRollingStatus(index, true);
+
+    try {
+      const rollResult = await this.#performRoll(rollFormula);
+      if (!rollResult) return false;
+
+      // Apply roll result to input
+      if (input) {
+        input.value = rollResult;
+        input.focus();
+
+        // Trigger change event
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      } else {
+        HM.log(2, `No input field found for ability index ${index}.`);
+        return false;
+      }
+    } catch (error) {
+      HM.log(1, `Failed to roll ${rollFormula}:`, error);
+      ui.notifications.error('hm.errors.roll-failed', { localize: true });
+      return false;
+    } finally {
+      this.chainRollEnabled = false;
+      this.#updateRollingStatus(index, false);
+    }
+  }
+
+  /**
+   * Updates the visual status for rolling
+   * @param {string} index - The ability block index
+   * @param {boolean} isRolling - Whether rolling is in progress
+   * @private
+   * @static
+   */
+  static #updateRollingStatus(index, isRolling) {
+    if (!index) return;
+
+    const block = document.getElementById(`ability-block-${index}`);
+    if (!block) return;
+
+    const diceIcon = block.querySelector('.fa-dice-d6');
+    if (diceIcon) {
+      if (isRolling) {
+        diceIcon.classList.add('rolling');
+      } else {
+        diceIcon.classList.remove('rolling');
+      }
+    }
+  }
+
+  /**
+   * Performs a roll and constrains the result
+   * @param {string} rollFormula - The formula to use for rolling
+   * @returns {Promise<number|null>} The constrained roll result or null if failed
+   * @private
+   * @static
+   */
+  static async #performRoll(rollFormula) {
     try {
       const roll = new Roll(rollFormula);
       await roll.evaluate();
@@ -112,71 +212,119 @@ export class StatRoller {
         HM.log(3, 'Roll result:', roll.total);
       }
 
-      if (input) {
-        input.value = constrainedResult;
-        input.focus();
-      } else {
-        HM.log(2, `No input field found for ability index ${index}.`);
-      }
-      this.chainRollEnabled = false;
+      return constrainedResult;
     } catch (error) {
-      HM.log(1, `Failed to roll ${rollFormula}:`, error);
-      ui.notifications.error('hm.errors.roll-failed', { localize: true });
+      HM.log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
+      return null;
     }
   }
 
   /**
    * Rolls all ability scores in sequence
    * @param {string} rollFormula - The formula to use for rolling
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Success status
    * @static
    */
   static async rollAllStats(rollFormula) {
-    const blocks = document.querySelectorAll('.ability-block');
-    const delay = game.settings.get(HM.ID, 'rollDelay') || 500;
+    if (!rollFormula) {
+      HM.log(2, 'No roll formula provided for ability score roll');
+      return false;
+    }
+
     this.isRolling = true;
-    const { MIN, MAX } = HM.ABILITY_SCORES;
+    const blocks = this.#getAbilityBlocks();
+
+    if (!blocks.length) {
+      HM.log(2, 'No ability blocks found for rolling');
+      this.isRolling = false;
+      return false;
+    }
 
     try {
-      for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        try {
-          const roll = new Roll(rollFormula);
-          await roll.evaluate();
-
-          // Apply min/max constraints
-          const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
-
-          const input = block.querySelector('.ability-score');
-          if (input) {
-            input.value = constrainedResult;
-            input.focus();
-
-            const diceIcon = block.querySelector('.fa-dice-d6');
-            if (diceIcon) {
-              diceIcon.classList.add('rolling');
-              setTimeout(() => diceIcon.classList.remove('rolling'), delay - 100);
-            }
-          }
-
-          if (i < blocks.length - 1) {
-            await new Promise((resolve) => {
-              setTimeout(resolve, delay);
-            });
-          }
-        } catch (error) {
-          HM.log(1, `Error rolling for ability ${i}:`, error);
-          // Continue with the next ability
-        }
-      }
+      await this.#rollAbilitiesSequentially(blocks, rollFormula);
       DOMManager.updateAbilitiesSummary();
+      return true;
     } catch (error) {
       HM.log(1, 'Error in chain rolling:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
+      return false;
     } finally {
       this.isRolling = false;
       this.chainRollEnabled = false;
     }
+  }
+
+  /**
+   * Gets all ability blocks from the document
+   * @returns {NodeList} Collection of ability blocks
+   * @private
+   * @static
+   */
+  static #getAbilityBlocks() {
+    return document.querySelectorAll('.ability-block');
+  }
+
+  /**
+   * Rolls abilities sequentially with animation
+   * @param {NodeList} blocks - The ability blocks
+   * @param {string} rollFormula - The formula to use for rolling
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #rollAbilitiesSequentially(blocks, rollFormula) {
+    const delay = game.settings.get(HM.ID, 'rollDelay') || 500;
+    const { MIN, MAX } = HM.ABILITY_SCORES;
+
+    // Create a batch of promises for each block
+    const rollPromises = [];
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+
+      // Create a promise for this roll
+      const rollPromise = new Promise((resolve) => {
+        // Use an immediately invoked function expression for the async operations
+        (async function () {
+          try {
+            // Add delay for sequential appearance
+            if (i > 0) {
+              await new Promise((r) => setTimeout(r, delay));
+            }
+
+            // Apply visual effect
+            const diceIcon = block.querySelector('.fa-dice-d6');
+            if (diceIcon) {
+              diceIcon.classList.add('rolling');
+            }
+
+            // Perform the roll
+            const constrainedResult = await StatRoller.#performRoll(rollFormula);
+
+            // Update the input
+            const input = block.querySelector('.ability-score');
+            if (input && constrainedResult !== null) {
+              input.value = constrainedResult;
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Remove visual effect after a brief period
+            setTimeout(() => {
+              if (diceIcon) diceIcon.classList.remove('rolling');
+              resolve();
+            }, 100);
+          } catch (error) {
+            HM.log(1, `Error rolling for ability ${i}:`, error);
+            resolve(); // Resolve despite error to continue the sequence
+          }
+        })();
+      });
+
+      rollPromises.push(rollPromise);
+    }
+
+    // Wait for all rolls to complete
+    await Promise.all(rollPromises);
   }
 
   /**
@@ -193,18 +341,32 @@ export class StatRoller {
   /**
    * Validates and sets a custom standard array
    * @param {string} value - Comma-separated string of ability scores
+   * @returns {boolean} Success status
    * @static
    */
   static validateAndSetCustomStandardArray(value) {
-    const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
-
-    if (!/^(\d+,)*\d+$/.test(value)) {
-      ui.notifications.warn('hm.settings.custom-standard-array.invalid-format', { localize: true });
-      return;
+    if (!value) {
+      HM.log(2, 'Empty value provided for standard array');
+      return false;
     }
 
-    let scores = value.split(',').map(Number);
+    const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
+
+    // Check format: comma-separated digits
+    if (!/^(\d+,)*\d+$/.test(value)) {
+      ui.notifications.warn('hm.settings.custom-standard-array.invalid-format', { localize: true });
+      return false;
+    }
+
+    // Parse scores
+    let scores = value.split(',').map((num) => {
+      const parsed = parseInt(num.trim(), 10);
+      return isNaN(parsed) ? 0 : parsed;
+    });
+
+    // Validate count
     if (scores.length < abilitiesCount) {
+      HM.log(2, `Standard array too short: ${scores.length} values for ${abilitiesCount} abilities`);
       scores = this.getStandardArrayDefault().split(',').map(Number);
       ui.notifications.info('hm.settings.custom-standard-array.reset-default', { localize: true });
     }
@@ -229,7 +391,10 @@ export class StatRoller {
       scores = scores.map((val) => Math.max(MIN, Math.min(MAX, val)));
     }
 
-    game.settings.set(HM.ID, 'customStandardArray', scores.sort((a, b) => b - a).join(','));
+    // Save the validated array
+    const sortedScores = scores.sort((a, b) => b - a).join(',');
+    game.settings.set(HM.ID, 'customStandardArray', sortedScores);
+    return true;
   }
 
   /**
@@ -239,9 +404,12 @@ export class StatRoller {
    * @static
    */
   static getStandardArray(extraAbilities) {
+    // Validate input
+    const extraCount = Math.max(0, parseInt(extraAbilities) || 0);
+
     // Use default D&D 5e standard array adjusted for constraints
     const standardArray = [15, 14, 13, 12, 10, 8];
-    const extraValues = Array(extraAbilities).fill(11);
+    const extraValues = Array(extraCount).fill(11);
 
     // Apply min/max constraints
     const { MIN, MAX } = HM.ABILITY_SCORES;
@@ -272,29 +440,36 @@ export class StatRoller {
 
   /**
    * Gets the point cost for a given ability score
-   * @param {number} score - The ability score (8-15)
+   * @param {number} score - The ability score
    * @returns {number} Point cost for the score
    * @static
    */
   static getPointBuyCostForScore(score) {
+    // Validate input
+    const validScore = parseInt(score);
+    if (isNaN(validScore)) {
+      HM.log(2, `Invalid ability score provided: ${score}`);
+      return 0;
+    }
+
     const costs = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
 
     // Handle scores outside the standard scale but within our min/max
     const { MIN, MAX } = HM.ABILITY_SCORES;
 
     // For scores lower than standard minimum
-    if (score < 8 && score >= MIN) {
+    if (validScore < 8 && validScore >= MIN) {
       // Negative costs for lower scores (saves points)
-      return -1 * (8 - score);
+      return -1 * (8 - validScore);
     }
 
     // For scores higher than standard maximum
-    if (score > 15 && score <= MAX) {
+    if (validScore > 15 && validScore <= MAX) {
       // Exponential cost increase for higher scores
-      return 9 + (score - 15) * 2;
+      return 9 + (validScore - 15) * 2;
     }
 
-    return costs[score] ?? 0;
+    return costs[validScore] ?? 0;
   }
 
   /**
@@ -304,17 +479,27 @@ export class StatRoller {
    * @static
    */
   static calculateTotalPointsSpent(scores) {
+    // Validate input
+    if (!Array.isArray(scores)) {
+      HM.log(2, 'Invalid scores array provided to calculateTotalPointsSpent');
+      return 0;
+    }
+
     const { MIN } = HM.ABILITY_SCORES;
     let total = 0;
 
     scores.forEach((score) => {
+      // Parse the score to ensure it's a number
+      const validScore = parseInt(score);
+      if (isNaN(validScore)) return;
+
       // When MIN is higher than standard 8, adjust total calculation
       if (MIN > 8) {
         // Calculate cost as if starting from standard minimum
         const standardMinCost = this.getPointBuyCostForScore(MIN) - this.getPointBuyCostForScore(8);
-        total += this.getPointBuyCostForScore(score) - standardMinCost;
+        total += this.getPointBuyCostForScore(validScore) - standardMinCost;
       } else {
-        total += this.getPointBuyCostForScore(score);
+        total += this.getPointBuyCostForScore(validScore);
       }
     });
 
@@ -416,8 +601,11 @@ export class StatRoller {
    * @static
    */
   static adjustScore(_event, element) {
+    if (!element) return;
+
     const index = parseInt(element.getAttribute('data-ability-index'), 10);
     if (isNaN(index)) return;
+
     const adjustment = parseInt(element.getAttribute('data-adjust'), 10) || 0;
     DOMManager.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
   }
@@ -428,43 +616,90 @@ export class StatRoller {
    * @param {string} diceRollingMethod - Current dice rolling method
    */
   static handleAbilityDropdownChange(event, diceRollingMethod) {
+    if (!event || !event.target) return;
+
     const dropdown = event.target;
     const index = parseInt(dropdown.dataset.index, 10);
+
+    if (isNaN(index)) {
+      HM.log(2, 'Invalid index in ability dropdown');
+      return;
+    }
+
     const abilityDropdowns = document.querySelectorAll('.ability-dropdown');
     const selectedValues = Array.from(abilityDropdowns).map((dropdown) => dropdown.value);
     const totalPoints = this.getTotalPoints();
 
     if (diceRollingMethod === 'manualFormula') {
-      const value = dropdown.value;
-      const scoreInput = dropdown.parentElement.querySelector('.ability-score');
-
-      // Both dropdown and input should reference the selected ability
-      dropdown.setAttribute('name', `abilities[${value}]`);
-      if (scoreInput) {
-        scoreInput.setAttribute('name', `abilities[${value}].score`);
-      }
-
-      // Disable options that are already selected elsewhere
-      abilityDropdowns.forEach((otherDropdown, otherIndex) => {
-        Array.from(otherDropdown.options).forEach((option) => {
-          if (option.value && option.value !== '') {
-            option.disabled = selectedValues.includes(option.value) && selectedValues[otherIndex] !== option.value;
-          }
-        });
-      });
+      this.#handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues);
     } else if (diceRollingMethod === 'standardArray') {
-      // Update tracking array with new value
-      selectedValues[index] = dropdown.value;
-
-      // Apply standard array handling
-      requestAnimationFrame(() => {
-        DOMManager.handleStandardArrayMode(abilityDropdowns, selectedValues);
-      });
+      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues);
     } else if (diceRollingMethod === 'pointBuy') {
-      // Handle point buy case
-      selectedValues[index] = dropdown.value || '';
-      DOMManager.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
+      this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, totalPoints);
     }
+  }
+
+  /**
+   * Handle dropdown change for manual formula method
+   * @param {HTMLElement} dropdown - The changed dropdown
+   * @param {NodeList} abilityDropdowns - All ability dropdowns
+   * @param {Array} selectedValues - Currently selected values
+   * @private
+   * @static
+   */
+  static #handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues) {
+    const value = dropdown.value;
+    const scoreInput = dropdown.parentElement.querySelector('.ability-score');
+
+    // Both dropdown and input should reference the selected ability
+    dropdown.setAttribute('name', `abilities[${value}]`);
+    if (scoreInput) {
+      scoreInput.setAttribute('name', `abilities[${value}].score`);
+    }
+
+    // Disable options that are already selected elsewhere
+    abilityDropdowns.forEach((otherDropdown, otherIndex) => {
+      Array.from(otherDropdown.options).forEach((option) => {
+        if (option.value && option.value !== '') {
+          option.disabled = selectedValues.includes(option.value) && selectedValues[otherIndex] !== option.value;
+        }
+      });
+    });
+  }
+
+  /**
+   * Handle dropdown change for standard array method
+   * @param {HTMLElement} dropdown - The changed dropdown
+   * @param {number} index - The dropdown index
+   * @param {NodeList} abilityDropdowns - All ability dropdowns
+   * @param {Array} selectedValues - Currently selected values
+   * @private
+   * @static
+   */
+  static #handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues) {
+    // Update tracking array with new value
+    selectedValues[index] = dropdown.value;
+
+    // Apply standard array handling
+    requestAnimationFrame(() => {
+      DOMManager.handleStandardArrayMode(abilityDropdowns, selectedValues);
+    });
+  }
+
+  /**
+   * Handle dropdown change for point buy method
+   * @param {HTMLElement} dropdown - The changed dropdown
+   * @param {number} index - The dropdown index
+   * @param {NodeList} abilityDropdowns - All ability dropdowns
+   * @param {Array} selectedValues - Currently selected values
+   * @param {number} totalPoints - Total points available
+   * @private
+   * @static
+   */
+  static #handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, totalPoints) {
+    // Handle point buy case
+    selectedValues[index] = dropdown.value || '';
+    DOMManager.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
   }
 
   /* -------------------------------------------- */
@@ -482,31 +717,46 @@ export class StatRoller {
    * @static
    */
   static async #promptForAbilityScoreReroll(rollFormula, chainedRolls, index, input) {
-    const dialog = new DialogV2({
+    const dialogConfig = this.#createRerollDialogConfig(rollFormula, chainedRolls, index, input);
+
+    const dialog = new DialogV2(dialogConfig);
+    dialog.render(true);
+  }
+
+  /**
+   * Creates the configuration for the reroll dialog
+   * @param {string} rollFormula - The formula to use for rolling
+   * @param {boolean} chainedRolls - Whether chained rolls are enabled
+   * @param {string} index - The ability block index
+   * @param {HTMLElement} input - The ability score input element
+   * @returns {Object} Dialog configuration
+   * @private
+   * @static
+   */
+  static #createRerollDialogConfig(rollFormula, chainedRolls, index, input) {
+    return {
       window: {
         title: game.i18n.localize('hm.dialogs.reroll.title'),
         icon: 'fas fa-dice-d6'
       },
-      content: this.#getRerollDialogContent(),
+      content: this.#getRerollDialogContent(chainedRolls),
       classes: ['hm-reroll-dialog'],
       buttons: this.#getRerollDialogButtons(rollFormula, chainedRolls, index, input),
       rejectClose: false,
       modal: true,
       position: { width: 400 }
-    });
-
-    dialog.render(true);
+    };
   }
 
   /**
    * Gets the content for the reroll dialog
+   * @param {boolean} chainedRolls - Whether chained rolls are enabled
    * @returns {string} The HTML content for the dialog
    * @private
    * @static
    */
-  static #getRerollDialogContent() {
+  static #getRerollDialogContent(chainedRolls) {
     // Only show the chain roll checkbox if chain rolls are enabled in settings
-    const chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
     const chainRollCheckbox =
       chainedRolls ?
         `
@@ -545,16 +795,7 @@ export class StatRoller {
         icon: 'fas fa-check',
         default: true,
         async callback(event, button, dialog) {
-          const chainRollCheckbox = button.form.elements.chainRoll;
-          StatRoller.chainRollEnabled = chainRollCheckbox?.checked ?? false;
-
-          dialog.close();
-
-          if (StatRoller.chainRollEnabled && chainedRolls) {
-            await StatRoller.rollAllStats(rollFormula);
-          } else {
-            await StatRoller.rollSingleAbilityScore(rollFormula, index, input);
-          }
+          await StatRoller.#handleRerollConfirmation(button, dialog, rollFormula, chainedRolls, index, input);
         }
       },
       {
@@ -563,5 +804,30 @@ export class StatRoller {
         icon: 'fas fa-times'
       }
     ];
+  }
+
+  /**
+   * Handle confirmation of the reroll dialog
+   * @param {HTMLElement} button - The clicked button
+   * @param {DialogV2} dialog - The dialog instance
+   * @param {string} rollFormula - The formula to use for rolling
+   * @param {boolean} chainedRolls - Whether chained rolls are enabled
+   * @param {string} index - The ability block index
+   * @param {HTMLElement} input - The ability score input element
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #handleRerollConfirmation(button, dialog, rollFormula, chainedRolls, index, input) {
+    const chainRollCheckbox = button.form.elements.chainRoll;
+    StatRoller.chainRollEnabled = chainRollCheckbox?.checked ?? false;
+
+    dialog.close();
+
+    if (StatRoller.chainRollEnabled && chainedRolls) {
+      await StatRoller.rollAllStats(rollFormula);
+    } else {
+      await StatRoller.rollSingleAbilityScore(rollFormula, index, input);
+    }
   }
 }
