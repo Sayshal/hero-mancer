@@ -454,7 +454,12 @@
         },
         "notes": "The troubleshooter contains all relevant information needed to start the bug-squashing process. Using the buttons below, you can save this output as a file or copy it to your clipboard. Feel free to join the Discord or create an issue on Github.",
         "save-to-file": "Download",
-        "title": "Troubleshooter"
+        "title": "Troubleshooter",
+        "error-context": "Error loading troubleshooter data.",
+        "error-report": "Error generating troubleshooting report. Please try again.",
+        "export-error": "Failed to export troubleshooting report.",
+        "copy-error": "Failed to copy report to clipboard.",
+        "link-error": "Failed to open external link."
       }
     },
     "unknown": "unknown {type}",
