@@ -307,6 +307,7 @@
         "class": "Class",
         "classes-label": "Set Class Compendiums:",
         "description": "Configure your custom compendiums for classes, races, and backgrounds. If you fail to select any compendiums for any category, all valid compendiums will be loaded as a fallback.",
+        "dialog-error": "Unable to render dialog, see console.",
         "error": "Failed to retrieve documents from compendium pack: {pack}",
         "error-saving": "There was an error saving your compendium settings. Please see console (F12).",
         "form-saved": "Compendium form settings have been saved.",
@@ -324,6 +325,7 @@
         "no-valid-packs": "No valid compendium packs were found.",
         "race": "Race",
         "races-label": "Set Race Compendiums:",
+        "save-error": "Unable to create done button, see console.",
         "saved": "{type} compendium settings have been saved.",
         "select-all": "Select All",
         "title": "Select {type} compendiums!"
