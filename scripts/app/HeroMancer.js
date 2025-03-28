@@ -1,4 +1,4 @@
-import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, EquipmentParser, HM, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, HM, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -353,18 +353,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     return true;
   }
 
-  /**
-   * Actions performed after closing the Application
-   * @protected
-   * @override
-   */
-  _onClose() {
-    // Clear the instance reference
-    HM.heroMancer = null;
-
-    super._onClose();
-  }
-
   /* -------------------------------------------- */
   /*  Private Instance Methods                    */
   /* -------------------------------------------- */
@@ -421,11 +409,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Action handler for resetting options
-   * @param {Event} event - The triggering event
+   * @param {Event} _event - The triggering event
    * @param {HTMLElement} target - The DOM element that triggered the reset
    * @static
    */
-  static async resetOptions(event, target) {
+  static async resetOptions(_event, target) {
     const form = target.ownerDocument.getElementById('hero-mancer-app');
     const success = await SavedOptions.resetOptions(form);
 
@@ -465,17 +453,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static rollStat(_event, form) {
     StatRoller.rollAbilityScore(form);
-  }
-
-  /**
-   * Delegates equipment selection collection to EquipmentParser
-   * @param {Event} event - Form submission event
-   * @param {object} [options] - Collection options (includeClass/includeBackground)
-   * @returns {Promise<Array<object>>} Equipment items data
-   * @static
-   */
-  static collectEquipmentSelections(event, options = { includeClass: true, includeBackground: true }) {
-    return EquipmentParser.collectEquipmentSelections(event, options);
   }
 
   /**
@@ -524,8 +501,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static async randomize(event) {
     event.preventDefault();
+
     // Re-render the entire application
     await HM.heroMancer.render(true);
+
     // Get the form element
     const form = event.currentTarget.closest('form');
     if (!form) return;

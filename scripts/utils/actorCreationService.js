@@ -137,7 +137,7 @@ export class ActorCreationService {
    */
   static async #collectEquipment(event, useStartingWealth) {
     // Get background equipment (always collected)
-    const backgroundEquipment = await HeroMancer.collectEquipmentSelections(event, {
+    const backgroundEquipment = await EquipmentParser.collectEquipmentSelections(event, {
       includeClass: false,
       includeBackground: true
     });
@@ -145,7 +145,7 @@ export class ActorCreationService {
     // Get class equipment (only if not using starting wealth)
     const classEquipment =
       !useStartingWealth ?
-        await HeroMancer.collectEquipmentSelections(event, {
+        await EquipmentParser.collectEquipmentSelections(event, {
           includeClass: true,
           includeBackground: false
         })

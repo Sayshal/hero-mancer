@@ -389,10 +389,18 @@ export class CharacterRandomizer {
   static async randomizeAll(form) {
     if (!form || this.#isRandomizing) return;
 
+    // Find the randomize button
+    const randomizeButton = form.querySelector('button[data-action="randomize"]');
+
     try {
       this.#isRandomizing = true;
-      ui.notifications.info('hm.app.randomizing', { localize: true });
 
+      // Disable the randomize button
+      if (randomizeButton) {
+        randomizeButton.disabled = true;
+      }
+
+      ui.notifications.info('hm.app.randomizing', { localize: true });
       HM.log(3, 'Randomizing character...');
 
       this.randomizeName(form);
@@ -405,13 +413,17 @@ export class CharacterRandomizer {
       await this.randomizeAbilities(form);
 
       HM.log(3, 'Randomizing complete...');
-
       ui.notifications.info('hm.app.randomization-complete', { localize: true });
     } catch (error) {
       console.error('Error during randomization:', error);
       ui.notifications.error('hm.errors.randomization-failed', { localize: true });
     } finally {
       this.#isRandomizing = false;
+
+      // Re-enable the randomize button
+      if (randomizeButton) {
+        randomizeButton.disabled = false;
+      }
     }
   }
 
