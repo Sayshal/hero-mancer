@@ -99,6 +99,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /*  Instance Properties                         */
   /* -------------------------------------------- */
 
+  /**
+   * Flag to prevent rendering conflicts when updates are in progress
+   * @private
+   * @type {boolean}
+   */
   #isRendering;
 
   /* -------------------------------------------- */
@@ -130,38 +135,49 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _prepareContext(options) {
-    if (!HM.documents.race || !HM.documents.class || !HM.documents.background) {
-      ui.notifications.info('hm.actortab-button.loading', { localize: true });
+    try {
+      if (!HM.documents.race || !HM.documents.class || !HM.documents.background) {
+        ui.notifications.info('hm.actortab-button.loading', { localize: true });
+      }
+
+      game.users.forEach((user) => {
+        HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
+      });
+
+      // Handle ELKAN compatibility
+      if (HM.COMPAT?.ELKAN) {
+        options.parts = options.parts.filter((part) => part !== 'equipment');
+      }
+
+      // Prepare context with globally required data
+      let context = {
+        raceDocs: HM.documents.race || [],
+        classDocs: HM.documents.class || [],
+        backgroundDocs: HM.documents.background || [],
+        tabs: this._getTabs(options.parts),
+        players: game.users.map((user) => ({
+          id: user.id,
+          name: user.name,
+          color: user.color.css
+        }))
+      };
+      HM.log(3, 'Full Context:', context);
+      return context;
+    } catch (error) {
+      HM.log(1, 'Error preparing context:', error);
+      return {
+        raceDocs: [],
+        classDocs: [],
+        backgroundDocs: [],
+        tabs: {},
+        players: []
+      };
     }
-
-    game.users.forEach((user) => {
-      HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
-    });
-
-    // Handle ELKAN compatibility
-    if (HM.COMPAT?.ELKAN) {
-      options.parts = options.parts.filter((part) => part !== 'equipment');
-    }
-
-    // Prepare context with globally required data
-    let context = {
-      raceDocs: HM.documents.race || [],
-      classDocs: HM.documents.class || [],
-      backgroundDocs: HM.documents.background || [],
-      tabs: this._getTabs(options.parts),
-      players: game.users.map((user) => ({
-        id: user.id,
-        name: user.name,
-        color: user.color.css
-      }))
-    };
-    HM.log(3, 'Full Context:', context);
-    return context;
   }
 
   /**
    * Prepares context data for a specific part/tab of the application
-   * Handles specific logic for each tab section (start, race, class, etc.)
+   * Handles specific logic for each tab section
    * @param {string} partId - ID of the template part being rendered
    * @param {object} context - Shared context from _prepareContext
    * @returns {object} Modified context for the specific part
@@ -396,48 +412,84 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Gets token configuration data
-   * @returns {Object} Token configuration object
+   * @returns {Object} Token configuration object with display modes, bar modes, etc.
    * @private
+   * @throws {Error} If token configuration cannot be retrieved
    */
   #getTokenConfig() {
     try {
       const trackedAttrs = TokenDocument.implementation._getConfiguredTrackedAttributes('character');
+      if (!trackedAttrs) {
+        throw new Error('Could not retrieve tracked attributes from TokenDocument');
+      }
 
-      // Helper function to create display mode mappings
-      const createDisplayModes = () => {
-        return Object.entries(CONST.TOKEN_DISPLAY_MODES).reduce((obj, [key, value]) => {
-          obj[value] = game.i18n.localize(`TOKEN.DISPLAY_${key}`);
-          return obj;
-        }, {});
-      };
+      // Create display mode mappings
+      const displayModes = this.#createDisplayModes();
 
-      // Both displayModes and barModes use the same mapping
-      const displayModes = createDisplayModes();
+      // Prepare bar attributes mapping
+      const barAttributes = this.#createBarAttributesMapping(trackedAttrs);
+
+      // Prepare ring effects mapping
+      const ringEffects = this.#createRingEffectsMapping();
 
       return {
         displayModes,
         barModes: displayModes,
-        barAttributes: {
-          '': game.i18n.localize('None'),
-          ...trackedAttrs.bar.reduce((obj, path) => {
-            const pathStr = path.join('.');
-            obj[pathStr] = pathStr;
-            return obj;
-          }, {})
-        },
-        ring: {
-          effects: Object.entries(CONFIG.Token.ring.ringClass.effects)
-            .filter(([name]) => name !== 'DISABLED' && name !== 'ENABLED' && CONFIG.Token.ring.effects[name])
-            .reduce((obj, [name]) => {
-              obj[name] = game.i18n.localize(CONFIG.Token.ring.effects[name]);
-              return obj;
-            }, {})
-        }
+        barAttributes,
+        ring: { effects: ringEffects }
       };
     } catch (error) {
       HM.log(1, 'Error generating token config:', error);
-      return { displayModes: {}, barModes: {}, barAttributes: {}, ring: { effects: {} } };
+      return {
+        displayModes: {},
+        barModes: {},
+        barAttributes: {},
+        ring: { effects: {} }
+      };
     }
+  }
+
+  /**
+   * Creates display modes mapping
+   * @returns {Object} Display modes object
+   * @private
+   */
+  #createDisplayModes() {
+    return Object.entries(CONST.TOKEN_DISPLAY_MODES).reduce((obj, [key, value]) => {
+      obj[value] = game.i18n.localize(`TOKEN.DISPLAY_${key}`);
+      return obj;
+    }, {});
+  }
+
+  /**
+   * Creates bar attributes mapping from tracked attributes
+   * @param {Object} trackedAttrs - Tracked attributes configuration
+   * @returns {Object} Bar attributes mapping
+   * @private
+   */
+  #createBarAttributesMapping(trackedAttrs) {
+    return {
+      '': game.i18n.localize('None'),
+      ...trackedAttrs.bar.reduce((obj, path) => {
+        const pathStr = path.join('.');
+        obj[pathStr] = pathStr;
+        return obj;
+      }, {})
+    };
+  }
+
+  /**
+   * Creates ring effects mapping
+   * @returns {Object} Ring effects mapping
+   * @private
+   */
+  #createRingEffectsMapping() {
+    return Object.entries(CONFIG.Token.ring.ringClass.effects)
+      .filter(([name]) => name !== 'DISABLED' && name !== 'ENABLED' && CONFIG.Token.ring.effects[name])
+      .reduce((obj, [name]) => {
+        obj[name] = game.i18n.localize(CONFIG.Token.ring.effects[name]);
+        return obj;
+      }, {});
   }
 
   /* -------------------------------------------- */
@@ -448,37 +500,47 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * Action handler for resetting options
    * @param {Event} _event - The triggering event
    * @param {HTMLElement} target - The DOM element that triggered the reset
+   * @returns {Promise<boolean>} Success status of the reset operation
+   * @async
    * @static
    */
   static async resetOptions(_event, target) {
-    const form = target.ownerDocument.getElementById('hero-mancer-app');
-    const success = await SavedOptions.resetOptions(form);
+    try {
+      const form = target.ownerDocument.getElementById('hero-mancer-app');
+      const success = await SavedOptions.resetOptions(form);
 
-    if (success) {
-      // First update any summaries
-      DOMManager.updateClassRaceSummary();
+      if (success) {
+        // First update any summaries
+        DOMManager.updateClassRaceSummary();
 
-      // Re-render the entire application
-      const app = HM.heroMancer;
-      if (app) {
-        await app.render(true);
+        // Re-render the entire application
+        const app = HM.heroMancer;
+        if (app) {
+          await app.render(true);
 
-        // Reinitialize all event handlers after render
-        requestAnimationFrame(() => {
-          DOMManager.initialize(app.element);
+          // Reinitialize all event handlers after render
+          requestAnimationFrame(() => {
+            DOMManager.initialize(app.element);
 
-          // Force update descriptions for main dropdowns
-          ['class', 'race', 'background'].forEach((type) => {
-            const dropdown = app.element.querySelector(`#${type}-dropdown`);
-            if (dropdown && dropdown.value) {
-              const id = dropdown.value.split(' ')[0];
-              DOMManager.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
-            }
+            // Force update descriptions for main dropdowns
+            ['class', 'race', 'background'].forEach((type) => {
+              const dropdown = app.element.querySelector(`#${type}-dropdown`);
+              if (dropdown && dropdown.value) {
+                const id = dropdown.value.split(' ')[0];
+                DOMManager.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
+              }
+            });
           });
-        });
+        }
+
+        ui.notifications.info('hm.app.optionsReset', { localize: true });
       }
 
-      ui.notifications.info('hm.app.optionsReset', { localize: true });
+      return success;
+    } catch (error) {
+      HM.log(1, 'Error resetting options:', error);
+      ui.notifications.error('hm.errors.reset-options-failed', { localize: true });
+      return false;
     }
   }
 
@@ -486,93 +548,140 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * Rolls an ability score using the configured dice rolling method
    * @param {Event} _event - The triggering event
    * @param {HTMLElement} form - The form element containing ability score data
+   * @returns {Promise<number|null>} The rolled value or null if rolling failed
+   * @async
    * @static
    */
-  static rollStat(_event, form) {
-    StatRoller.rollAbilityScore(form);
+  static async rollStat(_event, form) {
+    try {
+      return await StatRoller.rollAbilityScore(form);
+    } catch (error) {
+      HM.log(1, 'Error rolling ability score:', error);
+      ui.notifications.error('hm.errors.ability-roll-failed', { localize: true });
+      return null;
+    }
   }
 
   /**
    * Action handler for form submission cancellation
    * Restores original player colors and optionally closes the application
    * @param {Event} event - The triggering event
-   * @param {object} options - Options to pass to close method
+   * @param {object} [options={}] - Options to pass to close method
+   * @returns {Promise<void>}
+   * @async
    * @static
    */
-  static async noSubmit(event, options) {
-    // Restore original player colors
-    for (const [userId, originalColor] of HeroMancer.ORIGINAL_PLAYER_COLORS.entries()) {
-      const user = game.users.get(userId);
-      if (user) await user.update({ color: originalColor });
-    }
+  static async noSubmit(event, options = {}) {
+    try {
+      // Restore original player colors
+      for (const [userId, originalColor] of HeroMancer.ORIGINAL_PLAYER_COLORS.entries()) {
+        const user = game.users.get(userId);
+        if (user) await user.update({ color: originalColor });
+      }
 
-    // Clear the map for next time
-    HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
+      // Clear the map for next time
+      HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
 
-    // Close if cancel button was clicked
-    if (event.target.className === 'hm-app-footer-cancel') {
-      HM.log(3, 'Closing HeroMancer application via noSubmit.');
-      await HM.heroMancer.close(options);
+      // Close if cancel button was clicked
+      if (event.target.className === 'hm-app-footer-cancel') {
+        HM.log(3, 'Closing HeroMancer application via noSubmit.');
+        await HM.heroMancer.close(options);
+      }
+    } catch (error) {
+      HM.log(1, 'Error during form cancellation:', error);
     }
   }
 
   /**
    * Randomize character name and update the name input field
    * @param {Event} event - The triggering event
+   * @returns {string|null} The generated name or null if generation failed
+   * @static
    */
   static randomizeCharacterName(event) {
-    event.preventDefault();
-    const nameInput = document.getElementById('character-name');
+    try {
+      event.preventDefault();
+      const nameInput = document.getElementById('character-name');
 
-    // Set the random name
-    nameInput.value = CharacterRandomizer.generateRandomName();
-    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      if (!nameInput) {
+        HM.log(2, 'Could not find character name input element');
+        return null;
+      }
 
-    HM.log(3, `Generated random name: ${nameInput.value}`);
+      // Set the random name
+      const randomName = CharacterRandomizer.generateRandomName();
+      nameInput.value = randomName;
+      nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+      HM.log(3, `Generated random name: ${randomName}`);
+      return randomName;
+    } catch (error) {
+      HM.log(1, 'Error generating random character name:', error);
+      return null;
+    }
   }
 
   /**
    * Handle randomizing the entire character
    * @param {Event} event - The triggering event
+   * @returns {Promise<boolean>} Success status of the randomization
+   * @async
    * @static
    */
   static async randomize(event) {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    // Re-render the entire application
-    await HM.heroMancer.render(true);
+      // Re-render the entire application
+      await HM.heroMancer.render(true);
 
-    // Get the form element
-    const form = event.currentTarget.closest('form');
-    if (!form) return;
+      // Get the form element
+      const form = event.currentTarget.closest('form');
+      if (!form) {
+        HM.log(2, 'Could not find form element when randomizing character');
+        return false;
+      }
 
-    // Use the CharacterRandomizer utility to randomize all character aspects
-    await CharacterRandomizer.randomizeAll(form);
+      // Use the CharacterRandomizer utility to randomize all character aspects
+      return await CharacterRandomizer.randomizeAll(form);
+    } catch (error) {
+      HM.log(1, 'Error randomizing character:', error);
+      ui.notifications.error('hm.errors.randomize-failed', { localize: true });
+      return false;
+    }
   }
 
   /**
    * Opens a specific settings menu
    * @param {PointerEvent} event - The triggering event
    * @param {string} menuKey - The settings menu key
+   * @returns {boolean} Whether the menu was successfully opened
    * @static
    */
   static openMenu(event, menuKey) {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    if (!menuKey) {
-      HM.log(1, 'No menu key provided');
-      return;
-    }
+      if (!menuKey) {
+        HM.log(1, 'No menu key provided');
+        return false;
+      }
 
-    // Open the requested settings menu
-    const menuId = `${HM.ID}.${menuKey}`;
-    const menuConfig = game.settings.menus.get(menuId);
+      // Open the requested settings menu
+      const menuId = `${HM.ID}.${menuKey}`;
+      const menuConfig = game.settings.menus.get(menuId);
 
-    if (menuConfig) {
-      const MenuClass = menuConfig.type;
-      new MenuClass().render(true);
-    } else {
-      HM.log(1, `Menu '${menuId}' not found`);
+      if (menuConfig) {
+        const MenuClass = menuConfig.type;
+        new MenuClass().render(true);
+        return true;
+      } else {
+        HM.log(1, `Menu '${menuId}' not found`);
+        return false;
+      }
+    } catch (error) {
+      HM.log(1, `Error opening menu ${menuKey}:`, error);
+      return false;
     }
   }
 
@@ -582,7 +691,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {Event} event - The form submission event
    * @param {HTMLFormElement} _form - The form element
    * @param {FormDataExtended} formData - The processed form data
-   * @returns {Promise<void>}
+   * @returns {Promise<Actor|null>} The created actor or null if creation failed
+   * @async
    * @static
    */
   static async formHandler(event, _form, formData) {
@@ -595,11 +705,18 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       } catch (error) {
         HM.log(1, 'Error saving options:', error);
         ui.notifications.error('hm.errors.save-options-failed', { localize: true });
+        throw new Error(`Failed to save options: ${error.message}`);
       }
-      return;
+      return null;
     }
 
     // Delegate to ActorCreationService
-    await ActorCreationService.createCharacter(event, formData);
+    try {
+      return await ActorCreationService.createCharacter(event, formData);
+    } catch (error) {
+      HM.log(1, 'Character creation failed:', error);
+      ui.notifications.error('hm.errors.character-creation-failed', { localize: true });
+      return null;
+    }
   }
 }
