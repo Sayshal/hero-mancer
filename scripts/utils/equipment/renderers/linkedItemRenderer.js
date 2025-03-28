@@ -12,31 +12,31 @@ export class LinkedItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement|null>} Rendered container or null
    */
   async render(item, itemContainer) {
-    HM.log(3, `Processing item ${item?._id}`);
+    try {
+      HM.log(3, `Processing item ${item?._id}`);
 
-    if (!item?._source?.key && !item?.key) {
-      HM.log(1, `LinkedItemRenderer.render: Invalid item - missing _source.key && .key for item ${item?._id}`, { item });
+      if (!item?._source?.key && !item?.key) {
+        HM.log(1, `Invalid item - missing _source.key && .key for item ${item?._id}`);
+        return null;
+      }
+
+      if (this.shouldSkipRendering(item)) {
+        HM.log(3, `Skipping rendering for item ${item._id}`);
+        return null;
+      }
+
+      const components = this.createLinkedItemComponents(item);
+      this.assembleLinkedItemUI(itemContainer, components, item);
+
+      HM.log(3, `Successfully rendered linked item ${item._id}`);
+      this.parser.constructor.renderedItems.add(item._id);
+      this.addFavoriteStar(itemContainer, item);
+
+      return itemContainer;
+    } catch (error) {
+      HM.log(1, `Error rendering linked item ${item?._id}: ${error.message}`);
       return null;
     }
-
-    // Check if we should skip rendering
-    if (this.shouldSkipRendering(item)) {
-      HM.log(3, `Skipping rendering for item ${item._id}`);
-      return null;
-    }
-
-    // Create the linked item's UI components
-    const components = this.createLinkedItemComponents(item);
-
-    // Assemble the components and add to container
-    this.assembleLinkedItemUI(itemContainer, components, item);
-
-    // Mark as rendered and add favorite star
-    HM.log(3, `Successfully rendered linked item ${item._id}`);
-    this.parser.constructor.renderedItems.add(item._id);
-    this.addFavoriteStar(itemContainer, item);
-
-    return itemContainer;
   }
 
   /**
@@ -94,24 +94,11 @@ export class LinkedItemRenderer extends BaseItemRenderer {
       const equipmentData = this.parser.equipmentData;
       const parentItem = equipmentData.class.find((p) => p._id === item.group) || equipmentData.background.find((p) => p._id === item.group);
 
-      if (parentItem?.type === 'OR') {
-        HM.log(3, `Item ${item._id} is in OR group, skipping`);
-        return true;
-      }
+      if (parentItem?.type === 'OR') return true;
     }
 
-    // Check if already rendered or should use dropdown
-    const alreadyCombined = this.parser.constructor.combinedItemIds.has(item._source.key);
-    const shouldUseDropdown = this.renderer.shouldItemUseDropdownDisplay(item);
-    const alreadyRendered = this.parser.constructor.renderedItems.has(item._id);
-
-    const result = alreadyCombined || shouldUseDropdown || alreadyRendered;
-
-    if (result) {
-      HM.log(3, `Item ${item._id} skipped - combined: ${alreadyCombined}, dropdown: ${shouldUseDropdown}, rendered: ${alreadyRendered}`);
-    }
-
-    return result;
+    // Direct Boolean checks without extra variables
+    return this.parser.constructor.combinedItemIds.has(item._source.key) || this.renderer.shouldItemUseDropdownDisplay(item) || this.parser.constructor.renderedItems.has(item._id);
   }
 
   /**
@@ -120,27 +107,35 @@ export class LinkedItemRenderer extends BaseItemRenderer {
    * @returns {string} Formatted label
    */
   formatDisplayLabel(item) {
+    if (!item) return game.i18n.localize('hm.app.equipment.unknown-choice');
+
     HM.log(3, `Formatting label for ${item._id}`);
+    let displayLabel = item.label || '';
 
-    let displayLabel = item.label;
+    try {
+      if (typeof displayLabel !== 'string') {
+        displayLabel = String(displayLabel || '');
+      }
 
-    if (item.label?.includes('<a class')) {
-      // Handle labels with content links
-      const countMatch = item.label.match(/^(\d+)&times;/);
-      if (countMatch) {
-        const displayCount = countMatch[1];
-        displayLabel = item.label.replace(/^\d+&times;\s*/, '').replace('</i>', `</i>${displayCount} `);
-        HM.log(3, `Processed content link with count ${displayCount}`);
+      if (displayLabel.includes('<a class')) {
+        // Handle labels with content links
+        const countMatch = displayLabel.match(/^(\d+)&times;/);
+        if (countMatch) {
+          const displayCount = countMatch[1];
+          displayLabel = displayLabel.replace(/^\d+&times;\s*/, '').replace('</i>', `</i>${displayCount} `);
+        }
+      } else {
+        // Handle plain text labels
+        const displayCount = item._source?.count > 1 || item._source?.count !== null ? item._source.count : '';
+        if (displayCount && !displayLabel.includes(displayCount)) {
+          displayLabel = `${displayCount} ${displayLabel}`;
+        }
       }
-    } else {
-      // Handle plain text labels
-      const displayCount = item._source.count > 1 || item._source.count !== null ? item._source.count : '';
-      if (displayCount && !displayLabel.includes(displayCount)) {
-        displayLabel = `${displayCount} ${displayLabel}`;
-        HM.log(3, `Added count ${displayCount} to label`);
-      }
+
+      return displayLabel;
+    } catch (error) {
+      HM.log(2, `Error formatting label for ${item._id}: ${error.message}`);
+      return item.label || game.i18n.localize('hm.app.equipment.unknown-choice');
     }
-
-    return displayLabel;
   }
 }
