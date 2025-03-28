@@ -256,6 +256,7 @@
 .application.hm-app .fa-list-check,
 .application.hm-app .fa-atlas,
 .application.hm-app .fa-palette,
+.application.hm-app .fa-bug,
 .hm-compendiums-popup-dialog .fa-solid {
   color: var(--user-color);
 }
@@ -972,7 +973,9 @@ fieldset#start > h2 {
   border-radius: 4px;
 }
 
-.wealth-roll-container button {
+.wealth-roll-container button,
+.character-name-row button {
+  aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -981,7 +984,8 @@ fieldset#start > h2 {
   padding: 0;
 }
 
-.wealth-roll-container button i {
+.wealth-roll-container button i,
+.character-name-row button i {
   margin: 0;
 }
 
@@ -1407,9 +1411,9 @@ fieldset#start > h2 {
 }
 
 .hm-mandatory-fields-popup .form-group {
+  gap: unset;
   margin: 5px 0;
   padding-left: 0.625rem;
-  gap: unset;
 }
 
 .hm-mandatory-fields-popup .form-group label {
@@ -1550,24 +1554,24 @@ fieldset#start > h2 {
 }
 
 .customization-application .form-group {
-  width: 100%;
   gap: unset;
+  width: 100%;
 }
 
 .customization-application .form-group .form-group {
-  width: 100%;
   gap: unset;
+  width: 100%;
 }
 
 .customization-application .form-group .flex.items-center {
-  width: 100%;
   gap: unset;
+  width: 100%;
 }
 
 .customization-application .form-group .flex.items-center .form-input {
+  gap: unset;
   width: 100%;
   max-width: 100%;
-  gap: unset;
 }
 
 .customization-application .flex.items-center button.file-picker {

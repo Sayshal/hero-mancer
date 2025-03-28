@@ -29,7 +29,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       resetOptions: HeroMancer.resetOptions,
       nosubmit: HeroMancer.noSubmit,
       randomizeCharacterName: HeroMancer.randomizeCharacterName,
-      randomize: HeroMancer.randomize
+      randomize: HeroMancer.randomize,
+      openCompendiumSettings: (event) => HeroMancer.openMenu(event, 'customCompendiumMenu'),
+      openCustomizationSettings: (event) => HeroMancer.openMenu(event, 'customizationMenu'),
+      openDiceRollingSettings: (event) => HeroMancer.openMenu(event, 'diceRollingMenu'),
+      openMandatoryFieldsSettings: (event) => HeroMancer.openMenu(event, 'mandatoryFieldsMenu'),
+      openTroubleshooterSettings: (event) => HeroMancer.openMenu(event, 'troubleshootingMenu')
     },
     classes: ['hm-app'],
     position: {
@@ -40,7 +45,39 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     window: {
       icon: 'fa-solid fa-egg',
       resizable: false,
-      minimizable: true
+      minimizable: true,
+      controls: [
+        {
+          icon: 'fa-solid fa-atlas',
+          label: 'hm.settings.configure-compendiums',
+          action: 'openCompendiumSettings',
+          dataset: { menu: 'customCompendiumMenu' }
+        },
+        {
+          icon: 'fa-solid fa-palette',
+          label: 'hm.settings.configure-customization',
+          action: 'openCustomizationSettings',
+          dataset: { menu: 'customizationMenu' }
+        },
+        {
+          icon: 'fa-solid fa-dice',
+          label: 'hm.settings.configure-rolling',
+          action: 'openDiceRollingSettings',
+          dataset: { menu: 'diceRollingMenu' }
+        },
+        {
+          icon: 'fa-solid fa-list-check',
+          label: 'hm.settings.configure-mandatory',
+          action: 'openMandatoryFieldsSettings',
+          dataset: { menu: 'mandatoryFieldsMenu' }
+        },
+        {
+          icon: 'fa-solid fa-bug',
+          label: 'hm.settings.troubleshooter.generate-report',
+          action: 'openTroubleshooterSettings',
+          dataset: { menu: 'troubleshootingMenu' }
+        }
+      ]
     }
   };
 
@@ -511,6 +548,32 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Use the CharacterRandomizer utility to randomize all character aspects
     await CharacterRandomizer.randomizeAll(form);
+  }
+
+  /**
+   * Opens a specific settings menu
+   * @param {PointerEvent} event - The triggering event
+   * @param {string} menuKey - The settings menu key
+   * @static
+   */
+  static openMenu(event, menuKey) {
+    event.preventDefault();
+
+    if (!menuKey) {
+      HM.log(1, 'No menu key provided');
+      return;
+    }
+
+    // Open the requested settings menu
+    const menuId = `${HM.ID}.${menuKey}`;
+    const menuConfig = game.settings.menus.get(menuId);
+
+    if (menuConfig) {
+      const MenuClass = menuConfig.type;
+      new MenuClass().render(true);
+    } else {
+      HM.log(1, `Menu '${menuId}' not found`);
+    }
   }
 
   /**
