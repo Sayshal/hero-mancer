@@ -3,6 +3,7 @@ import { AndItemRenderer, BaseItemRenderer, FocusItemRenderer, LinkedItemRendere
 
 /**
  * Manages rendering of equipment selection UI components
+ * @class
  */
 export class EquipmentRenderer {
   /**
@@ -80,16 +81,34 @@ export class EquipmentRenderer {
   async prepareRenderingData() {
     HM.log(3, 'Preparing data for rendering');
 
-    this.parser.equipmentData = null;
-    await this.parser.constructor.initializeLookupItems();
-    await this.parser.fetchEquipmentData();
+    try {
+      // Clear existing data
+      this.parser.equipmentData = null;
 
-    HM.log(
-      3,
-      `EquipmentRenderer.prepareRenderingData: Data prepared with ${this.parser.equipmentData?.class?.length || 0} class items and ${
-        this.parser.equipmentData?.background?.length || 0
-      } background items`
-    );
+      // Step 1: Initialize lookup items
+      try {
+        await this.parser.constructor.initializeLookupItems();
+      } catch (error) {
+        HM.log(1, `Failed to initialize lookup items: ${error.message}`);
+        throw new Error('Failed to initialize equipment lookup data');
+      }
+
+      // Step 2: Fetch equipment data
+      try {
+        await this.parser.fetchEquipmentData();
+        if (!this.parser.equipmentData) {
+          throw new Error('Equipment data is null after fetching');
+        }
+      } catch (error) {
+        HM.log(1, `Failed to fetch equipment data: ${error.message}`);
+        throw new Error('Failed to load equipment data');
+      }
+
+      HM.log(3, `Data prepared with ${this.parser.equipmentData?.class?.length || 0} class items and ${this.parser.equipmentData?.background?.length || 0} background items`);
+    } catch (error) {
+      HM.log(1, `Failed to prepare rendering data: ${error.message}`);
+      throw error; // Propagate error for proper handling upstream
+    }
   }
 
   /**
@@ -143,29 +162,56 @@ export class EquipmentRenderer {
       const items = this.parser.equipmentData[type] || [];
       const sectionContainer = this.getOrCreateSectionContainer(container, type);
 
-      // Add the section header
-      this.addSectionHeader(sectionContainer, type);
+      await this.renderSectionComponents(sectionContainer, type, items);
 
-      // Add wealth option if applicable
-      if ((type === 'class' || type === 'background') && HM.SELECTED[type].id) {
-        await this.parser.renderWealthOption(sectionContainer, type).catch((error) => {
-          HM.log(1, `Error rendering wealth option: ${error.message}`);
-        });
-      }
-
-      // Handle empty items case
-      if (!items.length) {
-        HM.log(3, `No equipment items for ${type}`);
-        await this.renderEmptyNotice(sectionContainer, type);
-        return;
-      }
-
-      // Render items
-      await this.renderSectionItems(sectionContainer, items);
       HM.log(3, `${type} section rendered successfully`);
     } catch (error) {
       HM.log(1, `Error rendering ${type} section: ${error.message}`);
       this.renderSectionError(container);
+    }
+  }
+
+  /**
+   * Render all components of a section
+   * @param {HTMLElement} sectionContainer - Section container
+   * @param {string} type - Section type ('class'|'background')
+   * @param {Array<Object>} items - Equipment items to render
+   * @returns {Promise<void>}
+   * @private
+   */
+  async renderSectionComponents(sectionContainer, type, items) {
+    // Add the section header
+    this.addSectionHeader(sectionContainer, type);
+
+    // Add wealth option if applicable
+    await this.renderWealthOption(sectionContainer, type);
+
+    // Handle empty items case
+    if (!items.length) {
+      HM.log(3, `No equipment items for ${type}`);
+      await this.renderEmptyNotice(sectionContainer, type);
+      return;
+    }
+
+    // Render items
+    await this.renderSectionItems(sectionContainer, items);
+  }
+
+  /**
+   * Render wealth option for a section if applicable
+   * @param {HTMLElement} sectionContainer - Section container
+   * @param {string} type - Section type
+   * @returns {Promise<void>}
+   * @private
+   */
+  async renderWealthOption(sectionContainer, type) {
+    if ((type === 'class' || type === 'background') && HM.SELECTED[type].id) {
+      try {
+        await this.parser.renderWealthOption(sectionContainer, type);
+      } catch (error) {
+        HM.log(1, `Error rendering wealth option: ${error.message}`);
+        // Continue rendering even if wealth option fails
+      }
     }
   }
 
@@ -179,12 +225,59 @@ export class EquipmentRenderer {
   async renderSectionItems(sectionContainer, items) {
     HM.log(3, `Rendering ${items.length} items`);
 
-    // Pre-fetch all item documents in parallel
-    const itemDocs = await this.preFetchItemDocuments(items);
-    HM.log(3, `Pre-fetched ${itemDocs.length} item documents`);
+    // Create a document fragment for better performance
+    const fragment = document.createDocumentFragment();
 
-    // Process all items with their pre-fetched documents
-    await this.renderItemElements(sectionContainer, itemDocs);
+    try {
+      // Pre-fetch all item documents in parallel
+      const itemDocs = await this.preFetchItemDocuments(items);
+      HM.log(3, `Pre-fetched ${itemDocs.length} item documents`);
+
+      // Process all items with their pre-fetched documents
+      const processedItems = new Set();
+      const failedItems = [];
+
+      for (const { item, doc } of itemDocs) {
+        if (!item || processedItems.has(item._id || item.key)) {
+          continue;
+        }
+
+        processedItems.add(item._id || item.key);
+
+        // Update item with document info if available
+        if (doc) {
+          item.name = doc.name;
+        } else if (item.key) {
+          item.name = item.key;
+        }
+
+        try {
+          const itemElement = await this.buildEquipmentUIElement(item);
+          if (itemElement) {
+            fragment.appendChild(itemElement);
+            HM.log(3, `Added element for ${item.name || item.key || 'unnamed item'}`);
+          }
+        } catch (error) {
+          HM.log(1, `Failed to create element for ${item.name || item.key}: ${error.message}`);
+          failedItems.push(item.name || item.key || game.i18n.localize('hm.app.equipment.unnamed'));
+        }
+      }
+
+      // Add failed items notice if needed
+      if (failedItems.length > 0) {
+        this.addFailedItemsNotice(fragment, failedItems);
+      }
+
+      // Add all items to the container at once
+      sectionContainer.appendChild(fragment);
+    } catch (error) {
+      HM.log(1, `Error in renderSectionItems: ${error.message}`);
+      // Add error notice to the container
+      const errorEl = document.createElement('div');
+      errorEl.classList.add('equipment-error');
+      errorEl.textContent = game.i18n.localize('hm.errors.equipment-rendering');
+      sectionContainer.appendChild(errorEl);
+    }
   }
 
   /**
@@ -348,25 +441,47 @@ export class EquipmentRenderer {
   async preFetchItemDocuments(items) {
     HM.log(3, `Pre-fetching ${items.length} documents`);
 
-    const results = await Promise.all(
-      items.map(async (item) => {
-        if (!item.key) {
-          HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Item has no key: ${item._id || 'unknown'}`, { item: item });
-          return { item, doc: null };
-        }
+    // Track progress
+    let fetched = 0;
+    const total = items.length;
+    const updateProgress = () => {
+      fetched++;
+      if (fetched % 10 === 0 || fetched === total) {
+        HM.log(3, `Fetched ${fetched}/${total} documents`);
+      }
+    };
 
-        try {
-          const doc = await fromUuidSync(item.key);
-          HM.log(3, `Fetched document ${doc?.name || 'not found'} for item ${item._id}`);
-          return { item, doc };
-        } catch (error) {
-          HM.log(1, `EquipmentRenderer.preFetchItemDocuments: Error fetching document for ${item.key}: ${error.message}`, { item: item });
-          return { item, doc: null };
-        }
-      })
-    );
+    try {
+      const results = await Promise.all(
+        items.map(async (item) => {
+          if (!item.key) {
+            HM.log(3, `Item has no key: ${item._id || 'unknown'}`);
+            updateProgress();
+            return { item, doc: null };
+          }
 
-    return results;
+          try {
+            const doc = await fromUuidSync(item.key);
+            updateProgress();
+            return { item, doc };
+          } catch (error) {
+            HM.log(1, `Error fetching document for ${item.key}: ${error.message}`);
+            updateProgress();
+            return { item, doc: null };
+          }
+        })
+      );
+
+      // Log summary of results
+      const successCount = results.filter((r) => r.doc !== null).length;
+      HM.log(3, `Successfully fetched ${successCount}/${total} documents`);
+
+      return results;
+    } catch (error) {
+      HM.log(1, `Fatal error in document fetching: ${error.message}`);
+      // Return partial results if available
+      return items.map((item) => ({ item, doc: null }));
+    }
   }
 
   /**
@@ -540,37 +655,37 @@ export class EquipmentRenderer {
    * @returns {boolean} True if should render as dropdown
    */
   shouldItemUseDropdownDisplay(item) {
-    HM.log(3, `Checking item ${item?._id}`);
-
-    // Check for group membership
-    if (item.group) {
-      const parentItem = this.parser.equipmentData.class.find((p) => p._source?.key === item.group) || this.parser.equipmentData.background.find((p) => p._source?.key === item.group);
-
-      if (parentItem?.type === 'OR') {
-        HM.log(3, `Item ${item._id} is child of OR group`);
-        return true;
-      }
+    // No item or no ID means it can't be displayed
+    if (!item || !item._id) {
+      return false;
     }
 
-    // Check for combined items that should be rendered in a dropdown
-    if (item.type === 'AND' && item.children?.length > 1) {
-      const parent = this.parser.equipmentData.class.find((p) => p._source?.key === item.group) || this.parser.equipmentData.background.find((p) => p._source?.key === item.group);
-
-      if (parent?.type === 'OR') {
-        HM.log(3, `Item ${item._id} is AND with multiple children in OR group`);
-        return true;
-      }
-    }
-
-    // Check if item is already part of a combined selection
+    // Already in combined items set
     if (this.parser.constructor.combinedItemIds.has(item._source?.key)) {
-      HM.log(3, `Item ${item._id} is already in combinedItemIds`);
       return true;
     }
 
-    // Top-level OR blocks should be dropdowns
-    const result = item.type === 'OR';
-    HM.log(3, `Item ${item._id} is ${result ? '' : 'not '}a top-level OR block`);
-    return result;
+    // Top-level OR items should always be dropdowns
+    if (item.type === 'OR') {
+      return true;
+    }
+
+    // Check for items in OR groups
+    if (item.group) {
+      const allItems = [...(this.parser.equipmentData.class || []), ...(this.parser.equipmentData.background || [])];
+      const parent = allItems.find((p) => p._id === item.group || p._source?.key === item.group);
+
+      // Parent is an OR type
+      if (parent?.type === 'OR') {
+        return true;
+      }
+
+      // AND item with multiple children in an OR group
+      if (item.type === 'AND' && item.children?.length > 1 && parent?.type === 'OR') {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
