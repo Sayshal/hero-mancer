@@ -134,7 +134,7 @@ export class EquipmentParser {
     this.renderer = new EquipmentRenderer(this);
     this.dataService = new EquipmentDataService(this);
 
-    HM.log(3, `EquipmentParser.constructor: Initialized with class=${this.classId} and background=${this.backgroundId}`);
+    HM.log(3, `Initialized with class=${this.classId} and background=${this.backgroundId}`);
   }
 
   /* -------------------------------------------- */
@@ -147,9 +147,9 @@ export class EquipmentParser {
    * @returns {Promise<void>}
    */
   async fetchEquipmentData() {
-    HM.log(3, 'EquipmentParser.fetchEquipmentData: Fetching equipment data');
+    HM.log(3, 'Fetching equipment data');
     this.equipmentData = await this.dataService.fetchEquipmentData();
-    HM.log(3, `EquipmentParser.fetchEquipmentData: Retrieved data with ${this.equipmentData?.class?.length || 0} class items and ${this.equipmentData?.background?.length || 0} background items`);
+    HM.log(3, `Retrieved data with ${this.equipmentData?.class?.length || 0} class items and ${this.equipmentData?.background?.length || 0} background items`);
   }
 
   /**
@@ -159,9 +159,9 @@ export class EquipmentParser {
    * @returns {Promise<Item|null>} Found item document or null
    */
   async findItemDocumentById(itemId) {
-    HM.log(3, `EquipmentParser.findItemDocumentById: Searching for item ${itemId}`);
+    HM.log(3, `Searching for item ${itemId}`);
     const result = await this.dataService.findItemDocumentById(itemId);
-    HM.log(3, `EquipmentParser.findItemDocumentById: ${result ? 'Found' : 'Did not find'} item ${itemId}`);
+    HM.log(3, `${result ? 'Found' : 'Did not find'} item ${itemId}`);
     return result;
   }
 
@@ -172,9 +172,9 @@ export class EquipmentParser {
    * @returns {Promise<Set<string>>} Set of granted proficiency strings
    */
   async extractProficienciesFromAdvancements(advancements) {
-    HM.log(3, `EquipmentParser.extractProficienciesFromAdvancements: Processing ${advancements?.length || 0} advancements`);
+    HM.log(3, `Processing ${advancements?.length || 0} advancements`);
     const result = await this.dataService.extractProficienciesFromAdvancements(advancements);
-    HM.log(3, `EquipmentParser.extractProficienciesFromAdvancements: Extracted ${result.size} proficiencies`);
+    HM.log(3, `Extracted ${result.size} proficiencies`);
     return result;
   }
 
@@ -185,9 +185,9 @@ export class EquipmentParser {
    * @returns {Promise<Array<object>>} Starting equipment array
    */
   async getStartingEquipment(type) {
-    HM.log(3, `EquipmentParser.getStartingEquipment: Fetching ${type} equipment`);
+    HM.log(3, `Fetching ${type} equipment`);
     const result = await this.dataService.getStartingEquipment(type);
-    HM.log(3, `EquipmentParser.getStartingEquipment: Retrieved ${result.length} items for ${type}`);
+    HM.log(3, `Retrieved ${result.length} items for ${type}`);
     return result;
   }
 
@@ -199,18 +199,18 @@ export class EquipmentParser {
    * @throws {Error} If wealth option rendering fails
    */
   async renderWealthOption(sectionContainer, type = 'class') {
-    HM.log(3, `EquipmentParser.renderWealthOption: Rendering wealth option for ${type}`);
+    HM.log(3, `Rendering wealth option for ${type}`);
 
     try {
       const itemUUID = HM.SELECTED[type].uuid;
       if (!itemUUID) {
-        HM.log(3, `EquipmentParser.renderWealthOption: No UUID for ${type}, skipping`);
+        HM.log(3, `No UUID for ${type}, skipping`);
         return;
       }
 
       const item = await fromUuidSync(itemUUID);
       if (!item) {
-        HM.log(3, `EquipmentParser.renderWealthOption: Could not find item for UUID ${itemUUID}`);
+        HM.log(3, `Could not find item for UUID ${itemUUID}`);
         return;
       }
 
@@ -219,7 +219,7 @@ export class EquipmentParser {
       const wealthValue = item.system.wealth;
 
       if (!wealthValue) {
-        HM.log(3, `EquipmentParser.renderWealthOption: No wealth value found for ${type}`);
+        HM.log(3, `No wealth value found for ${type}`);
         return;
       }
 
@@ -227,9 +227,9 @@ export class EquipmentParser {
       const wealthComponents = this.createWealthOptionComponents(type, isModernRules, wealthValue);
       this.setupWealthOptionBehavior(wealthComponents, sectionContainer, isModernRules, wealthValue);
 
-      HM.log(3, `EquipmentParser.renderWealthOption: Rendered wealth option for ${type} with value ${wealthValue}`);
+      HM.log(3, `Rendered wealth option for ${type} with value ${wealthValue}`);
     } catch (error) {
-      HM.log(1, `EquipmentParser.renderWealthOption: Error rendering wealth option: ${error.message}`);
+      HM.log(1, `Error rendering wealth option: ${error.message}`);
     }
   }
 
@@ -242,7 +242,7 @@ export class EquipmentParser {
    * @private
    */
   createWealthOptionComponents(type, isModernRules, wealthValue) {
-    HM.log(3, `EquipmentParser.createWealthOptionComponents: Creating wealth components for ${type}`);
+    HM.log(3, `Creating wealth components for ${type}`);
 
     const wealthContainer = document.createElement('div');
     wealthContainer.classList.add('wealth-option-container');
@@ -301,7 +301,7 @@ export class EquipmentParser {
    * @private
    */
   setupWealthOptionBehavior(components, sectionContainer, isModernRules, wealthValue) {
-    HM.log(3, 'EquipmentParser.setupWealthOptionBehavior: Setting up wealth behavior');
+    HM.log(3, 'Setting up wealth behavior');
 
     const { wealthContainer, wealthCheckbox, wealthLabel, wealthRollContainer, wealthInput, rollButton } = components;
 
@@ -313,7 +313,7 @@ export class EquipmentParser {
         await roll.evaluate();
         wealthInput.value = `${roll.total} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
         wealthInput.dispatchEvent(new Event('change', { bubbles: true }));
-        HM.log(3, `EquipmentParser.setupWealthOptionBehavior: Rolled wealth ${formula} = ${roll.total}`);
+        HM.log(3, `Rolled wealth ${formula} = ${roll.total}`);
       });
     }
 
@@ -340,7 +340,7 @@ export class EquipmentParser {
    * @private
    */
   handleWealthCheckboxChange(event, sectionContainer, wealthRollContainer, wealthInput, isModernRules, wealthValue) {
-    HM.log(3, `EquipmentParser.handleWealthCheckboxChange: Wealth checkbox changed to ${event.target.checked}`);
+    HM.log(3, `Wealth checkbox changed to ${event.target.checked}`);
 
     const equipmentElements = sectionContainer.querySelectorAll('.equipment-item');
     equipmentElements.forEach((el) => {
@@ -379,9 +379,9 @@ export class EquipmentParser {
     EquipmentParser.renderedItems = new Set();
     EquipmentParser.combinedItemIds = new Set();
 
-    HM.log(3, `EquipmentParser.generateEquipmentSelectionUI: Generating UI for ${type || 'all types'}`);
+    HM.log(3, `Generating UI for ${type || 'all types'}`);
     const result = await this.renderer.generateEquipmentSelectionUI(type);
-    HM.log(3, 'EquipmentParser.generateEquipmentSelectionUI: UI generation complete');
+    HM.log(3, 'UI generation complete');
     return result;
   }
 
@@ -391,9 +391,9 @@ export class EquipmentParser {
    * @returns {string|null} - HTML string with equipment description or null if not found
    */
   extractEquipmentDescription(document) {
-    HM.log(3, `EquipmentParser.extractEquipmentDescription: Extracting from ${document?.name || 'unknown document'}`);
+    HM.log(3, `Extracting from ${document?.name || 'unknown document'}`);
     const result = this.dataService.extractEquipmentDescription(document);
-    HM.log(3, `EquipmentParser.extractEquipmentDescription: Extraction ${result ? 'succeeded' : 'failed'}`);
+    HM.log(3, `Extraction ${result ? 'succeeded' : 'failed'}`);
     return result;
   }
 
@@ -431,19 +431,19 @@ export class EquipmentParser {
    * @static
    */
   static async collectEquipmentSelections(event, options = { includeClass: true, includeBackground: true }) {
-    HM.log(3, 'EquipmentParser.collectEquipmentSelections: Collecting selections with options', options);
+    HM.log(3, 'Collecting selections with options', options);
 
     const equipment = [];
     const equipmentContainer = event.target?.querySelector('#equipment-container');
 
     if (!equipmentContainer) {
-      HM.log(3, 'EquipmentParser.collectEquipmentSelections: No equipment container found');
+      HM.log(3, 'No equipment container found');
       return equipment;
     }
 
     // Get equipment sections based on options
     const equipmentSections = this.getEquipmentSectionsToProcess(equipmentContainer, options);
-    HM.log(3, `EquipmentParser.collectEquipmentSelections: Processing ${equipmentSections.length} equipment sections`);
+    HM.log(3, `Processing ${equipmentSections.length} equipment sections`);
 
     // Process all sections in parallel
     await Promise.all(
@@ -452,7 +452,7 @@ export class EquipmentParser {
       })
     );
 
-    HM.log(3, `EquipmentParser.collectEquipmentSelections: Collected ${equipment.length} total equipment items`);
+    HM.log(3, `Collected ${equipment.length} total equipment items`);
     return equipment;
   }
 
@@ -465,27 +465,27 @@ export class EquipmentParser {
    * @private
    */
   static getEquipmentSectionsToProcess(equipmentContainer, options) {
-    HM.log(3, 'EquipmentParser.getEquipmentSectionsToProcess: Finding equipment sections');
+    HM.log(3, 'Finding equipment sections');
 
     const allSections = Array.from(equipmentContainer.querySelectorAll('.equipment-choices > div'));
-    HM.log(3, `EquipmentParser.getEquipmentSectionsToProcess: Found ${allSections.length} total sections`);
+    HM.log(3, `Found ${allSections.length} total sections`);
 
     const equipmentSections = allSections.filter((section) => {
       const isClassSection = section.classList.contains('class-equipment-section');
       const isBackgroundSection = section.classList.contains('background-equipment-section');
 
       if (isClassSection && !options.includeClass) {
-        HM.log(3, 'EquipmentParser.getEquipmentSectionsToProcess: Skipping class section (not included in options)');
+        HM.log(3, 'Skipping class section (not included in options)');
         return false;
       }
       if (isBackgroundSection && !options.includeBackground) {
-        HM.log(3, 'EquipmentParser.getEquipmentSectionsToProcess: Skipping background section (not included in options)');
+        HM.log(3, 'Skipping background section (not included in options)');
         return false;
       }
       return true;
     });
 
-    HM.log(3, `EquipmentParser.getEquipmentSectionsToProcess: Using ${equipmentSections.length} sections after filtering`);
+    HM.log(3, `Using ${equipmentSections.length} sections after filtering`);
     return equipmentSections;
   }
 
@@ -498,14 +498,14 @@ export class EquipmentParser {
    * @private
    */
   static async processEquipmentSection(section, equipment) {
-    HM.log(3, `EquipmentParser.processEquipmentSection: Processing section ${section.className}`);
+    HM.log(3, `Processing section ${section.className}`);
 
     // Get wealth checkbox for this section
     const sectionType = section.classList.contains('class-equipment-section') ? 'class' : 'background';
     const wealthChecked = section.querySelector(`input[id="use-starting-wealth-${sectionType}"]`)?.checked || false;
 
     if (wealthChecked) {
-      HM.log(3, `EquipmentParser.processEquipmentSection: Wealth is checked for ${sectionType}, skipping equipment selection`);
+      HM.log(3, `Wealth is checked for ${sectionType}, skipping equipment selection`);
       return;
     }
 
@@ -523,14 +523,14 @@ export class EquipmentParser {
    * @private
    */
   static async processDropdowns(section, equipment, wealthChecked) {
-    HM.log(3, 'EquipmentParser.processDropdowns: Processing dropdowns');
+    HM.log(3, 'Processing dropdowns');
 
     // Get all enabled dropdowns
     const dropdowns = Array.from(section.querySelectorAll('select')).filter(
       (dropdown) => !dropdown.disabled && !dropdown.closest('.disabled') && (!wealthChecked || !dropdown.closest('.equipment-item'))
     );
 
-    HM.log(3, `EquipmentParser.processDropdowns: Found ${dropdowns.length} active dropdowns to process`);
+    HM.log(3, `Found ${dropdowns.length} active dropdowns to process`);
 
     const dropdownPromises = dropdowns.map(async (dropdown) => {
       // Get value (could be IDs or UUIDs)
@@ -549,7 +549,7 @@ export class EquipmentParser {
           await this.processDropdownSelectedItem(dropdown, value, item, equipment);
         }
       } catch (error) {
-        HM.log(1, `EquipmentParser.processDropdowns: Error processing dropdown ${dropdown.id}: ${error.message}`);
+        HM.log(1, `Error processing dropdown ${dropdown.id}: ${error.message}`);
       }
     });
 
@@ -565,7 +565,7 @@ export class EquipmentParser {
    * @private
    */
   static async findItemsFromDropdownValue(dropdown, value) {
-    HM.log(1, `EquipmentParser.findItemsFromDropdownValue: Finding items for value "${value}"`);
+    HM.log(1, `Finding items for value "${value}"`);
 
     let items = [];
 
@@ -578,7 +578,7 @@ export class EquipmentParser {
       if (item) items = [item];
     }
 
-    HM.log(1, `EquipmentParser.findItemsFromDropdownValue: Found ${items.length} items for value "${value}"`);
+    HM.log(1, `Found ${items.length} items for value "${value}"`);
     return items;
   }
 
@@ -591,7 +591,7 @@ export class EquipmentParser {
    * @private
    */
   static async findItemsFromCommaSeparatedValue(dropdown, value) {
-    HM.log(3, `EquipmentParser.findItemsFromCommaSeparatedValue: Processing comma-separated value "${value}"`);
+    HM.log(3, `Processing comma-separated value "${value}"`);
 
     let items = [];
     // Get UUIDs from option content
@@ -602,7 +602,7 @@ export class EquipmentParser {
       if (contentLinks.length) {
         // Get items from content links
         items = await Promise.all(Array.from(contentLinks).map((link) => fromUuidSync(link.dataset.uuid)));
-        HM.log(3, `EquipmentParser.findItemsFromCommaSeparatedValue: Found ${items.length} items from content links`);
+        HM.log(3, `Found ${items.length} items from content links`);
       }
     }
 
@@ -610,7 +610,7 @@ export class EquipmentParser {
     if (!items.length) {
       const ids = value.split(',').filter((id) => id.trim());
       items = await Promise.all(ids.map(async (id) => await this.findItemInPacks(id)));
-      HM.log(3, `EquipmentParser.findItemsFromCommaSeparatedValue: Found ${items.length} items from direct IDs`);
+      HM.log(3, `Found ${items.length} items from direct IDs`);
     }
 
     // Filter out nulls
@@ -628,7 +628,7 @@ export class EquipmentParser {
    * @private
    */
   static async processDropdownSelectedItem(dropdown, value, item, equipment) {
-    HM.log(3, `EquipmentParser.processDropdownSelectedItem: Processing item ${item.name}`);
+    HM.log(3, `Processing item ${item.name}`);
 
     const selectedOption = dropdown.querySelector(`option[value="${value}"]`);
     const optionText = selectedOption?.textContent || '';
@@ -637,7 +637,7 @@ export class EquipmentParser {
 
     // Determine quantity
     const quantity = this.determineItemQuantity(item, optionText);
-    HM.log(3, `EquipmentParser.processDropdownSelectedItem: Determined quantity ${quantity} for ${item.name}`);
+    HM.log(3, `Determined quantity ${quantity} for ${item.name}`);
 
     const itemData = item || item?.toObject();
     if (itemData.type === 'container') {
@@ -652,7 +652,7 @@ export class EquipmentParser {
         },
         favorite: isFavorite
       });
-      HM.log(3, `EquipmentParser.processDropdownSelectedItem: Added ${item.name} (qty: ${quantity}) to equipment`);
+      HM.log(3, `Added ${item.name} (qty: ${quantity}) to equipment`);
     }
   }
 
@@ -665,7 +665,7 @@ export class EquipmentParser {
    * @private
    */
   static determineItemQuantity(item, optionText) {
-    HM.log(3, `EquipmentParser.determineItemQuantity: Determining quantity for ${item.name} from "${optionText}"`);
+    HM.log(3, `Determining quantity for ${item.name} from "${optionText}"`);
 
     // Try to find quantity in option text for this specific item
     let quantity = 1;
@@ -674,7 +674,7 @@ export class EquipmentParser {
 
     if (quantityMatch) {
       quantity = parseInt(quantityMatch[1]);
-      HM.log(3, `EquipmentParser.determineItemQuantity: Found specific match: ${quantity}`);
+      HM.log(3, `Found specific match: ${quantity}`);
     } else {
       // Fallback patterns
       const startQuantityMatch = optionText.match(/^(\d+)\s+(.+)$/i);
@@ -683,13 +683,13 @@ export class EquipmentParser {
 
       if (startQuantityMatch) {
         quantity = parseInt(startQuantityMatch[1]);
-        HM.log(3, `EquipmentParser.determineItemQuantity: Found start match: ${quantity}`);
+        HM.log(3, `Found start match: ${quantity}`);
       } else if (endQuantityMatch) {
         quantity = parseInt(endQuantityMatch[2]);
-        HM.log(3, `EquipmentParser.determineItemQuantity: Found end match: ${quantity}`);
+        HM.log(3, `Found end match: ${quantity}`);
       } else if (midQuantityMatch) {
         quantity = parseInt(midQuantityMatch[2]);
-        HM.log(3, `EquipmentParser.determineItemQuantity: Found middle match: ${quantity}`);
+        HM.log(3, `Found middle match: ${quantity}`);
       }
     }
 
@@ -706,7 +706,7 @@ export class EquipmentParser {
    * @private
    */
   static async processCheckboxes(section, equipment, wealthChecked) {
-    HM.log(3, 'EquipmentParser.processCheckboxes: Processing checkboxes');
+    HM.log(3, 'Processing checkboxes');
 
     // Get all checked and enabled checkboxes
     const checkboxes = Array.from(section.querySelectorAll('input[type="checkbox"]')).filter((cb) => {
@@ -720,13 +720,13 @@ export class EquipmentParser {
       );
     });
 
-    HM.log(3, `EquipmentParser.processCheckboxes: Found ${checkboxes.length} checked checkboxes to process`);
+    HM.log(3, `Found ${checkboxes.length} checked checkboxes to process`);
 
     const checkboxPromises = checkboxes.map(async (checkbox) => {
       try {
         await this.processCheckedCheckbox(checkbox, equipment);
       } catch (error) {
-        HM.log(1, `EquipmentParser.processCheckboxes: Error processing checkbox: ${error.message}`);
+        HM.log(1, `Error processing checkbox: ${error.message}`);
       }
     });
 
@@ -742,7 +742,7 @@ export class EquipmentParser {
    * @private
    */
   static async processCheckedCheckbox(checkbox, equipment) {
-    HM.log(3, `EquipmentParser.processCheckedCheckbox: Processing checkbox ${checkbox.id}`);
+    HM.log(3, `Processing checkbox ${checkbox.id}`);
 
     // Get the actual label text
     const labelElement = checkbox.parentElement;
@@ -764,12 +764,12 @@ export class EquipmentParser {
       })
     );
 
-    HM.log(3, `EquipmentParser.processCheckedCheckbox: Found ${items.filter((i) => i.item).length}/${items.length} items for checkbox ${checkbox.id}`);
+    HM.log(3, `Found ${items.filter((i) => i.item).length}/${items.length} items for checkbox ${checkbox.id}`);
 
     // Process each found item
     for (const { itemId, item } of items) {
       if (!item) {
-        HM.log(1, `EquipmentParser.processCheckedCheckbox: Could not find item for ID: ${itemId}`);
+        HM.log(1, `Could not find item for ID: ${itemId}`);
         continue;
       }
 
@@ -799,7 +799,7 @@ export class EquipmentParser {
           },
           favorite: isFavorite
         });
-        HM.log(3, `EquipmentParser.processCheckedCheckbox: Added ${item.name} (qty: ${quantity}) to equipment`);
+        HM.log(3, `Added ${item.name} (qty: ${quantity}) to equipment`);
       }
     }
   }
@@ -812,14 +812,14 @@ export class EquipmentParser {
    * @private
    */
   static async findItemInPacks(itemId) {
-    HM.log(3, `EquipmentParser.findItemInPacks: Searching for item ${itemId}`);
+    HM.log(3, `Searching for item ${itemId}`);
 
     if (!itemId) return null;
 
     // Check if this is a comma-separated list of IDs
     if (itemId.includes(',')) {
       const ids = itemId.split(',').filter((id) => id.trim());
-      HM.log(3, `EquipmentParser.findItemInPacks: Processing comma-separated list with ${ids.length} IDs`);
+      HM.log(3, `Processing comma-separated list with ${ids.length} IDs`);
 
       // For equipment groups, we should return a collection of items
       const items = [];
@@ -832,7 +832,7 @@ export class EquipmentParser {
 
       // Return first item for backward compatibility
       const result = items.length > 0 ? items[0] : null;
-      HM.log(3, `EquipmentParser.findItemInPacks: Found ${items.length} items in comma-separated list, returning ${result?.name || 'null'}`);
+      HM.log(3, `Found ${items.length} items in comma-separated list, returning ${result?.name || 'null'}`);
       return result;
     }
 
@@ -858,15 +858,15 @@ export class EquipmentParser {
         const pack = game.packs.get(packId);
         if (pack) {
           const fullItem = await pack.getDocument(indexItem._id);
-          HM.log(3, `EquipmentParser.findItemInPacks: Found full item ${itemId}`);
+          HM.log(3, `Found full item ${itemId}`);
           return fullItem;
         }
       }
 
-      HM.log(2, `EquipmentParser.findItemInPacks: Could not find item ${itemId} in any pack`);
+      HM.log(2, `Could not find item ${itemId} in any pack`);
       return null;
     } catch (error) {
-      HM.log(1, `EquipmentParser.findItemInPacks: Error finding item ${itemId}: ${error.message}`);
+      HM.log(1, `Error finding item ${itemId}: ${error.message}`);
       return null;
     }
   }
@@ -879,7 +879,7 @@ export class EquipmentParser {
    * @private
    */
   static async findUuidForId(itemId) {
-    HM.log(3, `EquipmentParser.findUuidForId: Looking for UUID for ID ${itemId}`);
+    HM.log(3, `Looking for UUID for ID ${itemId}`);
 
     // Look through the select options to find matching UUID
     const selectOptions = Array.from(document.querySelectorAll('select option'));
@@ -890,7 +890,7 @@ export class EquipmentParser {
         for (const link of links) {
           const uuid = link.dataset.uuid;
           if (uuid) {
-            HM.log(3, `EquipmentParser.findUuidForId: Found UUID ${uuid} for ID ${itemId}`);
+            HM.log(3, `Found UUID ${uuid} for ID ${itemId}`);
             const item = await fromUuidSync(uuid);
             if (item) {
               return item;
@@ -900,7 +900,7 @@ export class EquipmentParser {
       }
     }
 
-    HM.log(3, `EquipmentParser.findUuidForId: No UUID found for ID ${itemId}`);
+    HM.log(3, `No UUID found for ID ${itemId}`);
     return null;
   }
 
@@ -914,7 +914,7 @@ export class EquipmentParser {
    * @private
    */
   static async processContainerItem(containerItem, quantity, equipment) {
-    HM.log(3, `EquipmentParser.processContainerItem: Processing container ${containerItem.name} with quantity ${quantity}`);
+    HM.log(3, `Processing container ${containerItem.name} with quantity ${quantity}`);
 
     if (!containerItem) return;
 
@@ -941,12 +941,12 @@ export class EquipmentParser {
 
           if (containerData?.length) {
             equipment.push(...containerData);
-            HM.log(3, `EquipmentParser.processContainerItem: Added container ${fullContainer.name} and its contents to equipment`);
+            HM.log(3, `Added container ${fullContainer.name} and its contents to equipment`);
           }
         }
       }
     } catch (error) {
-      HM.log(1, `EquipmentParser.processContainerItem: Error processing container ${containerItem?.name || containerItem?._id}: ${error.message}`);
+      HM.log(1, `Error processing container ${containerItem?.name || containerItem?._id}: ${error.message}`);
     }
   }
 
@@ -958,7 +958,7 @@ export class EquipmentParser {
    * @static
    */
   static async getSelectedPacks() {
-    HM.log(3, 'EquipmentParser.getSelectedPacks: Retrieving selected packs');
+    HM.log(3, 'Retrieving selected packs');
 
     const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
     const classPacks = (await game.settings.get(HM.ID, 'classPacks')) || [];
@@ -966,7 +966,7 @@ export class EquipmentParser {
     const racePacks = (await game.settings.get(HM.ID, 'racePacks')) || [];
 
     const result = [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
-    HM.log(3, `EquipmentParser.getSelectedPacks: Retrieved ${result.length} total packs`);
+    HM.log(3, `Retrieved ${result.length} total packs`);
     return result;
   }
 
@@ -977,11 +977,11 @@ export class EquipmentParser {
    * @throws {Error} If initialization or categorization fails
    */
   static async initializeLookupItems() {
-    HM.log(3, 'EquipmentParser.initializeLookupItems: Beginning lookup item initialization');
+    HM.log(3, 'Beginning lookup item initialization');
     const startTime = performance.now();
 
     if (this.lookupItemsInitialized) {
-      HM.log(3, 'EquipmentParser.initializeLookupItems: Already initialized, skipping');
+      HM.log(3, 'Already initialized, skipping');
       return;
     }
 
@@ -993,7 +993,7 @@ export class EquipmentParser {
     try {
       const allItems = await this.#collectAllItems(selectedPacks);
       if (!allItems?.length) {
-        HM.log(1, 'EquipmentParser.initializeLookupItems: No items collected from compendiums');
+        HM.log(1, 'No items collected from compendiums');
         return;
       }
 
@@ -1015,10 +1015,10 @@ export class EquipmentParser {
       this.lookupItems = allCategories;
 
       const endTime = performance.now();
-      HM.log(3, `EquipmentParser.initializeLookupItems: Completed in ${(endTime - startTime).toFixed(0)}ms`);
+      HM.log(3, `Completed in ${(endTime - startTime).toFixed(0)}ms`);
     } catch (error) {
       const endTime = performance.now();
-      HM.log(1, `EquipmentParser.initializeLookupItems: Failed after ${(endTime - startTime).toFixed(0)}ms: ${error.message}`);
+      HM.log(1, `Failed after ${(endTime - startTime).toFixed(0)}ms: ${error.message}`);
     }
   }
 
@@ -1029,7 +1029,7 @@ export class EquipmentParser {
    * @private
    */
   static initializeItemCategories() {
-    HM.log(3, 'EquipmentParser.initializeItemCategories: Initializing category structure');
+    HM.log(3, 'Initializing category structure');
 
     // Create categories for all item types we care about
     return {
@@ -1064,7 +1064,7 @@ export class EquipmentParser {
    * @private
    */
   static async categorizeItems(allItems, categories) {
-    HM.log(3, `EquipmentParser.categorizeItems: Categorizing ${allItems.length} items`);
+    HM.log(3, `Categorizing ${allItems.length} items`);
 
     // Process in chunks to avoid overwhelming the event loop
     const CHUNK_SIZE = 200;
@@ -1074,7 +1074,7 @@ export class EquipmentParser {
       chunks.push(allItems.slice(i, i + CHUNK_SIZE));
     }
 
-    HM.log(3, `EquipmentParser.categorizeItems: Processing ${chunks.length} chunks of up to ${CHUNK_SIZE} items each`);
+    HM.log(3, `Processing ${chunks.length} chunks of up to ${CHUNK_SIZE} items each`);
     let categorizedCount = 0;
 
     await Promise.all(
@@ -1110,7 +1110,7 @@ export class EquipmentParser {
       })
     );
 
-    HM.log(3, `EquipmentParser.categorizeItems: Categorized ${categorizedCount} items`);
+    HM.log(3, `Categorized ${categorizedCount} items`);
     return categorizedCount;
   }
 
@@ -1122,7 +1122,7 @@ export class EquipmentParser {
    * @private
    */
   static createAggregatedCategories(categories) {
-    HM.log(3, 'EquipmentParser.createAggregatedCategories: Creating aggregated categories');
+    HM.log(3, 'Creating aggregated categories');
 
     return {
       // Weapon proficiency groups
@@ -1155,7 +1155,7 @@ export class EquipmentParser {
    * @static
    */
   static async convertWealthStringToCurrency(formData) {
-    HM.log(3, 'EquipmentParser.convertWealthStringToCurrency: Converting wealth string to currency');
+    HM.log(3, 'Converting wealth string to currency');
 
     // Check both possible wealth sources
     const useClassWealth = formData['use-starting-wealth-class'];
@@ -1163,7 +1163,7 @@ export class EquipmentParser {
 
     // Determine which wealth to use (or none)
     if (!useClassWealth && !useBackgroundWealth) {
-      HM.log(3, 'EquipmentParser.convertWealthStringToCurrency: No wealth source checked');
+      HM.log(3, 'No wealth source checked');
       return null;
     }
 
@@ -1171,21 +1171,21 @@ export class EquipmentParser {
     let wealthAmount;
     if (useClassWealth) {
       wealthAmount = formData['starting-wealth-amount-class'];
-      HM.log(3, `EquipmentParser.convertWealthStringToCurrency: Using class wealth: ${wealthAmount}`);
+      HM.log(3, `Using class wealth: ${wealthAmount}`);
     } else if (useBackgroundWealth) {
       wealthAmount = formData['starting-wealth-amount-background'];
-      HM.log(3, `EquipmentParser.convertWealthStringToCurrency: Using background wealth: ${wealthAmount}`);
+      HM.log(3, `Using background wealth: ${wealthAmount}`);
     }
 
     if (!wealthAmount) {
-      HM.log(3, 'EquipmentParser.convertWealthStringToCurrency: No wealth amount found');
+      HM.log(3, 'No wealth amount found');
       return null;
     }
 
     const currencies = this.initializeCurrencies();
     const parsedCurrencies = this.parseCurrenciesFromWealthString(wealthAmount, currencies);
 
-    HM.log(3, 'EquipmentParser.convertWealthStringToCurrency: Parsed currencies', parsedCurrencies);
+    HM.log(3, 'Parsed currencies', parsedCurrencies);
     return parsedCurrencies;
   }
 
@@ -1233,10 +1233,10 @@ export class EquipmentParser {
 
         if (currKey) {
           currencies[currKey] += value; // Add to existing amount
-          HM.log(3, `EquipmentParser.parseCurrenciesFromWealthString: Added ${value} to ${currKey}`);
+          HM.log(3, `Added ${value} to ${currKey}`);
         } else {
           currencies.gp += value; // Default to gold if currency not recognized
-          HM.log(3, `EquipmentParser.parseCurrenciesFromWealthString: Unrecognized currency '${currency}', defaulting to gp: ${value}`);
+          HM.log(3, `Unrecognized currency '${currency}', defaulting to gp: ${value}`);
         }
       }
     });
@@ -1257,7 +1257,7 @@ export class EquipmentParser {
    * @static
    */
   static async #collectAllItems(selectedPacks) {
-    HM.log(3, `EquipmentParser.#collectAllItems: Collecting items from ${selectedPacks.length} packs`);
+    HM.log(3, `Collecting items from ${selectedPacks.length} packs`);
     const startTime = performance.now();
 
     const skipTypes = ['race', 'feat', 'background', 'class', 'natural', 'spell'];
@@ -1266,7 +1266,7 @@ export class EquipmentParser {
 
     try {
       const packIndices = await Promise.all(packs.map((pack) => pack.getIndex()));
-      HM.log(3, `EquipmentParser.#collectAllItems: Loaded ${packIndices.length} pack indices`);
+      HM.log(3, `Loaded ${packIndices.length} pack indices`);
 
       // Process all items from all packs in parallel
       const itemProcessingResults = await Promise.all(
@@ -1287,11 +1287,11 @@ export class EquipmentParser {
       }
 
       const endTime = performance.now();
-      HM.log(3, `EquipmentParser.#collectAllItems: Collected ${items.length} items in ${(endTime - startTime).toFixed(0)}ms`);
+      HM.log(3, `Collected ${items.length} items in ${(endTime - startTime).toFixed(0)}ms`);
       return items;
     } catch (error) {
       const endTime = performance.now();
-      HM.log(1, `EquipmentParser.#collectAllItems: Failed after ${(endTime - startTime).toFixed(0)}ms: ${error.message}`);
+      HM.log(1, `Failed after ${(endTime - startTime).toFixed(0)}ms: ${error.message}`);
       return [];
     }
   }
@@ -1312,7 +1312,7 @@ export class EquipmentParser {
       }
     });
 
-    HM.log(3, `EquipmentParser.collectFocusItemIds: Collected ${focusItemIds.size} focus item IDs`);
+    HM.log(3, `Collected ${focusItemIds.size} focus item IDs`);
     return focusItemIds;
   }
 
@@ -1356,7 +1356,7 @@ export class EquipmentParser {
       packItems.push(item);
     }
 
-    HM.log(3, `EquipmentParser.processPackIndex: Processed ${processedCount} items, skipped ${skippedCount} items`);
+    HM.log(3, `Processed ${processedCount} items, skipped ${skippedCount} items`);
     return { packItems, processedCount, skippedCount };
   }
 }

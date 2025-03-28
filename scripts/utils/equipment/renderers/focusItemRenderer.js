@@ -12,7 +12,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement|null>} Rendered container or null
    */
   async render(item, itemContainer) {
-    HM.log(3, `FocusItemRenderer.render: Processing focus item ${item?._id}`);
+    HM.log(3, `Processing focus item ${item?._id}`);
 
     // Validate that we have required data
     if (!this.validateFocusItem(item)) {
@@ -21,7 +21,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
 
     // Skip if this should be displayed as part of a dropdown
     if (this.renderer.shouldItemUseDropdownDisplay(item)) {
-      HM.log(3, `FocusItemRenderer.render: Item ${item._id} should use dropdown display, skipping direct rendering`);
+      HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
       return null;
     }
 
@@ -30,7 +30,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
     const focusConfig = CONFIG.DND5E.focusTypes[focusType];
 
     if (!focusConfig) {
-      HM.log(2, `FocusItemRenderer.render: No focus configuration found for type: ${focusType}`);
+      HM.log(2, `No focus configuration found for type: ${focusType}`);
       return null;
     }
 
@@ -39,7 +39,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
 
     // Verify we have options
     if (select.options.length === 0) {
-      HM.log(1, `FocusItemRenderer.render: No valid focus items found for type: ${focusType}`);
+      HM.log(1, `No valid focus items found for type: ${focusType}`);
       return null;
     }
 
@@ -49,7 +49,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
     // Add favorite star
     this.addFavoriteStar(itemContainer, item);
 
-    HM.log(3, `FocusItemRenderer.render: Successfully rendered focus item ${item._id}`);
+    HM.log(3, `Successfully rendered focus item ${item._id}`);
     return itemContainer;
   }
 
@@ -61,7 +61,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
    */
   validateFocusItem(item) {
     if (!item?.key) {
-      HM.log(1, `FocusItemRenderer.validateFocusItem: Invalid focus item - missing key for item ${item?._id}`);
+      HM.log(1, `Invalid focus item - missing key for item ${item?._id}`);
       return false;
     }
     return true;
@@ -75,7 +75,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
    * @private
    */
   assembleFocusUI(itemContainer, select, focusConfig) {
-    HM.log(3, 'FocusItemRenderer.assembleFocusUI: Assembling focus UI components');
+    HM.log(3, 'Assembling focus UI components');
 
     const label = document.createElement('h4');
     label.htmlFor = select.id;
@@ -84,7 +84,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
     itemContainer.appendChild(label);
     itemContainer.appendChild(select);
 
-    HM.log(3, `FocusItemRenderer.assembleFocusUI: Added label "${focusConfig.label}" and select with ${select.options.length} options`);
+    HM.log(3, `Added label "${focusConfig.label}" and select with ${select.options.length} options`);
   }
 
   /**
@@ -95,23 +95,23 @@ export class FocusItemRenderer extends BaseItemRenderer {
    * @private
    */
   async createFocusSelect(item, focusConfig) {
-    HM.log(3, `FocusItemRenderer.createFocusSelect: Creating select for focus type ${item.key}`);
+    HM.log(3, `Creating select for focus type ${item.key}`);
 
     const select = document.createElement('select');
     select.id = `${item.key}-focus`;
 
     const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
-    HM.log(3, `FocusItemRenderer.createFocusSelect: Found ${itemPacks.length} item packs`);
+    HM.log(3, `Found ${itemPacks.length} item packs`);
 
     // Add options for each focus item
     const focusEntries = Object.entries(focusConfig.itemIds);
-    HM.log(3, `FocusItemRenderer.createFocusSelect: Processing ${focusEntries.length} focus options`);
+    HM.log(3, `Processing ${focusEntries.length} focus options`);
 
     for (const [focusName, itemId] of focusEntries) {
       await this.addFocusOption(select, focusName, itemId, itemPacks);
     }
 
-    HM.log(3, `FocusItemRenderer.createFocusSelect: Created select with ${select.options.length} options`);
+    HM.log(3, `Created select with ${select.options.length} options`);
     return select;
   }
 
@@ -125,13 +125,13 @@ export class FocusItemRenderer extends BaseItemRenderer {
    * @private
    */
   async addFocusOption(select, focusName, itemId, itemPacks) {
-    HM.log(3, `FocusItemRenderer.addFocusOption: Adding option for ${focusName}`);
+    HM.log(3, `Adding option for ${focusName}`);
 
     // Try to get UUID for this item
     let uuid = await this.findFocusItemUuid(focusName, itemId, itemPacks);
 
     if (!uuid) {
-      HM.log(2, `FocusItemRenderer.addFocusOption: No UUID found for focus: ${focusName}`);
+      HM.log(2, `No UUID found for focus: ${focusName}`);
       return;
     }
 
@@ -146,7 +146,7 @@ export class FocusItemRenderer extends BaseItemRenderer {
     }
 
     select.appendChild(option);
-    HM.log(3, `FocusItemRenderer.addFocusOption: Added option "${focusName}" with UUID ${uuid}`);
+    HM.log(3, `Added option "${focusName}" with UUID ${uuid}`);
   }
 
   /**
@@ -158,13 +158,13 @@ export class FocusItemRenderer extends BaseItemRenderer {
    * @private
    */
   async findFocusItemUuid(focusName, itemId, itemPacks) {
-    HM.log(3, `FocusItemRenderer.findFocusItemUuid: Looking for UUID for ${focusName}`);
+    HM.log(3, `Looking for UUID for ${focusName}`);
 
     // Check if we already have a UUID
     let uuid = itemId.uuid || this.parser.constructor.itemUuidMap.get(itemId);
 
     if (uuid) {
-      HM.log(3, `FocusItemRenderer.findFocusItemUuid: Found existing UUID ${uuid} for ${focusName}`);
+      HM.log(3, `Found existing UUID ${uuid} for ${focusName}`);
       return uuid;
     }
 
@@ -178,12 +178,12 @@ export class FocusItemRenderer extends BaseItemRenderer {
 
       if (matchingItem) {
         uuid = matchingItem.uuid;
-        HM.log(3, `FocusItemRenderer.findFocusItemUuid: Found item by name "${matchingItem.name}" with UUID ${uuid}`);
+        HM.log(3, `Found item by name "${matchingItem.name}" with UUID ${uuid}`);
         return uuid;
       }
     }
 
-    HM.log(2, `FocusItemRenderer.findFocusItemUuid: No matching item found for focus: ${focusName}`);
+    HM.log(2, `No matching item found for focus: ${focusName}`);
     return null;
   }
 }

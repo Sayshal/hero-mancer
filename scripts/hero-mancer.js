@@ -65,9 +65,27 @@ export class HM {
    * @param {any} args Strings, variables to log to console.
    */
   static log(level, ...args) {
-    // Convert arguments to a more readable format if needed
-    const now = new Date();
+    // Get calling context using Error stack trace
+    const stack = new Error().stack.split('\n');
+    let callerInfo = '';
 
+    if (stack.length > 2) {
+      const callerLine = stack[2].trim();
+      const callerMatch = callerLine.match(/at\s+([^.]+)\.(\w+)/);
+      if (callerMatch) {
+        callerInfo = `[${callerMatch[1]}.${callerMatch[2]}] : `;
+      }
+    }
+
+    // Prepend caller info to first argument if it's a string
+    if (typeof args[0] === 'string') {
+      args[0] = callerInfo + args[0];
+    } else {
+      // Insert caller info as first argument
+      args.unshift(callerInfo);
+    }
+
+    const now = new Date();
     const logEntry = {
       type:
         level === 1 ? 'error'
@@ -78,12 +96,10 @@ export class HM {
       content: args
     };
 
-    // Store in memory for troubleshooting reports
     if (!window.console_logs) window.console_logs = [];
     window.console_logs.push(logEntry);
 
     if (this.LOG_LEVEL > 0 && level <= this.LOG_LEVEL) {
-      // Output to console
       switch (level) {
         case 1:
           console.error(`${HM.ID} |`, ...args);

@@ -33,14 +33,14 @@ export class EquipmentRenderer {
    * @returns {Promise<HTMLElement>} Container element with rendered equipment choices
    */
   async generateEquipmentSelectionUI(type = null) {
-    HM.log(3, `EquipmentRenderer.generateEquipmentSelectionUI: Rendering UI for ${type || 'all types'}`);
+    HM.log(3, `Rendering UI for ${type || 'all types'}`);
 
     // Reset tracking sets if rendering all types or if not already rendering
     if (!type || !this._renderInProgress) {
       this._renderInProgress = true;
       this.parser.constructor.renderedItems = new Set();
       this.parser.constructor.combinedItemIds = new Set();
-      HM.log(3, 'EquipmentRenderer.generateEquipmentSelectionUI: Reset tracking sets');
+      HM.log(3, 'Reset tracking sets');
     }
 
     try {
@@ -52,17 +52,17 @@ export class EquipmentRenderer {
 
       // Determine which types to render
       const typesToRender = type ? [type] : Object.keys(this.parser.equipmentData);
-      HM.log(3, `EquipmentRenderer.generateEquipmentSelectionUI: Will render ${typesToRender.length} types: ${typesToRender.join(', ')}`);
+      HM.log(3, `Will render ${typesToRender.length} types: ${typesToRender.join(', ')}`);
 
       // Render each section
       for (const currentType of typesToRender) {
         await this.renderEquipmentSection(container, currentType);
       }
 
-      HM.log(3, 'EquipmentRenderer.generateEquipmentSelectionUI: UI rendering complete');
+      HM.log(3, 'UI rendering complete');
       return container;
     } catch (error) {
-      HM.log(1, `EquipmentRenderer.generateEquipmentSelectionUI: Failed to render: ${error.message}`);
+      HM.log(1, `Failed to render: ${error.message}`);
       return this.createFallbackContainer();
     } finally {
       if (!type) {
@@ -78,7 +78,7 @@ export class EquipmentRenderer {
    * @private
    */
   async prepareRenderingData() {
-    HM.log(3, 'EquipmentRenderer.prepareRenderingData: Preparing data for rendering');
+    HM.log(3, 'Preparing data for rendering');
 
     this.parser.equipmentData = null;
     await this.parser.constructor.initializeLookupItems();
@@ -97,15 +97,15 @@ export class EquipmentRenderer {
    * @returns {HTMLElement} Container element
    */
   getOrCreateContainer() {
-    HM.log(3, 'EquipmentRenderer.getOrCreateContainer: Getting container');
+    HM.log(3, 'Getting container');
 
     let container = document.querySelector('.equipment-choices');
     if (!container) {
       container = document.createElement('div');
       container.classList.add('equipment-choices');
-      HM.log(3, 'EquipmentRenderer.getOrCreateContainer: Created new container');
+      HM.log(3, 'Created new container');
     } else {
-      HM.log(3, 'EquipmentRenderer.getOrCreateContainer: Using existing container');
+      HM.log(3, 'Using existing container');
     }
 
     return container;
@@ -116,7 +116,7 @@ export class EquipmentRenderer {
    * @returns {HTMLElement} Fallback container
    */
   createFallbackContainer() {
-    HM.log(3, 'EquipmentRenderer.createFallbackContainer: Creating fallback container');
+    HM.log(3, 'Creating fallback container');
 
     const fallbackContainer = document.createElement('div');
     fallbackContainer.classList.add('equipment-choices', 'error-state');
@@ -137,7 +137,7 @@ export class EquipmentRenderer {
    * @returns {Promise<void>}
    */
   async renderEquipmentSection(container, type) {
-    HM.log(3, `EquipmentRenderer.renderEquipmentSection: Rendering ${type} section`);
+    HM.log(3, `Rendering ${type} section`);
 
     try {
       const items = this.parser.equipmentData[type] || [];
@@ -149,22 +149,22 @@ export class EquipmentRenderer {
       // Add wealth option if applicable
       if ((type === 'class' || type === 'background') && HM.SELECTED[type].id) {
         await this.parser.renderWealthOption(sectionContainer, type).catch((error) => {
-          HM.log(1, `EquipmentRenderer.renderEquipmentSection: Error rendering wealth option: ${error.message}`);
+          HM.log(1, `Error rendering wealth option: ${error.message}`);
         });
       }
 
       // Handle empty items case
       if (!items.length) {
-        HM.log(3, `EquipmentRenderer.renderEquipmentSection: No equipment items for ${type}`);
+        HM.log(3, `No equipment items for ${type}`);
         await this.renderEmptyNotice(sectionContainer, type);
         return;
       }
 
       // Render items
       await this.renderSectionItems(sectionContainer, items);
-      HM.log(3, `EquipmentRenderer.renderEquipmentSection: ${type} section rendered successfully`);
+      HM.log(3, `${type} section rendered successfully`);
     } catch (error) {
-      HM.log(1, `EquipmentRenderer.renderEquipmentSection: Error rendering ${type} section: ${error.message}`);
+      HM.log(1, `Error rendering ${type} section: ${error.message}`);
       this.renderSectionError(container);
     }
   }
@@ -177,11 +177,11 @@ export class EquipmentRenderer {
    * @private
    */
   async renderSectionItems(sectionContainer, items) {
-    HM.log(3, `EquipmentRenderer.renderSectionItems: Rendering ${items.length} items`);
+    HM.log(3, `Rendering ${items.length} items`);
 
     // Pre-fetch all item documents in parallel
     const itemDocs = await this.preFetchItemDocuments(items);
-    HM.log(3, `EquipmentRenderer.renderSectionItems: Pre-fetched ${itemDocs.length} item documents`);
+    HM.log(3, `Pre-fetched ${itemDocs.length} item documents`);
 
     // Process all items with their pre-fetched documents
     await this.renderItemElements(sectionContainer, itemDocs);
@@ -193,7 +193,7 @@ export class EquipmentRenderer {
    * @private
    */
   renderSectionError(container) {
-    HM.log(3, 'EquipmentRenderer.renderSectionError: Rendering section error');
+    HM.log(3, 'Rendering section error');
 
     const errorMessage = document.createElement('div');
     errorMessage.classList.add('error-message');
@@ -208,17 +208,17 @@ export class EquipmentRenderer {
    * @returns {HTMLElement} Section container
    */
   getOrCreateSectionContainer(container, type) {
-    HM.log(3, `EquipmentRenderer.getOrCreateSectionContainer: Getting container for ${type}`);
+    HM.log(3, `Getting container for ${type}`);
 
     let sectionContainer = container.querySelector(`.${type}-equipment-section`);
     if (sectionContainer) {
-      HM.log(3, `EquipmentRenderer.getOrCreateSectionContainer: Reusing existing ${type} section`);
+      HM.log(3, `Reusing existing ${type} section`);
       sectionContainer.innerHTML = '';
     } else {
       sectionContainer = document.createElement('div');
       sectionContainer.classList.add(`${type}-equipment-section`);
       container.appendChild(sectionContainer);
-      HM.log(3, `EquipmentRenderer.getOrCreateSectionContainer: Created new ${type} section`);
+      HM.log(3, `Created new ${type} section`);
     }
 
     return sectionContainer;
@@ -230,7 +230,7 @@ export class EquipmentRenderer {
    * @param {string} type - Section type
    */
   addSectionHeader(container, type) {
-    HM.log(3, `EquipmentRenderer.addSectionHeader: Adding header for ${type}`);
+    HM.log(3, `Adding header for ${type}`);
 
     // Get the localized placeholder text for the current type
     const placeholderText = game.i18n.localize(`hm.app.${type}.select-placeholder`);
@@ -246,7 +246,7 @@ export class EquipmentRenderer {
       : game.i18n.format('hm.app.equipment.type-equipment', { type: dropdownText });
 
     container.appendChild(header);
-    HM.log(3, `EquipmentRenderer.addSectionHeader: Added header with text "${header.textContent}"`);
+    HM.log(3, `Added header with text "${header.textContent}"`);
   }
 
   /**
@@ -255,7 +255,7 @@ export class EquipmentRenderer {
    * @param {string} type - Section type
    */
   async renderEmptyNotice(container, type) {
-    HM.log(3, `EquipmentRenderer.renderEmptyNotice: Rendering empty notice for ${type}`);
+    HM.log(3, `Rendering empty notice for ${type}`);
 
     const emptyNotice = document.createElement('div');
     emptyNotice.classList.add('equipment-empty-notice');
@@ -270,7 +270,7 @@ export class EquipmentRenderer {
     await this.tryExtractEquipmentInfo(emptyNotice, type);
 
     container.appendChild(emptyNotice);
-    HM.log(3, `EquipmentRenderer.renderEmptyNotice: Empty notice rendered for ${type}`);
+    HM.log(3, `Empty notice rendered for ${type}`);
   }
 
   /**
@@ -281,23 +281,23 @@ export class EquipmentRenderer {
    * @private
    */
   async tryExtractEquipmentInfo(emptyNotice, type) {
-    HM.log(3, `EquipmentRenderer.tryExtractEquipmentInfo: Attempting to extract info for ${type}`);
+    HM.log(3, `Attempting to extract info for ${type}`);
 
     const storedData = HM.SELECTED[type] || {};
     const uuid = storedData.uuid;
 
     if (!uuid) {
-      HM.log(3, `EquipmentRenderer.tryExtractEquipmentInfo: No UUID for ${type}, skipping extraction`);
+      HM.log(3, `No UUID for ${type}, skipping extraction`);
       return;
     }
 
     const doc = await fromUuidSync(uuid);
     if (!doc) {
-      HM.log(3, `EquipmentRenderer.tryExtractEquipmentInfo: Document not found for UUID ${uuid}`);
+      HM.log(3, `Document not found for UUID ${uuid}`);
       return;
     }
 
-    HM.log(3, `EquipmentRenderer.tryExtractEquipmentInfo: Found document ${doc.name}, attempting extraction`);
+    HM.log(3, `Found document ${doc.name}, attempting extraction`);
 
     // Create divider and container
     const divider = document.createElement('hr');
@@ -308,7 +308,7 @@ export class EquipmentRenderer {
     const equipmentDescription = this.parser.dataService.extractEquipmentDescription(doc);
 
     if (equipmentDescription) {
-      HM.log(3, `EquipmentRenderer.tryExtractEquipmentInfo: Successfully extracted equipment for ${type}`);
+      HM.log(3, `Successfully extracted equipment for ${type}`);
       extractedInfo.innerHTML = `<h4>${game.i18n.localize('hm.equipment.extracted-info')}</h4>${equipmentDescription}`;
       emptyNotice.appendChild(extractedInfo);
     } else {
@@ -324,7 +324,7 @@ export class EquipmentRenderer {
    * @private
    */
   handleFailedExtraction(extractedInfo, doc, emptyNotice) {
-    HM.log(3, `EquipmentRenderer.handleFailedExtraction: No description extracted from ${doc.name}`);
+    HM.log(3, `No description extracted from ${doc.name}`);
 
     extractedInfo.innerHTML = `<h4>${game.i18n.localize('hm.equipment.extracted-info')}</h4>${game.i18n.localize('hm.equipment.no-equipment-notice')}`;
     emptyNotice.appendChild(extractedInfo);
@@ -336,7 +336,7 @@ export class EquipmentRenderer {
       noExtractionNote.classList.add('equipment-extraction-failed');
       noExtractionNote.innerHTML = `${game.i18n.localize('hm.warnings.equipment-extraction-failed')}`;
       emptyNotice.appendChild(noExtractionNote);
-      HM.log(3, 'EquipmentRenderer.handleFailedExtraction: Document contains equipment text but extraction failed');
+      HM.log(3, 'Document contains equipment text but extraction failed');
     }
   }
 
@@ -346,7 +346,7 @@ export class EquipmentRenderer {
    * @returns {Promise<Array<Object>>} Items with their documents
    */
   async preFetchItemDocuments(items) {
-    HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Pre-fetching ${items.length} documents`);
+    HM.log(3, `Pre-fetching ${items.length} documents`);
 
     const results = await Promise.all(
       items.map(async (item) => {
@@ -357,7 +357,7 @@ export class EquipmentRenderer {
 
         try {
           const doc = await fromUuidSync(item.key);
-          HM.log(3, `EquipmentRenderer.preFetchItemDocuments: Fetched document ${doc?.name || 'not found'} for item ${item._id}`);
+          HM.log(3, `Fetched document ${doc?.name || 'not found'} for item ${item._id}`);
           return { item, doc };
         } catch (error) {
           HM.log(1, `EquipmentRenderer.preFetchItemDocuments: Error fetching document for ${item.key}: ${error.message}`, { item: item });
@@ -375,7 +375,7 @@ export class EquipmentRenderer {
    * @param {Array<Object>} itemDocs - Items with their documents
    */
   async renderItemElements(container, itemDocs) {
-    HM.log(3, `EquipmentRenderer.renderItemElements: Rendering ${itemDocs.length} item elements`);
+    HM.log(3, `Rendering ${itemDocs.length} item elements`);
 
     const processedItems = new Set();
     const failedItems = [];
@@ -398,10 +398,10 @@ export class EquipmentRenderer {
         const itemElement = await this.buildEquipmentUIElement(item);
         if (itemElement) {
           container.appendChild(itemElement);
-          HM.log(3, `EquipmentRenderer.renderItemElements: Added element for ${item.name || item.key || 'unnamed item'}`);
+          HM.log(3, `Added element for ${item.name || item.key || 'unnamed item'}`);
         }
       } catch (error) {
-        HM.log(1, `EquipmentRenderer.renderItemElements: Failed to create element for ${item.name || item.key}: ${error.message}`);
+        HM.log(1, `Failed to create element for ${item.name || item.key}: ${error.message}`);
         failedItems.push(item.name || item.key || game.i18n.localize('hm.app.equipment.unnamed'));
       }
     }
@@ -418,7 +418,7 @@ export class EquipmentRenderer {
   addFailedItemsNotice(container, failedItems) {
     if (failedItems.length === 0) return;
 
-    HM.log(3, `EquipmentRenderer.addFailedItemsNotice: Adding notice for ${failedItems.length} failed items`);
+    HM.log(3, `Adding notice for ${failedItems.length} failed items`);
 
     const errorMessage = document.createElement('div');
     errorMessage.classList.add('equipment-error');
@@ -432,15 +432,15 @@ export class EquipmentRenderer {
    * @returns {Promise<HTMLElement|null>} Created element or null
    */
   async buildEquipmentUIElement(item) {
-    HM.log(3, `EquipmentRenderer.buildEquipmentUIElement: Building UI for ${item?.type || 'unknown'} item ${item?._id || 'unknown'}`);
+    HM.log(3, `Building UI for ${item?.type || 'unknown'} item ${item?._id || 'unknown'}`);
 
     if (!item) {
-      HM.log(2, 'EquipmentRenderer.buildEquipmentUIElement: Null or undefined item');
+      HM.log(2, 'Null or undefined item');
       return null;
     }
 
     if (this.hasItemBeenRendered(item)) {
-      HM.log(3, `EquipmentRenderer.buildEquipmentUIElement: Item ${item._id} already rendered, skipping`);
+      HM.log(3, `Item ${item._id} already rendered, skipping`);
       return null;
     }
 
@@ -454,7 +454,7 @@ export class EquipmentRenderer {
 
       // Skip if part of an OR choice
       if (this.isPartOfOrChoice(item)) {
-        HM.log(3, `EquipmentRenderer.buildEquipmentUIElement: Item ${item._id} is part of OR choice, skipping`);
+        HM.log(3, `Item ${item._id} is part of OR choice, skipping`);
         return null;
       }
 
@@ -462,15 +462,15 @@ export class EquipmentRenderer {
       const renderedElement = await this.renderWithSpecializedRenderer(item, itemContainer);
 
       if (!renderedElement || renderedElement.innerHTML === '') {
-        HM.log(3, `EquipmentRenderer.buildEquipmentUIElement: Item ${item._id} not rendered (empty result)`);
+        HM.log(3, `Item ${item._id} not rendered (empty result)`);
         return null;
       }
 
       this.parser.constructor.renderedItems.add(item._id);
-      HM.log(3, `EquipmentRenderer.buildEquipmentUIElement: Successfully built UI for item ${item._id}`);
+      HM.log(3, `Successfully built UI for item ${item._id}`);
       return renderedElement;
     } catch (error) {
-      HM.log(1, `EquipmentRenderer.buildEquipmentUIElement: Critical error: ${error.message}`);
+      HM.log(1, `Critical error: ${error.message}`);
       return null;
     }
   }
@@ -497,7 +497,7 @@ export class EquipmentRenderer {
    * @private
    */
   async renderWithSpecializedRenderer(item, itemContainer) {
-    HM.log(3, `EquipmentRenderer.renderWithSpecializedRenderer: Using ${item.type || 'unknown'} renderer for item ${item._id}`);
+    HM.log(3, `Using ${item.type || 'unknown'} renderer for item ${item._id}`);
 
     let result;
     const renderer = this.renderers[item.type];
@@ -507,12 +507,12 @@ export class EquipmentRenderer {
     } else {
       // Skip weapon/armor types that don't have dedicated renderers
       if (['weapon', 'armor'].includes(item.type)) {
-        HM.log(3, `EquipmentRenderer.renderWithSpecializedRenderer: Skipping ${item.type} item ${item._id}`);
+        HM.log(3, `Skipping ${item.type} item ${item._id}`);
         return null;
       }
 
       // Create fallback for unknown types
-      HM.log(2, `EquipmentRenderer.renderWithSpecializedRenderer: Unknown type ${item.type} for item ${item._id}`);
+      HM.log(2, `Unknown type ${item.type} for item ${item._id}`);
       const errorElement = document.createElement('div');
       errorElement.classList.add('equipment-item-error');
       errorElement.textContent = game.i18n.localize('hm.app.equipment.unknown-choice');
@@ -530,7 +530,7 @@ export class EquipmentRenderer {
    */
   hasItemBeenRendered(item) {
     const result = this.parser.constructor.renderedItems.has(item._id);
-    HM.log(3, `EquipmentRenderer.hasItemBeenRendered: Item ${item?._id} rendered? ${result}`);
+    HM.log(3, `Item ${item?._id} rendered? ${result}`);
     return result;
   }
 
@@ -540,14 +540,14 @@ export class EquipmentRenderer {
    * @returns {boolean} True if should render as dropdown
    */
   shouldItemUseDropdownDisplay(item) {
-    HM.log(3, `EquipmentRenderer.shouldItemUseDropdownDisplay: Checking item ${item?._id}`);
+    HM.log(3, `Checking item ${item?._id}`);
 
     // Check for group membership
     if (item.group) {
       const parentItem = this.parser.equipmentData.class.find((p) => p._source?.key === item.group) || this.parser.equipmentData.background.find((p) => p._source?.key === item.group);
 
       if (parentItem?.type === 'OR') {
-        HM.log(3, `EquipmentRenderer.shouldItemUseDropdownDisplay: Item ${item._id} is child of OR group`);
+        HM.log(3, `Item ${item._id} is child of OR group`);
         return true;
       }
     }
@@ -557,20 +557,20 @@ export class EquipmentRenderer {
       const parent = this.parser.equipmentData.class.find((p) => p._source?.key === item.group) || this.parser.equipmentData.background.find((p) => p._source?.key === item.group);
 
       if (parent?.type === 'OR') {
-        HM.log(3, `EquipmentRenderer.shouldItemUseDropdownDisplay: Item ${item._id} is AND with multiple children in OR group`);
+        HM.log(3, `Item ${item._id} is AND with multiple children in OR group`);
         return true;
       }
     }
 
     // Check if item is already part of a combined selection
     if (this.parser.constructor.combinedItemIds.has(item._source?.key)) {
-      HM.log(3, `EquipmentRenderer.shouldItemUseDropdownDisplay: Item ${item._id} is already in combinedItemIds`);
+      HM.log(3, `Item ${item._id} is already in combinedItemIds`);
       return true;
     }
 
     // Top-level OR blocks should be dropdowns
     const result = item.type === 'OR';
-    HM.log(3, `EquipmentRenderer.shouldItemUseDropdownDisplay: Item ${item._id} is ${result ? '' : 'not '}a top-level OR block`);
+    HM.log(3, `Item ${item._id} is ${result ? '' : 'not '}a top-level OR block`);
     return result;
   }
 }

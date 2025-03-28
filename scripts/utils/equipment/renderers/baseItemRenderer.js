@@ -21,7 +21,7 @@ export class BaseItemRenderer {
    */
   canRender(item) {
     const result = item && !this.hasItemBeenRendered(item);
-    HM.log(3, `BaseItemRenderer.canRender: Item ${item?._id} can be rendered? ${result}`);
+    HM.log(3, `Item ${item?._id} can be rendered? ${result}`);
     return result;
   }
 
@@ -33,7 +33,7 @@ export class BaseItemRenderer {
   createItemContainer(item) {
     const itemContainer = document.createElement('div');
     itemContainer.classList.add('equipment-item');
-    HM.log(3, `BaseItemRenderer.createItemContainer: Created container for item ${item?._id || 'unknown'}`);
+    HM.log(3, `Created container for item ${item?._id || 'unknown'}`);
     return itemContainer;
   }
 
@@ -45,7 +45,7 @@ export class BaseItemRenderer {
   async addItemLabel(container, item) {
     // Skip if item is in a group or linked
     if (item.group || item.type === 'linked') {
-      HM.log(3, `BaseItemRenderer.addItemLabel: Skipping label for grouped or linked item ${item?._id}`);
+      HM.log(3, `Skipping label for grouped or linked item ${item?._id}`);
       return;
     }
 
@@ -68,19 +68,19 @@ export class BaseItemRenderer {
 
         if (itemDoc) {
           labelText = item.label || `${item.count || ''} ${itemDoc.name}`;
-          HM.log(3, `BaseItemRenderer.addItemLabel: Found item document "${itemDoc.name}" for item ${item._id}`);
+          HM.log(3, `Found item document "${itemDoc.name}" for item ${item._id}`);
         } else {
-          HM.log(1, `BaseItemRenderer.addItemLabel: No document found for item key: ${item.key}`);
+          HM.log(1, `No document found for item key: ${item.key}`);
           labelText = item.label || game.i18n.localize('hm.app.equipment.choose-one');
         }
       } catch (error) {
-        HM.log(1, `BaseItemRenderer.addItemLabel: Error getting label for item ${item._source?.key}: ${error.message}`);
+        HM.log(1, `Error getting label for item ${item._source?.key}: ${error.message}`);
         labelText = item.label || game.i18n.localize('hm.app.equipment.choose-one');
       }
 
       labelElement.innerHTML = labelText;
       container.appendChild(labelElement);
-      HM.log(3, `BaseItemRenderer.addItemLabel: Added label "${labelText}" for item ${item._id}`);
+      HM.log(3, `Added label "${labelText}" for item ${item._id}`);
     }
   }
 
@@ -92,7 +92,7 @@ export class BaseItemRenderer {
    */
   addFavoriteStar(container, item) {
     if (container.innerHTML === '') {
-      HM.log(3, `BaseItemRenderer.addFavoriteStar: Skipping empty container for item ${item?._id}`);
+      HM.log(3, `Skipping empty container for item ${item?._id}`);
       return;
     }
 
@@ -137,7 +137,7 @@ export class BaseItemRenderer {
 
     this.appendFavoriteToContainer(container, favoriteContainer);
 
-    HM.log(3, `BaseItemRenderer.addFavoriteStar: Added favorite star for "${itemName}" with ID ${favoriteCheckbox.id}`);
+    HM.log(3, `Added favorite star for "${itemName}" with ID ${favoriteCheckbox.id}`);
     return favoriteCheckbox;
   }
 
@@ -163,7 +163,7 @@ export class BaseItemRenderer {
     // Clean up the name
     const cleanedName = itemName.replace(/^\s*☐\s*|\s*☑\s*/g, '').trim();
 
-    HM.log(3, `BaseItemRenderer.extractItemName: Extracted name "${cleanedName}" for item ${item?._id}`);
+    HM.log(3, `Extracted name "${cleanedName}" for item ${item?._id}`);
     return cleanedName;
   }
 
@@ -180,7 +180,7 @@ export class BaseItemRenderer {
       // This is a combined item with multiple UUIDs in the ID
       checkbox.dataset.itemUuids = parentCheckbox.id;
       checkbox.id = parentCheckbox.id;
-      HM.log(3, `BaseItemRenderer.setFavoriteIdentifiers: Using combined IDs for item ${item?._id}: ${parentCheckbox.id}`);
+      HM.log(3, `Using combined IDs for item ${item?._id}: ${parentCheckbox.id}`);
       return;
     }
 
@@ -191,19 +191,19 @@ export class BaseItemRenderer {
       // Store all UUIDs for multi-item favorites
       checkbox.dataset.itemUuids = uuids.join(',');
       checkbox.id = uuids.join(',');
-      HM.log(3, `BaseItemRenderer.setFavoriteIdentifiers: Using ${uuids.length} UUIDs from content for item ${item?._id}`);
+      HM.log(3, `Using ${uuids.length} UUIDs from content for item ${item?._id}`);
     } else if (item._source?.key) {
       // For linked items that have a source key
       const sourceKey = item._source.key;
       checkbox.dataset.itemUuids = sourceKey;
       checkbox.id = sourceKey;
-      HM.log(3, `BaseItemRenderer.setFavoriteIdentifiers: Using source key for item ${item?._id}: ${sourceKey}`);
+      HM.log(3, `Using source key for item ${item?._id}: ${sourceKey}`);
     } else {
       // Fallback for other items
       const itemId = item._id || '';
       checkbox.dataset.itemId = itemId;
       checkbox.id = itemId;
-      HM.log(3, `BaseItemRenderer.setFavoriteIdentifiers: Using item ID for item ${item?._id}`);
+      HM.log(3, `Using item ID for item ${item?._id}`);
     }
   }
 
@@ -215,16 +215,16 @@ export class BaseItemRenderer {
   appendFavoriteToContainer(container, favoriteContainer) {
     if (container.querySelector('label')) {
       container.querySelector('label').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'BaseItemRenderer.appendFavoriteToContainer: Added after label element');
+      HM.log(3, 'Added after label element');
     } else if (container.querySelector('h4')) {
       container.querySelector('h4').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'BaseItemRenderer.appendFavoriteToContainer: Added after h4 element');
+      HM.log(3, 'Added after h4 element');
     } else if (container.querySelector('select')) {
       container.querySelector('select').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'BaseItemRenderer.appendFavoriteToContainer: Added after select element');
+      HM.log(3, 'Added after select element');
     } else {
       container.appendChild(favoriteContainer);
-      HM.log(3, 'BaseItemRenderer.appendFavoriteToContainer: Added to end of container');
+      HM.log(3, 'Added to end of container');
     }
   }
 
@@ -242,7 +242,7 @@ export class BaseItemRenderer {
       uuids.push(match[1]);
     }
 
-    HM.log(3, `BaseItemRenderer.extractUUIDsFromContent: Found ${uuids.length} UUIDs in content`);
+    HM.log(3, `Found ${uuids.length} UUIDs in content`);
     return uuids;
   }
 
@@ -253,7 +253,7 @@ export class BaseItemRenderer {
    */
   hasItemBeenRendered(item) {
     const result = this.parser.constructor.renderedItems.has(item._id);
-    HM.log(3, `BaseItemRenderer.hasItemBeenRendered: Item ${item?._id} rendered? ${result}`);
+    HM.log(3, `Item ${item?._id} rendered? ${result}`);
     return result;
   }
 
@@ -265,7 +265,7 @@ export class BaseItemRenderer {
     const errorElement = document.createElement('div');
     errorElement.classList.add('equipment-item-error');
     errorElement.textContent = game.i18n.localize('hm.app.equipment.unknown-choice');
-    HM.log(3, 'BaseItemRenderer.createErrorElement: Created error element');
+    HM.log(3, 'Created error element');
     return errorElement;
   }
 
@@ -276,7 +276,7 @@ export class BaseItemRenderer {
    */
   getLookupKeyLabel(key) {
     const label = this.parser.constructor.lookupItems[key]?.label;
-    HM.log(3, `BaseItemRenderer.getLookupKeyLabel: Key "${key}" has label "${label}"`);
+    HM.log(3, `Key "${key}" has label "${label}"`);
     return label;
   }
 }

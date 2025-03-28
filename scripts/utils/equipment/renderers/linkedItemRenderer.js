@@ -12,7 +12,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement|null>} Rendered container or null
    */
   async render(item, itemContainer) {
-    HM.log(3, `LinkedItemRenderer.render: Processing item ${item?._id}`);
+    HM.log(3, `Processing item ${item?._id}`);
 
     if (!item?._source?.key && !item?.key) {
       HM.log(1, `LinkedItemRenderer.render: Invalid item - missing _source.key && .key for item ${item?._id}`, { item });
@@ -21,7 +21,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
 
     // Check if we should skip rendering
     if (this.shouldSkipRendering(item)) {
-      HM.log(3, `LinkedItemRenderer.render: Skipping rendering for item ${item._id}`);
+      HM.log(3, `Skipping rendering for item ${item._id}`);
       return null;
     }
 
@@ -32,7 +32,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
     this.assembleLinkedItemUI(itemContainer, components, item);
 
     // Mark as rendered and add favorite star
-    HM.log(3, `LinkedItemRenderer.render: Successfully rendered linked item ${item._id}`);
+    HM.log(3, `Successfully rendered linked item ${item._id}`);
     this.parser.constructor.renderedItems.add(item._id);
     this.addFavoriteStar(itemContainer, item);
 
@@ -46,7 +46,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
    * @private
    */
   createLinkedItemComponents(item) {
-    HM.log(3, `LinkedItemRenderer.createLinkedItemComponents: Creating components for ${item._id}`);
+    HM.log(3, `Creating components for ${item._id}`);
 
     // Create elements
     const labelElement = document.createElement('label');
@@ -58,7 +58,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
 
     // Process display label
     const displayLabel = this.formatDisplayLabel(item);
-    HM.log(3, `LinkedItemRenderer.createLinkedItemComponents: Formatted display label "${displayLabel}"`);
+    HM.log(3, `Formatted display label "${displayLabel}"`);
 
     return { labelElement, linkedCheckbox, displayLabel };
   }
@@ -80,7 +80,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
 
     // Add to container
     itemContainer.appendChild(labelElement);
-    HM.log(3, `LinkedItemRenderer.assembleLinkedItemUI: Added linked item UI for ${item._id}`);
+    HM.log(3, `Added linked item UI for ${item._id}`);
   }
 
   /**
@@ -95,7 +95,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
       const parentItem = equipmentData.class.find((p) => p._id === item.group) || equipmentData.background.find((p) => p._id === item.group);
 
       if (parentItem?.type === 'OR') {
-        HM.log(3, `LinkedItemRenderer.shouldSkipRendering: Item ${item._id} is in OR group, skipping`);
+        HM.log(3, `Item ${item._id} is in OR group, skipping`);
         return true;
       }
     }
@@ -108,7 +108,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
     const result = alreadyCombined || shouldUseDropdown || alreadyRendered;
 
     if (result) {
-      HM.log(3, `LinkedItemRenderer.shouldSkipRendering: Item ${item._id} skipped - combined: ${alreadyCombined}, dropdown: ${shouldUseDropdown}, rendered: ${alreadyRendered}`);
+      HM.log(3, `Item ${item._id} skipped - combined: ${alreadyCombined}, dropdown: ${shouldUseDropdown}, rendered: ${alreadyRendered}`);
     }
 
     return result;
@@ -120,7 +120,7 @@ export class LinkedItemRenderer extends BaseItemRenderer {
    * @returns {string} Formatted label
    */
   formatDisplayLabel(item) {
-    HM.log(3, `LinkedItemRenderer.formatDisplayLabel: Formatting label for ${item._id}`);
+    HM.log(3, `Formatting label for ${item._id}`);
 
     let displayLabel = item.label;
 
@@ -130,14 +130,14 @@ export class LinkedItemRenderer extends BaseItemRenderer {
       if (countMatch) {
         const displayCount = countMatch[1];
         displayLabel = item.label.replace(/^\d+&times;\s*/, '').replace('</i>', `</i>${displayCount} `);
-        HM.log(3, `LinkedItemRenderer.formatDisplayLabel: Processed content link with count ${displayCount}`);
+        HM.log(3, `Processed content link with count ${displayCount}`);
       }
     } else {
       // Handle plain text labels
       const displayCount = item._source.count > 1 || item._source.count !== null ? item._source.count : '';
       if (displayCount && !displayLabel.includes(displayCount)) {
         displayLabel = `${displayCount} ${displayLabel}`;
-        HM.log(3, `LinkedItemRenderer.formatDisplayLabel: Added count ${displayCount} to label`);
+        HM.log(3, `Added count ${displayCount} to label`);
       }
     }
 

@@ -12,7 +12,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement|null>} Rendered container or null
    */
   async render(item, itemContainer) {
-    HM.log(3, `ToolItemRenderer.render: Processing tool item ${item?._id}`);
+    HM.log(3, `Processing tool item ${item?._id}`);
 
     // Validate that we have required data
     if (!this.validateToolItem(item)) {
@@ -21,7 +21,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
 
     // Skip if this should be displayed as part of a dropdown
     if (this.renderer.shouldItemUseDropdownDisplay(item)) {
-      HM.log(3, `ToolItemRenderer.render: Item ${item._id} should use dropdown display, skipping direct rendering`);
+      HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
       return null;
     }
 
@@ -38,7 +38,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
 
     // Verify we have options
     if (select.options.length === 0) {
-      HM.log(2, `ToolItemRenderer.render: No valid tool items found for type: ${toolType}`);
+      HM.log(2, `No valid tool items found for type: ${toolType}`);
       return null;
     }
 
@@ -48,7 +48,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
     // Add favorite star
     this.addFavoriteStar(itemContainer, item);
 
-    HM.log(3, `ToolItemRenderer.render: Successfully rendered tool item ${item._id}`);
+    HM.log(3, `Successfully rendered tool item ${item._id}`);
     return itemContainer;
   }
 
@@ -60,7 +60,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
    */
   validateToolItem(item) {
     if (!item?.key) {
-      HM.log(1, `ToolItemRenderer.validateToolItem: Invalid tool item - missing key for item ${item?._id}`);
+      HM.log(1, `Invalid tool item - missing key for item ${item?._id}`);
       return false;
     }
     return true;
@@ -76,11 +76,11 @@ export class ToolItemRenderer extends BaseItemRenderer {
     const toolConfig = CONFIG.DND5E.toolTypes[toolType];
 
     if (!toolConfig) {
-      HM.log(2, `ToolItemRenderer.getToolConfiguration: No tool configuration found for type: ${toolType}`);
+      HM.log(2, `No tool configuration found for type: ${toolType}`);
       return null;
     }
 
-    HM.log(3, `ToolItemRenderer.getToolConfiguration: Found configuration for tool type: ${toolType}`);
+    HM.log(3, `Found configuration for tool type: ${toolType}`);
     return toolConfig;
   }
 
@@ -92,7 +92,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @private
    */
   assembleToolUI(itemContainer, select, toolConfig) {
-    HM.log(3, 'ToolItemRenderer.assembleToolUI: Assembling tool UI components');
+    HM.log(3, 'Assembling tool UI components');
 
     const label = document.createElement('h4');
     label.htmlFor = select.id;
@@ -101,7 +101,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
     itemContainer.appendChild(label);
     itemContainer.appendChild(select);
 
-    HM.log(3, `ToolItemRenderer.assembleToolUI: Added label "${toolConfig}" and select with ${select.options.length} options`);
+    HM.log(3, `Added label "${toolConfig}" and select with ${select.options.length} options`);
   }
 
   /**
@@ -112,7 +112,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @private
    */
   createToolSelect(item, toolType) {
-    HM.log(3, `ToolItemRenderer.createToolSelect: Creating select for tool type ${toolType}`);
+    HM.log(3, `Creating select for tool type ${toolType}`);
 
     const select = document.createElement('select');
     select.id = `${item.key}-tool`;
@@ -121,12 +121,12 @@ export class ToolItemRenderer extends BaseItemRenderer {
     const toolItems = Array.from(this.parser.constructor.lookupItems[toolType].items || []);
     toolItems.sort((a, b) => a.name.localeCompare(b.name));
 
-    HM.log(3, `ToolItemRenderer.createToolSelect: Found ${toolItems.length} tools of type ${toolType}`);
+    HM.log(3, `Found ${toolItems.length} tools of type ${toolType}`);
 
     // Add each tool as an option
     this.addToolSelectOptions(select, toolItems);
 
-    HM.log(3, `ToolItemRenderer.createToolSelect: Created select with ${select.options.length} options`);
+    HM.log(3, `Created select with ${select.options.length} options`);
     return select;
   }
 
@@ -147,7 +147,7 @@ export class ToolItemRenderer extends BaseItemRenderer {
       }
 
       select.appendChild(option);
-      HM.log(3, `ToolItemRenderer.addToolSelectOptions: Added option "${tool.name}" with value ${option.value}`);
+      HM.log(3, `Added option "${tool.name}" with value ${option.value}`);
     }
   }
 }
