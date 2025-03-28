@@ -12,44 +12,49 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @returns {Promise<HTMLElement|null>} Rendered container or null
    */
   async render(item, itemContainer) {
-    HM.log(3, `Processing tool item ${item?._id}`);
+    try {
+      HM.log(3, `Processing tool item ${item?._id}`);
 
-    // Validate that we have required data
-    if (!this.validateToolItem(item)) {
+      // Validate that we have required data
+      if (!this.validateToolItem(item)) {
+        return null;
+      }
+
+      // Skip if this should be displayed as part of a dropdown
+      if (this.renderer.shouldItemUseDropdownDisplay(item)) {
+        HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
+        return null;
+      }
+
+      // Get tool configuration and type
+      const toolType = item.key;
+      const toolConfig = this.getToolConfiguration(toolType);
+
+      if (!toolConfig) {
+        return null;
+      }
+
+      // Create select element with options
+      const select = this.createToolSelect(item, toolType);
+
+      // Verify we have options
+      if (select.options.length === 0) {
+        HM.log(2, `No valid tool items found for type: ${toolType}`);
+        return null;
+      }
+
+      // Add label and select to container
+      this.assembleToolUI(itemContainer, select, toolConfig);
+
+      // Add favorite star
+      this.addFavoriteStar(itemContainer, item);
+
+      HM.log(3, `Successfully rendered tool item ${item._id}`);
+      return itemContainer;
+    } catch (error) {
+      HM.log(1, `Error rendering tool item ${item?._id}: ${error.message}`);
       return null;
     }
-
-    // Skip if this should be displayed as part of a dropdown
-    if (this.renderer.shouldItemUseDropdownDisplay(item)) {
-      HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
-      return null;
-    }
-
-    // Get tool configuration and type
-    const toolType = item.key;
-    const toolConfig = this.getToolConfiguration(toolType);
-
-    if (!toolConfig) {
-      return null;
-    }
-
-    // Create select element with options
-    const select = this.createToolSelect(item, toolType);
-
-    // Verify we have options
-    if (select.options.length === 0) {
-      HM.log(2, `No valid tool items found for type: ${toolType}`);
-      return null;
-    }
-
-    // Add label and select to container
-    this.assembleToolUI(itemContainer, select, toolConfig);
-
-    // Add favorite star
-    this.addFavoriteStar(itemContainer, item);
-
-    HM.log(3, `Successfully rendered tool item ${item._id}`);
-    return itemContainer;
   }
 
   /**
@@ -73,6 +78,11 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @private
    */
   getToolConfiguration(toolType) {
+    if (!toolType || typeof toolType !== 'string') {
+      HM.log(2, `Invalid tool type: ${toolType}`);
+      return null;
+    }
+
     const toolConfig = CONFIG.DND5E.toolTypes[toolType];
 
     if (!toolConfig) {
@@ -112,22 +122,33 @@ export class ToolItemRenderer extends BaseItemRenderer {
    * @private
    */
   createToolSelect(item, toolType) {
-    HM.log(3, `Creating select for tool type ${toolType}`);
+    try {
+      HM.log(3, `Creating select for tool type ${toolType}`);
 
-    const select = document.createElement('select');
-    select.id = `${item.key}-tool`;
+      const select = document.createElement('select');
+      select.id = `${item.key}-tool`;
 
-    // Get tools of this specific type
-    const toolItems = Array.from(this.parser.constructor.lookupItems[toolType].items || []);
-    toolItems.sort((a, b) => a.name.localeCompare(b.name));
+      // Get tools of this specific type
+      const toolItems = Array.from(this.parser.constructor.lookupItems[toolType]?.items || []);
 
-    HM.log(3, `Found ${toolItems.length} tools of type ${toolType}`);
+      if (!toolItems.length) {
+        HM.log(2, `No tools found for type ${toolType}`);
+        return select;
+      }
 
-    // Add each tool as an option
-    this.addToolSelectOptions(select, toolItems);
+      toolItems.sort((a, b) => a.name.localeCompare(b.name));
 
-    HM.log(3, `Created select with ${select.options.length} options`);
-    return select;
+      HM.log(3, `Found ${toolItems.length} tools of type ${toolType}`);
+
+      // Add each tool as an option
+      this.addToolSelectOptions(select, toolItems);
+
+      HM.log(3, `Created select with ${select.options.length} options`);
+      return select;
+    } catch (error) {
+      HM.log(1, `Error creating tool select: ${error.message}`);
+      return document.createElement('select');
+    }
   }
 
   /**
