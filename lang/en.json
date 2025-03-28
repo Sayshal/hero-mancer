@@ -207,9 +207,11 @@
       "no-equipment-notice": "Unable to find any starting equipment data in the raw description, you're on your own!"
     },
     "errors": {
+      "ability-roll-failed": "Unable to roll ability scores. Please try a different rolling method or refresh the application and try again.",
       "advancement-process": "There was an error applying character advancements. Your character may be incomplete.",
       "advancement-timeout": "Advancement process timed out. Please check your character sheet for completeness.",
       "cache-error": "Error loading cached data. Character creation data will be refreshed.",
+      "character-creation-failed": "Character creation failed. Please ensure all required fields are completed and that you have proper permissions to create characters.",
       "cleanup-failed": "Failed to properly clean up some resources. You may need to refresh the page if you experience issues.",
       "description-update": "Failed to update item description.",
       "dropdown-initialization": "Failed to initialize dropdown options.",
@@ -224,6 +226,8 @@
       "no-class": "The selected class could not be found.",
       "no-race": "The selected race could not be found.",
       "randomization-failed": "Character randomization failed",
+      "randomize-failed": "Could not reset options to default values. Please try closing and reopening the character creator.",
+      "reset-options-failed": "Failed to save your options. Please verify you have the necessary permissions and try again.",
       "roll-failed": "Failed to roll ability score. Please try again.",
       "save-options-failed": "Failed to save your options. Please try again.",
       "select-background": "Please select a background before submitting.",
