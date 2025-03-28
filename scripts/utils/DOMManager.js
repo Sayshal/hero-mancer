@@ -222,7 +222,7 @@ export class DOMManager {
 
       this.on(dropdown, 'change', async (event) => {
         try {
-          this.#handleDropdownChange(element, type, event);
+          await this.#handleDropdownChange(element, type, event);
         } catch (error) {
           HM.log(1, `Error handling ${type} dropdown change:`, error);
         }
@@ -746,7 +746,7 @@ export class DOMManager {
    * @param {object} selectedBackground - Selected background data
    * @static
    */
-  static processBackgroundSelectionChange(selectedBackground) {
+  static async processBackgroundSelectionChange(selectedBackground) {
     if (!selectedBackground?.value) {
       return;
     }
@@ -754,7 +754,7 @@ export class DOMManager {
     const uuid = HM.SELECTED.background.uuid;
 
     try {
-      const background = fromUuid(uuid);
+      const background = await fromUuidSync(uuid);
       if (background) {
         TableManager.loadRollTablesForBackground(background);
 
@@ -1227,7 +1227,7 @@ export class DOMManager {
    * @param {Event} event - Change event
    * @private
    */
-  static #handleDropdownChange(element, type, event) {
+  static async #handleDropdownChange(element, type, event) {
     // Extract selection data
     const value = event.target.value;
     const id = value.split(' ')[0].trim();
@@ -1244,7 +1244,7 @@ export class DOMManager {
     }
 
     // Update UI based on dropdown type
-    this.#updateUIForDropdownType(element, type);
+    await this.#updateUIForDropdownType(element, type);
   }
 
   /**
@@ -1253,7 +1253,7 @@ export class DOMManager {
    * @param {string} type - Dropdown type
    * @private
    */
-  static #updateUIForDropdownType(element, type) {
+  static async #updateUIForDropdownType(element, type) {
     // Update summaries based on type
     if (type === 'race' || type === 'class') {
       this.updateClassRaceSummary();
@@ -1266,7 +1266,7 @@ export class DOMManager {
 
     if (type === 'background') {
       this.updateBackgroundSummary();
-      this.processBackgroundSelectionChange(HM.SELECTED.background);
+      await this.processBackgroundSelectionChange(HM.SELECTED.background);
     }
 
     // Update equipment if needed

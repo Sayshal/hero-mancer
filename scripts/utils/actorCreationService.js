@@ -10,70 +10,70 @@ export class ActorCreationService {
    * @returns {Promise<Actor|void>} Created actor or void if operation didn't complete
    */
   static async createCharacter(event, formData) {
-    HM.log(3, 'ActorCreationService: Starting character creation');
+    HM.log(3, 'Starting character creation');
     const targetUserId = game.user.isGM ? formData.object.player : null;
     const targetUser = game.users.get(targetUserId) || game.user;
-    HM.log(3, `ActorCreationService: Target user - ${targetUser.name}`);
+    HM.log(3, `Target user - ${targetUser.name}`);
 
     try {
       // Validate required fields
-      HM.log(3, 'ActorCreationService: Validating mandatory fields');
+      HM.log(3, 'Validating mandatory fields');
       if (!this.#validateMandatoryFields(formData.object)) return;
 
       // Extract equipment and wealth settings
-      HM.log(3, 'ActorCreationService: Processing wealth options');
+      HM.log(3, 'Processing wealth options');
       const { useStartingWealth, startingWealth } = await this.#processWealthOptions(formData.object);
-      HM.log(3, 'ActorCreationService: Wealth options', { useStartingWealth, startingWealth });
+      HM.log(3, 'Wealth options', { useStartingWealth, startingWealth });
 
       // Collect equipment items
-      HM.log(3, 'ActorCreationService: Collecting equipment items');
+      HM.log(3, 'Collecting equipment items');
       const equipmentSelections = await this.#collectEquipment(event, useStartingWealth);
-      HM.log(3, `ActorCreationService: Collected ${equipmentSelections.length} equipment items`);
+      HM.log(3, `Collected ${equipmentSelections.length} equipment items`);
 
       // Parse selected items
-      HM.log(3, 'ActorCreationService: Extracting item data');
+      HM.log(3, 'Extracting item data');
       const { backgroundData, raceData, classData } = this.#extractItemData(formData.object);
-      HM.log(3, 'ActorCreationService: Item data extracted', { backgroundData, raceData, classData });
+      HM.log(3, 'Item data extracted', { backgroundData, raceData, classData });
       if (!this.#validateRequiredSelections(backgroundData, raceData, classData)) return;
 
       // Process ability scores
-      HM.log(3, 'ActorCreationService: Processing ability scores');
+      HM.log(3, 'Processing ability scores');
       const abilities = this.#processAbilityScores(formData.object);
-      HM.log(3, 'ActorCreationService: Processed abilities', abilities);
+      HM.log(3, 'Processed abilities', abilities);
 
       // Create the actor
-      HM.log(3, 'ActorCreationService: Creating actor document');
+      HM.log(3, 'Creating actor document');
       const actor = await this.#createActorDocument(formData.object, abilities, targetUserId);
-      HM.log(3, `ActorCreationService: Actor created with ID ${actor.id}`);
+      HM.log(3, `Actor created with ID ${actor.id}`);
 
       // Fetch compendium items
-      HM.log(3, 'ActorCreationService: Fetching compendium items');
+      HM.log(3, 'Fetching compendium items');
       const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(backgroundData, raceData, classData);
       if (!backgroundItem || !raceItem || !classItem) return;
-      HM.log(3, 'ActorCreationService: Compendium items fetched successfully');
+      HM.log(3, 'Compendium items fetched successfully');
 
       // Add equipment, process favorites, update currency
-      HM.log(3, 'ActorCreationService: Processing equipment and favorites');
+      HM.log(3, 'Processing equipment and favorites');
       await this.#processEquipmentAndFavorites(actor, equipmentSelections, event, startingWealth);
 
       // Process advancements for class, race, background
-      HM.log(3, 'ActorCreationService: Processing advancements');
+      HM.log(3, 'Processing advancements');
       await this.#processAdvancements([classItem, raceItem, backgroundItem], actor);
 
       // Set character owner
-      HM.log(3, 'ActorCreationService: Assigning character to user');
+      HM.log(3, 'Assigning character to user');
       await this.#assignCharacterToUser(actor, targetUser, formData.object);
 
       // Update player customization if enabled
       if (game.settings.get(HM.ID, 'enablePlayerCustomization')) {
-        HM.log(3, 'ActorCreationService: Updating player customization');
+        HM.log(3, 'Updating player customization');
         await this.#updatePlayerCustomization(targetUser, formData.object);
       }
 
-      HM.log(3, 'ActorCreationService: Character creation completed successfully');
+      HM.log(3, 'Character creation completed successfully');
       return actor;
     } catch (error) {
-      HM.log(1, 'ActorCreationService: Error in character creation:', error);
+      HM.log(1, 'Error in character creation:', error);
       ui.notifications.error('hm.errors.form-submission', { localize: true });
     }
   }
@@ -88,9 +88,16 @@ export class ActorCreationService {
   static #validateMandatoryFields(formData) {
     const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
 
+    // Field name mappings (system field name -> form field name)
+    const fieldMappings = {
+      name: 'character-name'
+    };
+
     // Find missing required fields
     const missingFields = mandatoryFields.filter((field) => {
-      const value = formData[field];
+      // Check if there's a mapping for this field
+      const formField = fieldMappings[field] || field;
+      const value = formData[formField];
       return !value || (typeof value === 'string' && value.trim() === '');
     });
 
@@ -253,7 +260,7 @@ export class ActorCreationService {
    */
   static async #createActorDocument(formData, abilities, targetUserId) {
     // Build actor data object
-    const actorName = formData.name || game.user.name;
+    const actorName = formData['character-name'] || game.user.name;
     const actorData = {
       name: actorName,
       img: formData['character-art'],
