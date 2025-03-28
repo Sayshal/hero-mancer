@@ -14,43 +14,53 @@ export class FocusItemRenderer extends BaseItemRenderer {
   async render(item, itemContainer) {
     HM.log(3, `Processing focus item ${item?._id}`);
 
-    // Validate that we have required data
-    if (!this.validateFocusItem(item)) {
+    try {
+      // Validate that we have required data
+      if (!this.validateFocusItem(item)) {
+        return null;
+      }
+
+      // Skip if this should be displayed as part of a dropdown
+      if (this.renderer.shouldItemUseDropdownDisplay(item)) {
+        HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
+        return null;
+      }
+
+      // Get focus configuration
+      const focusType = item.key;
+      const focusConfig = CONFIG.DND5E.focusTypes[focusType];
+
+      if (!focusConfig) {
+        HM.log(2, `No focus configuration found for type: ${focusType}`);
+        return null;
+      }
+
+      // Create select element with options
+      try {
+        const select = await this.createFocusSelect(item, focusConfig);
+
+        // Verify we have options
+        if (!select || select.options.length === 0) {
+          HM.log(1, `No valid focus items found for type: ${focusType}`);
+          return null;
+        }
+
+        // Add label and select to container
+        this.assembleFocusUI(itemContainer, select, focusConfig);
+
+        // Add favorite star
+        this.addFavoriteStar(itemContainer, item);
+
+        HM.log(3, `Successfully rendered focus item ${item._id}`);
+        return itemContainer;
+      } catch (selectError) {
+        HM.log(1, `Error creating focus select: ${selectError.message}`);
+        return null;
+      }
+    } catch (error) {
+      HM.log(1, `Critical error rendering focus item: ${error.message}`);
       return null;
     }
-
-    // Skip if this should be displayed as part of a dropdown
-    if (this.renderer.shouldItemUseDropdownDisplay(item)) {
-      HM.log(3, `Item ${item._id} should use dropdown display, skipping direct rendering`);
-      return null;
-    }
-
-    // Get focus configuration
-    const focusType = item.key;
-    const focusConfig = CONFIG.DND5E.focusTypes[focusType];
-
-    if (!focusConfig) {
-      HM.log(2, `No focus configuration found for type: ${focusType}`);
-      return null;
-    }
-
-    // Create select element with options
-    const select = await this.createFocusSelect(item, focusConfig);
-
-    // Verify we have options
-    if (select.options.length === 0) {
-      HM.log(1, `No valid focus items found for type: ${focusType}`);
-      return null;
-    }
-
-    // Add label and select to container
-    this.assembleFocusUI(itemContainer, select, focusConfig);
-
-    // Add favorite star
-    this.addFavoriteStar(itemContainer, item);
-
-    HM.log(3, `Successfully rendered focus item ${item._id}`);
-    return itemContainer;
   }
 
   /**
@@ -97,11 +107,54 @@ export class FocusItemRenderer extends BaseItemRenderer {
   async createFocusSelect(item, focusConfig) {
     HM.log(3, `Creating select for focus type ${item.key}`);
 
-    const select = document.createElement('select');
-    select.id = `${item.key}-focus`;
+    try {
+      // Create select element
+      const select = document.createElement('select');
+      select.id = `${item.key}-focus`;
 
-    const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
-    HM.log(3, `Found ${itemPacks.length} item packs`);
+      // Get item packs
+      const itemPacks = await this.getItemPacks();
+
+      // Get and add options
+      await this.addFocusOptionsToSelect(select, focusConfig, itemPacks);
+
+      HM.log(3, `Created select with ${select.options.length} options`);
+      return select;
+    } catch (error) {
+      HM.log(1, `Failed to create focus select: ${error.message}`);
+      return document.createElement('select'); // Return empty select as fallback
+    }
+  }
+
+  /**
+   * Get item packs from settings
+   * @returns {Promise<string[]>} Array of item pack IDs
+   * @private
+   */
+  async getItemPacks() {
+    try {
+      const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
+      HM.log(3, `Found ${itemPacks.length} item packs`);
+      return itemPacks;
+    } catch (error) {
+      HM.log(2, `Error retrieving item packs: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Add focus options to a select element
+   * @param {HTMLSelectElement} select - Select element
+   * @param {Object} focusConfig - Focus configuration
+   * @param {string[]} itemPacks - Item packs
+   * @returns {Promise<void>}
+   * @private
+   */
+  async addFocusOptionsToSelect(select, focusConfig, itemPacks) {
+    if (!focusConfig.itemIds || typeof focusConfig.itemIds !== 'object') {
+      HM.log(2, 'No item IDs in focus configuration');
+      return;
+    }
 
     // Add options for each focus item
     const focusEntries = Object.entries(focusConfig.itemIds);
@@ -110,9 +163,6 @@ export class FocusItemRenderer extends BaseItemRenderer {
     for (const [focusName, itemId] of focusEntries) {
       await this.addFocusOption(select, focusName, itemId, itemPacks);
     }
-
-    HM.log(3, `Created select with ${select.options.length} options`);
-    return select;
   }
 
   /**
@@ -127,26 +177,53 @@ export class FocusItemRenderer extends BaseItemRenderer {
   async addFocusOption(select, focusName, itemId, itemPacks) {
     HM.log(3, `Adding option for ${focusName}`);
 
-    // Try to get UUID for this item
-    let uuid = await this.findFocusItemUuid(focusName, itemId, itemPacks);
-
-    if (!uuid) {
-      HM.log(2, `No UUID found for focus: ${focusName}`);
+    if (!select || !focusName) {
+      HM.log(2, 'Invalid select or focus name');
       return;
     }
 
-    // Create option element
-    const option = document.createElement('option');
-    option.value = uuid;
-    option.innerHTML = focusName.charAt(0).toUpperCase() + focusName.slice(1);
+    try {
+      // Try to get UUID for this item
+      let uuid = await this.findFocusItemUuid(focusName, itemId, itemPacks);
 
-    // Select first option by default
-    if (select.options.length === 0) {
-      option.selected = true;
+      if (!uuid) {
+        HM.log(2, `No UUID found for focus: ${focusName}`);
+        return;
+      }
+
+      // Create option element
+      const option = document.createElement('option');
+      option.value = uuid;
+
+      // Format the name properly
+      try {
+        option.innerHTML = this.formatFocusName(focusName);
+      } catch (formatError) {
+        HM.log(2, `Error formatting focus name: ${formatError.message}`);
+        option.innerHTML = focusName || 'Unknown Focus';
+      }
+
+      // Select first option by default
+      if (select.options.length === 0) {
+        option.selected = true;
+      }
+
+      select.appendChild(option);
+      HM.log(3, `Added option "${option.innerHTML}" with UUID ${uuid}`);
+    } catch (error) {
+      HM.log(1, `Error adding focus option: ${error.message}`);
     }
+  }
 
-    select.appendChild(option);
-    HM.log(3, `Added option "${focusName}" with UUID ${uuid}`);
+  /**
+   * Format a focus name for display
+   * @param {string} focusName - Raw focus name
+   * @returns {string} Formatted focus name
+   * @private
+   */
+  formatFocusName(focusName) {
+    if (!focusName) return 'Unknown Focus';
+    return focusName.charAt(0).toUpperCase() + focusName.slice(1);
   }
 
   /**
@@ -160,30 +237,74 @@ export class FocusItemRenderer extends BaseItemRenderer {
   async findFocusItemUuid(focusName, itemId, itemPacks) {
     HM.log(3, `Looking for UUID for ${focusName}`);
 
-    // Check if we already have a UUID
-    let uuid = itemId.uuid || this.parser.constructor.itemUuidMap.get(itemId);
-
-    if (uuid) {
-      HM.log(3, `Found existing UUID ${uuid} for ${focusName}`);
-      return uuid;
+    if (!focusName || !itemId) {
+      HM.log(2, 'Missing focus name or item ID');
+      return null;
     }
 
-    // Search packs for matching item by name
-    for (const packId of itemPacks) {
-      const pack = game.packs.get(packId);
-      if (!pack) continue;
-
-      const index = await pack.getIndex();
-      const matchingItem = index.find((i) => i.name.toLowerCase() === focusName.toLowerCase());
-
-      if (matchingItem) {
-        uuid = matchingItem.uuid;
-        HM.log(3, `Found item by name "${matchingItem.name}" with UUID ${uuid}`);
-        return uuid;
+    try {
+      // Check if we already have a UUID in the item itself
+      if (itemId.uuid) {
+        HM.log(3, `Found direct UUID ${itemId.uuid} for ${focusName}`);
+        return itemId.uuid;
       }
-    }
 
-    HM.log(2, `No matching item found for focus: ${focusName}`);
-    return null;
+      // Check if we have a UUID in our mapping
+      const mappedUuid = this.parser.constructor.itemUuidMap.get(itemId);
+      if (mappedUuid) {
+        HM.log(3, `Found mapped UUID ${mappedUuid} for ${focusName}`);
+        return mappedUuid;
+      }
+
+      // No valid item packs to search
+      if (!Array.isArray(itemPacks) || itemPacks.length === 0) {
+        HM.log(2, 'No item packs available to search');
+        return null;
+      }
+
+      // Search packs for matching item by name
+      const sanitizedFocusName = focusName.toLowerCase().trim();
+
+      for (const packId of itemPacks) {
+        if (!packId) continue;
+
+        try {
+          const pack = game.packs.get(packId);
+          if (!pack) {
+            HM.log(3, `Pack not found: ${packId}`);
+            continue;
+          }
+
+          const index = await pack.getIndex();
+          if (!index || index.length === 0) {
+            HM.log(3, `Empty index for pack: ${packId}`);
+            continue;
+          }
+
+          const matchingItem = index.find((i) => i.name && i.name.toLowerCase().trim() === sanitizedFocusName);
+
+          if (matchingItem) {
+            const uuid = matchingItem.uuid;
+            HM.log(3, `Found item by name "${matchingItem.name}" with UUID ${uuid}`);
+
+            // Cache this UUID for future use
+            if (itemId && uuid) {
+              this.parser.constructor.itemUuidMap.set(itemId, uuid);
+            }
+
+            return uuid;
+          }
+        } catch (packError) {
+          HM.log(2, `Error searching pack ${packId}: ${packError.message}`);
+          continue; // Continue with next pack despite error
+        }
+      }
+
+      HM.log(2, `No matching item found for focus: ${focusName}`);
+      return null;
+    } catch (error) {
+      HM.log(1, `Error finding focus item UUID: ${error.message}`);
+      return null;
+    }
   }
 }
