@@ -31,11 +31,27 @@ export class DocumentService {
         return { types: [], dropdownHtml: '' };
       }
 
+      let result;
       if (type === 'race' || type === 'species') {
-        return this.#organizeRacesByTypeIdentifier(data.documents);
+        result = this.#organizeRacesByTypeIdentifier(data.documents);
       } else {
-        return this.#getFlatDocuments(data.documents);
+        result = this.#getFlatDocuments(data.documents);
       }
+
+      /**
+       * A hook event that fires after documents have been fetched and organized but before they're returned.
+       * This allows modules to filter or modify the documents that will be displayed in Hero Mancer.
+       *
+       * @event heroMancer.documentsReady
+       * @param {string} type - The document type being prepared ('race', 'class', 'background', or 'species')
+       * @param {Array} result - The processed document array that will be returned and displayed
+       * @param {Promise[]} promises - An array to which Promises can be pushed; Hero Mancer will await all these promises before continuing
+       */
+      const promises = [];
+      Hooks.callAll('heroMancer.documentsReady', type, result, promises);
+      await Promise.all(promises);
+
+      return result;
     } catch (error) {
       HM.log(1, `Error preparing documents of type ${type}:`, error);
       ui.notifications.error(
