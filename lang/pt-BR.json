@@ -346,7 +346,7 @@
         "save-error": "Não é possível criar o botão concluído, consulte o console.",
         "saved": "As configurações do compêndio {type} foram salvas.",
         "select-all": "Selecionar Tudo",
-        "title": "Selecione compêndios de {type}!"
+        "title": "Selecione compêndios de {type}!",
         "types": {
           "background": "Antecedente",
           "class": "Classe",
