@@ -69,15 +69,19 @@
         "tooltip": "Selecione uma Classe para seu personagem"
       },
       "document-service": {
-        "dndbeyond-importer": "DDB",
-        "elkan5e": "Elkan",
-        "forge": "Forge",
-        "homebrew": "Homebrew",
-        "phb": "PHB",
-        "srd": "SRD"
+        "common-labels": {
+          "dndbeyond-importer": "DDB",
+          "elkan5e": "Elkan",
+          "forge": "Forge",
+          "homebrew": "Homebrew",
+          "phb": "PHB",
+          "srd": "SRD"
+        },
+        "other-itdentifier": "Outro"
       },
       "done": "Feito",
       "equipment": {
+        "add-favorites": "Adicionar aos Favoritos",
         "and": ", e ",
         "article": "um",
         "article-plural": "uns",
@@ -99,10 +103,14 @@
         "tooltip": "Gerencie o equipamento do seu personagem",
         "type-equipment": "Equipamento de {type}",
         "unknown-choice": "Item vinculado desconhecido.",
+        "unknown-focus": "Foco Desconhecido",
         "unnamed": "item sem nome",
         "use-starting-wealth": "Usar riqueza inicial",
         "wealth-placeholder": "0 PO",
         "wealth-roll-message": "{name} rolou para {type} riqueza inicial e recebido: {result} PO."
+      },
+      "errors": {
+        "unexpected-format": "Erro ao renderizar conteúdo: Formato inesperado"
       },
       "finalize": {
         "backstory": "História",
@@ -136,6 +144,9 @@
         "traits-placeholder-alt": "Descreva a personalidade do seu personagem. Como seus Atributos moldam quem ele é? Ele é sábio e contemplativo ou carismático e extrovertido?"
       },
       "header-title": "Criação de Mago Hero Mancer",
+      "journal": {
+        "no-content-found": "Nenhum conteúdo disponível."
+      },
       "journal-description-placeholder": "O Diário está carregando. Este é um espaço reservado.",
       "journal-loading": "Carregando conteúdo do diário...",
       "no-description": "Não foi possível carregar uma descrição válida para este item.",
@@ -149,9 +160,12 @@
         "tooltip": "Selecione uma Raça para seu personagem"
       },
       "randomization-complete": "Randomização de personagens concluída!",
-      "randomize": "Randomizar",
-      "randomize-character": "Randomizar Personagem",
-      "randomizing": "Randomizando personagem...",
+      "randomize": {
+        "default-name": "Aventureiro",
+        "randomize": "Randomizar",
+        "randomize-character": "Randomizar Personagem",
+        "randomizing": "Randomizando personagem..."
+      },
       "reset": "Reiniciar",
       "reset-description": "Reiniciar Hero Mancer",
       "save": "Salvar para Depois",
@@ -332,7 +346,13 @@
         "save-error": "Não é possível criar o botão concluído, consulte o console.",
         "saved": "As configurações do compêndio {type} foram salvas.",
         "select-all": "Selecionar Tudo",
-        "title": "Selecione compêndios de {type}!"
+        "title": "Selecione compêndios de {type}!",
+        "types": {
+          "background": "Antecedente",
+          "class": "Classe",
+          "race": "Raça",
+          "species": "Espécie"
+        }
       },
       "custom-point-buy-total": {
         "hint": "Especifique o total de pontos comprados se não estiver usando cálculos padrão.",
@@ -504,6 +524,7 @@
       "no-packs-found": "Nenhum pacote encontrado para {type}",
       "partial-cleanup": "Alguns recursos não puderam ser limpos adequadamente.",
       "select-background": "Você deve selecionar um Antecedente válido primeiro.",
+      "simplified-journal": "Visão simplificada de {page}.",
       "some-advancements-failed": "Algumas progressões falharam: {failed}. Sucesso: {succeeded}."
     }
   }
