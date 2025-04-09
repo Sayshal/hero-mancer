@@ -196,6 +196,26 @@ h6 {
 .hm-app .hm-app-footer .hm-app-footer-actions button {
   padding: 0.5rem 1rem;
   white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.hm-app .hm-app-footer .hm-app-footer-actions button i {
+  font-size: var(--font-size-10);
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.hm-app .hm-app-footer .hm-app-footer-actions button i.nav-next {
+  margin-left: 0.25rem;
+  margin-right: unset;
+}
+
+.hm-app .hm-app-footer .hm-app-footer-actions button i.nav-prev {
+  margin-left: unset;
+  margin-right: 0.25rem;
 }
 
 /* Button hover states */

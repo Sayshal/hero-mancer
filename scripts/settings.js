@@ -39,6 +39,15 @@ function registerCoreSettings() {
     requiresReload: true
   });
 
+  game.settings.register(HM.ID, 'enableNavigationButtons', {
+    name: 'hm.settings.nav-buttons.name',
+    hint: 'hm.settings.nav-buttons.name',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register(HM.ID, 'loggingLevel', {
     name: 'hm.settings.logger.name',
     hint: 'hm.settings.logger.hint',

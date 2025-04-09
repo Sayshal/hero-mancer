@@ -34,7 +34,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       openCustomizationSettings: (event) => HeroMancer.openMenu(event, 'customizationMenu'),
       openDiceRollingSettings: (event) => HeroMancer.openMenu(event, 'diceRollingMenu'),
       openMandatoryFieldsSettings: (event) => HeroMancer.openMenu(event, 'mandatoryFieldsMenu'),
-      openTroubleshooterSettings: (event) => HeroMancer.openMenu(event, 'troubleshootingMenu')
+      openTroubleshooterSettings: (event) => HeroMancer.openMenu(event, 'troubleshootingMenu'),
+      previousTab: HeroMancer.navigatePreviousTab,
+      nextTab: HeroMancer.navigateNextTab
     },
     classes: ['hm-app'],
     position: {
@@ -192,6 +194,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         context.tab = context.tabs[partId];
       }
 
+      // Navigation buttons logic
+      const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
+      const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
+
       switch (partId) {
         case 'start':
           context.playerCustomizationEnabled = game.settings.get(HM.ID, 'enablePlayerCustomization');
@@ -229,6 +235,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           break;
         case 'footer':
           context.randomizeButton = game.settings.get(HM.ID, 'enableRandomize');
+          context.navigationButtons = game.settings.get(HM.ID, 'enableNavigationButtons');
+          context.isFirstTab = currentTabIndex === 0;
+          context.isLastTab = currentTabIndex === tabOrder.length - 1;
+          context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
+          context.nextTabName = currentTabIndex < tabOrder.length - 1 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`) : '';
+          break;
       }
       return context;
     } catch (error) {
@@ -437,6 +449,20 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     DOMManager.cleanup();
 
     return true;
+  }
+
+  /**
+   * Override the changeTab method to update the navigation buttons
+   * @param {string} tabName - The name of the tab to activate
+   * @param {string} groupName - The name of the tab group to activate
+   * @param {object} options - Additional options
+   * @override
+   */
+  changeTab(tabName, groupName, options = {}) {
+    super.changeTab(tabName, groupName, options);
+
+    // Re-render only the footer to update navigation buttons
+    this.render(false, { parts: ['footer'] });
   }
 
   /* -------------------------------------------- */
@@ -715,6 +741,58 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, `Error opening menu ${menuKey}:`, error);
       return false;
+    }
+  }
+
+  /**
+   * Navigate to the previous tab
+   * @param {Event} event - The triggering event
+   * @returns {void}
+   * @static
+   */
+  static navigatePreviousTab(event) {
+    event.preventDefault();
+    const app = HM.heroMancer;
+    if (!app) return;
+
+    const tabGroup = 'hero-mancer-tabs';
+    const currentTab = app.tabGroups[tabGroup];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+
+    // Skip equipment if ELKAN compatibility is enabled
+    const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
+
+    const currentIndex = filteredTabs.indexOf(currentTab);
+    if (currentIndex > 0) {
+      const previousTab = filteredTabs[currentIndex - 1];
+      app.tabGroups[tabGroup] = previousTab;
+      app.render();
+    }
+  }
+
+  /**
+   * Navigate to the next tab
+   * @param {Event} event - The triggering event
+   * @returns {void}
+   * @static
+   */
+  static navigateNextTab(event) {
+    event.preventDefault();
+    const app = HM.heroMancer;
+    if (!app) return;
+
+    const tabGroup = 'hero-mancer-tabs';
+    const currentTab = app.tabGroups[tabGroup];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+
+    // Skip equipment if ELKAN compatibility is enabled
+    const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
+
+    const currentIndex = filteredTabs.indexOf(currentTab);
+    if (currentIndex < filteredTabs.length - 1) {
+      const nextTab = filteredTabs[currentIndex + 1];
+      app.tabGroups[tabGroup] = nextTab;
+      app.render();
     }
   }
 

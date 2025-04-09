@@ -149,6 +149,14 @@
       },
       "journal-description-placeholder": "The Journal is loading. This is a placeholder.",
       "journal-loading": "Loading journal content...",
+      "nav": {
+        "next": "Navigate to the next tab",
+        "next-description": "Continue to the next step in character creation",
+        "next-format": "Next: {tabName}",
+        "previous": "Navigate to the previous tab",
+        "previous-description": "Go back to the previous step in character creation",
+        "previous-format": "Previous: {tabName}"
+      },
       "no-description": "Unable to load a valid description for this item.",
       "optionsReset": "Reset Hero Mancer! Let's try again!",
       "optionsSaved": "Options saved! Re-open Hero Mancer to continue where you left off!",
@@ -185,10 +193,7 @@
         "player-pronouns": "Player Pronouns",
         "player-pronouns-placeholder": "Choose your preferred pronouns",
         "preamble": {
-          "conclusion": "The more detail you provide, the richer your character will be in your DM's world. Your journey begins now!",
-          "description": "This interactive character creator will guide you through building your perfect character for FoundryVTT.",
-          "features": "During this process, you'll choose attributes, race, class, and background; select your preferred stat rolling method; customize starting equipment; and develop your character's personality.",
-          "navigation": "Navigate between sections freely - your progress is saved automatically. Use 'Save for Later' to continue another time.",
+          "text": "<p>This interactive character creator will guide you through building your perfect character for FoundryVTT. During this process, you'll choose <b>attributes</b>, <b>race</b>, <b>class</b>, and <b>background</b>; set your <b>ability scores</b> with your choice of stat method; customize <b>starting equipment</b>; and develop your character's <b>biography</b>.</p><p>Navigate between sections using the <b>tabs above</b> or, if enabled by your DM, the <b>Next/Previous buttons</b> below - your progress is saved automatically. Use '<b>Save for Later</b>' to continue another time.</p><p>Required fields are marked with <i class='fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete'></i>and will change to <i class='fa-duotone fa-solid fa-circle-check mandatory-indicator complete'></i>when completed. The <b>Submit</b> button will remain disabled until all mandatory fields are filled out.</p><p>When you're ready, press <b>Submit</b> to finalize your choices. You'll receive a few more prompts to make selections not covered by Hero Mancer, and then you're ready to play! The more detail you provide, the richer your character will be in your DM's world. Your journey begins now!</p>",
           "title": "Welcome to Hero Mancer!"
         },
         "select-art": "Select",
@@ -456,6 +461,10 @@
           "name": "Mandatory Fields"
         },
         "saved": "Mandatory field settings saved"
+      },
+      "nav-buttons": {
+        "hint": "Adds Next/Previous buttons to help users navigate through the tabs",
+        "name": "Enable Navigation Buttons"
       },
       "no-selection": "No compendiums selected. Please select at least one.",
       "player-customization": {
