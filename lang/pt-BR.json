@@ -149,6 +149,14 @@
       },
       "journal-description-placeholder": "O Diário está carregando. Este é um espaço reservado.",
       "journal-loading": "Carregando conteúdo do diário...",
+      "nav": {
+        "next": "Navegar para a próxima aba",
+        "next-description": "Continue para a próxima etapa na criação do personagem",
+        "next-format": "Próximo: {tabName}",
+        "previous": "Navegar para a aba anterior",
+        "previous-description": "Volte para a etapa anterior na criação do personagem",
+        "previous-format": "Anterior: {tabName}"
+      },
       "no-description": "Não foi possível carregar uma descrição válida para este item.",
       "optionsReset": "Reinicie o Hero Mancer! Vamos tentar de novo!",
       "optionsSaved": "Opções salvas! Reabra o Hero Mancer para continuar de onde parou!",
@@ -185,10 +193,7 @@
         "player-pronouns": "Pronomes do Jogador",
         "player-pronouns-placeholder": "Escolha seus pronomes preferidos",
         "preamble": {
-          "conclusion": "Quanto mais detalhes você fornecer, mais rico seu personagem será no mundo do seu Mestre. Sua jornada começa agora!",
-          "description": "Este criador de personagens interativo irá guiá-lo na construção do seu personagem perfeito para FoundryVTT.",
-          "features": "Durante esse processo, você escolherá Atributos, Raça, Classe e Antecedente, selecionará seu método de rolagem de estatísticas preferido, personalizará o equipamento inicial  e desenvolverá a personalidade do seu personagem.",
-          "navigation": "Navegue livremente entre as seções - seu progresso é salvo automaticamente. Use 'Salvar para Depois' para continuar em outro momento.",
+          "text": "<p>Este criador de personagens interativo irá guiá-lo na construção do seu personagem perfeito para FoundryVTT. Durante esse processo, você escolherá <b>Atributos</b>, <b>Raça</b>, <b>Classe</b> e <b>Antecedente</b>, definirá seus valores de <b>Atributo</b> com o método de rolagem de estatísticas de sua escolha, personalizará o <b>Equipamento Inicial</b> e desenvolverá a <b>Biografia</b> do seu personagem.</p><p>Navegue entre as seções usando as <b>abas acima</b> ou, se habilitado pelo seu Mestre, os <b>botões Próximo/Anterior</b> abaixo - seu progresso será salvo automaticamente. Use '<b>Salvar para Depois</b>' para continuar em outro momento.</p><p>Os campos obrigatórios são marcados com <i class='fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete'></i> e mudarão para <i class='fa-duotone fa-solid fa-circle-check mandatory-indicator complete'></i> quando preenchidos. O botão <b>Finalizar</b> permanecerá desabilitado até que todos os campos obrigatórios sejam preenchidos.</p><p>Quando estiver pronto, pressione <b>Finalizar</b> para finalizar suas escolhas. Você receberá mais alguns avisos para fazer seleções não cobertas pelo Hero Mancer e então estará pronto para jogar! Quanto mais detalhes você fornecer, mais rico seu personagem será no mundo do seu Mestre. Sua jornada começa agora!</p>",
           "title": "Bem-Vindo ao Hero Mancer!"
         },
         "select-art": "Selecione",
@@ -198,7 +203,7 @@
         "token-visibility-placeholder": "Escolha o status de exibição",
         "tooltip": "Comece a criação do seu personagem"
       },
-      "submit": "Enviar",
+      "submit": "Finalizar",
       "submit-description": "Envie seu Hero Mancer",
       "tab-names": {
         "abilities": "Atributos",
@@ -258,9 +263,9 @@
       "reset-options-failed": "Falha ao salvar suas opções. Verifique se você possui as permissões necessárias e tente novamente.",
       "roll-failed": "Falha ao rolar o valor de Atributo. Tente novamente.",
       "save-options-failed": "Falha ao salvar suas opções. Tente novamente.",
-      "select-background": "Selecione um Antecedente antes de enviar.",
-      "select-class": "Selecione uma Classe antes de enviar.",
-      "select-race": "Selecione uma Raça antes de enviar.",
+      "select-background": "Selecione um Antecedente antes de finalizar.",
+      "select-class": "Selecione uma Classe antes de finalizar.",
+      "select-race": "Selecione uma Raça antes de finalizar.",
       "tab-navigation": "Ocorreu um erro ao navegar para a guia selecionada.",
       "token-art-picker-failed": "Falha ao abrir o seletor de arte do token"
     },
@@ -452,10 +457,14 @@
         },
         "instructions": "Selecione quais campos devem ser obrigatórios durante a criação de personagem:",
         "menu": {
-          "hint": "Defina quais campos devem ser preenchidos antes de enviar um personagem.",
+          "hint": "Defina quais campos devem ser preenchidos antes de finalizar um personagem.",
           "name": "Campos Obrigatórios"
         },
         "saved": "Configurações de campos obrigatórios salvas"
+      },
+      "nav-buttons": {
+        "hint": "Adiciona botões Próximo/Anterior para ajudar os usuários a navegar pelas abas.",
+        "name": "Habiloitar Botões de Navegação"
       },
       "no-selection": "Nenhum compêndio selecionado. Selecione pelo menos um.",
       "player-customization": {
