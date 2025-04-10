@@ -150,6 +150,14 @@
       },
       "journal-description-placeholder": "Das Journal wird geladen. Dies ist ein Platzhalter.",
       "journal-loading": "Lade Inhalt des Journals...",
+      "nav": {
+         "next": "Navigiere Zum nächsten Reiter",
+         "next-description": "Gehe zum nächsten Schritt der Charaktererstellung",
+         "next-format": "Weiter: {tabName}",
+         "previous": " Navigiere zum vorherigen Reiter",
+         "previous-description": "Gehe zum vorherigen Schritt der Charaktererstellung zurück",
+         "previous-format": "Zurück: {tabName}"
+       },
       "no-description": "Es konnte keine gültige Beschreibung für dieses Item geladen werden.",
       "optionsReset": "Hero Mancer zurücksetzen! Versuchen wir es noch einmal!",
       "optionsSaved": "Optionen gespeichert! Starte Hero Mancer neu, um dort weiterzumachen, wo du aufgehört hast!",
@@ -186,10 +194,7 @@
         "player-pronouns": "Spieler-Pronomen",
         "player-pronouns-placeholder": "Wähle deine bevorzugten Pronomen",
         "preamble": {
-          "conclusion": "Je mehr Details du angibst, desto lebendiger wird dein Charakter in der Welt der SL. Deine Reise beginnt jetzt!",
-          "description": "Dieser interaktive Charakterersteller führt dich durch die Erstellung deines perfekten Charakters für FoundryVTT.",
-          "features": "Während dieses Prozesses wählst du Attribute, Volk, Klasse und Hintergrund aus, wählst deine bevorzugte Methode zum Ermitteln von Werten aus, passt die Startausrüstung an und entwickelst die Persönlichkeit deines Charakters.",
-          "navigation": "Du kannst frei zwischen den Abschnitten navigieren – dein Fortschritt wird automatisch gespeichert. Verwende 'Für Später Speichern', um zu einem anderen Zeitpunkt fortzufahren.",
+          "text": "<p>Dieser interaktive Charakterersteller f&uuml;hrt dich durch den Prozess, deinen perfekten Charakter f&uuml;r FoundryVTT zu erstellen. W&auml;hrend dieses Prozesses w&auml;hlst du <strong>Attribute</strong>, <strong>Volk</strong>, <strong>Klasse</strong> und <strong>Hintergrund</strong> aus, legst deine <strong>Attributswerte</strong> mit der von dir gew&auml;hlten Wertemethode fest, passt deine <strong>Startausr&uuml;stung</strong> an und entwickelst die <strong>Biografie</strong> deines Charakters.</p><p>Navigiere zwischen den Abschnitten mithilfe der <strong>Registerkarten oben</strong> oder, falls von deiner SL aktiviert, mithilfe der <strong>Schaltfl&auml;chen Weiter/Zur&uuml;ck</strong> unten. Dein Fortschritt wird automatisch gespeichert. Verwende '<strong>F&uuml;r sp&auml;ter speichern</strong>', um zu einem anderen Zeitpunkt fortzufahren.</p><p>Pflichtfelder sind mit <i class='fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete'></i> gekennzeichnet und werden zu <i class='fa-duotone fa-solid fa-circle-check mandatory-indicator complete'></i>, wenn sie ausgef&uuml;llt sind. Die Schaltfl&auml;che&nbsp;<strong>Senden</strong> auf der Registerkarte <i class='fa-solid fa-check-circle'></i> <strong>Vervollst&auml;ndigen</strong>&nbsp;bleibt deaktiviert, bis alle Pflichtfelder ausgef&uuml;llt sind.</p><p>Wenn du bereit bist, klicke auf <strong>Senden</strong>, um deine Auswahl abzuschlie&szlig;en. Du wirst noch einige weitere Aufforderungen erhalten, um Auswahlen zu treffen, die nicht von Hero Mancer abgedeckt werden, und dann bist du bereit zum Spielen! Je mehr Details du angibst, desto lebendiger wird dein Charakter in der Welt deiner SL. Deine Reise beginnt jetzt!</p>",
           "title": "Willkommen bei Hero Mancer!"
         },
         "select-art": "Auswählen",
@@ -199,7 +204,7 @@
         "token-visibility-placeholder": "Wähle Anzeigestatus",
         "tooltip": "Beginne mit der Erstellung deines Charakters"
       },
-      "submit": "Einreichen",
+      "submit": "Senden",
       "submit-description": "Reiche deinen Hero Mancer ein",
       "tab-names": {
         "abilities": "Attribute",
@@ -259,9 +264,9 @@
       "reset-options-failed": "Deine Optionen konnten nicht gespeichert werden. Bitte überprüfe, ob du über die erforderlichen Berechtigungen verfügst, und versuche es erneut.",
       "roll-failed": "Der Attributswert konnte nicht ermittelt werden. Bitte versuche es erneut.",
       "save-options-failed": "Deine Optionen konnten nicht gespeichert werden. Bitte versuche es erneut.",
-      "select-background": "Bitte wähle einen Hintergrund aus, bevor du einreichst.",
-      "select-class": "Bitte wähle eine Klasse aus, bevor du einreichst.",
-      "select-race": "Bitte wähle ein Volk aus, bevor du einreichst.",
+      "select-background": "Bitte wähle einen Hintergrund aus, bevor du sendest.",
+      "select-class": "Bitte wähle eine Klasse aus, bevor du sendest.",
+      "select-race": "Bitte wähle ein Volk aus, bevor du sendest.",
       "tab-navigation": "Beim Navigieren zur ausgewählten Registerkarte ist ein Fehler aufgetreten.",
       "token-art-picker-failed": "Figurenbild auswahl konnte nicht geöffnet werden"
     },
@@ -346,7 +351,13 @@
         "save-error": "Konnte Fertig Schaltfläche nicht erstellen, siehe Konsole.",
         "saved": "{type} Kompendium-Einstellungen wurden gespeichert.",
         "select-all": "Alle auswählen",
-        "title": "Wähle {type} Kompendien!"
+        "title": "Wähle {type}kompendien!",
+         "types": {
+           "background": "Hintergrund",
+           "class": "Klassen",
+           "race": "Völker",
+           "species": "Spezies"
+         }
       },
       "custom-point-buy-total": {
         "hint": "Gib die Gesamtpunktzahl an, wenn du keine Standardberechnungen verwendest.",
@@ -451,6 +462,10 @@
         },
         "saved": "Pflichtfeldeinstellungen gespeichert"
       },
+        "nav-buttons": {
+         "hint": "Fügt Schaltflächen Weiter/Zurück hinzu, um Benutzern die Navigation durch die Registerkarten zu erleichtern",
+         "name": "Aktiviere Navigationstasten"
+       },
       "no-selection": "Es wurden keine Kompendien ausgewählt. Bitte wähle mindestens eines aus.",
       "player-customization": {
         "hint": "Erlaubt deinen Spielern, bei der Charaktererstellung einige Informationen festzulegen, wie z. B. Spielerfarbe, Pronomen und Avatar.",
