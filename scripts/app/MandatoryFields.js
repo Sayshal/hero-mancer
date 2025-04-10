@@ -163,7 +163,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       // Generate all field categories
       const fields = {
         basic: [
-          { key: 'name', label: `${game.i18n.localize('hm.app.start.name-label')}`, default: true },
+          { key: 'character-name', label: `${game.i18n.localize('hm.app.start.name-label')}`, default: true },
           { key: 'character-art', label: `${game.i18n.localize('hm.app.start.character-art-label')}`, default: false },
           { key: 'token-art', label: `${game.i18n.localize('hm.app.start.token-art-label')}`, default: false }
         ],
@@ -322,6 +322,9 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
         mandatoryFields = [];
       }
 
+      // Update tab indicators regardless of submit button
+      DOMManager.updateTabIndicators(form);
+
       // Early return only if no mandatory fields
       if (!mandatoryFields.length) return true;
 
@@ -330,9 +333,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
       // Update UI based on field status
       await MandatoryFields._updateFieldIndicators(fieldStatus);
-
-      // Update tab indicators regardless of submit button
-      DOMManager.updateTabIndicators(form);
 
       // Only update submit button if it exists
       const submitButton = form.querySelector('.hm-app-footer-submit');

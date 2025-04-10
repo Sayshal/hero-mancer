@@ -385,14 +385,12 @@ export class DOMManager {
       // Change event
       this.on(formElement, 'change', async () => {
         MandatoryFields.checkMandatoryFields(element);
-        DOMManager.updateTabIndicators(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
           MandatoryFields.checkMandatoryFields(element);
-          DOMManager.updateTabIndicators(element);
         });
       }
     });
@@ -404,7 +402,6 @@ export class DOMManager {
       if (editorContent) {
         this.observe(`prose-mirror-${index}`, editorContent, { childList: true, characterData: true, subtree: true }, async () => {
           MandatoryFields.checkMandatoryFields(element);
-          DOMManager.updateTabIndicators(element);
         });
       }
     });
