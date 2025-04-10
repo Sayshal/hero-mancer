@@ -333,11 +333,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     // Restore any saved options
-    await SavedOptions.loadOptions().then((options) => {
-      if (Object.keys(options).length > 0) {
-        DOMManager.restoreFormOptions(this.element);
-      }
-    });
+    await DOMManager.restoreFormOptions(this.element);
 
     // Perform initial summaries
     requestAnimationFrame(() => {

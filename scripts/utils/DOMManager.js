@@ -1,4 +1,4 @@
-import { EquipmentParser, HeroMancer, HM, JournalPageEmbed, MandatoryFields, StatRoller, TableManager } from './index.js';
+import { EquipmentParser, HeroMancer, HM, JournalPageEmbed, MandatoryFields, SavedOptions, StatRoller, TableManager } from './index.js';
 
 /**
  * Centralized DOM event and observer management
@@ -855,6 +855,36 @@ export class DOMManager {
     } catch (error) {
       HM.log(1, `Error updating tab indicators: ${error.message}`);
     }
+  }
+
+  /**
+   * Restores saved form options to DOM elements
+   * @param {HTMLElement} html - The form container element
+   */
+  static async restoreFormOptions(html) {
+    const savedOptions = await SavedOptions.loadOptions();
+
+    if (Object.keys(savedOptions).length === 0) return;
+
+    for (const [key, value] of Object.entries(savedOptions)) {
+      const selector = `[name="${key}"]`;
+
+      const elem = html.querySelector(selector);
+
+      if (!elem) continue;
+
+      if (elem.type === 'checkbox') {
+        elem.checked = value;
+      } else if (elem.tagName === 'SELECT') {
+        elem.value = value;
+        elem.dispatchEvent(new Event('change'));
+        this.updateClassRaceSummary();
+      } else {
+        elem.value = value;
+      }
+    }
+
+    this.updateTabIndicators(html);
   }
 
   /* -------------------------------------------- */
