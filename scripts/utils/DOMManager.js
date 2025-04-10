@@ -834,10 +834,13 @@ export class DOMManager {
               // Find the icon element to position relative to
               const iconElement = tab.querySelector('i:not(.tab-mandatory-indicator)');
               if (iconElement) {
-                // Position relative to the icon
-                iconElement.style.position = 'relative';
-                iconElement.appendChild(indicator);
-              } else {
+                // Check if icon already has an indicator before adding a new one
+                if (!iconElement.querySelector('.tab-mandatory-indicator')) {
+                  // Position relative to the icon
+                  iconElement.style.position = 'relative';
+                  iconElement.appendChild(indicator);
+                }
+              } else if (!tab.querySelector('.tab-mandatory-indicator')) {
                 tab.appendChild(indicator);
               }
             });
@@ -883,8 +886,6 @@ export class DOMManager {
         elem.value = value;
       }
     }
-
-    this.updateTabIndicators(html);
   }
 
   /* -------------------------------------------- */

@@ -334,6 +334,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Restore any saved options
     await DOMManager.restoreFormOptions(this.element);
+    DOMManager.updateTabIndicators(this.element);
 
     // Perform initial summaries
     requestAnimationFrame(() => {
