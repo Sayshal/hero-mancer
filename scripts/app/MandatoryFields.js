@@ -1,4 +1,4 @@
-import { FormValidation, HM } from '../utils/index.js';
+import { DOMManager, FormValidation, HM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -322,10 +322,8 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
         mandatoryFields = [];
       }
 
-      const submitButton = form.querySelector('.hm-app-footer-submit');
-
-      // Early return if no submit button or no mandatory fields
-      if (!submitButton || !mandatoryFields.length) return true;
+      // Early return only if no mandatory fields
+      if (!mandatoryFields.length) return true;
 
       // Get all elements and field status in one pass to minimize DOM operations
       const fieldStatus = MandatoryFields._evaluateFieldStatus(form, mandatoryFields);
@@ -333,11 +331,17 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       // Update UI based on field status
       await MandatoryFields._updateFieldIndicators(fieldStatus);
 
-      // Update submit button state
-      const isValid = fieldStatus.missingFields.length === 0;
-      MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
+      // Update tab indicators regardless of submit button
+      DOMManager.updateTabIndicators(form);
 
-      return isValid;
+      // Only update submit button if it exists
+      const submitButton = form.querySelector('.hm-app-footer-submit');
+      if (submitButton) {
+        const isValid = fieldStatus.missingFields.length === 0;
+        MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
+      }
+
+      return fieldStatus.missingFields.length === 0;
     } catch (error) {
       HM.log(1, `Error in checkMandatoryFields: ${error.message}`);
       return true; // Default to allowing submission on error
@@ -451,6 +455,50 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', {
         fields: missingFields.join(', ')
       });
+    }
+  }
+
+  /**
+   * Checks if a specific tab has incomplete mandatory fields
+   * @param {string} tabId - The ID of the tab to check
+   * @param {HTMLElement} form - The form element
+   * @returns {boolean} Whether the tab has any incomplete mandatory fields
+   * @static
+   */
+  static hasIncompleteTabFields(tabId, form) {
+    try {
+      if (!form || !tabId) return false;
+
+      // Get the tab element
+      const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
+      if (!tabElement) return false;
+
+      const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+      if (!mandatoryFields.length) return false;
+
+      // Check each mandatory field in this tab
+      for (const fieldName of mandatoryFields) {
+        // Find element in this tab
+        const element = tabElement.querySelector(`[name="${fieldName}"]`);
+        if (!element) continue; // Field not in this tab
+
+        // Check if field is complete
+        let isComplete = false;
+
+        if (fieldName.startsWith('abilities[')) {
+          const abilityBlock = element.closest('.ability-block');
+          isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
+        } else {
+          isComplete = FormValidation.isFieldComplete(element);
+        }
+
+        if (!isComplete) return true; // Found an incomplete field
+      }
+
+      return false;
+    } catch (error) {
+      HM.log(1, `Error checking tab mandatory fields: ${error.message}`);
+      return false;
     }
   }
 }

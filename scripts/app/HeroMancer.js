@@ -332,6 +332,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       });
     }
 
+    // Restore any saved options
+    await SavedOptions.loadOptions().then((options) => {
+      if (Object.keys(options).length > 0) {
+        DOMManager.restoreFormOptions(this.element);
+      }
+    });
+
     // Perform initial summaries
     requestAnimationFrame(() => {
       if (HM.SELECTED.race?.uuid || HM.SELECTED.class?.uuid) {
@@ -360,6 +367,22 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
       // Check if this is a partial render of just the abilities tab
       const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
+      const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
+
+      if (isFooterPartialRender) {
+        // For footer-only render, update submit button status
+        const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+        if (mandatoryFields.length > 0) {
+          const submitButton = this.element.querySelector('.hm-app-footer-submit');
+          if (submitButton) {
+            // Get field status from main form
+            const fieldStatus = MandatoryFields._evaluateFieldStatus(this.element, mandatoryFields);
+            const isValid = fieldStatus.missingFields.length === 0;
+            MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
+          }
+        }
+        return;
+      }
 
       if (isAbilitiesPartialRender) {
         // For abilities-only render, just initialize abilities tab
@@ -392,12 +415,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       // Check mandatory fields
       await MandatoryFields.checkMandatoryFields(this.element);
 
-      // Restore any saved options
-      await SavedOptions.loadOptions().then((options) => {
-        if (Object.keys(options).length > 0) {
-          DOMManager.restoreFormOptions(this.element);
-        }
-      });
+      // Update tab indicators
+      HM.log(1, 'Updating tab indicators.');
+      DOMManager.updateTabIndicators(this.element);
     } finally {
       this.#isRendering = false;
     }
@@ -463,6 +483,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Re-render only the footer to update navigation buttons
     this.render(false, { parts: ['footer'] });
+
+    // Update tab indicators
+    DOMManager.updateTabIndicators(this.element);
   }
 
   /* -------------------------------------------- */
@@ -765,8 +788,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     const currentIndex = filteredTabs.indexOf(currentTab);
     if (currentIndex > 0) {
       const previousTab = filteredTabs[currentIndex - 1];
-      app.tabGroups[tabGroup] = previousTab;
-      app.render();
+      app.changeTab(previousTab, tabGroup);
     }
   }
 
@@ -791,8 +813,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     const currentIndex = filteredTabs.indexOf(currentTab);
     if (currentIndex < filteredTabs.length - 1) {
       const nextTab = filteredTabs[currentIndex + 1];
-      app.tabGroups[tabGroup] = nextTab;
-      app.render();
+      app.changeTab(nextTab, tabGroup);
     }
   }
 

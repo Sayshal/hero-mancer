@@ -1,68 +1,79 @@
 {{!-- Hero Mancer Application Footer with Action Buttons --}}
 <footer>
-  <div class='hm-app-footer-actions'>
-    {{!-- Previous Tab Button --}}
-    {{#if navigationButtons}}
-      {{#unless isFirstTab}}
-        <button type='button' data-action='previousTab' class='hm-app-nav-previous'
-        data-tooltip='{{localize "hm.app.nav.previous"}}'
-          aria-label='{{localize "hm.app.nav.previous"}}' aria-describedby='previous-description'>
-          <i class="fas fa-chevron-left nav-prev"> </i> {{localize "hm.app.nav.previous-format" tabName=previousTabName}}
+  <div class='hm-footer-container'>
+    {{!-- Left div for Previous Button --}}
+    <div class='hm-footer-left'>
+      {{#if navigationButtons}}
+        {{#unless isFirstTab}}
+          <button type='button' data-action='previousTab' class='hm-app-nav-previous'
+            data-tooltip='{{localize "hm.app.nav.previous"}}' aria-label='{{localize "hm.app.nav.previous"}}'
+            aria-describedby='previous-description'>
+            <i class="fas fa-chevron-left nav-prev"></i>
+            {{localize "hm.app.nav.previous-format" tabName=previousTabName}}
+          </button>
+          <span id='previous-description' class='sr-only'>{{localize "hm.app.nav.previous-description"}}</span>
+        {{/unless}}
+      {{/if}}
+    </div>
+
+    {{!-- Middle div for Action Buttons --}}
+    <div class='hm-footer-middle'>
+      <div class='hm-app-footer-actions'>
+        {{!-- Randomize Button (conditional) --}}
+        {{#if randomizeButton}}
+          <button type='button' data-action='randomize' class='hm-app-footer-randomize'
+            data-tooltip='{{localize "hm.app.randomize.randomize-character"}}'
+            aria-label='{{localize "hm.app.randomize.randomize-character"}}' aria-describedby='randomize-description'>
+            {{localize 'hm.app.randomize.randomize'}}
+          </button>
+          <span id='randomize-description' class='sr-only'>{{localize 'hm.app.randomize.randomize-character'}}</span>
+        {{/if}}
+
+        {{!-- Save Options Button --}}
+        <button type='submit' data-action='saveOptions' class='hm-app-footer-save'
+          data-tooltip='{{localize "hm.app.save-description"}}' aria-label='{{localize "hm.app.save"}}'
+          aria-describedby='save-description'>
+          {{localize 'hm.app.save'}}
         </button>
-        <span id='previous-description' class='sr-only'>{{localize "hm.app.nav.previous-description"}}</span>
-      {{/unless}}
-    {{/if}}
-    {{!-- Submit Button --}}
-    <button type='submit' data-action="submit" class='hm-app-footer-submit'
-      data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
-      aria-describedby='submit-description'>
-      {{localize 'hm.app.submit'}}
-    </button>
-    <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
+        <span id='save-description' class='sr-only'>{{localize 'hm.app.save-description'}}</span>
 
-    {{!-- Randomize Button (conditional) --}}
-    {{#if randomizeButton}}
-      <button type='button' data-action='randomize' class='hm-app-footer-randomize'
-        data-tooltip='{{localize "hm.app.randomize.randomize-character"}}'
-        aria-label='{{localize "hm.app.randomize.randomize-character"}}' aria-describedby='randomize-description'>
-        {{localize 'hm.app.randomize.randomize'}}
-      </button>
-      <span id='randomize-description' class='sr-only'>{{localize 'hm.app.randomize.randomize-character'}}</span>
-    {{/if}}
+        {{!-- Reset Options Button --}}
+        <button type='button' data-action='resetOptions' class='hm-app-footer-reset'
+          data-tooltip='{{localize "hm.app.reset-description"}}' aria-label='{{localize "hm.app.reset"}}'
+          aria-describedby='reset-description'>
+          {{localize 'hm.app.reset'}}
+        </button>
+        <span id='reset-description' class='sr-only'>{{localize 'hm.app.reset-description'}}</span>
 
-    {{!-- Save Options Button --}}
-    <button type='submit' data-action='saveOptions' class='hm-app-footer-save'
-      data-tooltip='{{localize "hm.app.save-description"}}' aria-label='{{localize "hm.app.save"}}'
-      aria-describedby='save-description'>
-      {{localize 'hm.app.save'}}
-    </button>
-    <span id='save-description' class='sr-only'>{{localize 'hm.app.save-description'}}</span>
+        {{!-- Cancel Button --}}
+        <button type='button' data-action='nosubmit' class='hm-app-footer-cancel'
+          data-tooltip='{{localize "hm.app.cancel-description"}}' aria-label='{{localize "hm.app.cancel"}}'
+          aria-describedby='cancel-description'>
+          {{localize 'hm.app.cancel'}}
+        </button>
+        <span id='cancel-description' class='sr-only'>{{localize 'hm.app.cancel-description'}}</span>
+      </div>
+    </div>
 
-    {{!-- Reset Options Button --}}
-    <button type='button' data-action='resetOptions' class='hm-app-footer-reset'
-      data-tooltip='{{localize "hm.app.reset-description"}}' aria-label='{{localize "hm.app.reset"}}'
-      aria-describedby='reset-description'>
-      {{localize 'hm.app.reset'}}
-    </button>
-    <span id='reset-description' class='sr-only'>{{localize 'hm.app.reset-description'}}</span>
-
-    {{!-- Cancel Button --}}
-    <button type='button' data-action='nosubmit' class='hm-app-footer-cancel'
-      data-tooltip='{{localize "hm.app.cancel-description"}}' aria-label='{{localize "hm.app.cancel"}}'
-      aria-describedby='cancel-description'>
-      {{localize 'hm.app.cancel'}}
-    </button>
-    <span id='cancel-description' class='sr-only'>{{localize 'hm.app.cancel-description'}}</span>
-    {{!-- Next Tab Button --}}
-    {{#if navigationButtons}}
-      {{#unless isLastTab}}
+    {{!-- Right div for Next/Submit Button --}}
+    <div class='hm-footer-right'>
+      {{#if isLastTab}}
+        {{!-- Submit Button (on last tab) --}}
+        <button type='submit' data-action="submit" class='hm-app-footer-submit'
+          data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
+          aria-describedby='submit-description'>
+          {{localize 'hm.app.submit'}}
+        </button>
+        <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
+      {{else if navigationButtons}}
+        {{!-- Next Button --}}
         <button type='button' data-action='nextTab' class='hm-app-nav-next' {{#if nextDisabled}}disabled{{/if}}
-        data-tooltip='{{localize "hm.app.nav.next"}}'
-          aria-label='{{localize "hm.app.nav.next"}}' aria-describedby='next-description'>
-          {{localize "hm.app.nav.next-format" tabName=nextTabName}} <i class="fas fa-chevron-right nav-next"> </i>
+          data-tooltip='{{localize "hm.app.nav.next"}}' aria-label='{{localize "hm.app.nav.next"}}'
+          aria-describedby='next-description'>
+          {{localize "hm.app.nav.next-format" tabName=nextTabName}} <i class="fas fa-chevron-right nav-next"></i>
         </button>
         <span id='next-description' class='sr-only'>{{localize "hm.app.nav.next-description"}}</span>
-      {{/unless}}
-    {{/if}}
+      {{/if}}
+    </div>
   </div>
 </footer>

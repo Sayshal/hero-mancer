@@ -132,6 +132,23 @@ h6 {
   text-shadow: 0 0 10px var(--color-shadow-primary);
 }
 
+/* Tab Mandatory Indicator styling */
+.hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-diamond-exclamation.tab-mandatory-indicator {
+  position: absolute;
+  color: #ff6b6b;
+  text-shadow: 0 0 8px #ff6b6b80;
+  font-size: 0.7rem;
+  top: -0.3rem;
+  right: 1rem;
+  z-index: 1;
+}
+
 /* ==========================================================================
   Tab Content
   ========================================================================== */
@@ -185,52 +202,75 @@ h6 {
   padding: 0.625rem;
 }
 
+.hm-footer-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hm-footer-left {
+  width: 20%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.hm-footer-middle {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+}
+
+.hm-footer-right {
+  width: 20%;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .hm-app-footer-actions {
   gap: 0.625rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  white-space: nowrap;
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions button {
+/* Button styling */
+.hm-app-footer button,
+.hm-footer-left button,
+.hm-footer-right button,
+.hm-app-footer-actions button {
   padding: 0.5rem 1rem;
   white-space: nowrap;
-  justify-content: center;
+  height: 2.5rem;
+  display: inline-flex;
   align-items: center;
-  white-space: nowrap;
+  justify-content: center;
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions button i {
-  font-size: var(--font-size-10);
-  justify-content: center;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.hm-app .hm-app-footer .hm-app-footer-actions button i.nav-next {
+/* Navigation icons */
+button i.nav-next {
   margin-left: 0.25rem;
-  margin-right: unset;
+  font-size: var(--font-size-10);
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions button i.nav-prev {
-  margin-left: unset;
+button i.nav-prev {
   margin-right: 0.25rem;
+  font-size: var(--font-size-10);
 }
 
 /* Button hover states */
-.hm-app .hm-app-footer .hm-app-footer-actions .hm-app-footer-submit:hover {
+.hm-app-footer-submit:hover {
   background-color: #45a149;
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions .hm-app-footer-save:hover {
+.hm-app-footer-save:hover {
   background-color: #ffd500;
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions .hm-app-footer-reset:hover {
+.hm-app-footer-reset:hover {
   background-color: #ff8000;
 }
 
-.hm-app .hm-app-footer .hm-app-footer-actions .hm-app-footer-cancel:hover {
+.hm-app-footer-cancel:hover {
   background-color: #d33131;
 }
