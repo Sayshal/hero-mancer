@@ -682,7 +682,7 @@ export class StatRoller {
     // Both dropdown and input should reference the selected ability
     dropdown.setAttribute('name', `abilities[${value}]`);
     if (scoreInput) {
-      scoreInput.setAttribute('name', `abilities[${value}].score`);
+      scoreInput.setAttribute('name', `abilities[${value}]-score`);
     }
 
     // Disable options that are already selected elsewhere

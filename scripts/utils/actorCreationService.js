@@ -545,12 +545,12 @@ export class ActorCreationService {
     const abilities = {};
 
     // Extract ability scores from form data
-    // They can be in format abilities[str] or abilities[str].score
+    // They can be in format abilities[str] or abilities[str]-score
     for (const key in formData) {
-      const abilityMatch = key.match(/^abilities\[(\w+)]\.score$/) || key.match(/^abilities\[(\w+)]$/);
+      const abilityMatch = key.match(/^abilities\[(\w+)]-score$/) || key.match(/^abilities\[(\w+)]$/);
       if (abilityMatch) {
         const abilityKey = abilityMatch[1];
-        abilities[abilityKey] = formData[key] || 10;
+        abilities[abilityKey] = formData[key] || game.settings.get(HM.ID, 'abilityScoreDefault');
       }
     }
 

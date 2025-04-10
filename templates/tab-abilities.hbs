@@ -114,7 +114,7 @@
             </select>
 
             <input id='ability-{{@index}}-score' type='number'
-              name='abilities[{{lookup . (concat "abilities[" this.key "]")}}].score'
+              name='abilities[{{lookup . (concat "abilities[" this.key "]")}}]-score'
               class='ability-score form-input text-center' data-dtype='Number'
               placeholder='{{localize "hm.app.abilities.score-placeholder"}}'
               aria-label='{{localize "hm.app.abilities.score-label"}} {{this.abbreviation}}' />
