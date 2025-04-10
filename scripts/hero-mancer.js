@@ -1,5 +1,5 @@
 import { registerSettings } from './settings.js';
-import { API, CustomCompendiums, DiceRolling, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
+import { API, CustomCompendiums, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
 
 /**
  * Main Hero Mancer class, define some statics that will be used everywhere in the module.
@@ -98,7 +98,7 @@ export class HM {
    * @returns {void}
    */
   static init() {
-    this.initSettings();
+    registerSettings();
     this.LOG_LEVEL = parseInt(game.settings.get(this.ID, 'loggingLevel'));
     this.DOCS = { ...this.DOCS }; // Clone default structure
     this.ABILITY_SCORES = {
@@ -117,21 +117,6 @@ export class HM {
       }`;
       HM.log(3, logMessage); // Log at verbose level
     }
-  }
-
-  /**
-   * Register and initialize all module settings
-   * @static
-   * @returns {void}
-   */
-  static initSettings() {
-    console.log(`${HM.ID} | Registering module settings.`);
-    registerSettings();
-
-    Hooks.once('renderSettingConfig', () => {
-      this.customCompendiums = new CustomCompendiums();
-      this.diceRolling = new DiceRolling();
-    });
   }
 
   /**
@@ -355,11 +340,6 @@ Hooks.once('ready', async () => {
   }
 
   globalThis.heroMancer = HM.API;
-
-  // Enable the Hero Mancer button after all prep is complete
-  const button = document.querySelector('.hm-actortab-button');
-  if (button) button.disabled = false;
-
   Hooks.callAll('heroMancer.Ready', this);
 });
 
@@ -377,9 +357,7 @@ Hooks.on('renderActorDirectory', () => {
   button.classList.add('hm-actortab-button');
   button.setAttribute('title', game.i18n.localize('hm.actortab-button.hint'));
   button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
-  button.disabled = true; // Start disabled
 
-  // Add click handler
   button.addEventListener('click', () => {
     if (HM.heroMancer) {
       HM.heroMancer.close();

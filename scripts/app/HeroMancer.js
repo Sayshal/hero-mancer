@@ -415,8 +415,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       // Check mandatory fields
       await MandatoryFields.checkMandatoryFields(this.element);
 
-      // Update tab indicators
-      HM.log(1, 'Updating tab indicators.');
       DOMManager.updateTabIndicators(this.element);
     } finally {
       this.#isRendering = false;
