@@ -1294,6 +1294,12 @@ tr.wealth-roll-container[style*='display: table-row'] {
   text-align: center;
 }
 
+.journal-container .content-embed .statblock.npc {
+  margin-left: auto;
+  margin-right: 0;
+  text-align: left;
+}
+
 .journal-container figure.content-embed {
   margin: 0.5rem 0;
 }
