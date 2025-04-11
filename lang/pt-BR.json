@@ -113,7 +113,7 @@
         "unexpected-format": "Erro ao renderizar conteúdo: Formato inesperado"
       },
       "finalize": {
-        "backstory": "História",
+        "backstory": "Biografia",
         "backstory-placeholder": "Escreva uma história para o seu personagem. Considere a quais organizações ele pertence, quaisquer aliados que ele fez ou inimigos que ele ganhou, entre outros detalhes importantes de sua vida antes de se tornar um aventureiro.",
         "bonds-placeholder": "Quem ou o que é mais querido pelo seu personagem? Qual lugar se parece com um lar? Qual objeto significa tudo para ele? Pressione o botão Rolar para selecionar vínculos sugeridos pelo seu Antecedente.",
         "bonds-placeholder-alt": "Quem ou o que é mais querido para o seu personagem? Qual lugar se parece com um lar? Qual objeto significa tudo para ele?",
