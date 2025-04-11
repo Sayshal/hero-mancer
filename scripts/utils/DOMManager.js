@@ -829,7 +829,7 @@ export class DOMManager {
           if (!indicator) {
             operations.push(() => {
               indicator = document.createElement('i');
-              indicator.className = 'fa-duotone fa-solid fa-diamond-exclamation tab-mandatory-indicator';
+              indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
 
               // Find the icon element to position relative to
               const iconElement = tab.querySelector('i:not(.tab-mandatory-indicator)');

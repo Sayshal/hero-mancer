@@ -236,9 +236,11 @@ export class FormValidation {
       // Create new indicator
       const icon = document.createElement('i');
       if (isComplete) {
-        icon.className = 'fa-duotone fa-solid fa-circle-check mandatory-indicator complete';
+        icon.className = 'fa-solid fa-circle-check mandatory-indicator complete';
+        icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.completed'));
       } else {
-        icon.className = 'fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete';
+        icon.className = 'fa-solid fa-triangle-exclamation mandatory-indicator incomplete';
+        icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.incomplete'));
       }
       labelElement.prepend(icon);
     } catch (error) {

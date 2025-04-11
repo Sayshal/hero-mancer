@@ -149,6 +149,10 @@
       },
       "journal-description-placeholder": "O Diário está carregando. Este é um espaço reservado.",
       "journal-loading": "Carregando conteúdo do diário...",
+      "mandatory": {
+        "completed": "Você completou este campo",
+        "incomplete": "Este campo é obrigatório, por favor preencha"
+      },
       "nav": {
         "next": "Navegar para a próxima aba",
         "next-description": "Continue para a próxima etapa na criação do personagem",
@@ -193,7 +197,7 @@
         "player-pronouns": "Pronomes do Jogador",
         "player-pronouns-placeholder": "Escolha seus pronomes preferidos",
         "preamble": {
-          "text": "<p>Este criador de personagens interativo irá guiá-lo na construção do seu personagem perfeito para FoundryVTT. Durante esse processo, você escolherá <b>Atributos</b>, <b>Raça</b>, <b>Classe</b> e <b>Antecedente</b>, definirá seus valores de <b>Atributo</b> com o método de rolagem de estatísticas de sua escolha, personalizará o <b>Equipamento Inicial</b> e desenvolverá a <b>Biografia</b> do seu personagem.</p><p>Navegue entre as seções usando as <b>abas acima</b> ou, se habilitado pelo seu Mestre, os <b>botões Próximo/Anterior</b> abaixo - seu progresso será salvo automaticamente. Use '<b>Salvar para Depois</b>' para continuar em outro momento.</p><p>Os campos obrigatórios são marcados com <i class='fa-duotone fa-solid fa-diamond-exclamation mandatory-indicator incomplete'></i> e mudarão para <i class='fa-duotone fa-solid fa-circle-check mandatory-indicator complete'></i> quando preenchidos. O botão <b>Finalizar</b>, localizado na aba <i class='fa-solid fa-check-circle'></i> <b>Finalizar</b>, permanecerá desabilitado até que todos os campos obrigatórios sejam preenchidos.</p><p>Quando estiver pronto, pressione <b>Finalizar</b> para finalizar suas escolhas. Você receberá mais alguns avisos para fazer seleções não cobertas pelo Hero Mancer e então estará pronto para jogar! Quanto mais detalhes você fornecer, mais rico seu personagem será no mundo do seu Mestre. Sua jornada começa agora!</p>",
+          "text": "<p>Este criador de personagens interativo irá guiá-lo na construção do seu personagem perfeito para FoundryVTT. Durante esse processo, você escolherá <b>Atributos</b>, <b>Raça</b>, <b>Classe</b> e <b>Antecedente</b>, definirá seus valores de <b>Atributo</b> com o método de rolagem de estatísticas de sua escolha, personalizará o <b>Equipamento Inicial</b> e desenvolverá a <b>Biografia</b> do seu personagem.</p><p>Navegue entre as seções usando as <b>abas acima</b> ou, se habilitado pelo seu Mestre, os <b>botões Próximo/Anterior</b> abaixo - seu progresso será salvo automaticamente. Use '<b>Salvar para Depois</b>' para continuar em outro momento.</p><p>Os campos obrigatórios são marcados com <i class='fa-solid fa-triangle-exclamation mandatory-indicator incomplete'></i> e mudarão para <i class='fa-solid fa-circle-check mandatory-indicator complete'></i> quando preenchidos. O botão <b>Finalizar</b>, localizado na aba <i class='fa-solid fa-check-circle'></i> <b>Finalizar</b>, permanecerá desabilitado até que todos os campos obrigatórios sejam preenchidos.</p><p>Quando estiver pronto, pressione <b>Finalizar</b> para finalizar suas escolhas. Você receberá mais alguns avisos para fazer seleções não cobertas pelo Hero Mancer e então estará pronto para jogar! Quanto mais detalhes você fornecer, mais rico seu personagem será no mundo do seu Mestre. Sua jornada começa agora!</p>",
           "title": "Bem-Vindo ao Hero Mancer!"
         },
         "select-art": "Selecione",

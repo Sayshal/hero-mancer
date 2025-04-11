@@ -451,14 +451,14 @@ h6 {
   height: 24px;
 }
 
-.hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-diamond-exclamation.tab-mandatory-indicator {
+.hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
   z-index: 1;
   position: absolute;
   top: -0.3rem;
   right: 1rem;
-  color: #ff6b6b;
-  font-size: 0.7rem;
-  text-shadow: 0 0 8px #ff6b6b80;
+  color: #e53935;
+  font-size: 0.84rem;
+  text-shadow: 0 0 4px #e539354d;
 }
 
 /* ==========================================================================
@@ -1295,8 +1295,8 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .journal-container .content-embed .statblock.npc {
-  margin-left: auto;
   margin-right: 0;
+  margin-left: auto;
   text-align: left;
 }
 
@@ -1718,17 +1718,17 @@ tr.wealth-roll-container[style*='display: table-row'] {
   justify-content: center;
   align-items: center;
   margin-right: 0.25rem;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 .mandatory-indicator.complete {
-  color: #4cae4f;
-  text-shadow: 0 0 8px #4cae4f80;
+  color: #2e7d32;
+  text-shadow: 0 0 4px #2e7d324d;
 }
 
 .mandatory-indicator.incomplete {
-  color: #ff6b6b;
-  text-shadow: 0 0 8px #ff6b6b80;
+  color: #e53935;
+  text-shadow: 0 0 4px #e539354d;
 }
 
 /* Field validation styling */
@@ -1747,7 +1747,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   display: flex;
   position: relative;
   align-items: center;
-  margin-top: 0.5rem;
 }
 
 .notes-section:has(prose-mirror.mandatory-field) > h3 {
@@ -1786,7 +1785,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 /* Label styles */
 .label-15 {
-  flex: 0 0 120px;
+  flex: 0 0 130px;
   margin-right: 0.3rem;
   white-space: nowrap;
 }
