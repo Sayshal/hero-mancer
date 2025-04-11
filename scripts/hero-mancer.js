@@ -284,6 +284,12 @@ export class HM {
       HM.COMPAT = { CPR: true };
       HM.log(3, 'CPR Detected: Compatibility auto-enabled.');
     }
+
+    // Tokenizer compatibility
+    if (game.modules.get('vtta-tokenizer')?.active) {
+      HM.COMPAT.TOKENIZER = true;
+      HM.log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
+    }
   }
 }
 

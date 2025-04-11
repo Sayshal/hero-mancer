@@ -108,4 +108,16 @@
 			<p class='hint'>{{localize 'hm.settings.art-picker-root.hint'}}</p>
 		</div>
 	</div>
+
+	{{!-- Tokenizer Compatibility --}}
+	{{#if tokenizerModuleActive}}
+		<div class="form-group flex flex-col items-start">
+			<div class="flex items-center">
+				<input type='checkbox' id="tokenizerCompatibility" name='tokenizerCompatibility'
+					{{#if tokenizerCompatibility}}checked{{/if}} />
+				<label for="tokenizerCompatibility" class="font-bold">{{localize 'hm.settings.tokenizer.name'}}</label>
+			</div>
+			<p class='hint'>{{localize 'hm.settings.tokenizer.hint'}}</p>
+		</div>
+	{{/if}}
 </div>

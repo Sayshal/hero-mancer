@@ -75,7 +75,14 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
         'enableTokenCustomization'
       ];
 
+      // Add tokenizerCompatibility only if the module is active
+      const tokenizerModuleActive = !!game.modules.get('vtta-tokenizer')?.active;
+      if (tokenizerModuleActive) {
+        settingsToFetch.push('tokenizerCompatibility');
+      }
+
       const context = {};
+      context.tokenizerModuleActive = tokenizerModuleActive;
 
       for (const setting of settingsToFetch) {
         try {
@@ -135,7 +142,19 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * @private
    */
   static _validateFormData(formData) {
-    const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+    const settings = [
+      'alignments',
+      'deities',
+      'eye-colors',
+      'hair-colors',
+      'skin-tones',
+      'genders',
+      'enableRandomize',
+      'artPickerRoot',
+      'tokenizerCompatibility',
+      'enablePlayerCustomization',
+      'enableTokenCustomization'
+    ];
 
     // Get default values from game settings
     const defaults = {};

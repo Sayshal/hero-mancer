@@ -455,5 +455,16 @@ function registerCompatibilitySettings() {
     });
   }
 
+  if (game.modules.get('vtta-tokenizer')?.active) {
+    game.settings.register(HM.ID, 'tokenizerCompatibility', {
+      name: 'hm.settings.tokenizer.name',
+      scope: 'client',
+      config: false,
+      type: Boolean,
+      default: true,
+      requiresReload: true
+    });
+  }
+
   HM.log(3, 'Compatibility settings registered.');
 }
