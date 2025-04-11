@@ -112,26 +112,6 @@ export class ToolItemRenderer extends BaseItemRenderer {
   }
 
   /**
-   * Assemble tool UI components
-   * @param {HTMLElement} itemContainer - Container element
-   * @param {HTMLSelectElement} select - Select element with options
-   * @param {string} toolConfig - Tool configuration
-   * @private
-   */
-  assembleToolUI(itemContainer, select, toolConfig) {
-    HM.log(3, 'Assembling tool UI components');
-
-    const label = document.createElement('h4');
-    label.htmlFor = select.id;
-    label.innerHTML = `${toolConfig}`;
-
-    itemContainer.appendChild(label);
-    itemContainer.appendChild(select);
-
-    HM.log(3, `Added label "${toolConfig}" and select with ${select.options.length} options`);
-  }
-
-  /**
    * Create select element for tool items
    * @param {Object} item - Tool item
    * @param {string} toolType - Tool type

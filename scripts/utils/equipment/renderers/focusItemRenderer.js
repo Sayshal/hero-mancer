@@ -90,26 +90,6 @@ export class FocusItemRenderer extends BaseItemRenderer {
   }
 
   /**
-   * Assemble focus UI components
-   * @param {HTMLElement} itemContainer - Container element
-   * @param {HTMLSelectElement} select - Select element with options
-   * @param {Object} focusConfig - Focus configuration
-   * @private
-   */
-  assembleFocusUI(itemContainer, select, focusConfig) {
-    HM.log(3, 'Assembling focus UI components');
-
-    const label = document.createElement('h4');
-    label.htmlFor = select.id;
-    label.innerHTML = `${focusConfig.label}`;
-
-    itemContainer.appendChild(label);
-    itemContainer.appendChild(select);
-
-    HM.log(3, `Added label "${focusConfig.label}" and select with ${select.options.length} options`);
-  }
-
-  /**
    * Create select element for focus items
    * @param {Object} item - Focus item
    * @param {Object} focusConfig - Focus configuration

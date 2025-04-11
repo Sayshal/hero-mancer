@@ -312,41 +312,6 @@ export class AndItemRenderer extends BaseItemRenderer {
   }
 
   /**
-   * Check if two items are related and should be grouped
-   * @param {Object} item1 - First item
-   * @param {Object} item2 - Second item
-   * @returns {Promise<boolean>} True if related
-   */
-  async areItemsRelated(item1, item2) {
-    HM.log(3, `Checking if ${item1._id} and ${item2._id} are related`);
-
-    const doc1 = await fromUuidSync(item1._source?.key);
-    const doc2 = await fromUuidSync(item2._source?.key);
-
-    if (!doc1 || !doc2) {
-      HM.log(3, 'Missing document(s), cannot determine relation');
-      return false;
-    }
-
-    // Check if one is a weapon and one is ammo
-    const isWeaponAndAmmo = (doc1.type === 'weapon' && doc2.system?.type?.value === 'ammo') || (doc2.type === 'weapon' && doc1.system?.type?.value === 'ammo');
-
-    // Check if one is a container and one is a storable item
-    const isContainerAndItem = (doc1.type === 'container' && doc2.type !== 'container') || (doc2.type === 'container' && doc1.type !== 'container');
-
-    const result = isWeaponAndAmmo || isContainerAndItem;
-
-    if (result) {
-      const relationType = isWeaponAndAmmo ? 'weapon and ammo' : 'container and item';
-      HM.log(3, `Items ${item1._id} and ${item2._id} are related (${relationType})`);
-    } else {
-      HM.log(3, `Items ${item1._id} and ${item2._id} are not related`);
-    }
-
-    return result;
-  }
-
-  /**
    * Render a group of related items
    * @param {Array<Object>} group - Group of items
    * @param {Set<string>} processedIds - Processed IDs
@@ -433,35 +398,6 @@ export class AndItemRenderer extends BaseItemRenderer {
 
     HM.log(3, `Created label "${combinedLabel}" with ${combinedIds.length} IDs`);
     return { combinedLabel, combinedIds };
-  }
-
-  /**
-   * Add UI elements for a group
-   * @param {HTMLElement} itemContainer - Container element
-   * @param {string} combinedLabel - Group label
-   * @param {Array<string>} combinedIds - Group IDs
-   * @private
-   */
-  addGroupUI(itemContainer, combinedLabel, combinedIds) {
-    HM.log(3, `Adding UI for group with label "${combinedLabel}"`);
-
-    // Create heading and label for grouped items
-    const h4 = document.createElement('h4');
-    h4.innerHTML = `${combinedLabel}`;
-
-    const label = document.createElement('label');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = combinedIds.join(',');
-    checkbox.checked = true;
-
-    label.innerHTML = `${combinedLabel}`;
-    label.prepend(checkbox);
-
-    itemContainer.appendChild(h4);
-    itemContainer.appendChild(label);
-
-    HM.log(3, `Added heading and checkbox with ID ${checkbox.id}`);
   }
 
   /**

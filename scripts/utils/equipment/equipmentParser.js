@@ -160,45 +160,6 @@ export class EquipmentParser {
   }
 
   /**
-   * Searches all selectedPacks for a document by ID
-   * @async
-   * @param {string} itemId - Item ID to search for
-   * @returns {Promise<Item|null>} Found item document or null
-   */
-  async findItemDocumentById(itemId) {
-    HM.log(3, `Searching for item ${itemId}`);
-    const result = await this.dataService.findItemDocumentById(itemId);
-    HM.log(3, `${result ? 'Found' : 'Did not find'} item ${itemId}`);
-    return result;
-  }
-
-  /**
-   * Extracts granted proficiencies from advancement data
-   * @async
-   * @param {Array<object>} advancements - Array of advancement configurations
-   * @returns {Promise<Set<string>>} Set of granted proficiency strings
-   */
-  async extractProficienciesFromAdvancements(advancements) {
-    HM.log(3, `Processing ${advancements?.length || 0} advancements`);
-    const result = await this.dataService.extractProficienciesFromAdvancements(advancements);
-    HM.log(3, `Extracted ${result.size} proficiencies`);
-    return result;
-  }
-
-  /**
-   * Fetches starting equipment and proficiencies for a given selection type
-   * @async
-   * @param {'class'|'background'} type - Selection type to fetch equipment for
-   * @returns {Promise<Array<object>>} Starting equipment array
-   */
-  async getStartingEquipment(type) {
-    HM.log(3, `Fetching ${type} equipment`);
-    const result = await this.dataService.getStartingEquipment(type);
-    HM.log(3, `Retrieved ${result.length} items for ${type}`);
-    return result;
-  }
-
-  /**
    * Renders starting wealth options for class or background
    * @async
    * @param {HTMLElement} sectionContainer - Container element to render into
