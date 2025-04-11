@@ -503,6 +503,9 @@
         "hint": "Erlaube deinen Spielern, einige Standard-Figuren-Einstellungen vorzunehmen, die normalerweise dem Spielleiter vorbehalten sind, wie z. B. den Status des Anzeigenamens, die Einstellungen für den dynamischen Figur-Ring und die Anzeigeleisten.",
         "name": "Erlaube eigene Spielfiguren"
       },
+      "tokenizer": {
+        "name": "Benutze Tokenizer für das Charakterporträt und Figurenbild"
+      },
       "troubleshooter": {
         "copy-error": "Bericht konnte nicht in die Zwischenablage kopiert werden.",
         "copy-success": "Fehlerbehebung in die Zwischenablage kopiert",
