@@ -503,6 +503,9 @@
         "hint": "Permite que seus jogadores definam algumas configurações de token padrão normalmente reservadas para o Mestre, como status de nome de exibição, configurações do anel dinâmico de token e barras de exibição.",
         "name": "Permitir Personalização de Token"
       },
+      "tokenizer": {
+        "name": "Usar Tokenizer na Arte do Token/Personagem"
+      },
       "troubleshooter": {
         "copy-error": "Falha ao copiar o relatório para a área de transferência.",
         "copy-success": "Troubleshooter copiado para a área de transferência",

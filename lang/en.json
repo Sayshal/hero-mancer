@@ -279,9 +279,6 @@
       "cpr-effects-applied": "Cauldron of Plentiful Resouces detected! Automations have been applied!"
     },
     "settings": {
-      "tokenizer": {
-        "name": "Use tokenizer to choose token/character art."
-      },
       "ability-scores": {
         "default": {
           "hint": "The starting value for ability scores when creating a new character.",
@@ -505,6 +502,9 @@
       "token-customization": {
         "hint": "Allow your players to set some default token settings usually reserved for the GM, such as display name status, dynamic token ring settings, and display bars.",
         "name": "Allow Token Customization"
+      },
+      "tokenizer": {
+        "name": "Use tokenizer to choose token/character art."
       },
       "troubleshooter": {
         "copy-error": "Failed to copy report to clipboard.",
