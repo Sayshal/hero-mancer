@@ -1177,7 +1177,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
  ========================================================================== */
 
 /* Base container */
-.journal-container {
+.hm-app-tab-content .journal-container {
   padding: 0.25rem;
   border-radius: var(--border-radius-md);
   overflow: auto hidden;
@@ -1200,13 +1200,13 @@ tr.wealth-roll-container[style*='display: table-row'] {
   padding: 0.5rem 1rem;
 }
 
-.journal-container:empty,
-.journal-container:not([data-journal-id]) {
+.hm-app-tab-content .journal-container:empty,
+.hm-app-tab-content .journal-container:not([data-journal-id]) {
   display: none;
 }
 
 /* Loading state */
-.journal-container .journal-loading {
+.hm-app-tab-content .journal-container .journal-loading {
   gap: 0.5rem;
   display: flex;
   justify-content: center;
@@ -1216,42 +1216,42 @@ tr.wealth-roll-container[style*='display: table-row'] {
   font-style: italic;
 }
 
-.journal-container .journal-loading i {
+.hm-app-tab-content .journal-container .journal-loading i {
   color: var(--color-text-hyperlink);
 }
 
 /* Error state */
-.journal-container .notification.error,
-.journal-container .notification.warning {
+.hm-app-tab-content .journal-container .notification.error,
+.hm-app-tab-content .journal-container .notification.warning {
   margin: 0.5rem 0;
   padding: 0.5rem;
   border-radius: var(--border-radius-sm);
 }
 
-.journal-container * {
+.hm-app-tab-content .journal-container * {
   color: inherit;
 }
 
-.journal-container .title {
+.hm-app-tab-content .journal-container .title {
   color: #4b4a44;
   font-weight: bold;
   font-size: 1.3rem;
 }
 
-.journal-container .journal-entry-content {
+.hm-app-tab-content .journal-container .journal-entry-content {
   line-height: 1.4;
 }
 
-.journal-container section {
+.hm-app-tab-content .journal-container section {
   margin-top: unset;
 }
 
 /* Typography */
-.journal-container h1,
-.journal-container h2,
-.journal-container h3,
-.journal-container h4,
-.journal-container h5 {
+.hm-app-tab-content .journal-container h1,
+.hm-app-tab-content .journal-container h2,
+.hm-app-tab-content .journal-container h3,
+.hm-app-tab-content .journal-container h4,
+.hm-app-tab-content .journal-container h5 {
   margin-top: 0.8rem;
   margin-bottom: 0.4rem;
   border-bottom: 2px solid #e6bd6b;
@@ -1263,209 +1263,209 @@ tr.wealth-roll-container[style*='display: table-row'] {
   text-shadow: unset;
 }
 
-.journal-container p,
-.journal-container .content-embed p {
+.hm-app-tab-content .journal-container p,
+.hm-app-tab-content .journal-container .content-embed p {
   font-family: var(--font-primary);
   text-align: left;
 }
 
 /* Links */
-.journal-container a,
-.journal-container a.content-link {
+.hm-app-tab-content .journal-container a,
+.hm-app-tab-content .journal-container a.content-link {
   border: none;
   color: #782e22 !important;
   text-decoration: none;
   background: none;
 }
 
-.journal-container a:hover {
+.hm-app-tab-content .journal-container a:hover {
   text-decoration: underline;
 }
 
 /* Images and embeds */
-.journal-container img {
+.hm-app-tab-content .journal-container img {
   width: 100%;
   max-width: unset;
   margin: unset;
 }
 
-.journal-container .content-embed {
+.hm-app-tab-content .journal-container .content-embed {
   margin: 10px 0;
   text-align: center;
 }
 
-.journal-container .content-embed .statblock.npc {
+.hm-app-tab-content .journal-container .content-embed .statblock.npc {
   margin-right: 0;
   margin-left: auto;
   text-align: left;
 }
 
-.journal-container figure.content-embed {
+.hm-app-tab-content .journal-container figure.content-embed {
   margin: 0.5rem 0;
 }
 
-.journal-container .content-embed figcaption {
+.hm-app-tab-content .journal-container .content-embed figcaption {
   text-align: right;
 }
 
-.journal-container .content-embed figcaption cite {
+.hm-app-tab-content .journal-container .content-embed figcaption cite {
   font-style: italic;
   font-size: 0.7rem;
 }
 
-.journal-container figure.content-embed strong.embed-caption {
+.hm-app-tab-content .journal-container figure.content-embed strong.embed-caption {
   margin-right: 0.3rem;
 }
 
 /* Positioning utilities */
-.journal-container .content-embed.right {
+.hm-app-tab-content .journal-container .content-embed.right {
   float: right;
   clear: right;
   margin-left: 5px;
 }
 
-.journal-container .content-embed.left {
+.hm-app-tab-content .journal-container .content-embed.left {
   float: left;
   clear: left;
   margin-right: 5px;
 }
 
-.journal-container .content-embed.center {
+.hm-app-tab-content .journal-container .content-embed.center {
   margin: auto;
 }
 
-.journal-container .clear-both {
+.hm-app-tab-content .journal-container .clear-both {
   clear: both;
 }
 
 /* Width utilities */
-.journal-container .content-embed.four,
-.journal-container .four {
+.hm-app-tab-content .journal-container .content-embed.four,
+.hm-app-tab-content .journal-container .four {
   width: 400px;
 }
 
-.journal-container .content-embed.three,
-.journal-container .three {
+.hm-app-tab-content .journal-container .content-embed.three,
+.hm-app-tab-content .journal-container .three {
   width: 300px;
 }
 
-.journal-container .content-embed.two,
-.journal-container .two {
+.hm-app-tab-content .journal-container .content-embed.two,
+.hm-app-tab-content .journal-container .two {
   width: 200px;
 }
 
-.journal-container .content-embed.one,
-.journal-container .one {
+.hm-app-tab-content .journal-container .content-embed.one,
+.hm-app-tab-content .journal-container .one {
   width: 100px;
 }
 
 /* Tables */
-.journal-container table {
+.hm-app-tab-content .journal-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.journal-container table caption {
+.hm-app-tab-content .journal-container table caption {
   font-weight: bold;
   text-align: center;
 }
 
-.journal-container th,
-.journal-container td {
+.hm-app-tab-content .journal-container th,
+.hm-app-tab-content .journal-container td {
   text-align: center;
 }
 
-.journal-container table.features-table {
+.hm-app-tab-content .journal-container table.features-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.journal-container table th[rowspan],
-.journal-container table th[colspan],
-.journal-container table td,
-.journal-container .journal-page-content table td,
-.journal-container table p {
+.hm-app-tab-content .journal-container table th[rowspan],
+.hm-app-tab-content .journal-container table th[colspan],
+.hm-app-tab-content .journal-container table td,
+.hm-app-tab-content .journal-container .journal-page-content table td,
+.hm-app-tab-content .journal-container table p {
   padding-right: unset;
   padding-left: unset;
   text-align: center;
   vertical-align: middle;
 }
 
-.journal-container .journal-page-content table p {
+.hm-app-tab-content .journal-container .journal-page-content table p {
   margin: unset;
   padding: unset;
 }
 
 /* Column styling */
-.journal-container table colgroup col.spellcasting,
-.journal-container table colgroup col[span='9'],
-.journal-container table thead tr th[scope='col'] {
+.hm-app-tab-content .journal-container table colgroup col.spellcasting,
+.hm-app-tab-content .journal-container table colgroup col[span='9'],
+.hm-app-tab-content .journal-container table thead tr th[scope='col'] {
   width: fit-content;
 }
 
-.journal-container table thead tr th[scope='col'][colspan='9'],
-.journal-container table thead tr th[scope='col'][rowspan='2'] {
+.hm-app-tab-content .journal-container table thead tr th[scope='col'][colspan='9'],
+.hm-app-tab-content .journal-container table thead tr th[scope='col'][rowspan='2'] {
   width: fit-content;
   max-width: 195px;
   font-size: var(--font-size-13);
 }
 
-.journal-container table colgroup col[span='6'] {
+.hm-app-tab-content .journal-container table colgroup col[span='6'] {
   font-size: var(--font-size-11);
 }
 
-.journal-container table thead tr th[scope='col'] {
+.hm-app-tab-content .journal-container table thead tr th[scope='col'] {
   width: 35px;
   padding: unset;
 }
 
-.journal-container table thead tr:nth-child(2) th[scope='col'] {
+.hm-app-tab-content .journal-container table thead tr:nth-child(2) th[scope='col'] {
   width: 35px;
   padding: unset;
   font-size: var(--font-size-10);
 }
 
 /* Cell-specific styles */
-.journal-container table td.spell-slots {
+.hm-app-tab-content .journal-container table td.spell-slots {
   text-align: center;
 }
 
-.journal-container .journal-page-content table thead th {
+.hm-app-tab-content .journal-container .journal-page-content table thead th {
   text-align: center;
   white-space: wrap;
 }
 
-.journal-container table td.features {
+.hm-app-tab-content .journal-container table td.features {
   text-align: left;
   white-space: normal;
 }
 
-.journal-container table td.level,
-.journal-container table td.prof,
-.journal-container table td.scale {
+.hm-app-tab-content .journal-container table td.level,
+.hm-app-tab-content .journal-container table td.prof,
+.hm-app-tab-content .journal-container table td.scale {
   text-align: center;
   white-space: wrap;
 }
 
 /* Specific column sizing */
-.journal-container table.features-table th[scope='col'][rowspan='2']:nth-child(2) {
+.hm-app-tab-content .journal-container table.features-table th[scope='col'][rowspan='2']:nth-child(2) {
   width: 75px;
 }
 
-.journal-container table.features-table th[scope='col'][rowspan='2'] {
+.hm-app-tab-content .journal-container table.features-table th[scope='col'][rowspan='2'] {
   width: 75px;
   max-width: 100px;
   font-size: var(--font-size-12);
   white-space: normal;
 }
 
-.journal-container table.features-table th[scope='col'][rowspan='2']:nth-child(3) {
+.hm-app-tab-content .journal-container table.features-table th[scope='col'][rowspan='2']:nth-child(3) {
   min-width: 150px;
 }
 
 /* Responsive adjustments */
 @media screen and (width <= 768px) {
-  .journal-container table.features-table {
+  .hm-app-tab-content .journal-container table.features-table {
     display: block;
     overflow-x: auto;
     font-size: 0.6rem;
@@ -2153,7 +2153,7 @@ button {
   Transitions
  ========================================================================== */
 
-.journal-container.loading {
+.hm-app-tab-content .journal-container.loading {
   opacity: 0.7;
 }
 
