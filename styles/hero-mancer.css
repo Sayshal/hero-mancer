@@ -1284,8 +1284,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 /* Images and embeds */
 .hm-app-tab-content .journal-container img {
-  width: 100%;
-  max-width: unset;
+  max-width: 100%;
   margin: unset;
 }
 
