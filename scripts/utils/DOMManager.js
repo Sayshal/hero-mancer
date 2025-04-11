@@ -519,18 +519,6 @@ export class DOMManager {
   }
 
   /**
-   * Updates character portrait with provided image path
-   * @param {string} imagePath - Path to character image
-   * @static
-   */
-  static updateCharacterPortrait(imagePath) {
-    const portraitImg = document.querySelector('.character-portrait img');
-    if (portraitImg) {
-      portraitImg.src = imagePath;
-    }
-  }
-
-  /**
    * Initialize roll buttons for background characteristics
    * @param {HTMLElement} element - Application root element
    */
@@ -1185,21 +1173,6 @@ export class DOMManager {
   }
 
   /**
-   * Retrieves dropdown element from DOM
-   * @param {HTMLElement} html - Parent element
-   * @param {string} type - Dropdown type
-   * @returns {HTMLElement|null} Dropdown element if found
-   * @static
-   */
-  static findDropdownElementByType(html, type) {
-    const dropdown = html.querySelector(`#${type}-dropdown`);
-    if (!dropdown) {
-      HM.log(1, `Dropdown for ${type} not found.`);
-    }
-    return dropdown;
-  }
-
-  /**
    * Handles standard array mode dropdown updates
    * @param {NodeList} abilityDropdowns - Ability dropdown elements
    * @param {string[]} selectedValues - Currently selected values
@@ -1250,27 +1223,6 @@ export class DOMManager {
           option.classList.add('hm-used-elsewhere');
         }
       });
-    });
-  }
-
-  /**
-   * Updates dropdown options based on point cost
-   * @param {HTMLElement} dropdown - Dropdown element
-   * @param {number} currentValue - Current selected value
-   * @param {number} remainingPoints - Remaining points
-   * @static
-   */
-  static updateDropdownSelectionAvailability(dropdown, currentValue, remainingPoints) {
-    const { MIN, MAX } = HM.ABILITY_SCORES;
-
-    dropdown.querySelectorAll('option').forEach((option) => {
-      const optionValue = parseInt(option.value, 10);
-      if (optionValue < MIN || optionValue > MAX) return;
-
-      const optionCost = StatRoller.getPointBuyCostForScore(optionValue);
-      const canAffordOption = optionCost <= remainingPoints + StatRoller.getPointBuyCostForScore(currentValue);
-
-      option.disabled = !canAffordOption && optionValue !== currentValue;
     });
   }
 

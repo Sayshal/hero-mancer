@@ -49,10 +49,6 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
   static #validPacksCache = new Map();
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.custom-compendiums.menu.name')}`;
   }

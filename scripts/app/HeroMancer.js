@@ -1,4 +1,4 @@
-import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, HM, JournalPageEmbed, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, HM, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -108,18 +108,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   #isRendering;
 
-  /* -------------------------------------------- */
-  /*  Constructor                                 */
-  /* -------------------------------------------- */
-
-  constructor(options = {}) {
-    super(options);
-  }
-
-  /* -------------------------------------------- */
-  /*  Getters & Setters                           */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.user.name}`;
   }
@@ -211,7 +199,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
           context.abilities = StatRoller.buildAbilitiesContext();
           context.rollStat = this.rollStat;
-          context.rollMethods = StatRoller.getRollMethods();
+          context.rollMethods = StatRoller.rollMethods;
           context.diceRollMethod = diceRollMethod;
           context.allowedMethods = game.settings.get(HM.ID, 'allowedMethods');
           context.standardArray = StatRoller.getStandardArrayValues(diceRollMethod);
@@ -843,39 +831,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, 'Character creation failed:', error);
       ui.notifications.error('hm.errors.character-creation-failed', { localize: true });
-      return null;
-    }
-  }
-
-  /**
-   * Embed a journal page in the description section
-   * @param {string} pageId - The ID of the journal page to embed
-   * @param {string} [itemName] - Optional name of the item for matching
-   * @param {string} [anchor] - Optional anchor to scroll to
-   * @returns {Promise<JournalPageEmbed|null>} The embedded journal or null if failed
-   */
-  async embedJournalPage(pageId, itemName, anchor) {
-    try {
-      // Get or create the container
-      let container = this.element.find('.journal-embed-container')[0];
-      if (!container) {
-        container = document.createElement('div');
-        container.classList.add('journal-embed-container');
-        this.element.find('.description-container').append(container);
-      }
-
-      // Create and render the embed
-      const journalEmbed = new JournalPageEmbed(container, {});
-
-      const result = await journalEmbed.render(pageId, itemName);
-
-      if (result && anchor) {
-        journalEmbed.goToAnchor(anchor);
-      }
-
-      return result;
-    } catch (error) {
-      HM.log(1, `Error embedding journal page: ${error.message}`, error);
       return null;
     }
   }

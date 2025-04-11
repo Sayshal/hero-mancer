@@ -42,10 +42,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   // Cache for form fields to prevent repeated DOM operations
   static #formFieldsCache = null;
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
   }

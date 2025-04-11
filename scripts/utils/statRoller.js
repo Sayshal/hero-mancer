@@ -22,6 +22,22 @@ export class StatRoller {
   static #lastHandledChanges = new Map();
 
   /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Gets available roll methods with localized names
+   * @returns {Object} Object with roll method localizations
+   */
+  get rollMethods() {
+    return {
+      pointBuy: game.i18n.localize('hm.app.abilities.methods.pointBuy'),
+      standardArray: game.i18n.localize('hm.app.abilities.methods.standardArray'),
+      manualFormula: game.i18n.localize('hm.app.abilities.methods.manual')
+    };
+  }
+
+  /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
 
@@ -118,15 +134,6 @@ export class StatRoller {
 
     const block = document.getElementById(`ability-block-${index}`);
     return block?.querySelector('.ability-score');
-  }
-
-  /**
-   * Checks if any ability scores have existing values
-   * @returns {boolean} True if any ability scores have values
-   * @static
-   */
-  static hasExistingValues() {
-    return Array.from(document.querySelectorAll('.ability-score')).some((input) => input.value?.trim() !== '');
   }
 
   /**
@@ -525,19 +532,6 @@ export class StatRoller {
       label: value.label.toUpperCase(),
       currentScore: HM.ABILITY_SCORES.DEFAULT
     }));
-  }
-
-  /**
-   * Gets available roll methods with localized names
-   * @returns {Object} Object with roll method localizations
-   * @static
-   */
-  static getRollMethods() {
-    return {
-      pointBuy: game.i18n.localize('hm.app.abilities.methods.pointBuy'),
-      standardArray: game.i18n.localize('hm.app.abilities.methods.standardArray'),
-      manualFormula: game.i18n.localize('hm.app.abilities.methods.manual')
-    };
   }
 
   /**

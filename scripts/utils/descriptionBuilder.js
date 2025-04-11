@@ -375,45 +375,4 @@ export class JournalPageEmbed {
       if (element) element.dataset.anchor = slug;
     });
   }
-
-  /**
-   * Navigate to a specific anchor within the journal page
-   * @param {string} anchor - The anchor slug to navigate to
-   */
-  goToAnchor(anchor) {
-    if (!this.sheet?.toc || !anchor) return;
-
-    const heading = this.sheet.toc[anchor];
-    if (heading?.element) {
-      heading.element.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-
-  /**
-   * Clean up resources when removing the embed
-   */
-  close() {
-    if (this.sheet) {
-      try {
-        // Allow sheet to properly cleanup if it has a close method
-        if (typeof this.sheet.close === 'function') {
-          this.sheet.close();
-        }
-      } catch (error) {
-        HM.log(2, `Error closing journal sheet: ${error.message}`);
-      }
-    }
-
-    // Clear container content
-    if (this.container) {
-      this.container.innerHTML = '';
-
-      // Remove any classes we added
-      this.container.classList.remove('journal-page-embed', 'scrollable');
-    }
-
-    // Reset properties
-    this.sheet = null;
-    this.pageId = null;
-  }
 }

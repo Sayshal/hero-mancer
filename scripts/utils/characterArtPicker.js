@@ -271,42 +271,4 @@ export class CharacterArtPicker {
       return false;
     }
   }
-
-  /* -------------------------------------------- */
-  /*  Static Protected Methods                    */
-  /* -------------------------------------------- */
-
-  /**
-   * Toggles visibility of token art row based on checkbox state
-   * @returns {void}
-   * @protected
-   * @static
-   */
-  static _toggleTokenArtRowVisibility() {
-    try {
-      const tokenArtRow = document.getElementById('token-art-row');
-      const linkCheckbox = document.getElementById('link-token-art');
-
-      if (!tokenArtRow || !linkCheckbox) {
-        HM.log(2, 'Token art row or link checkbox not found');
-        return;
-      }
-
-      const isLinked = linkCheckbox.checked;
-      tokenArtRow.style.display = isLinked ? 'none' : 'flex';
-
-      if (isLinked) {
-        const tokenInput = document.getElementById('token-art-path');
-        const characterInput = document.getElementById('character-art-path');
-
-        if (tokenInput && characterInput) {
-          tokenInput.value = characterInput.value;
-          tokenInput.dispatchEvent(new Event('change', { bubbles: true }));
-          HM.log(3, 'Token art path updated due to linking');
-        }
-      }
-    } catch (error) {
-      HM.log(1, 'Error toggling token art row visibility:', error);
-    }
-  }
 }

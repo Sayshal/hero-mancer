@@ -39,10 +39,6 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.dice-rolling.menu.name')}`;
   }
@@ -104,6 +100,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       chainedRolls: false,
       rollDelay: 500,
       customStandardArray: '15,14,13,12,10,8',
+      standardArraySwapMode: false,
       customPointBuyTotal: 27,
       abilityScoreDefault: 8,
       abilityScoreMin: 8,
@@ -364,6 +361,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       'chainedRolls',
       'rollDelay',
       'customStandardArray',
+      'standardArraySwapMode',
       'customPointBuyTotal',
       'abilityScoreDefault',
       'abilityScoreMin',
