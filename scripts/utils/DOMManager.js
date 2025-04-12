@@ -138,6 +138,14 @@ export class DOMManager {
   static cleanup() {
     let cleanupSuccess = true;
 
+    // Reset state variables
+    this._isUpdatingEquipment = false;
+    this._abilityUpdatePromise = null;
+    this._pendingAbilityUpdate = false;
+    this._updatingAbilities = false;
+    this.#equipmentUpdateInProgress = false;
+    this.#pendingEquipmentUpdate = null;
+
     // Clean up event listeners
     try {
       this.#listeners.forEach((events, element) => {
@@ -1039,22 +1047,6 @@ export class DOMManager {
   }
 
   /**
-   * Create a debounced update function
-   * @param {Function} updateFn - Function to debounce
-   * @param {number} delay - Delay in ms
-   * @returns {Function} Debounced function
-   */
-  static debounce(updateFn, delay = 50) {
-    let timeout = null;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        updateFn.apply(this, args);
-      }, delay);
-    };
-  }
-
-  /**
    * Updates the display of remaining points in the abilities tab
    * @param {number} remainingPoints - The number of points remaining to spend
    * @static
@@ -1473,10 +1465,9 @@ export class DOMManager {
     const abilityScores = element.querySelectorAll('.ability-score');
 
     abilityScores.forEach((input) => {
-      // Use a single debounced handler for both input and change events
-      const debouncedUpdate = this.debounce(() => this.updateAbilitiesSummary(), 100);
-      this.on(input, 'change', debouncedUpdate);
-      this.on(input, 'input', debouncedUpdate);
+      const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
+      this.on(input, 'change', update);
+      this.on(input, 'input', update);
     });
   }
 
