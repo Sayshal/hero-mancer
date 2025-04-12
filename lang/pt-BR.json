@@ -495,7 +495,7 @@
         "hint": "Lista separada por vírgulas de tons de pele usados ​​para randomização de personagens.",
         "name": "Tons de Pele"
       },
-      "standard-array-swap-mode": {
+      "stat-generation-swap-mode": {
         "hint": "Quando habilitado, selecionar um valor já em uso trocará os valores entre os Atributos ao invés de limpar a seleção anterior. Isso ajuda quando você deseja reorganizar seus valores de Atributo.",
         "name": "Modo de Troca do Modo Padrão"
       },

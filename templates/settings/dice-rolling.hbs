@@ -63,13 +63,15 @@
     <p class='hint'>{{localize 'hm.settings.custom-standard-array.hint'}}</p>
   </div>
 
-  {{!-- Swap mode for Standard Array --}}
+  {{!-- Swap mode for Stat Generation --}}
   <div class="form-group flex flex-col items-start">
-    <label for="standardArraySwapMode" class="font-bold">{{localize 'hm.settings.standard-array-swap-mode.name'}}</label>
     <div class="flex items-center">
-      <input type="checkbox" name="standardArraySwapMode" id="standardArraySwapMode" class="form-input" {{checked standardArraySwapMode}}>
+      <input type="checkbox" name="statGenerationSwapMode" id="statGenerationSwapMode" class="form-input"
+        {{checked statGenerationSwapMode}}>
+      <label for="statGenerationSwapMode"
+        class="font-bold">{{localize 'hm.settings.stat-generation-swap-mode.name'}}</label>
     </div>
-    <p class="hint">{{localize 'hm.settings.standard-array-swap-mode.hint'}}</p>
+    <p class="hint">{{localize 'hm.settings.stat-generation-swap-mode.hint'}}</p>
   </div>
 
   {{!-- Custom Roll Formula Configuration --}}

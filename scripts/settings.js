@@ -381,9 +381,9 @@ function registerDiceRollingSettings() {
     }
   });
 
-  game.settings.register(HM.ID, 'standardArraySwapMode', {
-    name: 'hm.settings.standard-array-swap-mode.name',
-    hint: 'hm.settings.standard-array-swap-mode.hint',
+  game.settings.register(HM.ID, 'statGenerationSwapMode', {
+    name: 'hm.settings.stat-generation-swap-mode.name',
+    hint: 'hm.settings.stat-generation-swap-mode.hint',
     scope: 'world',
     config: false,
     type: Boolean,

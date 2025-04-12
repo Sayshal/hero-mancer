@@ -495,9 +495,9 @@
         "hint": "Comma-separated list of skin tones used for character randomization.",
         "name": "Skin Tones"
       },
-      "standard-array-swap-mode": {
+      "stat-generation-swap-mode": {
         "hint": "When enabled, selecting a value that's already in use will swap values between abilities instead of clearing the previous selection. This helps when you want to rearrange your ability scores.",
-        "name": "Standard Array Swap Mode"
+        "name": "Stat Generation Swap Mode"
       },
       "token-customization": {
         "hint": "Allow your players to set some default token settings usually reserved for the GM, such as display name status, dynamic token ring settings, and display bars.",

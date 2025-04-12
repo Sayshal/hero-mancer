@@ -495,7 +495,7 @@
         "hint": "Durch Kommas getrennte Liste von Hauttönen, die für die zufällige Erstellung der Charaktere verwendet werden.",
         "name": "Hauttöne"
       },
-      "standard-array-swap-mode": {
+      "stat-generation-swap-mode": {
         "hint": "Wenn diese Option aktiviert ist, werden bei der Auswahl eines bereits verwendeten Werts die Werte zwischen den Attributen ausgetauscht, anstatt die vorherige Auswahl zu löschen. Dies ist hilfreich, wenn du deine Attributswerte neu anordnen möchtest.",
         "name": "Standardwerte Tauschmodus"
       },

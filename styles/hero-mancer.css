@@ -2132,20 +2132,54 @@ button {
 @keyframes roll-dice {
   0% {
     transform: rotate(0deg) scale(1);
+    color: var(--color-text-hyperlink);
+  }
+
+  10% {
+    transform: rotate(120deg) scale(1.3);
+    color: #ff6b6b;
+  }
+
+  20% {
+    transform: rotate(240deg) scale(1.2);
+  }
+
+  30% {
+    transform: rotate(360deg) scale(1.3);
+    color: var(--color-text-hyperlink);
+  }
+
+  40% {
+    transform: rotate(480deg) scale(1.4);
+    color: #ff6b6b;
   }
 
   50% {
-    transform: rotate(180deg) scale(1.2);
+    transform: rotate(600deg) scale(1.3);
+  }
+
+  60% {
+    transform: rotate(720deg) scale(1.4);
+    color: var(--color-text-hyperlink);
+  }
+
+  70% {
+    transform: rotate(840deg) scale(1.3);
+    color: #ff6b6b;
+  }
+
+  85% {
+    transform: rotate(960deg) scale(1.2);
   }
 
   100% {
-    transform: rotate(360deg) scale(1);
+    transform: rotate(1080deg) scale(1);
+    color: var(--color-text-hyperlink);
   }
 }
 
 .fa-dice-d6.rolling {
-  color: #ff6b6b;
-  animation: roll-dice 0.5s ease-in-out;
+  animation: roll-dice 1.2s ease-in-out;
 }
 
 /* ==========================================================================

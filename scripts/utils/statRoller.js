@@ -152,8 +152,12 @@ export class StatRoller {
 
     // Update UI to show rolling status
     this.#updateRollingStatus(index, true);
+    this.isRolling = true;
 
     try {
+      // Add a small delay to show the animation
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const rollResult = await this.#performRoll(rollFormula);
       if (!rollResult) return false;
 
@@ -174,8 +178,12 @@ export class StatRoller {
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       return false;
     } finally {
-      this.chainRollEnabled = false;
-      this.#updateRollingStatus(index, false);
+      // Add a small delay before removing animation
+      setTimeout(() => {
+        this.#updateRollingStatus(index, false);
+        this.isRolling = false;
+        this.chainRollEnabled = false;
+      }, 300);
     }
   }
 
@@ -287,57 +295,42 @@ export class StatRoller {
    */
   static async #rollAbilitiesSequentially(blocks, rollFormula) {
     const delay = game.settings.get(HM.ID, 'rollDelay') || 500;
-    const { MIN, MAX } = HM.ABILITY_SCORES;
-
-    // Create a batch of promises for each block
-    const rollPromises = [];
 
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
+      const diceIcon = block.querySelector('.fa-dice-d6');
+      const input = block.querySelector('.ability-score');
 
-      // Create a promise for this roll
-      const rollPromise = new Promise((resolve) => {
-        // Use an immediately invoked function expression for the async operations
-        (async function () {
-          try {
-            // Add delay for sequential appearance
-            if (i > 0) {
-              await new Promise((r) => setTimeout(r, delay));
-            }
+      // Add animation before rolling
+      if (diceIcon) {
+        diceIcon.classList.add('rolling');
+      }
 
-            // Apply visual effect
-            const diceIcon = block.querySelector('.fa-dice-d6');
-            if (diceIcon) {
-              diceIcon.classList.add('rolling');
-            }
+      // Wait a moment to show animation before performing roll
+      await new Promise((r) => setTimeout(r, 100));
 
-            // Perform the roll
-            const constrainedResult = await StatRoller.#performRoll(rollFormula);
+      // Perform the roll
+      const constrainedResult = await this.#performRoll(rollFormula);
 
-            // Update the input
-            const input = block.querySelector('.ability-score');
-            if (input && constrainedResult !== null) {
-              input.value = constrainedResult;
-              input.dispatchEvent(new Event('change', { bubbles: true }));
-            }
+      // Update the input
+      if (input && constrainedResult !== null) {
+        input.value = constrainedResult;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
 
-            // Remove visual effect after a brief period
-            setTimeout(() => {
-              if (diceIcon) diceIcon.classList.remove('rolling');
-              resolve();
-            }, 100);
-          } catch (error) {
-            HM.log(1, `Error rolling for ability ${i}:`, error);
-            resolve(); // Resolve despite error to continue the sequence
-          }
-        })();
-      });
+      // Keep animation visible for a moment after result
+      await new Promise((r) => setTimeout(r, 200));
 
-      rollPromises.push(rollPromise);
+      // Remove animation
+      if (diceIcon) {
+        diceIcon.classList.remove('rolling');
+      }
+
+      // Delay before next roll
+      if (i < blocks.length - 1) {
+        await new Promise((r) => setTimeout(r, delay - 300));
+      }
     }
-
-    // Wait for all rolls to complete
-    await Promise.all(rollPromises);
   }
 
   /**
@@ -650,9 +643,9 @@ export class StatRoller {
 
     // Handle different dice rolling methods
     if (diceRollingMethod === 'manualFormula') {
-      this.#handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues);
+      this.#handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues, originalValue);
     } else if (diceRollingMethod === 'standardArray') {
-      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(HM.ID, 'standardArraySwapMode'), originalValue);
+      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(HM.ID, 'statGenerationSwapMode'), originalValue);
     } else if (diceRollingMethod === 'pointBuy') {
       this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, this.getTotalPoints());
     }
@@ -666,11 +659,13 @@ export class StatRoller {
    * @param {HTMLElement} dropdown - The changed dropdown
    * @param {NodeList} abilityDropdowns - All ability dropdowns
    * @param {Array} selectedValues - Currently selected values
+   * @param {string} originalValue - The previous value before change
    * @private
    * @static
    */
-  static #handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues) {
+  static #handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues, originalValue) {
     const value = dropdown.value;
+    const index = parseInt(dropdown.dataset.index, 10);
     const scoreInput = dropdown.parentElement.querySelector('.ability-score');
 
     // Both dropdown and input should reference the selected ability
@@ -679,14 +674,36 @@ export class StatRoller {
       scoreInput.setAttribute('name', `abilities[${value}]-score`);
     }
 
-    // Disable options that are already selected elsewhere
-    abilityDropdowns.forEach((otherDropdown, otherIndex) => {
-      Array.from(otherDropdown.options).forEach((option) => {
-        if (option.value && option.value !== '') {
-          option.disabled = selectedValues.includes(option.value) && selectedValues[otherIndex] !== option.value;
+    // Use the same swap logic as standard array mode
+    if (this.#isSwapping) return;
+
+    if (value) {
+      const duplicateIndex = selectedValues.findIndex((val, i) => i !== index && val === value);
+
+      if (duplicateIndex !== -1) {
+        try {
+          this.#isSwapping = true;
+
+          // Swap values - other dropdown gets the original value
+          abilityDropdowns[duplicateIndex].value = originalValue;
+          selectedValues[duplicateIndex] = originalValue;
+
+          // Update tracking
+          this.#abilityDropdownValues.set(duplicateIndex, originalValue);
+          this.#lastHandledChanges.set(duplicateIndex, {
+            value: originalValue,
+            time: Date.now()
+          });
+        } finally {
+          setTimeout(() => {
+            this.#isSwapping = false;
+          }, 0);
         }
-      });
-    });
+      }
+    }
+
+    // Use the same highlighting as standard array mode
+    DOMManager.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 
   /**
@@ -749,7 +766,7 @@ export class StatRoller {
 
     // Update selected values and UI
     selectedValues[index] = newValue;
-    DOMManager.handleStandardArrayMode(abilityDropdowns, selectedValues);
+    DOMManager.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 
   /**

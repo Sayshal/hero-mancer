@@ -61,7 +61,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
         { key: 'chainedRolls', defaultValue: false },
         { key: 'rollDelay', defaultValue: 500 },
         { key: 'customStandardArray', defaultValue: '15,14,13,12,10,8' },
-        { key: 'standardArraySwapMode', defaultValue: false },
+        { key: 'statGenerationSwapMode', defaultValue: false },
         { key: 'customPointBuyTotal', defaultValue: 27 },
         { key: 'abilityScoreDefault', defaultValue: 8 },
         { key: 'abilityScoreMin', defaultValue: 8 },
@@ -100,7 +100,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       chainedRolls: false,
       rollDelay: 500,
       customStandardArray: '15,14,13,12,10,8',
-      standardArraySwapMode: false,
+      statGenerationSwapMode: false,
       customPointBuyTotal: 27,
       abilityScoreDefault: 8,
       abilityScoreMin: 8,
@@ -361,12 +361,12 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       'chainedRolls',
       'rollDelay',
       'customStandardArray',
-      'standardArraySwapMode',
+      'statGenerationSwapMode',
       'customPointBuyTotal',
       'abilityScoreDefault',
       'abilityScoreMin',
       'abilityScoreMax',
-      'standardArraySwapMode'
+      'statGenerationSwapMode'
     ];
 
     for (const setting of settings) {

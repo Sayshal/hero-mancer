@@ -1165,12 +1165,12 @@ export class DOMManager {
   }
 
   /**
-   * Handles standard array mode dropdown updates
+   * Updates the visual state of ability dropdowns based on selected values
    * @param {NodeList} abilityDropdowns - Ability dropdown elements
    * @param {string[]} selectedValues - Currently selected values
    * @static
    */
-  static handleStandardArrayMode(abilityDropdowns, selectedValues) {
+  static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
     // Count value occurrences in the standard array
     const valueOccurrences = {};
     if (abilityDropdowns.length > 0) {
@@ -1761,20 +1761,20 @@ export class DOMManager {
         }
       }
       score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
-    } else if (rollMethod === 'standardArray') {
+    } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
-        const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
-        if (nameMatch && nameMatch[1]) {
-          abilityKey = nameMatch[1].toLowerCase();
+        if (rollMethod === 'standardArray') {
+          const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
+          if (nameMatch && nameMatch[1]) {
+            abilityKey = nameMatch[1].toLowerCase();
+          }
+          score = parseInt(dropdown.value) || 0;
+        } else {
+          // manualFormula
+          abilityKey = dropdown.value?.toLowerCase() || '';
+          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
         }
-        score = parseInt(dropdown.value) || 0;
-      }
-    } else if (rollMethod === 'manualFormula') {
-      const dropdown = block.querySelector('.ability-dropdown');
-      if (dropdown) {
-        abilityKey = dropdown.value?.toLowerCase() || '';
-        score = parseInt(block.querySelector('.ability-score')?.value) || 0;
       }
     }
 
@@ -1786,7 +1786,7 @@ export class DOMManager {
     const classItem = classUUID ? fromUuidSync(classUUID) : null;
     const className = classItem?.name || game.i18n.localize('hm.app.abilities.your-class');
 
-    // Apply highlighting based on roll method
+    // Apply highlighting
     this.#applyAbilityHighlight(block, abilityKey, className, rollMethod);
   }
 
@@ -1805,27 +1805,28 @@ export class DOMManager {
       class: className
     });
 
-    // For all methods, highlight the label
+    // For all methods, highlight the label and add tooltip
     const label = block.querySelector('.ability-label');
     if (label) {
       label.classList.add('primary-ability');
       label.setAttribute('data-tooltip', tooltipText);
     }
 
-    // For standardArray, also highlight the dropdown
-    if (rollMethod === 'standardArray') {
-      const dropdown = block.querySelector('.ability-dropdown');
-      if (dropdown) {
-        dropdown.classList.add('primary-ability');
-      }
-    }
-
-    // For manualFormula, always highlight the dropdown
-    if (rollMethod === 'manualFormula') {
+    // For standardArray and manualFormula, also highlight the dropdown
+    if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
         dropdown.classList.add('primary-ability');
         dropdown.setAttribute('data-tooltip', tooltipText);
+      }
+    }
+
+    // For pointBuy, highlight score display
+    if (rollMethod === 'pointBuy') {
+      const scoreElement = block.querySelector('.current-score');
+      if (scoreElement) {
+        scoreElement.classList.add('primary-ability');
+        scoreElement.setAttribute('data-tooltip', tooltipText);
       }
     }
   }
