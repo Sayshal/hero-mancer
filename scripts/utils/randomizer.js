@@ -403,7 +403,7 @@ export class CharacterRandomizer {
       await this.#randomizeBasicDetails(form);
       await this.#randomizeCharacteristics(form);
       await this.#randomizeAppearance(form);
-      await this.randomizeAbilities(form);
+      await this.#randomizeAbilities(form);
 
       HM.log(3, 'Randomizing complete...');
       ui.notifications.info('hm.app.randomization-complete', { localize: true });
@@ -417,92 +417,13 @@ export class CharacterRandomizer {
   }
 
   /**
-   * Randomize basic character details
-   * @param {HTMLElement} form - The HeroMancer form
-   * @returns {Promise<void>}
-   * @private
-   */
-  static async #randomizeBasicDetails(form) {
-    try {
-      this.randomizeName(form);
-      await this.randomizeRace(form);
-      await this.randomizeClass(form);
-    } catch (error) {
-      HM.log(1, 'Error randomizing basic details:', error);
-      throw new Error('Failed to randomize basic character details');
-    }
-  }
-
-  /**
-   * Randomize character characteristics
-   * @param {HTMLElement} form - The HeroMancer form
-   * @returns {Promise<void>}
-   * @private
-   */
-  static async #randomizeCharacteristics(form) {
-    try {
-      await this.randomizeBackground(form);
-      this.randomizeAlignment(form);
-      this.randomizeFaith(form);
-    } catch (error) {
-      HM.log(1, 'Error randomizing characteristics:', error);
-      throw new Error('Failed to randomize character characteristics');
-    }
-  }
-
-  /**
-   * Disable the randomize button
-   * @param {HTMLElement} button - The randomize button
-   * @private
-   */
-  static #disableRandomizeButton(button) {
-    if (button) {
-      button.disabled = true;
-    }
-  }
-
-  /**
-   * Enable the randomize button
-   * @param {HTMLElement} button - The randomize button
-   * @private
-   */
-  static #enableRandomizeButton(button) {
-    if (button) {
-      button.disabled = false;
-    }
-  }
-
-  /**
-   * Randomize character name
-   * @param {HTMLElement} form - The HeroMancer form element
-   * @returns {boolean} Success status
-   */
-  static randomizeName(form) {
-    try {
-      const nameInput = form.querySelector('#character-name');
-      if (!nameInput) {
-        HM.log(2, 'Could not find character name input field');
-        return false;
-      }
-
-      nameInput.value = this.generateRandomName();
-      nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      HM.log(3, `Generated random name: ${nameInput.value}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error generating random name:', error);
-      return false;
-    }
-  }
-
-  /**
    * Generate a random fantasy name
    * @returns {string} A random fantasy name
    */
   static generateRandomName() {
     try {
       const pattern = this.#getRandomItem(this.#namePatterns);
-      return this.generateNameFromPattern(pattern);
+      return this.#generateNameFromPattern(pattern);
     } catch (error) {
       HM.log(1, 'Error generating name from pattern:', error);
       return game.i18n.localize('hm.app.randomize.default-name');
@@ -510,138 +431,12 @@ export class CharacterRandomizer {
   }
 
   /**
-   * Generate a name from a specific pattern
-   * @param {string} pattern - The pattern to generate a name from
-   * @returns {string} The generated name
-   */
-  static generateNameFromPattern(pattern) {
-    if (!pattern) {
-      HM.log(2, 'Invalid name pattern provided');
-      return 'Adventurer';
-    }
-
-    try {
-      let name = '';
-
-      for (let i = 0; i < pattern.length; i++) {
-        const c = pattern[i];
-
-        if (this.#nameSymbols[c]) {
-          name += this.#getRandomItem(this.#nameSymbols[c]);
-        } else {
-          name += c;
-        }
-      }
-
-      return this.#capitalize(name);
-    } catch (error) {
-      HM.log(1, 'Error generating name from pattern:', error);
-      return 'Adventurer';
-    }
-  }
-
-  /**
-   * Randomize background selection
-   * @param {HTMLElement} form - The HeroMancer form element
-   * @returns {Promise<boolean>} Success status
-   */
-  static async randomizeBackground(form) {
-    try {
-      const backgroundDropdown = form.querySelector('#background-dropdown');
-      if (!backgroundDropdown) {
-        HM.log(2, 'Background dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(backgroundDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid background options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      backgroundDropdown.value = randomOption.value;
-      backgroundDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random background: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing background:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Randomize race selection
-   * @param {HTMLElement} form - The HeroMancer form element
-   * @returns {Promise<boolean>} Success status
-   */
-  static async randomizeRace(form) {
-    try {
-      const raceDropdown = form.querySelector('#race-dropdown');
-      if (!raceDropdown) {
-        HM.log(2, 'Race dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(raceDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid race options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      raceDropdown.value = randomOption.value;
-      raceDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random race: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing race:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Randomize class selection
-   * @param {HTMLElement} form - The HeroMancer form element
-   * @returns {Promise<boolean>} Success status
-   */
-  static async randomizeClass(form) {
-    try {
-      const classDropdown = form.querySelector('#class-dropdown');
-      if (!classDropdown) {
-        HM.log(2, 'Class dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(classDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid class options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      classDropdown.value = randomOption.value;
-      classDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random class: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing class:', error);
-      return false;
-    }
-  }
-
-  /**
    * Randomize ability scores based on the selected roll method
    * @param {HTMLElement} form - The HeroMancer form element
    * @returns {Promise<boolean>} Success status
+   * @private
    */
-  static async randomizeAbilities(form) {
+  static async #randomizeAbilities(form) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       ui.notifications.clear(); // Clear any notifications, we're almost done!
@@ -679,11 +474,223 @@ export class CharacterRandomizer {
   }
 
   /**
+   * Randomize basic character details
+   * @param {HTMLElement} form - The HeroMancer form
+   * @returns {Promise<void>}
+   * @private
+   */
+  static async #randomizeBasicDetails(form) {
+    try {
+      this.#randomizeName(form);
+      await this.#randomizeRace(form);
+      await this.#randomizeClass(form);
+    } catch (error) {
+      HM.log(1, 'Error randomizing basic details:', error);
+      throw new Error('Failed to randomize basic character details');
+    }
+  }
+
+  /**
+   * Randomize character characteristics
+   * @param {HTMLElement} form - The HeroMancer form
+   * @returns {Promise<void>}
+   * @private
+   */
+  static async #randomizeCharacteristics(form) {
+    try {
+      await this.#randomizeBackground(form);
+      this.#randomizeAlignment(form);
+      this.#randomizeFaith(form);
+    } catch (error) {
+      HM.log(1, 'Error randomizing characteristics:', error);
+      throw new Error('Failed to randomize character characteristics');
+    }
+  }
+
+  /**
+   * Disable the randomize button
+   * @param {HTMLElement} button - The randomize button
+   * @private
+   */
+  static #disableRandomizeButton(button) {
+    if (button) {
+      button.disabled = true;
+    }
+  }
+
+  /**
+   * Enable the randomize button
+   * @param {HTMLElement} button - The randomize button
+   * @private
+   */
+  static #enableRandomizeButton(button) {
+    if (button) {
+      button.disabled = false;
+    }
+  }
+
+  /**
+   * Randomize character name
+   * @param {HTMLElement} form - The HeroMancer form element
+   * @returns {boolean} Success status
+   * @private
+   */
+  static #randomizeName(form) {
+    try {
+      const nameInput = form.querySelector('#character-name');
+      if (!nameInput) {
+        HM.log(2, 'Could not find character name input field');
+        return false;
+      }
+
+      nameInput.value = this.generateRandomName();
+      nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+      HM.log(3, `Generated random name: ${nameInput.value}`);
+      return true;
+    } catch (error) {
+      HM.log(1, 'Error generating random name:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Generate a name from a specific pattern
+   * @param {string} pattern - The pattern to generate a name from
+   * @returns {string} The generated name
+   * @private
+   */
+  static #generateNameFromPattern(pattern) {
+    if (!pattern) {
+      HM.log(2, 'Invalid name pattern provided');
+      return 'Adventurer';
+    }
+
+    try {
+      let name = '';
+
+      for (let i = 0; i < pattern.length; i++) {
+        const c = pattern[i];
+
+        if (this.#nameSymbols[c]) {
+          name += this.#getRandomItem(this.#nameSymbols[c]);
+        } else {
+          name += c;
+        }
+      }
+
+      return this.#capitalize(name);
+    } catch (error) {
+      HM.log(1, 'Error generating name from pattern:', error);
+      return 'Adventurer';
+    }
+  }
+
+  /**
+   * Randomize background selection
+   * @param {HTMLElement} form - The HeroMancer form element
+   * @returns {Promise<boolean>} Success status
+   * @private
+   */
+  static async #randomizeBackground(form) {
+    try {
+      const backgroundDropdown = form.querySelector('#background-dropdown');
+      if (!backgroundDropdown) {
+        HM.log(2, 'Background dropdown not found');
+        return false;
+      }
+
+      const options = Array.from(backgroundDropdown.options).filter((opt) => !opt.disabled && opt.value);
+
+      if (!options.length) {
+        HM.log(2, 'No valid background options found');
+        return false;
+      }
+
+      const randomOption = this.#getRandomItem(options);
+      backgroundDropdown.value = randomOption.value;
+      backgroundDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+
+      HM.log(3, `Selected random background: ${randomOption.text}`);
+      return true;
+    } catch (error) {
+      HM.log(1, 'Error randomizing background:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Randomize race selection
+   * @param {HTMLElement} form - The HeroMancer form element
+   * @returns {Promise<boolean>} Success status
+   * @private
+   */
+  static async #randomizeRace(form) {
+    try {
+      const raceDropdown = form.querySelector('#race-dropdown');
+      if (!raceDropdown) {
+        HM.log(2, 'Race dropdown not found');
+        return false;
+      }
+
+      const options = Array.from(raceDropdown.options).filter((opt) => !opt.disabled && opt.value);
+
+      if (!options.length) {
+        HM.log(2, 'No valid race options found');
+        return false;
+      }
+
+      const randomOption = this.#getRandomItem(options);
+      raceDropdown.value = randomOption.value;
+      raceDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+
+      HM.log(3, `Selected random race: ${randomOption.text}`);
+      return true;
+    } catch (error) {
+      HM.log(1, 'Error randomizing race:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Randomize class selection
+   * @param {HTMLElement} form - The HeroMancer form element
+   * @returns {Promise<boolean>} Success status
+   * @private
+   */
+  static async #randomizeClass(form) {
+    try {
+      const classDropdown = form.querySelector('#class-dropdown');
+      if (!classDropdown) {
+        HM.log(2, 'Class dropdown not found');
+        return false;
+      }
+
+      const options = Array.from(classDropdown.options).filter((opt) => !opt.disabled && opt.value);
+
+      if (!options.length) {
+        HM.log(2, 'No valid class options found');
+        return false;
+      }
+
+      const randomOption = this.#getRandomItem(options);
+      classDropdown.value = randomOption.value;
+      classDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+
+      HM.log(3, `Selected random class: ${randomOption.text}`);
+      return true;
+    } catch (error) {
+      HM.log(1, 'Error randomizing class:', error);
+      return false;
+    }
+  }
+
+  /**
    * Randomize alignment selection
    * @param {HTMLElement} form - The HeroMancer form element
    * @returns {boolean} Success status
+   * @private
    */
-  static randomizeAlignment(form) {
+  static #randomizeAlignment(form) {
     try {
       const alignmentSelect = form.querySelector('select[name="alignment"]');
       if (!alignmentSelect) {
@@ -714,8 +721,9 @@ export class CharacterRandomizer {
    * Randomize faith/deity selection
    * @param {HTMLElement} form - The HeroMancer form element
    * @returns {boolean} Success status
+   * @private
    */
-  static randomizeFaith(form) {
+  static #randomizeFaith(form) {
     try {
       const faithSelect = form.querySelector('select[name="faith"]');
       if (!faithSelect) {
@@ -1183,7 +1191,6 @@ export class CharacterRandomizer {
 
   /**
    * Setup temporary dice configuration for manual formula
-   * @returns {Promise<void>}
    * @private
    */
   static #setupTemporaryDiceConfiguration() {
