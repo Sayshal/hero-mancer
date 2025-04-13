@@ -1,4 +1,4 @@
-import { EquipmentParser, HeroMancer, HM, JournalPageEmbed, MandatoryFields, SavedOptions, StatRoller, TableManager } from './index.js';
+import { EquipmentParser, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
 
 /**
  * Centralized DOM event and observer management
@@ -392,13 +392,13 @@ export class DOMManager {
     formElements.forEach((formElement) => {
       // Change event
       this.on(formElement, 'change', async () => {
-        MandatoryFields.checkMandatoryFields(element);
+        FormValidation.checkMandatoryFields(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
-          MandatoryFields.checkMandatoryFields(element);
+          FormValidation.checkMandatoryFields(element);
         });
       }
     });
@@ -409,7 +409,7 @@ export class DOMManager {
       const editorContent = editor.querySelector('.editor-content.ProseMirror');
       if (editorContent) {
         this.observe(`prose-mirror-${index}`, editorContent, { childList: true, characterData: true, subtree: true }, async () => {
-          MandatoryFields.checkMandatoryFields(element);
+          FormValidation.checkMandatoryFields(element);
         });
       }
     });
@@ -815,7 +815,7 @@ export class DOMManager {
         if (!tabId) continue;
 
         // Check for incomplete mandatory fields
-        const hasIncompleteFields = MandatoryFields.hasIncompleteTabFields(tabId, form);
+        const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
 
         // Get or create indicator
         let indicator = tab.querySelector('.tab-mandatory-indicator');

@@ -1,4 +1,4 @@
-import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, HM, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, FormValidation, HM, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -361,9 +361,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           const submitButton = this.element.querySelector('.hm-app-footer-submit');
           if (submitButton) {
             // Get field status from main form
-            const fieldStatus = MandatoryFields._evaluateFieldStatus(this.element, mandatoryFields);
+            const fieldStatus = FormValidation._evaluateFieldStatus(this.element, mandatoryFields);
             const isValid = fieldStatus.missingFields.length === 0;
-            MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
+            FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
           }
         }
         return;
@@ -379,7 +379,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         // Check mandatory fields only for the abilities tab
         const abilitiesFields = this.element.querySelector('.tab[data-tab="abilities"]');
         if (abilitiesFields) {
-          await MandatoryFields.checkMandatoryFields(abilitiesFields);
+          await FormValidation.checkMandatoryFields(abilitiesFields);
         }
 
         // Early return to avoid reinitializing other components
@@ -398,7 +398,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       await DOMManager.initialize(this.element);
 
       // Check mandatory fields
-      await MandatoryFields.checkMandatoryFields(this.element);
+      await FormValidation.checkMandatoryFields(this.element);
 
       DOMManager.updateTabIndicators(this.element);
     } finally {
