@@ -1,4 +1,4 @@
-import { HM, StatRoller } from '../utils/index.js';
+import { HM, StatRoller, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -194,10 +194,46 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
         return false;
       }
 
-      // Save all settings
-      DiceRolling._saveSettings(formData, allowedMethods);
+      // Track settings changes
+      const changedSettings = {};
 
-      HM.reloadConfirm({ world: true });
+      // Check and save allowedMethods setting
+      const currentAllowedMethods = game.settings.get(HM.ID, 'allowedMethods');
+      if (JSON.stringify(currentAllowedMethods) !== JSON.stringify(allowedMethods)) {
+        game.settings.set(HM.ID, 'allowedMethods', allowedMethods);
+        changedSettings.allowedMethods = true;
+      }
+
+      // Save all other settings
+      const otherSettings = [
+        'customRollFormula',
+        'chainedRolls',
+        'rollDelay',
+        'customStandardArray',
+        'statGenerationSwapMode',
+        'customPointBuyTotal',
+        'abilityScoreDefault',
+        'abilityScoreMin',
+        'abilityScoreMax'
+      ];
+
+      for (const setting of otherSettings) {
+        const currentValue = game.settings.get(HM.ID, setting);
+        const newValue = formData.object[setting];
+
+        if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
+          game.settings.set(HM.ID, setting, newValue);
+          changedSettings[setting] = true;
+        }
+      }
+
+      // Handle reloads and re-renders based on what changed
+      if (needsReload(changedSettings)) {
+        HM.reloadConfirm({ world: true });
+      } else if (needsRerender(changedSettings)) {
+        rerenderHM();
+      }
+
       ui.notifications.info('hm.settings.dice-rolling.saved', { localize: true });
     } catch (error) {
       HM.log(1, `Error in formHandler: ${error.message}`);
@@ -345,34 +381,5 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Saves all settings to game.settings
-   * @param {FormDataExtended} formData - The processed form data
-   * @param {object} allowedMethods - Object containing boolean flags for each method
-   * @returns {Promise<void>}
-   * @static
-   * @private
-   */
-  static _saveSettings(formData, allowedMethods) {
-    const settings = [
-      'customRollFormula',
-      'chainedRolls',
-      'rollDelay',
-      'customStandardArray',
-      'statGenerationSwapMode',
-      'customPointBuyTotal',
-      'abilityScoreDefault',
-      'abilityScoreMin',
-      'abilityScoreMax',
-      'statGenerationSwapMode'
-    ];
-
-    for (const setting of settings) {
-      game.settings.set(HM.ID, setting, formData.object[setting]);
-    }
-
-    game.settings.set(HM.ID, 'allowedMethods', allowedMethods);
   }
 }

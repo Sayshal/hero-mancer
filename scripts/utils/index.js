@@ -6,6 +6,7 @@ export { HeroMancer } from '../app/HeroMancer.js';
 export { MandatoryFields } from '../app/MandatoryFields.js';
 export { Troubleshooter } from '../app/Troubleshooter.js';
 export { HM } from '../hero-mancer.js';
+export { needsReload, needsRerender, rerenderHM } from '../settings.js';
 export { ActorCreationService } from './actorCreationService.js';
 export { CharacterArtPicker } from './characterArtPicker.js';
 export { JournalPageEmbed, JournalPageFinder } from './descriptionBuilder.js';

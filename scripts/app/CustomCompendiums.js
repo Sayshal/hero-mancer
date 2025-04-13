@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
@@ -99,6 +99,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   static async formHandler(_event, _form, _formData) {
     const types = ['class', 'race', 'background', 'item'];
     const settingsUpdates = [];
+    const changedSettings = {};
 
     try {
       // Prepare all settings updates
@@ -118,15 +119,27 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       let successCount = 0;
       for (const update of settingsUpdates) {
         try {
-          game.settings.set(HM.ID, `${update.type}Packs`, update.packs);
-          successCount++;
+          const currentValue = game.settings.get(HM.ID, `${update.type}Packs`);
+
+          // Check if the setting actually changed
+          if (JSON.stringify(currentValue) !== JSON.stringify(update.packs)) {
+            game.settings.set(HM.ID, `${update.type}Packs`, update.packs);
+            changedSettings[`${update.type}Packs`] = true;
+            successCount++;
+          }
         } catch (error) {
           HM.log(1, `Failed to update ${update.type} pack settings:`, error);
         }
       }
 
       if (successCount > 0) {
-        HM.reloadConfirm({ world: true });
+        // Handle reloads and re-renders based on what changed
+        if (needsReload(changedSettings)) {
+          HM.reloadConfirm({ world: true });
+        } else if (needsRerender(changedSettings)) {
+          rerenderHM();
+        }
+
         ui.notifications.info('hm.settings.custom-compendiums.form-saved', { localize: true });
         return true;
       } else {

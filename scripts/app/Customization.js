@@ -1,4 +1,4 @@
-import { CharacterArtPicker, HM } from '../utils/index.js';
+import { CharacterArtPicker, HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -138,19 +138,8 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * @private
    */
   static _validateFormData(formData) {
-    const settings = [
-      'alignments',
-      'deities',
-      'eye-colors',
-      'hair-colors',
-      'skin-tones',
-      'genders',
-      'enableRandomize',
-      'artPickerRoot',
-      'tokenizerCompatibility',
-      'enablePlayerCustomization',
-      'enableTokenCustomization'
-    ];
+    const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+    if (HM.COMPAT.TOKENIZER) settings.push('tokenizerCompatibility');
 
     // Get default values from game settings
     const defaults = {};
@@ -176,43 +165,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     return { defaults, resetSettings, settings };
   }
 
-  /**
-   * Applies validated settings to game configuration
-   * @param {object} formData - The processed form data
-   * @param {object} validation - Validation results from _validateFormData
-   * @returns {Promise<void>}
-   * @static
-   * @private
-   */
-  static _applySavedSettings(formData, validation) {
-    const { defaults, resetSettings, settings } = validation;
-
-    // Apply settings (using defaults for resetSettings)
-    for (const setting of settings) {
-      try {
-        if (resetSettings.includes(setting)) {
-          game.settings.set(HM.ID, setting, defaults[setting]);
-        } else {
-          game.settings.set(HM.ID, setting, formData.object[setting]);
-        }
-      } catch (error) {
-        HM.log(1, `Error saving setting "${setting}": ${error.message}`);
-        ui.notifications.warn(game.i18n.format('hm.settings.customization.save-error', { setting }));
-      }
-    }
-
-    // Update CharacterArtPicker root directory
-    CharacterArtPicker.rootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
-
-    // Show warnings for reset settings
-    if (resetSettings.length > 0) {
-      for (const setting of resetSettings) {
-        let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
-        ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
-      }
-    }
-  }
-
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
@@ -230,12 +182,55 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       // Validate form data
       const validation = Customization._validateFormData(formData);
+      const changedSettings = {};
 
       // Apply settings
-      Customization._applySavedSettings(formData, validation);
+      const { defaults, resetSettings, settings } = validation;
 
-      // Notify user of success and prompt for reload
-      HM.reloadConfirm({ world: true });
+      // Apply settings (using defaults for resetSettings)
+      for (const setting of settings) {
+        try {
+          const currentValue = game.settings.get(HM.ID, setting);
+          let newValue;
+
+          if (resetSettings.includes(setting)) {
+            newValue = defaults[setting];
+          } else {
+            newValue = formData.object[setting];
+          }
+
+          // Check if the value actually changed
+          if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
+            game.settings.set(HM.ID, setting, newValue);
+            changedSettings[setting] = true;
+          }
+        } catch (error) {
+          HM.log(1, `Error saving setting "${setting}": ${error.message}`);
+          ui.notifications.warn(game.i18n.format('hm.settings.customization.save-error', { setting }));
+        }
+      }
+
+      // Update CharacterArtPicker root directory
+      const newRootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
+      if (CharacterArtPicker.rootDirectory !== newRootDirectory) {
+        CharacterArtPicker.rootDirectory = newRootDirectory;
+      }
+
+      // Show warnings for reset settings
+      if (resetSettings.length > 0) {
+        for (const setting of resetSettings) {
+          let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
+          ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
+        }
+      }
+
+      // Handle reloads and re-renders based on what changed
+      if (needsReload(changedSettings)) {
+        HM.reloadConfirm({ world: true });
+      } else if (needsRerender(changedSettings)) {
+        rerenderHM();
+      }
+
       ui.notifications.info('hm.settings.customization.saved', { localize: true });
     } catch (error) {
       HM.log(1, `Error in formHandler: ${error.message}`);

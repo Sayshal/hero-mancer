@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -246,10 +246,23 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
+      const currentMandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
 
-      MandatoryFields._saveMandatoryFields(mandatoryFields);
+      // Compare current and new values
+      const hasChanged = JSON.stringify(currentMandatoryFields.sort()) !== JSON.stringify(mandatoryFields.sort());
+      const changedSettings = hasChanged ? { mandatoryFields: true } : {};
 
-      HM.reloadConfirm({ world: true });
+      if (hasChanged) {
+        MandatoryFields._saveMandatoryFields(mandatoryFields);
+
+        // Handle reloads and re-renders based on what changed
+        if (needsReload(changedSettings)) {
+          HM.reloadConfirm({ world: true });
+        } else if (needsRerender(changedSettings)) {
+          rerenderHM();
+        }
+      }
+
       ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
       return true;
     } catch (error) {
