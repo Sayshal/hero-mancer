@@ -456,7 +456,17 @@ h6 {
   position: absolute;
   top: -0.3rem;
   right: 1rem;
-  color: #e53935;
+  color: #ffb675;
+  font-size: 0.84rem;
+  text-shadow: 0 0 4px #e539354d;
+}
+
+.theme-light .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
+  z-index: 1;
+  position: absolute;
+  top: -0.3rem;
+  right: 1rem;
+  color: #5a0101;
   font-size: 0.84rem;
   text-shadow: 0 0 4px #e539354d;
 }
@@ -1721,12 +1731,22 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .mandatory-indicator.complete {
-  color: #2e7d32;
+  color: #8fd693;
   text-shadow: 0 0 4px #2e7d324d;
 }
 
 .mandatory-indicator.incomplete {
-  color: #e53935;
+  color: #ffb675;
+  text-shadow: 0 0 4px #e539354d;
+}
+
+.theme-light .mandatory-indicator.complete {
+  color: #123013;
+  text-shadow: 0 0 4px #2e7d324d;
+}
+
+.theme-light .mandatory-indicator.incomplete {
+  color: #5a0101;
   text-shadow: 0 0 4px #e539354d;
 }
 
