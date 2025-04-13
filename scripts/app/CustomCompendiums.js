@@ -296,7 +296,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         buttons: [this.#createDialogDoneButton(type)],
         rejectClose: false,
         modal: false,
-        position: { width: 'auto' }
+        position: { width: 'auto', height: 'auto' }
       };
 
       // Render dialog
