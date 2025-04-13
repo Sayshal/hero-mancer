@@ -47,6 +47,8 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     }
   };
 
+  static DIALOG_TEMPLATE = 'modules/hero-mancer/templates/settings/custom-compendiums-dialog.hbs';
+
   static #validPacksCache = new Map();
 
   get title() {
@@ -60,9 +62,8 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   /**
    * Manages the compendium selection and handles validation.
    * @async
-   * @param {string} type - The type of compendium to manage (class, race, background, or item)
+   * @param {string} type - The type of compendium to manage
    * @returns {Promise<boolean>} - Whether the compendium management was successful
-   * @throws {Error} If the compendium type is invalid or if no valid packs can be loaded
    */
   static async manageCompendium(type) {
     try {
@@ -89,14 +90,11 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
   /**
    * Form submission handler for compendium configuration
-   * Validates and updates compendium selections for all document types,
-   * then prompts for a world reload to apply changes
    * @async
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} _form - The form element
    * @param {FormDataExtended} _formData - The processed form data
    * @returns {Promise<boolean>} Whether the settings were successfully saved
-   * @static
    */
   static async formHandler(_event, _form, _formData) {
     const types = ['class', 'race', 'background', 'item'];
@@ -108,17 +106,11 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         try {
           const validPacks = await CustomCompendiums.#collectValidPacks(type, false);
           const selectedPacks = game.settings.get(HM.ID, `${type}Packs`) || [];
-
-          // Filter selected packs to ensure they're valid
           const validSelectedPacks = selectedPacks.filter((packId) => Array.from(validPacks).some((pack) => pack.packId === packId));
 
-          settingsUpdates.push({
-            type,
-            packs: validSelectedPacks
-          });
+          settingsUpdates.push({ type, packs: validSelectedPacks });
         } catch (error) {
           HM.log(1, `Error processing ${type} packs:`, error);
-          // Continue with other types even if one fails
         }
       }
 
@@ -133,7 +125,6 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         }
       }
 
-      // If at least some settings were updated, consider it a success
       if (successCount > 0) {
         HM.reloadConfirm({ world: true });
         ui.notifications.info('hm.settings.custom-compendiums.form-saved', { localize: true });
@@ -160,16 +151,13 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
    * @param {string} type - The type of documents to collect
    * @param {boolean} [useCache=true] - Whether to use cached results
    * @returns {Promise<Set>} A set of valid pack objects
-   * @throws {Error} If the type is invalid or if compendium access fails
    * @private
    */
   static async #collectValidPacks(type, useCache = true) {
-    // Validate input
     if (!type || !['class', 'race', 'background', 'item'].includes(type)) {
       throw new Error(`Invalid document type: ${type}`);
     }
 
-    // Return cached results if available
     if (useCache && this.#validPacksCache.has(type)) {
       return this.#validPacksCache.get(type);
     }
@@ -177,10 +165,8 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     const validPacks = new Set();
     const processingErrors = [];
 
-    // Log processing start
     HM.log(3, `Collecting valid ${type} packs from available compendiums`);
 
-    // Process each pack
     for (const pack of game.packs) {
       if (pack.metadata.type !== 'Item') continue;
 
@@ -217,58 +203,21 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       }
     }
 
-    // Log results summary
     HM.log(3, `Found ${validPacks.size} valid ${type} packs`);
 
-    // Report errors if any
     if (processingErrors.length > 0) {
       HM.log(2, `Encountered ${processingErrors.length} errors while processing compendium packs`);
     }
 
-    // Cache and return results
     this.#validPacksCache.set(type, validPacks);
     return validPacks;
   }
 
   /**
-   * Renders a dialog for selecting compendium packs with grouped organization
-   * @async
-   * @param {string} type - The type of compendium ('class', 'race', 'background', 'item')
+   * Prepares data for the compendium selection dialog template
    * @param {Set} validPacks - Set of valid pack objects
    * @param {Array<string>} selectedPacks - Array of currently selected pack IDs
-   * @returns {Promise<DialogV2|null>} The rendered dialog or null if rendering failed
-   * @private
-   */
-  static async #renderCompendiumDialog(type, validPacks, selectedPacks) {
-    try {
-      // Prepare dialog data
-      const dialogData = this.#prepareCompendiumDialogData(validPacks, selectedPacks);
-
-      // Generate dialog content
-      const contentHTML = this.#generateCompendiumDialogContent(dialogData);
-
-      // Create dialog configuration
-      const dialogConfig = this.#createCompendiumDialogConfig(type, contentHTML);
-
-      // Render dialog
-      const dialog = new DialogV2(dialogConfig);
-      const rendered = await dialog.render(true);
-
-      // Set up event listeners
-      this.#setupCompendiumDialogListeners(rendered.element);
-      return rendered;
-    } catch (error) {
-      HM.log(1, `Error rendering compendium dialog for ${type}:`, error);
-      ui.notifications.error('hm.settings.custom-compendiums.dialog-error', { localize: true });
-      return null;
-    }
-  }
-
-  /**
-   * Prepares data structure for compendium dialog
-   * @param {Set} validPacks - Set of valid pack objects
-   * @param {Array<string>} selectedPacks - Array of currently selected pack IDs
-   * @returns {Object} Prepared dialog data
+   * @returns {Object} Data object for the template
    * @private
    */
   static #prepareCompendiumDialogData(validPacks, selectedPacks) {
@@ -299,161 +248,121 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     const allSelected = validPacksArray.every((pack) => selectedPacksSet.has(pack.packId));
 
     return {
-      sourceGroups,
+      sourceGroups: Object.fromEntries(sourceGroups),
       allSelected
     };
   }
 
   /**
-   * Generates HTML content for compendium dialog
-   * @param {Object} dialogData - Prepared dialog data
-   * @returns {string} HTML content for dialog
+   * Renders a dialog for selecting compendium packs using a template
+   * @async
+   * @param {string} type - The type of compendium
+   * @param {Set} validPacks - Set of valid pack objects
+   * @param {Array<string>} selectedPacks - Array of currently selected pack IDs
+   * @returns {Promise<DialogV2|null>} The rendered dialog or null if rendering failed
    * @private
    */
-  static #generateCompendiumDialogContent(dialogData) {
-    const { sourceGroups, allSelected } = dialogData;
+  static async #renderCompendiumDialog(type, validPacks, selectedPacks) {
+    try {
+      // Prepare dialog data
+      const dialogData = this.#prepareCompendiumDialogData(validPacks, selectedPacks);
 
-    // Create container
-    const container = document.createElement('div');
+      // Render template
+      const content = await renderTemplate(this.DIALOG_TEMPLATE, dialogData);
 
-    // Create global header with "Select All" checkbox
-    container.appendChild(this.#createGlobalHeader(allSelected));
+      // Create dialog configuration
+      const dialogConfig = {
+        window: {
+          title: game.i18n.format('hm.settings.custom-compendiums.title', {
+            type: this.#getLocalizedTypeName(type)
+          }),
+          icon: this.#getCompendiumTypeIcon(type)
+        },
+        content: content,
+        classes: ['hm-compendiums-popup-dialog'],
+        buttons: [this.#createDialogDoneButton(type)],
+        rejectClose: false,
+        modal: false,
+        position: { width: 'auto' }
+      };
 
-    // Add each source group
-    for (const [source, group] of sourceGroups) {
-      container.appendChild(this.#createSourceGroup(source, group));
+      // Render dialog
+      const dialog = new DialogV2(dialogConfig);
+      const rendered = await dialog.render(true);
+
+      // Set up event listeners
+      this.#setupCompendiumDialogListeners(rendered.element);
+      return rendered;
+    } catch (error) {
+      HM.log(1, `Error rendering compendium dialog for ${type}:`, error);
+      ui.notifications.error('hm.settings.custom-compendiums.dialog-error', { localize: true });
+      return null;
     }
-
-    return container.outerHTML;
   }
 
   /**
-   * Creates global header with Select All checkbox
-   * @param {boolean} allSelected - Whether all items are selected
-   * @returns {HTMLElement} Global header element
+   * Sets up event listeners for compendium dialog checkboxes
+   * @param {HTMLElement} element - The dialog's DOM element
+   * @returns {void}
    * @private
    */
-  static #createGlobalHeader(allSelected) {
-    const globalHeader = document.createElement('div');
-    globalHeader.className = 'hm-compendium-global-header';
+  static #setupCompendiumDialogListeners(element) {
+    // Cache frequently used selectors
+    const allItemCheckboxes = element.querySelectorAll('input[name="compendiumMultiSelect"]');
+    const globalSelectAll = element.querySelector('.hm-select-all-global');
+    const groupSelectAlls = element.querySelectorAll('.hm-select-all');
 
-    const globalLabel = document.createElement('label');
-    globalLabel.className = 'checkbox';
-
-    const globalCheckbox = document.createElement('input');
-    globalCheckbox.type = 'checkbox';
-    globalCheckbox.className = 'hm-select-all-global';
-
-    // Set both property and attribute
-    globalCheckbox.checked = allSelected;
-    if (allSelected) {
-      globalCheckbox.setAttribute('checked', 'checked');
+    // Global "Select All" checkbox
+    if (globalSelectAll) {
+      globalSelectAll.addEventListener('change', (event) => {
+        const isChecked = event.target.checked;
+        allItemCheckboxes.forEach((input) => (input.checked = isChecked));
+        groupSelectAlls.forEach((input) => (input.checked = isChecked));
+      });
     }
 
-    globalLabel.append(globalCheckbox, game.i18n.localize('hm.settings.custom-compendiums.select-all'));
-    globalHeader.appendChild(globalLabel);
+    // Group "Select All" checkboxes
+    groupSelectAlls.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => {
+        const source = event.target.dataset.source;
+        const isChecked = event.target.checked;
+        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
+        sourceCheckboxes.forEach((input) => (input.checked = isChecked));
+        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
+      });
+    });
 
-    return globalHeader;
+    // Individual checkboxes
+    allItemCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => {
+        const source = event.target.dataset.source;
+        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
+        const selectAllCheckbox = element.querySelector(`.hm-select-all[data-source="${source}"]`);
+
+        const allChecked = Array.from(sourceCheckboxes).every((input) => input.checked);
+        if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
+
+        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
+      });
+    });
   }
 
   /**
-   * Creates a source group element
-   * @param {string} source - Source identifier
-   * @param {Object} group - Group data
-   * @returns {HTMLElement} Source group element
+   * Updates the global "Select All" checkbox state
+   * @param {HTMLElement} element - The dialog's DOM element
+   * @param {NodeList} [allCheckboxes=null] - Cached NodeList of all checkboxes
+   * @param {HTMLElement} [globalSelectAllElement=null] - Cached global select-all element
+   * @returns {void}
    * @private
    */
-  static #createSourceGroup(source, group) {
-    const groupDiv = document.createElement('div');
-    groupDiv.className = 'hm-compendium-group';
+  static #updateGlobalSelectAll(element, allCheckboxes = null, globalSelectAllElement = null) {
+    const globalSelectAll = globalSelectAllElement || element.querySelector('.hm-select-all-global');
+    if (!globalSelectAll) return;
 
-    // Add separator
-    groupDiv.appendChild(document.createElement('hr'));
+    const checkboxes = allCheckboxes || element.querySelectorAll('input[name="compendiumMultiSelect"]');
+    const allChecked = Array.from(checkboxes).every((input) => input.checked);
 
-    // Create group header with "Select All" checkbox
-    const groupHeader = document.createElement('div');
-    groupHeader.className = 'hm-compendium-group-header';
-
-    const groupLabel = document.createElement('label');
-    groupLabel.className = 'checkbox';
-
-    const groupCheckbox = document.createElement('input');
-    groupCheckbox.type = 'checkbox';
-    groupCheckbox.className = 'hm-select-all';
-    groupCheckbox.dataset.source = source;
-
-    // Set both property and attribute
-    groupCheckbox.checked = group.allSelected;
-    if (group.allSelected) {
-      groupCheckbox.setAttribute('checked', 'checked');
-    }
-
-    groupLabel.append(groupCheckbox, group.name);
-    groupHeader.appendChild(groupLabel);
-    groupDiv.appendChild(groupHeader);
-
-    // Create group items container
-    const itemsContainer = document.createElement('div');
-    itemsContainer.className = 'hm-compendium-group-items';
-
-    // Add each pack checkbox
-    for (const pack of group.packs) {
-      itemsContainer.appendChild(this.#createPackCheckbox(pack, source));
-    }
-
-    groupDiv.appendChild(itemsContainer);
-    return groupDiv;
-  }
-
-  /**
-   * Creates a pack checkbox element
-   * @param {Object} pack - Pack data
-   * @param {string} source - Source identifier
-   * @returns {HTMLElement} Pack checkbox element
-   * @private
-   */
-  static #createPackCheckbox(pack, source) {
-    const itemLabel = document.createElement('label');
-    itemLabel.className = 'checkbox hm-compendium-item';
-
-    const itemCheckbox = document.createElement('input');
-    itemCheckbox.type = 'checkbox';
-    itemCheckbox.name = 'compendiumMultiSelect';
-    itemCheckbox.value = pack.value;
-    itemCheckbox.dataset.source = source;
-
-    // Set both property and attribute
-    itemCheckbox.checked = pack.selected;
-    if (pack.selected) {
-      itemCheckbox.setAttribute('checked', 'checked');
-    }
-
-    itemLabel.append(itemCheckbox, pack.label);
-    return itemLabel;
-  }
-
-  /**
-   * Creates dialog configuration
-   * @param {string} type - Compendium type
-   * @param {string} contentHTML - Dialog content HTML
-   * @returns {Object} Dialog configuration
-   * @private
-   */
-  static #createCompendiumDialogConfig(type, contentHTML) {
-    return {
-      window: {
-        title: game.i18n.format('hm.settings.custom-compendiums.title', {
-          type: this.#getLocalizedTypeName(type)
-        }),
-        icon: this.#getCompendiumTypeIcon(type)
-      },
-      content: contentHTML,
-      classes: ['hm-compendiums-popup-dialog'],
-      buttons: [this.#createDialogDoneButton(type)],
-      rejectClose: false,
-      modal: false,
-      position: { width: 'auto' }
-    };
+    globalSelectAll.checked = allChecked;
   }
 
   /**
@@ -505,20 +414,16 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
    * Formats source names for better readability
    * @param {string} source - The raw source identifier
    * @returns {string} Formatted source name
-   * @throws {Error} If source is invalid or empty
    * @private
    */
   static #formatSourceName(source) {
-    // Validate input
     if (!source || typeof source !== 'string') {
       HM.log(2, `Invalid source name format: ${source}`);
       return 'Unknown Source';
     }
 
-    // Handle special cases
     if (source === 'dnd5e') return 'SRD';
 
-    // Process regular source names
     return source
       .replace('dnd-', '')
       .replace(/-/g, ' ')
@@ -528,124 +433,31 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
-   * Sets up event listeners for compendium dialog checkboxes
-   * @param {HTMLElement} element - The dialog's DOM element
-   * @returns {void}
-   * @private
-   */
-  static #setupCompendiumDialogListeners(element) {
-    // Cache frequently used selectors
-    const allItemCheckboxes = element.querySelectorAll('input[name="compendiumMultiSelect"]');
-    const globalSelectAll = element.querySelector('.hm-select-all-global');
-    const groupSelectAlls = element.querySelectorAll('.hm-select-all');
-
-    // Global "Select All" checkbox
-    if (globalSelectAll) {
-      globalSelectAll.addEventListener('change', (event) => {
-        const isChecked = event.target.checked;
-
-        // Update all checkboxes
-        allItemCheckboxes.forEach((input) => {
-          input.checked = isChecked;
-        });
-
-        // Update all group "select all" checkboxes
-        groupSelectAlls.forEach((input) => {
-          input.checked = isChecked;
-        });
-      });
-    }
-
-    // Group "Select All" checkboxes
-    groupSelectAlls.forEach((checkbox) => {
-      checkbox.addEventListener('change', (event) => {
-        const source = event.target.dataset.source;
-        const isChecked = event.target.checked;
-
-        // Get all checkboxes for this source (cache the NodeList for better performance)
-        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
-
-        // Update all checkboxes in this group
-        sourceCheckboxes.forEach((input) => {
-          input.checked = isChecked;
-        });
-
-        // Update global "select all" checkbox
-        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
-      });
-    });
-
-    // Individual checkboxes
-    allItemCheckboxes.forEach((checkbox) => {
-      checkbox.addEventListener('change', (event) => {
-        const source = event.target.dataset.source;
-
-        // Get all checkboxes and select-all for this source (cache the selectors)
-        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
-        const selectAllCheckbox = element.querySelector(`.hm-select-all[data-source="${source}"]`);
-
-        // Check if all source checkboxes are checked
-        const allChecked = Array.from(sourceCheckboxes).every((input) => input.checked);
-
-        // Update group select-all checkbox
-        if (selectAllCheckbox) {
-          selectAllCheckbox.checked = allChecked;
-        }
-
-        // Update global "select all" checkbox
-        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
-      });
-    });
-  }
-
-  /**
-   * Updates the global "Select All" checkbox state based on individual checkbox states
-   * @param {HTMLElement} element - The dialog's DOM element
-   * @param {NodeList} [allCheckboxes=null] - Cached NodeList of all checkboxes for better performance
-   * @param {HTMLElement} [globalSelectAllElement=null] - Cached global select-all element
-   * @returns {void}
-   * @private
-   */
-  static #updateGlobalSelectAll(element, allCheckboxes = null, globalSelectAllElement = null) {
-    // Use cached elements if provided, otherwise query the DOM
-    const globalSelectAll = globalSelectAllElement || element.querySelector('.hm-select-all-global');
-    if (!globalSelectAll) return;
-
-    const checkboxes = allCheckboxes || element.querySelectorAll('input[name="compendiumMultiSelect"]');
-    const allChecked = Array.from(checkboxes).every((input) => input.checked);
-
-    globalSelectAll.checked = allChecked;
-  }
-
-  /**
    * Gets the localized name for a compendium type
-   * @param {string} type - The type of compendium ('class', 'race', 'background', 'item')
+   * @param {string} type - The type of compendium
    * @returns {string} The localized type name
    * @private
    */
   static #getLocalizedTypeName(type) {
     const localizationKey = `hm.settings.custom-compendiums.types.${type}`;
 
-    // Check if the localization key exists
     if (game.i18n.has(localizationKey)) {
       return game.i18n.localize(localizationKey);
     }
 
-    // Fallback to direct localization from the existing keys
     const directKey = `hm.settings.custom-compendiums.${type}`;
     if (game.i18n.has(directKey)) {
       return game.i18n.localize(directKey);
     }
 
-    // Second fallback to capitalize the type
     return type.charAt(0).toUpperCase() + type.slice(1);
   }
 
   /**
-   * Returns the appropriate FontAwesome icon class for the given compendium type
-   * @param {string} type - The type of compendium ('class', 'race', 'background', 'item')
+   * Returns the appropriate icon for the given compendium type
+   * @param {string} type - The type of compendium
    * @returns {string} The FontAwesome icon class
-   * @static
+   * @private
    */
   static #getCompendiumTypeIcon(type) {
     switch (type) {

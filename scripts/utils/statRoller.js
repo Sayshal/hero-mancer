@@ -702,7 +702,6 @@ export class StatRoller {
       }
     }
 
-    // Use the same highlighting as standard array mode
     DOMManager.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 
