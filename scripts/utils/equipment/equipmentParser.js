@@ -316,7 +316,7 @@ export class EquipmentParser {
 
     // Update equipment tables in a single pass
     const equipmentTables = sectionContainer.querySelectorAll('table.equipment-item');
-    const selectors = 'select, input[type="checkbox"], label';
+    const selectors = 'select, input[type="checkbox"], label, h4';
 
     equipmentTables.forEach((el) => {
       el.classList.toggle('disabled', isChecked);

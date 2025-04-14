@@ -336,11 +336,11 @@ fieldset#start > h2 {
 }
 
 #hero-mancer-app .hm-app-tab-content h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+#hero-mancer-app .hm-app-tab-content h2,
+#hero-mancer-app .hm-app-tab-content h3,
+#hero-mancer-app .hm-app-tab-content h4,
+#hero-mancer-app .hm-app-tab-content h5,
+#hero-mancer-app .hm-app-tab-content h6 {
   margin: unset;
 }
 
@@ -566,7 +566,7 @@ h6 {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  height: 2.5rem;
+  height: 2rem;
   padding: 0.5rem 1rem;
   white-space: nowrap;
 }
@@ -583,20 +583,29 @@ button i.nav-prev {
 }
 
 /* Button hover states */
-.hm-app-footer-submit:hover {
-  background-color: #45a149;
+.hm-app .hm-app-footer .hm-app-footer-submit:hover {
+  background-color: #122b14;
 }
 
-.hm-app-footer-save:hover {
-  background-color: #ffd500;
+.hm-app .hm-app-footer .hm-app-footer-save:hover {
+  background-color: #4c3f00;
 }
 
-.hm-app-footer-reset:hover {
-  background-color: #ff8000;
+.hm-app .hm-app-footer .hm-app-footer-reset:hover {
+  background-color: #643200;
 }
 
-.hm-app-footer-cancel:hover {
-  background-color: #d33131;
+.hm-app .hm-app-footer .hm-app-footer-cancel:hover {
+  background-color: #7a1b1b;
+}
+
+.hm-app .hm-app-footer .hm-app-footer-randomize:hover {
+  background-color: #731b54;
+}
+
+.hm-app .hm-app-footer .hm-app-nav-previous:hover,
+.hm-app .hm-app-footer .hm-app-nav-next:hover {
+  background-color: #631c82;
 }
 
 /* ==========================================================================
@@ -834,10 +843,10 @@ button i.nav-prev {
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  padding: 1.25rem;
-  border: 1px solid #4a4a4a;
+  padding: 1rem;
+  margin-top: 0.25rem;
+  border: 1px solid #6f6f6f;
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 2px 4px #0003;
 }
 
 /* ==========================================================================
@@ -855,22 +864,6 @@ button i.nav-prev {
 .hm-app-tab-content .background-equipment-section h4 {
   font-size: var(--font-size-15);
   font-family: signika, sans-serif;
-}
-
-.equipment-choices h3 {
-  border-bottom: 2px solid var(--color-border-light-primary);
-  font-size: var(--font-size-20);
-  text-align: center;
-}
-
-.equipment-choices h4 {
-  width: 92%;
-  margin: unset;
-}
-
-.equipment-choices .parent-label {
-  width: 100%;
-  margin: 0;
 }
 
 /* ==========================================================================
@@ -1104,17 +1097,6 @@ td .equipment-favorite-container {
 }
 
 /* ==========================================================================
-  Second Weapon Options
-  ========================================================================== */
-
-.second-weapon-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-dark-secondary);
-  font-size: var(--font-size-14);
-}
-
-/* ==========================================================================
   Empty Notices and Warnings
   ========================================================================== */
 
@@ -1184,7 +1166,8 @@ td .equipment-favorite-container {
 
 .equipment-choices select:disabled,
 .equipment-choices input:disabled,
-.equipment-choices label.disabled {
+.equipment-choices label.disabled,
+.equipment-choices h4:disabled {
   opacity: 0.5;
   color: #878787;
   cursor: not-allowed;
@@ -1222,14 +1205,12 @@ tr.wealth-roll-container[style*='display: table-row'] {
   --scroll-margin: unset;
 
   width: 100% !important;
-  margin-right: 0.2rem !important;
-  margin-left: 0.2rem !important;
-  padding-right: 0.2rem !important;
-  padding-left: 0.2rem !important;
+  margin-inline: 0.2rem !important;
+  padding-inline: 0.2rem !important;
 }
 
 .hm-app .hm-app-tab-content .dnd5e2-journal {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
 }
 
 .hm-app-tab-content .journal-container:empty,
@@ -1993,18 +1974,18 @@ button {
 
 /* Apply soft colors to each column */
 .message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(1) {
-  font-size: var(--font-size-12);
-  background-color: #e8b7b7;
+  font-size: var(--font-size-11);
+  background-color: #f3a0a0;
 }
 
 .message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(2) {
-  font-size: var(--font-size-12);
-  background-color: #c9c2e3;
+  font-size: var(--font-size-11);
+  background-color: #bbadeb;
 }
 
 .message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(3) {
-  font-size: var(--font-size-12);
-  background-color: #b7d4b7;
+  font-size: var(--font-size-11);
+  background-color: #88e788;
 }
 
 /* Add some subtle borders */
