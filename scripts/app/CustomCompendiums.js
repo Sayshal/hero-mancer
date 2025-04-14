@@ -51,6 +51,8 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
   static #validPacksCache = new Map();
 
+  static PACKS = { class: [], background: [], race: [], item: [] };
+
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.custom-compendiums.menu.name')}`;
   }
@@ -58,6 +60,23 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
+
+  /**
+   * Actions performed after the first render of the Application.
+   * @param {ApplicationRenderContext} _context Prepared context data
+   * @param {RenderOptions} _options Provided render options
+   * @returns {void}
+   * @protected
+   * @override
+   */
+  _onFirstRender() {
+    HM.log(1, 'Squeeb', CustomCompendiums.PACKS);
+    CustomCompendiums.PACKS.class = game.settings.get(HM.ID, 'classPacks');
+    CustomCompendiums.PACKS.background = game.settings.get(HM.ID, 'backgroundPacks');
+    CustomCompendiums.PACKS.race = game.settings.get(HM.ID, 'racePacks');
+    CustomCompendiums.PACKS.item = game.settings.get(HM.ID, 'itemPacks');
+    HM.log(1, 'Squeeb', CustomCompendiums.PACKS);
+  }
 
   /**
    * Manages the compendium selection and handles validation.
@@ -119,10 +138,11 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       let successCount = 0;
       for (const update of settingsUpdates) {
         try {
-          const currentValue = game.settings.get(HM.ID, `${update.type}Packs`);
+          // Compare against the original values stored in CustomCompendiums.PACKS
+          const originalValue = CustomCompendiums.PACKS[update.type];
 
-          // Check if the setting actually changed
-          if (JSON.stringify(currentValue) !== JSON.stringify(update.packs)) {
+          // Check if the setting actually changed from the original value
+          if (JSON.stringify(originalValue) !== JSON.stringify(update.packs)) {
             game.settings.set(HM.ID, `${update.type}Packs`, update.packs);
             changedSettings[`${update.type}Packs`] = true;
             successCount++;
