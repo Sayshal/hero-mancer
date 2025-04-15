@@ -102,10 +102,17 @@ export class FormValidation {
       }
 
       // Find container and look for label inside
-      const container = element.closest('.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group');
+      const container = element.closest(
+        '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group, .physical-description-section, .characteristics-section'
+      );
 
       if (!container) {
         return null;
+      }
+
+      // For section containers with headings, return the heading
+      if (container.classList.contains('physical-description-section') || container.classList.contains('characteristics-section')) {
+        return container.querySelector('h2');
       }
 
       return container.querySelector('label, span.ability-label');
