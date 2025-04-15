@@ -93,6 +93,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     class: { template: 'modules/hero-mancer/templates/tab-class.hbs', classes: ['hm-app-tab-content'] },
     abilities: { template: 'modules/hero-mancer/templates/tab-abilities.hbs', classes: ['hm-app-tab-content'] },
     equipment: { template: 'modules/hero-mancer/templates/tab-equipment.hbs', classes: ['hm-app-tab-content'] },
+    biography: { template: 'modules/hero-mancer/templates/tab-biography.hbs', classes: ['hm-app-tab-content'] },
     finalize: { template: 'modules/hero-mancer/templates/tab-finalize.hbs', classes: ['hm-app-tab-content'] },
     footer: { template: 'modules/hero-mancer/templates/app-footer.hbs', classes: ['hm-app-footer'] }
   };
@@ -183,7 +184,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       // Navigation buttons logic
-      const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
+      const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
       const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
 
       switch (partId) {
@@ -209,7 +210,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.remainingPoints = context.totalPoints - context.pointsSpent;
           context.chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
           break;
-        case 'finalize':
+        case 'biography':
           context.alignments =
             game.settings
               .get(HM.ID, 'alignments')
@@ -262,7 +263,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           icon: 'fa-solid fa-shield-halved',
           skipIf: () => HM.COMPAT?.ELKAN
         },
-        finalize: { icon: 'fa-solid fa-check-circle' }
+        biography: { icon: 'fa-solid fa-book-open' },
+        finalize: { icon: 'fa-solid fa-flag-checkered' }
       };
 
       // Skip these parts as they're not tabs
@@ -763,7 +765,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
 
     // Skip equipment if ELKAN compatibility is enabled
     const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
@@ -788,7 +790,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
 
     // Skip equipment if ELKAN compatibility is enabled
     const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;

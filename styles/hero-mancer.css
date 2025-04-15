@@ -83,6 +83,10 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+.grid-5-col {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
 .grid-7-col {
   grid-template-columns: repeat(7, 1fr);
 }
@@ -156,7 +160,7 @@
 }
 
 .ml-xs {
-  margin-left: 0.35rem;
+  margin-left: 0.4rem;
 }
 
 .m-lr {
@@ -317,7 +321,7 @@ fieldset#start > h2 {
   ========================================================================== */
 
 .application.hm-app {
-  width: 1000px;
+  width: 1100px;
   max-width: calc(100vw - 100px);
   height: auto;
   min-height: 0;
@@ -1241,10 +1245,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   border-radius: var(--border-radius-sm);
 }
 
-.hm-app-tab-content .journal-container * {
-  color: inherit;
-}
-
 .hm-app-tab-content .journal-container .title {
   color: #4b4a44;
   font-weight: bold;
@@ -1760,7 +1760,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .ability-block > label,
 .form-group > label,
 .trait-group > label,
-.personality-group > label,
+.personality-trait-group > label,
 .description-group > label,
 .notes-group > label,
 .notes-section > h3 {
@@ -1888,12 +1888,16 @@ button {
 /* Tooltip functionality */
 .tooltip-icon {
   color: var(--color-text-dark-secondary);
-  cursor: help;
-  transition: color 0.2s ease;
+  transition: color 0.5s ease;
 }
 
 .tooltip-icon:hover {
   color: var(--user-color);
+}
+
+.heading-tooltip {
+  font-size: var(--font-size-14);
+  vertical-align: middle;
 }
 
 /* ==========================================================================
@@ -1918,8 +1922,8 @@ button {
 
 .hm-app-tab-content .character-portrait img {
   object-fit: cover;
-  width: 150px;
-  height: 150px;
+  width: 9.5rem;
+  height: 9.5rem;
   border: 1px solid #666;
   border-radius: var(--border-radius-md);
 }
@@ -2012,71 +2016,51 @@ button {
   margin-top: 20px;
 }
 
+.hm-app-tab-content section.first-section {
+  margin-top: 0;
+}
+
 .hm-app-tab-content h3 {
   margin-bottom: 10px;
   border-bottom: 1px solid #666;
 }
 
-/* Character details section */
-.hm-app-tab-content .character-details-row {
-  gap: 0.625rem;
-  grid-template-columns: 1fr 1fr;
-  display: grid;
+.hm-app-tab-content .characteristics-section .form-input,
+.hm-app-tab-content .characteristics-section .form-select {
+  flex: 3;
+  min-width: 100%;
 }
 
-.hm-app-tab-content .character-details-row select {
-  min-height: 25px;
-}
-
-/* Physical traits section */
-.hm-app-tab-content .physical-traits-grid {
-  gap: 0.625rem;
-  grid-template-columns: repeat(7, 1fr);
-  display: grid;
-  margin-bottom: 10px;
-}
-
-.hm-app-tab-content .trait-group {
-  gap: 0.313rem;
+/* Personality trait groups */
+.hm-app-tab-content .personality-trait-group {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  margin-bottom: var(--spacing-md);
 }
 
-.hm-app-tab-content .physical-traits-grid .trait-group input {
-  width: 100%;
-  max-width: 65px;
-}
-
-.hm-app-tab-content .description-group {
-  margin-top: 10px;
-}
-
-.hm-app-tab-content .description-input {
-  gap: 0.625rem;
-  display: flex;
-}
-
-.hm-app-tab-content .description-input textarea {
-  flex: 1;
+.hm-app-tab-content .personality-trait-group textarea {
+  min-height: 180px;
   resize: none;
 }
 
-/* Personality section */
-.hm-app-tab-content .personality-grid {
-  gap: 0.625rem;
-  display: grid;
+/* Physical description section */
+.hm-app-tab-content .physical-description-section textarea {
+  width: 100%;
+  min-height: 7.5rem;
+  resize: none;
 }
 
-.hm-app-tab-content .input-with-roll {
-  gap: 0.625rem;
-  display: flex;
+.hm-app-tab-content .biography-tab h2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.hm-app-tab-content .biography-tab label {
+  font-size: var(--font-size-16);
 }
 
 .hm-app-tab-content .input-with-roll textarea {
   flex: 1;
-  min-height: 90px;
+  min-height: 7.5rem;
   font-size: var(--font-size-14);
   font-family: var(--font-h3);
   resize: none;

@@ -741,6 +741,106 @@ export class DOMManager {
   }
 
   /**
+   * Updates the character size field based on race advancements
+   * @param {string} raceUuid - UUID of the selected race
+   * @static
+   */
+  static async updateRaceSize(raceUuid) {
+    try {
+      if (!raceUuid) {
+        HM.log(3, 'No race UUID provided for size update');
+        return;
+      }
+
+      // Find size input
+      const sizeInput = document.getElementById('size');
+      if (!sizeInput) {
+        HM.log(2, 'Could not find size input element');
+        return;
+      }
+
+      // Get race document
+      const race = await fromUuidSync(raceUuid);
+      if (!race) {
+        HM.log(2, `Could not find race with UUID: ${raceUuid}`);
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+        return;
+      }
+
+      // Log the race and its advancement structure for debugging
+      HM.log(3, `Processing race: ${race.name}`, race);
+
+      // Look for size advancement - handle different data structures
+      let sizesArray = [];
+      let hint = '';
+
+      // Check for size advancement using more detailed property access
+      if (race.advancement?.byType?.Size?.length) {
+        const sizeAdvancement = race.advancement.byType.Size[0];
+        HM.log(3, 'Found Size advancement:', sizeAdvancement);
+
+        // Handle Set vs Array - check if sizes exists and convert if needed
+        if (sizeAdvancement.configuration?.sizes) {
+          // If it's a Set, convert to array
+          if (sizeAdvancement.configuration.sizes instanceof Set) {
+            sizesArray = Array.from(sizeAdvancement.configuration.sizes);
+            HM.log(3, `Converted sizes Set to Array: ${sizesArray.join(', ')}`);
+          }
+          // If it's already an array
+          else if (Array.isArray(sizeAdvancement.configuration.sizes)) {
+            sizesArray = sizeAdvancement.configuration.sizes;
+          }
+
+          hint = sizeAdvancement.hint || '';
+        }
+      }
+
+      // If no size found, clear the field
+      if (!sizesArray.length) {
+        HM.log(2, `No size advancement found for race: ${race.name}`, { advancement: race.advancement });
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+        return;
+      }
+
+      // Format size names
+      const sizeLabels = sizesArray.map((size) => {
+        return CONFIG.DND5E.actorSizes[size]?.label || size;
+      });
+      HM.log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
+
+      // Format based on number of sizes
+      let sizeText = '';
+      if (sizeLabels.length === 1) {
+        sizeText = sizeLabels[0];
+      } else if (sizeLabels.length === 2) {
+        sizeText = `${sizeLabels[0]} or ${sizeLabels[1]}`;
+      } else if (sizeLabels.length > 2) {
+        const lastLabel = sizeLabels.pop();
+        sizeText = `${sizeLabels.join(', ')}, or ${lastLabel}`;
+      }
+
+      // Update input field
+      sizeInput.value = sizeText;
+      HM.log(3, `Updated size input with value: "${sizeText}"`);
+
+      // Add hint as title if available
+      if (hint) {
+        sizeInput.title = hint;
+        HM.log(3, `Added size hint from race: "${hint}"`);
+      }
+    } catch (error) {
+      HM.log(1, `Error updating race size: ${error.message}`, error);
+      const sizeInput = document.getElementById('size');
+      if (sizeInput) {
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+      }
+    }
+  }
+
+  /**
    * Process background selection changes to load relevant tables
    * @param {object} selectedBackground - Selected background data
    * @static
@@ -1355,6 +1455,10 @@ export class DOMManager {
 
     // Update UI based on dropdown type
     await this.#updateUIForDropdownType(element, type);
+
+    if (type === 'race' && uuid) {
+      await this.updateRaceSize(uuid);
+    }
   }
 
   /**

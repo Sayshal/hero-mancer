@@ -200,14 +200,14 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
           { key: 'weight', label: `${game.i18n.localize('DND5E.Weight')}`, default: false },
           { key: 'age', label: `${game.i18n.localize('DND5E.Age')}`, default: false },
           { key: 'gender', label: `${game.i18n.localize('DND5E.Gender')}`, default: false },
-          { key: 'appearance', label: `${game.i18n.localize('hm.app.finalize.physical-description')}`, default: false }
+          { key: 'appearance', label: `${game.i18n.localize('hm.app.biography.physical-description')}`, default: false }
         ],
         personality: [
-          { key: 'traits', label: `${game.i18n.localize('hm.app.finalize.personality-traits')}`, default: false },
+          { key: 'traits', label: `${game.i18n.localize('hm.app.biography.personality-traits')}`, default: false },
           { key: 'ideals', label: `${game.i18n.localize('DND5E.Ideals')}`, default: false },
           { key: 'bonds', label: `${game.i18n.localize('DND5E.Bonds')}`, default: false },
           { key: 'flaws', label: `${game.i18n.localize('DND5E.Flaws')}`, default: false },
-          { key: 'backstory', label: `${game.i18n.localize('hm.app.finalize.backstory')}`, default: false }
+          { key: 'backstory', label: `${game.i18n.localize('hm.app.biography.backstory')}`, default: false }
         ]
       };
 

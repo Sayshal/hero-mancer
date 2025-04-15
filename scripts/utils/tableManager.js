@@ -194,7 +194,7 @@ export class TableManager {
     // Pre-process all updates
     Object.entries(typeToFieldMap).forEach(([tableType, fieldName]) => {
       const hasTable = foundTableTypes?.has(tableType);
-      const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.finalize.${fieldName}-placeholder` : `hm.app.finalize.${fieldName}-placeholder-alt`);
+      const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.biography.${fieldName}-placeholder` : `hm.app.biography.${fieldName}-placeholder-alt`);
       const newDisplay = hasTable ? 'block' : 'none';
 
       // Store updates to apply as a batch
