@@ -1,5 +1,6 @@
 {{!-- Finalize Tab - Character Review and Summary --}}
-<div class='tab {{tabs.finalize.cssClass}}' data-tab='finalize' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.finalize.cssClass}}' data-tab='finalize' data-group='hero-mancer-tabs' role="tabpanel"
+  id="finalize-panel" aria-labelledby="tab-finalize">
   <fieldset>
     <legend>{{localize 'hm.app.finalize.tooltip'}}</legend>
 
@@ -19,10 +20,11 @@
 
     {{!-- Character Review --}}
     <div class="review-sections">
-      <h2>{{localize 'hm.app.finalize.character-review'}}</h2>
+      <h2 id="character-review-heading">{{localize 'hm.app.finalize.character-review'}}</h2>
 
-      <section class="review-section">
-        <h3><i class="fa-solid fa-id-card"></i> {{localize 'hm.app.finalize.review.basic-info'}}</h3>
+      <section class="review-section" aria-labelledby="basic-info-heading">
+        <h3 id="basic-info-heading"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
+          {{localize 'hm.app.finalize.review.basic-info'}}</h3>
         <div class="review-content">
           <div class="review-item">
             <span class="review-label">{{localize 'hm.app.start.name-label'}}:</span>
@@ -43,25 +45,28 @@
         </div>
       </section>
 
-      <section class="review-section">
-        <h3><i class="fa-solid fa-fist-raised"></i> {{localize 'hm.app.finalize.review.abilities'}}</h3>
-        <div class="review-content abilities-grid">
+      <section class="review-section" aria-labelledby="abilities-heading">
+        <h3 id="abilities-heading"><i class="fa-solid fa-fist-raised" aria-hidden="true"></i>
+          {{localize 'hm.app.finalize.review.abilities'}}</h3>
+        <div class="review-content abilities-grid" aria-live="polite">
           <!-- Will be dynamically filled by JavaScript -->
         </div>
       </section>
 
-      <section class="review-section">
-        <h3><i class="fa-solid fa-shield-halved"></i> {{localize 'hm.app.finalize.review.equipment'}}</h3>
+      <section class="review-section" aria-labelledby="equipment-heading">
+        <h3 id="equipment-heading"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          {{localize 'hm.app.finalize.review.equipment'}}</h3>
         <div class="review-content">
-          <div class="equipment-list">
+          <div class="equipment-list" aria-live="polite">
             <!-- Will be dynamically filled by JavaScript -->
           </div>
         </div>
       </section>
 
-      <section class="review-section">
-        <h3><i class="fa-solid fa-book-open"></i> {{localize 'hm.app.finalize.review.biography'}}</h3>
-        <div class="review-content bio-preview">
+      <section class="review-section" aria-labelledby="biography-heading">
+        <h3 id="biography-heading"><i class="fa-solid fa-book-open" aria-hidden="true"></i>
+          {{localize 'hm.app.finalize.review.biography'}}</h3>
+        <div class="review-content bio-preview" aria-live="polite">
           <!-- Will be dynamically filled with a preview of the biography -->
         </div>
       </section>

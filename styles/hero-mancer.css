@@ -1806,7 +1806,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 /* Label styles */
 .label-15 {
-  flex: 0 0 130px;
+  flex: 0 0 20%;
   margin-right: 0.3rem;
   white-space: nowrap;
 }

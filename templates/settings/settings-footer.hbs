@@ -4,17 +4,17 @@
 		{{!-- Submit Button --}}
 		<button type='submit' class='hm-app-footer-submit' data-tooltip='{{localize "hm.app.submit"}}'
 			aria-label='{{localize "hm.app.submit"}}' aria-describedby='submit-tooltip'>
-			{{localize 'hm.app.submit'}}
+			<span>{{localize 'hm.app.submit'}}</span>
 		</button>
 		{{!-- Tooltip for Submit Button --}}
-		<span id='submit-tooltip' class='sr-only'>{{localize 'hm.app.submit'}}</span>
+		<span id='submit-tooltip' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
 
 		{{!-- Cancel Button --}}
 		<button type='button' data-action='close' class='hm-app-footer-cancel' data-tooltip='{{localize "hm.app.cancel"}}'
 			aria-label='{{localize "hm.app.cancel"}}' aria-describedby='cancel-tooltip'>
-			{{localize 'hm.app.cancel'}}
+			<span>{{localize 'hm.app.cancel'}}</span>
 		</button>
 		{{!-- Tooltip for Cancel Button --}}
-		<span id='cancel-tooltip' class='sr-only'>{{localize 'hm.app.cancel'}}</span>
+		<span id='cancel-tooltip' class='sr-only'>{{localize 'hm.app.cancel-description'}}</span>
 	</div>
 </footer>

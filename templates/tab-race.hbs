@@ -1,5 +1,6 @@
 {{!-- Race Selection Tab --}}
-<div class='tab {{tabs.race.cssClass}}' data-tab='race' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.race.cssClass}}' data-tab='race' data-group='hero-mancer-tabs' role="tabpanel" id="race-panel"
+  aria-labelledby="tab-race">
   <fieldset>
     <legend>{{localize 'hm.app.race.tooltip'}}</legend>
     <p>{{localize 'hm.app.race.preamble'}}</p>
@@ -9,7 +10,7 @@
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='race-dropdown'>{{localize 'hm.app.race.select-label'}}</label>
       <select id='race-dropdown' name='race' class="form-select" data-dtype='String' aria-describedby='race-description'
-        aria-label='{{localize "hm.app.race.select-label"}}'>
+        aria-label='{{localize "hm.app.race.select-label"}}' aria-required="true">
         <option value=''>{{localize 'hm.app.race.select-placeholder'}}</option>
 
         {{#each raceDocs}}

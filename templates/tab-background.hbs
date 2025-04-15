@@ -1,5 +1,6 @@
 {{!-- Background Selection Tab --}}
-<div class='tab {{tabs.background.cssClass}}' data-tab='background' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.background.cssClass}}' data-tab='background' data-group='hero-mancer-tabs' role="tabpanel"
+  id="background-panel" aria-labelledby="tab-background">
   <fieldset>
     <legend>{{localize 'hm.app.background.tooltip'}}</legend>
     <p>{{localize 'hm.app.background.preamble'}}</p>
@@ -9,7 +10,8 @@
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='background-dropdown'>{{localize 'hm.app.background.select-label'}}</label>
       <select id='background-dropdown' name='background' class="form-select" data-dtype='String'
-        aria-describedby='background-description' aria-label='{{localize "hm.app.background.select-label"}}'>
+        aria-describedby='background-description' aria-label='{{localize "hm.app.background.select-label"}}'
+        aria-required="true">
         <option value=''>{{localize 'hm.app.background.select-placeholder'}}</option>
 
         {{#each backgroundDocs}}

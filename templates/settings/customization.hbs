@@ -3,109 +3,119 @@
 	{{!-- Randomization Option --}}
 	<div class="form-group flex flex-col items-start">
 		<div class="flex items-center">
-			<input type='checkbox' id="enableRandomize" name='enableRandomize' {{#if enableRandomize}}checked{{/if}} />
-			<label for="enableRandomize" class="font-bold">{{localize 'hm.settings.randomize.name'}}</label>
+			<input type='checkbox' id="enableRandomize" name='enableRandomize' {{#if enableRandomize}}checked{{/if}}
+				aria-labelledby="randomize-label" />
+			<label id="randomize-label" for="enableRandomize"
+				class="font-bold">{{localize 'hm.settings.randomize.name'}}</label>
 		</div>
-		<p class='hint'>{{localize 'hm.settings.randomize.hint'}}</p>
+		<p class='hint' id="randomize-hint" aria-hidden="true">{{localize 'hm.settings.randomize.hint'}}</p>
 	</div>
 
 	{{!-- Player Customization Option --}}
 	<div class="form-group flex flex-col items-start">
 		<div class="flex items-center">
 			<input type='checkbox' id="enablePlayerCustomization" name='enablePlayerCustomization'
-				{{#if enablePlayerCustomization}}checked{{/if}} />
-			<label for="enablePlayerCustomization"
+				{{#if enablePlayerCustomization}}checked{{/if}} aria-labelledby="player-customization-label" />
+			<label id="player-customization-label" for="enablePlayerCustomization"
 				class="font-bold">{{localize 'hm.settings.player-customization.name'}}</label>
 		</div>
-		<p class='hint'>{{localize 'hm.settings.player-customization.hint'}}</p>
+		<p class='hint' id="player-customization-hint" aria-hidden="true">
+			{{localize 'hm.settings.player-customization.hint'}}</p>
 	</div>
 
 	{{!-- Token Customization Option --}}
 	<div class="form-group flex flex-col items-start">
 		<div class="flex items-center">
 			<input type='checkbox' id="enableTokenCustomization" name='enableTokenCustomization'
-				{{#if enableTokenCustomization}}checked{{/if}} />
-			<label for="enableTokenCustomization"
+				{{#if enableTokenCustomization}}checked{{/if}} aria-labelledby="token-customization-label" />
+			<label id="token-customization-label" for="enableTokenCustomization"
 				class="font-bold">{{localize 'hm.settings.token-customization.name'}}</label>
 		</div>
-		<p class='hint'>{{localize 'hm.settings.token-customization.hint'}}</p>
+		<p class='hint' id="token-customization-hint" aria-hidden="true">{{localize 'hm.settings.token-customization.hint'}}
+		</p>
 	</div>
 
 	{{!-- Character Appearance Options Section --}}
 	<div class="form-group flex flex-col items-start">
-		<label class="font-bold">{{localize 'hm.settings.appearance-options.header'}}</label>
+		<h3 class="font-bold" id="appearance-options-header">{{localize 'hm.settings.appearance-options.header'}}</h3>
 
 		{{!-- Alignments --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="alignments" class="font-bold">{{localize 'hm.settings.alignments.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="alignments" name='alignments' class="form-input" value='{{alignments}}' />
+				<input type='text' id="alignments" name='alignments' class="form-input" value='{{alignments}}'
+					aria-describedby="alignments-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.alignments.hint'}}</p>
+			<p class='hint' id="alignments-hint" aria-hidden="true">{{localize 'hm.settings.alignments.hint'}}</p>
 		</div>
 
 		{{!-- Deities --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="deities" class="font-bold">{{localize 'hm.settings.deities.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="deities" name='deities' class="form-input" value='{{deities}}' />
+				<input type='text' id="deities" name='deities' class="form-input" value='{{deities}}'
+					aria-describedby="deities-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.deities.hint'}}</p>
+			<p class='hint' id="deities-hint" aria-hidden="true">{{localize 'hm.settings.deities.hint'}}</p>
 		</div>
 
 		{{!-- Eye Colors --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="eye-colors" class="font-bold">{{localize 'hm.settings.eye-colors.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="eye-colors" name='eye-colors' class="form-input" value='{{eye-colors}}' />
+				<input type='text' id="eye-colors" name='eye-colors' class="form-input" value='{{eye-colors}}'
+					aria-describedby="eye-colors-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.eye-colors.hint'}}</p>
+			<p class='hint' id="eye-colors-hint" aria-hidden="true">{{localize 'hm.settings.eye-colors.hint'}}</p>
 		</div>
 
 		{{!-- Hair Colors --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="hair-colors" class="font-bold">{{localize 'hm.settings.hair-colors.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="hair-colors" name='hair-colors' class="form-input" value='{{hair-colors}}' />
+				<input type='text' id="hair-colors" name='hair-colors' class="form-input" value='{{hair-colors}}'
+					aria-describedby="hair-colors-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.hair-colors.hint'}}</p>
+			<p class='hint' id="hair-colors-hint" aria-hidden="true">{{localize 'hm.settings.hair-colors.hint'}}</p>
 		</div>
 
 		{{!-- Skin Tones --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="skin-tones" class="font-bold">{{localize 'hm.settings.skin-tones.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="skin-tones" name='skin-tones' class="form-input" value='{{skin-tones}}' />
+				<input type='text' id="skin-tones" name='skin-tones' class="form-input" value='{{skin-tones}}'
+					aria-describedby="skin-tones-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.skin-tones.hint'}}</p>
+			<p class='hint' id="skin-tones-hint" aria-hidden="true">{{localize 'hm.settings.skin-tones.hint'}}</p>
 		</div>
 
 		{{!-- Genders --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="genders" class="font-bold">{{localize 'hm.settings.genders.name'}}</label>
 			<div class="flex items-center">
-				<input type='text' id="genders" name='genders' class="form-input" value='{{genders}}' />
+				<input type='text' id="genders" name='genders' class="form-input" value='{{genders}}'
+					aria-describedby="genders-hint" />
 			</div>
-			<p class='hint'>{{localize 'hm.settings.genders.hint'}}</p>
+			<p class='hint' id="genders-hint" aria-hidden="true">{{localize 'hm.settings.genders.hint'}}</p>
 		</div>
 	</div>
 
 	{{!-- Character Options Section --}}
 	<div class="form-group flex flex-col items-start">
-		<label class="font-bold">{{localize 'hm.settings.character-options.header'}}</label>
+		<h3 class="font-bold" id="character-options-header">{{localize 'hm.settings.character-options.header'}}</h3>
 
 		{{!-- Art Picker Root --}}
 		<div class="form-group flex flex-col items-start">
 			<label for="artPickerRoot" class="font-bold">{{localize 'hm.settings.art-picker-root.name'}}</label>
 			<div class="flex items-center">
 				<input type='text' id="artPickerRoot" name='artPickerRoot' class="form-input" value='{{artPickerRoot}}'
-					data-dtype="String" data-type="folder" />
+					data-dtype="String" data-type="folder" aria-describedby="art-picker-root-hint" />
 				<button type="button" class="file-picker" data-action="selectArtPickerRoot" data-type="folder"
-					data-target="artPickerRoot" title="Browse Folders">
-					<i class="fas fa-file-import fa-fw"></i>
+					data-target="artPickerRoot" aria-label="{{localize 'hm.settings.art-picker-root.browse'}}">
+					<i class="fas fa-file-import fa-fw" aria-hidden="true"></i>
 				</button>
 			</div>
-			<p class='hint'>{{localize 'hm.settings.art-picker-root.hint'}}</p>
+			<p class='hint' id="art-picker-root-hint" aria-hidden="true">{{localize 'hm.settings.art-picker-root.hint'}}</p>
 		</div>
 	</div>
 
@@ -114,8 +124,9 @@
 		<div class="form-group flex flex-col items-start">
 			<div class="flex items-center">
 				<input type='checkbox' id="tokenizerCompatibility" name='tokenizerCompatibility'
-					{{#if tokenizerCompatibility}}checked{{/if}} />
-				<label for="tokenizerCompatibility" class="font-bold">{{localize 'hm.settings.tokenizer.name'}}</label>
+					{{#if tokenizerCompatibility}}checked{{/if}} aria-labelledby="tokenizer-label" />
+				<label id="tokenizer-label" for="tokenizerCompatibility"
+					class="font-bold">{{localize 'hm.settings.tokenizer.name'}}</label>
 			</div>
 		</div>
 	{{/if}}

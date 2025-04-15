@@ -1,5 +1,6 @@
 {{!-- Class Selection Tab --}}
-<div class='tab {{tabs.class.cssClass}}' data-tab='class' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.class.cssClass}}' data-tab='class' data-group='hero-mancer-tabs' role="tabpanel" id="class-panel"
+  aria-labelledby="tab-class">
   <fieldset>
     <legend>{{localize 'hm.app.class.tooltip'}}</legend>
     <p>{{localize 'hm.app.class.preamble'}}</p>
@@ -9,7 +10,7 @@
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='class-dropdown'>{{localize 'hm.app.class.select-label'}}</label>
       <select id='class-dropdown' name='class' class="form-select" data-dtype='String'
-        aria-describedby='class-description' aria-label='{{localize "hm.app.class.select-label"}}'>
+        aria-describedby='class-description' aria-label='{{localize "hm.app.class.select-label"}}' aria-required="true">
         <option value=''>{{localize 'hm.app.class.select-placeholder'}}</option>
 
         {{#each classDocs}}
@@ -21,6 +22,7 @@
     </div>
 
     {{!-- Class Description Display --}}
-    <div class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"></div>
+    <div id="class-description" class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"
+      role="region" aria-live="polite" aria-atomic="true"></div>
   </fieldset>
 </div>
