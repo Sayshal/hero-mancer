@@ -1932,11 +1932,6 @@ button {
   font-size: 1.2rem;
 }
 
-.hm-app-tab-content .character-summary {
-  grid-area: summary;
-  padding: 0.625rem;
-}
-
 .message-content .character-summary {
   line-height: 1.25rem;
 }
@@ -2013,7 +2008,7 @@ button {
 }
 
 .hm-app-tab-content section {
-  margin-top: 20px;
+  margin-top: 1rem;
 }
 
 .hm-app-tab-content section.first-section {
@@ -2084,6 +2079,192 @@ button {
   align-self: center;
   width: 60px;
   height: 30px;
+}
+
+.hm-app-tab-content .review-container {
+  max-width: 100%;
+  padding: 0 8px;
+}
+
+.hm-app-tab-content .review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hm-app-tab-content .review-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+  flex: 1;
+}
+
+.hm-app-tab-content .review-header .character-portrait {
+  width: 80px;
+  height: 80px;
+}
+
+.hm-app-tab-content .review-header .character-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hm-app-tab-content .character-summary {
+  display: block;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.hm-app-tab-content .character-summary span {
+  display: inline;
+  line-height: 1.4;
+}
+
+.hm-app-tab-content .review-container .content-link {
+  background: unset;
+  border: unset;
+}
+
+.hm-app-tab-content .review-sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-app-tab-content .review-section-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.hm-app-tab-content .review-section {
+  background: rgb(0 0 0 / 2%);
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.hm-app-tab-content .review-section h3 {
+  font-size: 1.1em;
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-light-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hm-app-tab-content .review-section h3 i {
+  color: var(--user-color);
+  flex-shrink: 0;
+}
+
+.hm-app-tab-content .review-content {
+  font-size: 0.95em;
+}
+
+.hm-app-tab-content .review-item {
+  display: flex;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.hm-app-tab-content .review-label {
+  font-weight: bold;
+  margin-right: 8px;
+  min-width: 100px;
+}
+
+.hm-app-tab-content .abilities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.hm-app-tab-content .ability-item {
+  display: flex;
+  justify-content: space-between;
+  background: rgb(0 0 0 / 3%);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.hm-app-tab-content .ability-label {
+  font-weight: bold;
+}
+
+.hm-app-tab-content .equipment-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hm-app-tab-content .background-equipment,
+.hm-app-tab-content .class-equipment {
+  padding-top: 8px;
+}
+
+.hm-app-tab-content .background-equipment h4,
+.hm-app-tab-content .class-equipment h4 {
+  text-align: center;
+  font-size: var(--font-h5-size);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border-light-tertiary);
+}
+
+.hm-app-tab-content .background-items,
+.hm-app-tab-content .class-items {
+  padding-top: 4px;
+}
+
+.hm-app-tab-content .equipment-wealth {
+  font-style: italic;
+}
+
+.hm-app-tab-content .bio-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hm-app-tab-content .bio-main {
+  font-style: italic;
+  padding: 8px;
+  background: rgb(0 0 0 / 3%);
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+.hm-app-tab-content .bio-detail {
+  margin-top: 6px;
+}
+
+.hm-app-tab-content .bio-detail h4 {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+}
+
+.hm-app-tab-content .bio-detail h4::before {
+  content: '•';
+  margin-right: 6px;
+  color: var(--color-text-hyperlink);
+}
+
+.hm-app-tab-content .backstory-text {
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+.hm-app-tab-content .final-notes {
+  text-align: center;
+  font-style: italic;
 }
 
 /* ==========================================================================

@@ -352,6 +352,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       this.#isRendering = true;
 
+      DOMManager.updateReviewTab();
+
       // Check if this is a partial render of just the abilities tab
       const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
       const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
@@ -403,6 +405,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       await FormValidation.checkMandatoryFields(this.element);
 
       DOMManager.updateTabIndicators(this.element);
+      DOMManager.updateReviewTab();
     } finally {
       this.#isRendering = false;
     }

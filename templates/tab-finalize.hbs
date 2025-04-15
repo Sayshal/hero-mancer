@@ -4,77 +4,102 @@
   <fieldset>
     <legend>{{localize 'hm.app.finalize.tooltip'}}</legend>
 
-    {{!-- Character Summary Section --}}
-    <div class='summary-section grid gap-md mb-md'>
-      <div class='character-portrait flex flex-col items-center gap-xs'>
-        <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
-        <span class='character-name text-lg'>{{name}}</span>
+    <div class="review-container">
+
+        {{!-- Final Notes --}}
+        <div class="final-notes">
+          <p>{{localize 'hm.app.finalize.final-notes'}}</p>
+        </div>
+      {{!-- Character Summary Section --}}
+      <div class="review-header">
+        <h2>{{localize 'hm.app.finalize.character-review'}}</h2>
+        <div class="character-portrait">
+          <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
+        </div>
       </div>
-      <div class='character-summary p-sm'>
-        <span class='background-summary'>{{localize "hm.app.finalize.summary.backgroundDefault"}}</span>
-        <span class='class-race-summary'>{{localize "hm.app.finalize.summary.classRaceDefault"}}</span>
-        <span class='abilities-summary'>{{localize "hm.app.finalize.summary.abilitiesDefault"}}</span>
-        <span class='equipment-summary'>{{localize "hm.app.finalize.summary.equipmentDefault"}}</span>
+
+      <div class="character-summary-container">
+        <div class="character-summary">
+          <span class="background-summary">{{localize "hm.app.finalize.summary.backgroundDefault"}}</span>
+          <span class="class-race-summary">{{localize "hm.app.finalize.summary.classRaceDefault"}}</span>
+          <span class="abilities-summary">{{localize "hm.app.finalize.summary.abilitiesDefault"}}</span>
+          <span class="equipment-summary">{{localize "hm.app.finalize.summary.equipmentDefault"}}</span>
+        </div>
       </div>
-    </div>
 
-    {{!-- Character Review --}}
-    <div class="review-sections">
-      <h2 id="character-review-heading">{{localize 'hm.app.finalize.character-review'}}</h2>
+      <div class="review-sections">
+        <div class="review-section-row">
+          {{!-- Basic Information --}}
+          <section class="review-section" aria-labelledby="basic-info-heading">
+            <h3 id="basic-info-heading"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              {{localize 'hm.app.finalize.review.basic-info'}}
+            </h3>
+            <div class="review-content">
+              <div class="review-item">
+                <span class="review-label">{{localize 'hm.app.start.name-label'}}:</span>
+                <span class="review-value character-name-value">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">{{localize 'TYPES.Item.raceLegacy'}}:</span>
+                <span class="review-value race-value">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">{{localize "TYPES.Item.class"}}:</span>
+                <span class="review-value class-value">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">{{localize 'DND5E.Background'}}:</span>
+                <span class="review-value background-value">-</span>
+              </div>
+            </div>
+          </section>
 
-      <section class="review-section" aria-labelledby="basic-info-heading">
-        <h3 id="basic-info-heading"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
-          {{localize 'hm.app.finalize.review.basic-info'}}</h3>
-        <div class="review-content">
-          <div class="review-item">
-            <span class="review-label">{{localize 'hm.app.start.name-label'}}:</span>
-            <span class="review-value character-name-value">-</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">{{localize 'TYPES.Item.raceLegacy'}}:</span>
-            <span class="review-value race-value">-</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">{{localize "TYPES.Item.class"}}:</span>
-            <span class="review-value class-value">-</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">{{localize 'DND5E.Background'}}:</span>
-            <span class="review-value background-value">-</span>
-          </div>
+          {{!-- Abilities Section --}}
+          <section class="review-section" aria-labelledby="abilities-heading">
+            <h3 id="abilities-heading"><i class="fa-solid fa-fist-raised" aria-hidden="true"></i>
+              {{localize 'hm.app.finalize.review.abilities'}}
+            </h3>
+            <div class="review-content abilities-grid" aria-live="polite">
+              <!-- Will be dynamically filled by JavaScript -->
+            </div>
+          </section>
         </div>
-      </section>
 
-      <section class="review-section" aria-labelledby="abilities-heading">
-        <h3 id="abilities-heading"><i class="fa-solid fa-fist-raised" aria-hidden="true"></i>
-          {{localize 'hm.app.finalize.review.abilities'}}</h3>
-        <div class="review-content abilities-grid" aria-live="polite">
-          <!-- Will be dynamically filled by JavaScript -->
-        </div>
-      </section>
-
-      <section class="review-section" aria-labelledby="equipment-heading">
-        <h3 id="equipment-heading"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-          {{localize 'hm.app.finalize.review.equipment'}}</h3>
-        <div class="review-content">
-          <div class="equipment-list" aria-live="polite">
-            <!-- Will be dynamically filled by JavaScript -->
+        {{!-- Equipment Section --}}
+        <section class="review-section" aria-labelledby="equipment-heading">
+          <h3 id="equipment-heading"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            {{localize 'hm.app.finalize.review.equipment'}}
+          </h3>
+          <div class="review-content">
+            <div class="equipment-list" aria-live="polite">
+              <div class="equipment-layout">
+                <div class="background-equipment">
+                  <h4>{{localize 'hm.app.finalize.review.background-equipment'}}</h4>
+                  <div class="background-items">
+                    <!-- Background items will go here -->
+                  </div>
+                </div>
+                <div class="class-equipment">
+                  <h4>{{localize 'hm.app.finalize.review.class-equipment'}}</h4>
+                  <div class="class-items">
+                    <!-- Class items will go here -->
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="review-section" aria-labelledby="biography-heading">
-        <h3 id="biography-heading"><i class="fa-solid fa-book-open" aria-hidden="true"></i>
-          {{localize 'hm.app.finalize.review.biography'}}</h3>
-        <div class="review-content bio-preview" aria-live="polite">
-          <!-- Will be dynamically filled with a preview of the biography -->
-        </div>
-      </section>
-    </div>
-
-    {{!-- Final Notes --}}
-    <div class="final-notes">
-      <p>{{localize 'hm.app.finalize.final-notes'}}</p>
+        {{!-- Biography Section --}}
+        <section class="review-section" aria-labelledby="biography-heading">
+          <h3 id="biography-heading"><i class="fa-solid fa-book-open" aria-hidden="true"></i>
+            {{localize 'hm.app.finalize.review.biography'}}
+          </h3>
+          <div class="review-content bio-preview" aria-live="polite">
+            <!-- Will be dynamically filled with a preview of the biography -->
+          </div>
+        </section>
+      </div>
     </div>
   </fieldset>
 </div>

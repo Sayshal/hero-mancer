@@ -62,11 +62,13 @@
         "age-hint": "Your age can tell an observer many things. Are you a seasoned veteran? A young go-getter? The older you are, the more detailed your history may be.",
         "alignment-hint": "Your alignment defines your moral and ethical stance. While typically considered optional, it can still be an important tool for roleplaying motivations, actions, and more.",
         "backstory": "Backstory",
+        "backstory-hint": "Your backstory defines every decision you make, and often why. Consider: goals, past life, present experiences, family, favorites, habits, self-perception, relationships, etc.",
         "backstory-placeholder": "Write a backstory for your character. Consider what organizations they belong to, any allies they've made or enemies they've earned, and other important details from their life before becoming an adventurer.",
         "bonds-placeholder": "Who or what is most dear to your character? What place feels like home? What object means everything to them? Press the Roll button to draw from bonds suggested by your background.",
         "bonds-placeholder-alt": "Who or what is most dear to your character? What place feels like home? What object means everything to them?",
         "character-details": "Character Details",
         "characteristics": "Characteristics",
+        "description-hint": "When you look in the mirror, what do you see? Immerse yourself in your characters physical identity!",
         "faith-hint": "Your DM determines which gods, if any, are worshiped in their campaign. From among the gods available, you can choose a single deity for your character to serve, worship, or pay lip service to. Not religious? Leave this blank!",
         "flaws-placeholder": "What are your character's shortcomings or weaknesses? Consider both personality quirks and ability score limitations. What traits might others find difficult? Press the Roll button to draw from flaws suggested by your background.",
         "flaws-placeholder-alt": "What are your character's shortcomings or weaknesses? Consider both personality quirks and ability score limitations. What traits might others find difficult?",
@@ -82,9 +84,7 @@
         "tooltip": "Character biography details",
         "traits-placeholder": "Describe your character's personality. How do their abilities shape who they are? Are they wise and contemplative, or charismatic and outgoing? Press the Roll button to draw from personality traits suggested by your background.",
         "traits-placeholder-alt": "Describe your character's personality. How do their abilities shape who they are? Are they wise and contemplative, or charismatic and outgoing?",
-        "weight-hint": "Your weight will determine a few things, namely who can lift you. It does not typically alter combat mechanics.",
-        "description-hint": "When you look in the mirror, what do you see? Immerse yourself in your characters physical identity!",
-        "backstory-hint": "Your backstory defines every decision you make, and often why. Consider: goals, past life, present experiences, family, favorites, habits, self-perception, relationships, etc."
+        "weight-hint": "Your weight will determine a few things, namely who can lift you. It does not typically alter combat mechanics."
       },
       "cancel": "Cancel",
       "cancel-description": "Cancel and close Hero Mancer",
@@ -143,12 +143,25 @@
       "finalize": {
         "character-portrait": "Character Portrait",
         "character-review": "Character Review",
-        "final-notes": "Please review your character details above. If everything looks correct, click the Submit button below to create your character.",
+        "final-notes": "Please review your character details below. If everything looks correct, click the Submit button to create your character.",
         "review": {
           "abilities": "Ability Scores",
+          "appearance-adjectives": "beautiful, gorgeous, striking, captivating, alluring, stunning, mesmerizing, enchanting, exquisite, radiant",
+          "background-equipment": "Background Equipment",
+          "backstory": "Backstory",
           "basic-info": "Basic Information",
           "biography": "Biography Overview",
-          "equipment": "Equipment"
+          "biography-format": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin.",
+          "biography-format-with-faith": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin. A worshipper of {faith}.",
+          "bonds": "Bonds",
+          "class-equipment": "Class Equipment",
+          "equipment": "Equipment",
+          "flaws": "Flaws",
+          "ideals": "Ideals",
+          "no-equipment": "No equipment selected",
+          "personality": "Personality Traits",
+          "physical-description": "Physical Description",
+          "starting-wealth": "Starting wealth: {amount}"
         },
         "summary": {
           "abilities": "prides themself on their impressive {first} and {second}",

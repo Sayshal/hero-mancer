@@ -1,4 +1,4 @@
-import { HeroMancer, HM, StatRoller } from './index.js';
+import { DOMManager, HeroMancer, HM, StatRoller } from './index.js';
 
 /**
  * Combined class for character randomization and name generation
@@ -411,6 +411,7 @@ export class CharacterRandomizer {
       console.error('Error during randomization:', error);
       ui.notifications.error('hm.errors.randomization-failed', { localize: true });
     } finally {
+      DOMManager.updateReviewTab();
       this.#isRandomizing = false;
       this.#enableRandomizeButton(randomizeButton);
     }
