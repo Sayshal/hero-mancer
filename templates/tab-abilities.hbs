@@ -7,7 +7,7 @@
     {{!-- Roll Method Selector --}}
     <div class="roll-method-selector flex items-center gap-sm mb-sm">
       <label for="roll-method">{{localize 'hm.app.abilities.select-method'}}:</label>
-      <select id="roll-method" class="form-select" aria-label="{{localize 'hm.app.abilities.select-method-aria'}}">
+      <select id="roll-method" class="form-select" aria-label="{{localize 'hm.app.abilities.select-method'}}">
         {{#if allowedMethods.standardArray}}
           <option value="standardArray" {{#if (eq diceRollMethod 'standardArray')}}selected{{/if}}>
             {{localize 'hm.settings.dice-rolling-method.standard-array'}}
@@ -105,7 +105,7 @@
           <div id='ability-block-{{@index}}' class='ability-block flex flex-col items-center gap-xs'>
             <select id='ability-{{@index}}-dropdown' name='abilities[{{this.key}}]'
               class='ability-dropdown form-select text-center' data-dtype='String'
-              aria-label='{{localize "hm.app.abilities.select-ability"}} {{@index}}'>
+              aria-label='{{localize "hm.app.abilities.select-placeholder"}} {{@index}}'>
               <option value=''>{{localize 'hm.app.abilities.select-placeholder'}}</option>
               {{#each ../abilities}}
                 <option value='{{this.key}}'>{{this.abbreviation}}</option>

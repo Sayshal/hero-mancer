@@ -9,8 +9,6 @@
     "app": {
       "abilities": {
         "decrease": "-1",
-        "default": "se orgulha de suas habilidades impressionantes",
-        "excels": "se destaca em",
         "increase": "+1",
         "instructions": {
           "chained-rolls": "Seu Mestre habilitou Rolagens em Sequência. Basta clicar em um dos dados acima para rolar todas as suas estatísticas. Não se preocupe! Você pode rolar novamente as entradas individualmente, desde que seu Mestre permita.",
@@ -32,7 +30,6 @@
             "title": "Método de Geração de Estatísticas: Modo Padrão"
           }
         },
-        "label": "Atributo",
         "methods": {
           "manual": "Manual",
           "pointBuy": "Compra de Pontos",
@@ -45,7 +42,6 @@
         "select-method": "Selecione o método de estatística",
         "select-placeholder": "Escolher",
         "select-value": "Select a value",
-        "summary": "{action} {first} e {second}",
         "tooltip": "Selecione e atribua Atributos",
         "your-class": "sua Classe"
       },
@@ -55,8 +51,36 @@
         "preamble": "Escolha o Antecedente do seu personagem entre as opções disponíveis.",
         "select-label": "Antecedente",
         "select-placeholder": "Escolha um Antecedente",
-        "summary": "Começando como {article} {name}",
         "tooltip": "Selecione um Antecedente para seu personagem"
+      },
+      "biography": {
+        "age-hint": "",
+        "alignment-hint": "",
+        "backstory": "",
+        "backstory-hint": "",
+        "backstory-placeholder": "",
+        "bonds-placeholder": "",
+        "bonds-placeholder-alt": "",
+        "characteristics": "",
+        "description-hint": "",
+        "faith-hint": "",
+        "flaws-placeholder": "",
+        "flaws-placeholder-alt": "",
+        "height-hint": "",
+        "ideals-placeholder": "",
+        "ideals-placeholder-alt": "",
+        "personality-traits": "",
+        "physical-description": "",
+        "roll-bonds": "",
+        "roll-flaws": "",
+        "roll-ideals": "",
+        "roll-traits": "",
+        "size-hint": "",
+        "size-placeholder": "",
+        "tooltip": "",
+        "traits-placeholder": "",
+        "traits-placeholder-alt": "",
+        "weight-hint": ""
       },
       "cancel": "Cancelar",
       "cancel-description": "Cancelar e fechar o Hero Mancer",
@@ -68,6 +92,7 @@
         "select-placeholder": "Escolha uma Classe",
         "tooltip": "Selecione uma Classe para seu personagem"
       },
+      "creation-progress": "",
       "document-service": {
         "common-labels": {
           "dndbeyond-importer": "DDB",
@@ -99,7 +124,6 @@
         "separator": ", ",
         "starting": "começando",
         "starting-equipment": "equipamento inicial",
-        "summary": "empunhando {items} em sua jornada.",
         "tooltip": "Gerencie o equipamento do seu personagem",
         "type-equipment": "Equipamento de {type}",
         "unknown-choice": "Item vinculado desconhecido.",
@@ -113,21 +137,24 @@
         "unexpected-format": "Erro ao renderizar conteúdo: Formato inesperado"
       },
       "finalize": {
-        "backstory": "Biografia",
-        "backstory-placeholder": "Escreva uma história para o seu personagem. Considere a quais organizações ele pertence, quaisquer aliados que ele fez ou inimigos que ele ganhou, entre outros detalhes importantes de sua vida antes de se tornar um aventureiro.",
-        "bonds-placeholder": "Quem ou o que é mais querido pelo seu personagem? Qual lugar se parece com um lar? Qual objeto significa tudo para ele? Pressione o botão Rolar para selecionar vínculos sugeridos pelo seu Antecedente.",
-        "bonds-placeholder-alt": "Quem ou o que é mais querido para o seu personagem? Qual lugar se parece com um lar? Qual objeto significa tudo para ele?",
-        "character-details": "Detalhes do Personagem",
         "character-portrait": "Avatar do Personagem",
-        "class-race-summary": "Essa {race} {class}",
-        "flaws-placeholder": "Quais são as falhas ou fraquezas do seu personagem? Considere tanto as peculiaridades de personalidade quanto as limitações de Atributo. Quais características os outros podem achar difíceis? Pressione o botão Rolar para selecionar falhas sugeridas pelo seu Antecedente.",
-        "flaws-placeholder-alt": "Quais são as falhas ou fraquezas do seu personagem? Considere tanto as peculiaridades de personalidade quanto as limitações de Atributo. Quais características os outros podem achar difíceis?",
-        "ideals-placeholder": "Quais princípios guiam seu personagem? Que causa ou crença o impulsiona à aventura? Pelo que ele lutaria ou morreria? Pressione o botão Rolar para escolher os ideais sugeridos pelo seu Antecedente.",
-        "ideals-placeholder-alt": "Quais princípios guiam seu personagem? Que causa ou crença o impulsiona à aventura? Pelo que ele lutaria ou morreria?",
-        "personal-characteristics": "Características Pessoais",
-        "personality-traits": "Traços de Personalidade",
-        "physical-characteristics": "Características Físicas",
-        "physical-description": "Descrição Física",
+        "character-review": "",
+        "final-notes": "",
+        "review": {
+          "abilities": "",
+          "appearance-adjectives": "",
+          "background-equipment": "",
+          "backstory": "",
+          "basic-info": "",
+          "biography": "",
+          "biography-format": "",
+          "biography-format-with-faith": "",
+          "class-equipment": "",
+          "equipment": "",
+          "no-equipment": "",
+          "physical-description": "",
+          "starting-wealth": ""
+        },
         "summary": {
           "abilities": "se orgulha de seus impressionantes {first} e {second}",
           "abilitiesDefault": "se orgulha de seus impressionantes Atributos",
@@ -135,13 +162,11 @@
           "backgroundDefault": "Começando como um aventureiro,",
           "classRace": "essa {race} {class}",
           "classRaceDefault": "esta Raça desconhecida Classe desconhecida",
-          "default": "Começando como um aventureiro, esta Raça desconhecida, Classe desconhecida, se orgulha de seus Atributos impressionantes e começa sua aventura.",
           "equipment": "e começa sua aventura com {items}.",
-          "equipmentDefault": "e começa sua aventura."
+          "equipmentDefault": "e começa sua aventura.",
+          "no-items": ""
         },
-        "tooltip": "Finalize a criação do seu personagem",
-        "traits-placeholder": "Descreva a personalidade do seu personagem. Como seus Atributos moldam quem ele é? Ele é sábio e contemplativo ou carismático e extrovertido? Pressione o botão Rolar para selecionar traços de personalidade sugeridos pelo seu Antecedente.",
-        "traits-placeholder-alt": "Descreva a personalidade do seu personagem. Como seus Atributos moldam quem ele é? Ele é sábio e contemplativo ou carismático e extrovertido?"
+        "tooltip": "Finalize a criação do seu personagem"
       },
       "header-title": "Criação de Mago Hero Mancer",
       "journal": {
@@ -193,7 +218,6 @@
         "player-avatar": "Avatar do Jogador",
         "player-avatar-placeholder": "Escolha a arte para o seu jogador",
         "player-color": "Cor do Jogador",
-        "player-color-placeholder": "Escolha uma cor para o seu jogador",
         "player-pronouns": "Pronomes do Jogador",
         "player-pronouns-placeholder": "Escolha seus pronomes preferidos",
         "preamble": {
@@ -203,6 +227,7 @@
         "select-art": "Selecione",
         "token-art-label": "Arte do Token",
         "token-art-placeholder": "Escolha a arte do token para seu personagem",
+        "token-customization": "",
         "token-same-as-character": "Usar a mesma imagem para o token?",
         "token-visibility-placeholder": "Escolha o status de exibição",
         "tooltip": "Comece a criação do seu personagem"
@@ -212,6 +237,7 @@
       "tab-names": {
         "abilities": "Atributos",
         "background": "Antecedente",
+        "biography": "",
         "class": "Classe",
         "equipment": "Equipamento",
         "finalize": "Finalizar",
@@ -239,26 +265,16 @@
       "actor-creation-failed": "Falha ao criar personagem. Tente novamente.",
       "advancement-process": "Ocorreu um erro ao aplicar as progressões de personagem. Seu personagem pode estar incompleto.",
       "advancement-processing-failed": "Erro ao processar as progressões de personagem.",
-      "advancement-timeout": "O processo de progressão expirou. Verifique se a sua ficha de personagem está completa.",
       "art-picker-failed": "Falha ao abrir o seletor de arte do personagem",
       "avatar-picker-failed": "Falha ao abrir o seletor de avatar do jogador",
-      "cache-error": "Erro ao carregar dados em cache. Os dados de criação do personagem serão atualizados.",
       "character-creation-failed": "Falha na criação do personagem. Certifique-se de que todos os campos obrigatórios estejam preenchidos e que você tenha as permissões necessárias para criar personagens.",
-      "cleanup-failed": "Falha ao limpar alguns recursos corretamente. Pode ser necessário atualizar a página se tiver problemas.",
-      "description-update": "Falha ao atualizar a descrição do item.",
       "document-preparation-failed": "Falha ao preparar documentos {type}: {error}",
-      "dropdown-initialization": "Falha ao inicializar as opções suspensas.",
       "equipment-rendering": "Ocorreu um erro ao carregar o equipamento. Tente uma seleção diferente ou atualize o aplicativo.",
-      "event-handler-error": "Ocorreu um erro ao processar um evento.",
       "failed-compendium-retrieval": "Falha ao recuperar compêndios: {type} {details}",
       "fetch-fail": "Falha ao buscar alguns documentos, verifique se há erros no console.",
       "form-submission": "Ocorreu um erro ao enviar o formulário. Tente novamente.",
       "invalid-document-type": "Tipo de documento especificado inválido",
-      "missing-ability-fields": "Valores de Atributo necessários ausentes: {fields} ({count} total)",
-      "missing-background-fields": "Detalhes de Antecedentes necessários ausentes: {fields} ({count} total)",
-      "missing-basic-fields": "Campos básicos obrigatórios ausentes: {fields} ({count} total)",
       "missing-equipment": "O {type} selecionado não contém nenhum dado de Equipamento Inicial. Por favor, informe o criador do item, não o Hero Mancer. Se você não selecionou um {type}, pode ignorar este aviso.",
-      "missing-mandatory-fields": "Campos obrigatórios ausentes: {fields}",
       "no-background": "O Antecedente selecionado não pôde ser encontrado.",
       "no-class": "A Classe selecionada não pôde ser encontrada.",
       "no-race": "A Raça selecionada não pôde ser encontrada.",
@@ -270,7 +286,6 @@
       "select-background": "Selecione um Antecedente antes de finalizar.",
       "select-class": "Selecione uma Classe antes de finalizar.",
       "select-race": "Selecione uma Raça antes de finalizar.",
-      "tab-navigation": "Ocorreu um erro ao navegar para a guia selecionada.",
       "token-art-picker-failed": "Falha ao abrir o seletor de arte do token"
     },
     "info": {
@@ -287,7 +302,6 @@
         "header": "Limites de Valor de Atributo",
         "invalid-point-buy": "O total de pontos comprados é muito baixo. Com uma pontuação mínima de {min}, você precisa de pelo menos {totalNeeded} pontos.",
         "invalid-range": "Intervalo de valor de Atributo inválido. Certifique-se de que Mín ≤ Padrão ≤ Máx.",
-        "invalid-standard-array": "Os valores padrão {values} estão fora do intervalo permitido ({min}-{max}).",
         "max": {
           "hint": "O maior valor permitido para Atributos durante a criação do personagem.",
           "name": "Máx"
@@ -296,7 +310,6 @@
           "hint": "O menor valor permitido para Atributos durante a criação do personagem.",
           "name": "Mín"
         },
-        "standard-array-adjusted": "Alguns valores do Modo Padrão estavam fora do intervalo permitido ({min}-{max}) e foram ajustados.",
         "standard-array-fixed": "Os valores do Modo Padrão {original} estavam fora do intervalo permitido ({min}-{max}) e foram ajustados automaticamente."
       },
       "alignments": {
@@ -307,6 +320,7 @@
         "header": "Opções de Aparência"
       },
       "art-picker-root": {
+        "browse": "",
         "hint": "O diretório raiz do Seletor de Arte de Personagem",
         "name": "Diretório Raiz do Seletor de Arte"
       },
@@ -335,10 +349,8 @@
         "classes-label": "Definir Compêndios de Classe:",
         "description": "Configure seus compêndios personalizados para Classes, Raças e Antecedentes. Se você não selecionar nenhum compêndio para qualquer categoria, todos os compêndios válidos serão carregados como reserva.",
         "dialog-error": "Não é possível renderizar o diálogo, veja o console.",
-        "error": "Falha ao recuperar documentos do pacote de compêndio: {pack}",
         "error-saving": "Ocorreu um erro ao salvar as configurações do seu compêndio. Consulte o console (F12).",
         "form-saved": "As configurações do formulário do compêndio foram salvas.",
-        "invalid-pack": "Um ou mais pacotes de compêndio não são mais válidos.",
         "item": "Item",
         "items-label": "Definir Compêndios de Itens:",
         "manage-backgrounds": "Gerenciar Antecedentes",
@@ -355,10 +367,12 @@
         "save-error": "Não é possível criar o botão concluído, consulte o console.",
         "saved": "As configurações do compêndio {type} foram salvas.",
         "select-all": "Selecionar Tudo",
+        "select-all-in": "",
         "title": "Selecione compêndios de {type}!",
         "types": {
           "background": "Antecedente",
           "class": "Classe",
+          "item": "",
           "race": "Raça",
           "species": "Espécie"
         }
@@ -369,8 +383,7 @@
       },
       "custom-roll-formula": {
         "hint": "Especifique a fórmula de rolagem para geração manual de valores de Atributo. O padrão é '4d6kh3'.",
-        "name": "Fórmula de Rolagem Manual Personalizada",
-        "reset": "A fórmula de rolagem personalizada estava vazia, redefinindo para o padrão: 4d6kh3"
+        "name": "Fórmula de Rolagem Manual Personalizada"
       },
       "custom-standard-array": {
         "hint": "Especifique a fórmula para geração de valores de Atributo do Modo Padrão. O padrão é 15,14,13,12,10,8.",
@@ -459,7 +472,6 @@
           "start": "Etapa 1: Iniciar",
           "token": "Personalização do Token"
         },
-        "instructions": "Selecione quais campos devem ser obrigatórios durante a criação de personagem:",
         "menu": {
           "hint": "Defina quais campos devem ser preenchidos antes de finalizar um personagem.",
           "name": "Campos Obrigatórios"
@@ -470,7 +482,6 @@
         "hint": "Adiciona botões Próximo/Anterior para ajudar os usuários a navegar pelas abas.",
         "name": "Habilitar Botões de Navegação"
       },
-      "no-selection": "Nenhum compêndio selecionado. Selecione pelo menos um.",
       "player-customization": {
         "hint": "Permita que seus jogadores definam algumas informações durante a criação do personagem, como cor do jogador, pronomes e avatar.",
         "name": "Permitir Personalização do Jogador"
@@ -513,7 +524,6 @@
         "discord": "Entrar no Discord",
         "error-context": "Erro ao carregar dados do Troubleshooter.",
         "error-report": "Erro ao gerar relatório do Troubleshooter. Tente novamente.",
-        "export": "Exportar Troubleshooter",
         "export-error": "Falha ao exportar o relatório do Troubleshooter.",
         "export-success": "Troubleshooter exportado como {filename}",
         "generate-report": "Abrir Troubleshooter",
@@ -524,6 +534,7 @@
           "name": "Troubleshooter"
         },
         "notes": "O Troubleshooter contém todas as informações relevantes necessárias para iniciar o processo de correção de bugs. Usando os botões abaixo, você pode salvar este resultado como um arquivo ou copiá-lo para a sua área de transferência. Sinta-se à vontade para entrar no Discord ou criar um report no GitHub.",
+        "output-label": "",
         "save-to-file": "Download",
         "title": "Troubleshooter"
       }
@@ -531,14 +542,12 @@
     "unknown": "{type} desconhecido",
     "warnings": {
       "advancement-failed": "Falha ao aplicar a progressão de {item}. Seu personagem pode estar sem algumas características.",
-      "advancement-timeout": "O processo de progressão para {item} demorou muito e foi ignorado.",
       "currency-update-failed": "Falha ao atualizar o dinheiro do personagem.",
       "equipment-creation-failed": "Falha ao criar alguns itens de equipamento.",
       "equipment-extraction-failed": "Nota: O documento contém informações sobre o equipamento, mas não pôde ser extraído automaticamente devido ao seu formato.",
       "equipment-processing-failed": "Alguns itens de equipamento não puderam ser processados ​​corretamente.",
       "favorites-processing-failed": "Falha ao processar itens favoritos corretamente.",
       "no-packs-found": "Nenhum pacote encontrado para {type}",
-      "partial-cleanup": "Alguns recursos não puderam ser limpos adequadamente.",
       "select-background": "Você deve selecionar um Antecedente válido primeiro.",
       "simplified-journal": "Visão simplificada de {page}.",
       "some-advancements-failed": "Algumas progressões falharam: {failed}. Sucesso: {succeeded}."

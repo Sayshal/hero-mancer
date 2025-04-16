@@ -41,7 +41,7 @@ function registerCoreSettings() {
 
   game.settings.register(HM.ID, 'enableNavigationButtons', {
     name: 'hm.settings.nav-buttons.name',
-    hint: 'hm.settings.nav-buttons.name',
+    hint: 'hm.settings.nav-buttons.hint',
     scope: 'world',
     config: true,
     type: Boolean,

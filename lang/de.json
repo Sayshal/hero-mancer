@@ -1,6 +1,5 @@
 {
   "hm": {
-    "_comment": "Aufgrund der besseren Lesbarkeit wird in der Übersetzung das generische Maskulinum verwendet. Gemeint sind jedoch immer alle Geschlechter!",
     "actortab-button": {
       "creating": "Hero Mancer erstellt deinen Charakter! ... Dies kann einen Moment dauern.",
       "hint": "Öffne Hero Mancer",
@@ -10,8 +9,6 @@
     "app": {
       "abilities": {
         "decrease": "-1",
-        "default": "ist stolz auf seine beeindruckenden Attribute",
-        "excels": "ist hervorragend in",
         "increase": "+1",
         "instructions": {
           "chained-rolls": "Deine Spielleitung hat verkettete Würfe aktiviert. Klicke einfach auf einen der Würfel oben, um alle Werte zu würfeln. Aber keine Sorge! Du kannst die Einträge einzeln neu würfeln, vorausgesetzt, deine Spielleitung erlaubt es.",
@@ -33,7 +30,6 @@
             "title": "Methode zur Werte-Generierung: Standardwerte"
           }
         },
-        "label": "Attribut",
         "methods": {
           "manual": "Manuell",
           "pointBuy": "Punktekauf",
@@ -46,7 +42,6 @@
         "select-method": "Wähle Wertemethode",
         "select-placeholder": "Wähle",
         "select-value": "Wähle einen Wert",
-        "summary": "{action} {first} und {second}",
         "tooltip": "Wähle die Attributswerte für deinen Charakter",
         "your-class": "your class"
       },
@@ -56,8 +51,36 @@
         "preamble": "Wähle den Hintergrund deines Charakters aus den verfügbaren Optionen aus.",
         "select-label": "Hintergrund",
         "select-placeholder": "Wähle einen Hintergrund",
-        "summary": "Du beginnst als {name}",
         "tooltip": "Wähle den Hintergrund für deinen Charakter"
+      },
+      "biography": {
+        "age-hint": "",
+        "alignment-hint": "",
+        "backstory": "",
+        "backstory-hint": "",
+        "backstory-placeholder": "",
+        "bonds-placeholder": "",
+        "bonds-placeholder-alt": "",
+        "characteristics": "",
+        "description-hint": "",
+        "faith-hint": "",
+        "flaws-placeholder": "",
+        "flaws-placeholder-alt": "",
+        "height-hint": "",
+        "ideals-placeholder": "",
+        "ideals-placeholder-alt": "",
+        "personality-traits": "",
+        "physical-description": "",
+        "roll-bonds": "",
+        "roll-flaws": "",
+        "roll-ideals": "",
+        "roll-traits": "",
+        "size-hint": "",
+        "size-placeholder": "",
+        "tooltip": "",
+        "traits-placeholder": "",
+        "traits-placeholder-alt": "",
+        "weight-hint": ""
       },
       "cancel": "Abbrechen",
       "cancel-description": "Abbrechen und schließe Hero Mancer",
@@ -69,6 +92,7 @@
         "select-placeholder": "Wähle die Klasse",
         "tooltip": "Wähle die Klasse für deinen Charakter"
       },
+      "creation-progress": "",
       "document-service": {
         "common-labels": {
           "dndbeyond-importer": "DDB",
@@ -100,7 +124,6 @@
         "separator": ", ",
         "starting": "starting",
         "starting-equipment": "Startausrüstung",
-        "summary": "trägt {items} auf der Reise.",
         "tooltip": "Wähle die Ausrüstung für deinen Charakter",
         "type-equipment": "{type} Ausrüstung",
         "unknown-choice": "Unbekanntes verknüpftes Item.",
@@ -114,21 +137,24 @@
         "unexpected-format": "Fehler beim Rendern des Inhalts: Unerwartetes Format"
       },
       "finalize": {
-        "backstory": "Hintergrundgeschichte",
-        "backstory-placeholder": "Schreibe eine Hintergrundgeschichte für deinen Charakter. Überlege dir, welchen Organisationen sie angehören, welche Verbündeten sie gewonnen oder welche Feinde sie sich gemacht haben, und welche anderen wichtigen Details es in ihrem Leben gab, bevor sie zum Abenteurer wurden.",
-        "bonds-placeholder": "Wer oder was liegt dir am meisten am Herzen? Welcher Ort fühlt sich wie ein Zuhause an? Welcher Gegenstand bedeutet dir alles? Drücke auf die Würfeln Schaltfläche, um aus den Bindungen zu wählen, die durch deinen Hintergrund vorgeschlagen werden.",
-        "bonds-placeholder-alt": "Wer oder was liegt dir am meisten am Herzen? Welcher Ort fühlt sich wie ein Zuhause an? Welcher Gegenstand bedeutet dir alles?",
-        "character-details": "Charakterdetails",
         "character-portrait": "Charakterporträt",
-        "class-race-summary": "Dieser {race} {class}",
-        "flaws-placeholder": "Was sind die Unzulänglichkeiten oder Schwächen deines Charakters? Denke dabei sowohl an persönliche Eigenheiten als auch an Einschränkungen bei den Attributswerten. Welche Eigenschaften könnten für andere schwierig sein? Drücke auf die Würfeln Schaltfläche, um aus den Makeln zu wählen, die durch deinen Hintergrund vorgeschlagen werden.",
-        "flaws-placeholder-alt": "Was sind die Unzulänglichkeiten oder Schwächen deines Charakters? Denke dabei sowohl an persönliche Eigenheiten als auch an Einschränkungen bei den Attributswerten. Welche Eigenschaften könnten andere als schwierig empfinden?",
-        "ideals-placeholder": "Von welchen Prinzipien lässt du dich leiten? Welche Sache oder Überzeugung treibt dich zu Abenteuern an? Wofür würdest du kämpfen oder sterben? Drücke auf die Würfeln Schaltfläche, um aus Idealen zu wählen, die durch deinen Hintergrund vorgeschlagen werden.",
-        "ideals-placeholder-alt": "Von welchen Prinzipien lässt du dich leiten? Welche Sache oder Überzeugung treibt dich zu Abenteuern an? Wofür würdest du kämpfen oder sterben?",
-        "personal-characteristics": "Persönliche Eigenschaften",
-        "personality-traits": "Persönlichkeitsmerkmale",
-        "physical-characteristics": "Erscheinungsbild",
-        "physical-description": "Erscheinung",
+        "character-review": "",
+        "final-notes": "",
+        "review": {
+          "abilities": "",
+          "appearance-adjectives": "",
+          "background-equipment": "",
+          "backstory": "",
+          "basic-info": "",
+          "biography": "",
+          "biography-format": "",
+          "biography-format-with-faith": "",
+          "class-equipment": "",
+          "equipment": "",
+          "no-equipment": "",
+          "physical-description": "",
+          "starting-wealth": ""
+        },
         "summary": {
           "abilities": "stolz auf seine beeindruckende {first} und {second}",
           "abilitiesDefault": "stolz auf seine beindruckenden Attribute",
@@ -136,13 +162,11 @@
           "backgroundDefault": "Angefangen als Abenteurer,",
           "classRace": "ist dieser {race} {class}",
           "classRaceDefault": "ist dieser unbekanntes Volk unbekannte Klasse",
-          "default": "Angefangen als Abenteurer, ist dieser unbekanntes Volk unbekannte Klasse stolz auf seine beindruckenden Attribute und beginnt das Abenteur.",
           "equipment": "und beginnt das Abenteuer mit folgenden Gegenständen: {items}.",
-          "equipmentDefault": "und beginnt das Abenteuer."
+          "equipmentDefault": "und beginnt das Abenteuer.",
+          "no-items": ""
         },
-        "tooltip": "Vervollständige deine Charaktererschaffung",
-        "traits-placeholder": "Beschreibe die Persönlichkeit deines Charakters. Wie prägen seine Attribute seine Persönlichkeit? Ist er weise und nachdenklich oder charismatisch und extrovertiert? Drücke auf die Würfeln Schaltfläche, um aus den Persönlichkeitsmerkmalen auszuwählen, die durch deinen Hintergrund vorgeschlagen werden.",
-        "traits-placeholder-alt": "Beschreibe die Persönlichkeit deines Charakters. Wie prägen seine Attribute seine Persönlichkeit? Ist er weise und nachdenklich oder charismatisch und extrovertiert?"
+        "tooltip": "Vervollständige deine Charaktererschaffung"
       },
       "header-title": "Hero Mancer Creation Wizard",
       "journal": {
@@ -194,7 +218,6 @@
         "player-avatar": "Spieler-Avatar",
         "player-avatar-placeholder": "Wähle einen Spieler-Avatar",
         "player-color": "Spieler-Farbe",
-        "player-color-placeholder": "Wähle eine Farbe für deinen Spieler",
         "player-pronouns": "Spieler-Pronomen",
         "player-pronouns-placeholder": "Wähle deine bevorzugten Pronomen",
         "preamble": {
@@ -204,6 +227,7 @@
         "select-art": "Auswählen",
         "token-art-label": "Spielfigur",
         "token-art-placeholder": "Wähle ein Bild für die Figur",
+        "token-customization": "",
         "token-same-as-character": "Verwende dasselbe Bild für die Figur?",
         "token-visibility-placeholder": "Wähle Anzeigestatus",
         "tooltip": "Beginne mit der Erstellung deines Charakters"
@@ -213,6 +237,7 @@
       "tab-names": {
         "abilities": "Attribute",
         "background": "Hintergrund",
+        "biography": "",
         "class": "Klasse",
         "equipment": "Ausrüstung",
         "finalize": "Vervollständigen",
@@ -240,26 +265,16 @@
       "actor-creation-failed": "Charakter konnte nicht erstellt werden. Bitte versuche es erneut.",
       "advancement-process": "Beim Anwenden der Fortschritte deines Charakters ist ein Fehler aufgetreten. Dein Charakter ist möglicherweise unvollständig.",
       "advancement-processing-failed": "Fehler beim anwenden der Fortschritte",
-      "advancement-timeout": "Der Fortschritt wurde abgebrochen. Bitte überprüfe, ob dein Charakterbogen vollständig ist.",
       "art-picker-failed": "Die Auswahl der Charaktergrafiken konnte nicht geöffnet werden",
       "avatar-picker-failed": "Fehler beim Öffnen der Auswahl für Spieler-Avatare",
-      "cache-error": "Fehler beim Laden der zwischengespeicherten Daten. Die Daten zur Charaktererstellung werden aktualisiert.",
       "character-creation-failed": "Die Charaktererstellung ist fehlgeschlagen. Bitte stelle sicher, dass alle erforderlichen Felder ausgefüllt sind und dass du über die erforderlichen Berechtigungen zum Erstellen von Charakteren verfügst.",
-      "cleanup-failed": "Einige Ressourcen wurden nicht ordnungsgemäß bereinigt. Bei Problemen musst du die Seite möglicherweise aktualisieren.",
-      "description-update": "Die Beschreibung des Items konnte nicht aktualisiert werden.",
       "document-preparation-failed": "{type} Dokumente konnten nicht vorbereitet werden: {error}",
-      "dropdown-initialization": "Die Dropdown-Optionen konnten nicht initialisiert werden.",
       "equipment-rendering": "Beim Laden der Ausrüstung ist ein Fehler aufgetreten. Bitte versuche es mit einer anderen Auswahl oder aktualisiere die Anwendung.",
-      "event-handler-error": "Bei der Verarbeitung eines Ereignisses ist ein Fehler aufgetreten.",
       "failed-compendium-retrieval": "Kompendien konnten nicht abgerufen werden: {type} {details}",
       "fetch-fail": "Einige Dokumente konnten nicht abgerufen werden. Bitte überprüfe die Konsole auf Fehler.",
       "form-submission": "Beim Absenden des Formulars ist ein Fehler aufgetreten. Bitte versuche es erneut.",
       "invalid-document-type": "Ungültiger Dokumenttyp angegeben",
-      "missing-ability-fields": "Fehlende erforderliche Attributswerte: {fields} ({count} Gesamt)",
-      "missing-background-fields": "Fehlende erforderliche Hintergrunddetails: {fields} ({count} Gesamt)",
-      "missing-basic-fields": "Fehlende erforderliche Basisfelder: {fields} ({count} Gesamt)",
       "missing-equipment": "Folgende Auswahl enthält keine Daten zur Startausrüstung: {type}. Bitte melde dies dem Ersteller des Items, nicht Hero Mancer.",
-      "missing-mandatory-fields": "Benötigte Felder fehlen: {fields}",
       "no-background": "Der ausgewählte Hintergrund konnte nicht gefunden werden.",
       "no-class": "Die ausgewählte Klasse konnte nicht gefunden werden.",
       "no-race": "Der ausgewählte Volk konnte nicht gefunden werden.",
@@ -271,12 +286,12 @@
       "select-background": "Bitte wähle einen Hintergrund aus, bevor du sendest.",
       "select-class": "Bitte wähle eine Klasse aus, bevor du sendest.",
       "select-race": "Bitte wähle ein Volk aus, bevor du sendest.",
-      "tab-navigation": "Beim Navigieren zur ausgewählten Registerkarte ist ein Fehler aufgetreten.",
       "token-art-picker-failed": "Figurenbild auswahl konnte nicht geöffnet werden"
     },
     "info": {
       "advancement-progress": "Verarbeitung {item} ({current}/{total})",
-      "all-advancements-complete": "Alle Fortschritte des Charakters wurden erfolgreich verarbeitet."
+      "all-advancements-complete": "Alle Fortschritte des Charakters wurden erfolgreich verarbeitet.",
+      "cpr-effects-applied": ""
     },
     "settings": {
       "ability-scores": {
@@ -287,7 +302,6 @@
         "header": "Grenzen für Attributswerte",
         "invalid-point-buy": "Punktekauf Gesamtpunkte sind zu niedrig. Bei einer Mindestpunktzahl von {min} benötigst du mindestens {totalNeeded} Punkte.",
         "invalid-range": "Ungültiger Bereich für Attributswerte. Bitte stelle sicher, dass Min ≤ Default ≤ Max.",
-        "invalid-standard-array": "Standardwerte {values} liegen außerhalb des zulässigen Bereichs ({min}-{max}).",
         "max": {
           "hint": "Der maximale Wert, der bei der Charaktererstellung für Attributswerte zulässig ist.",
           "name": "Max"
@@ -296,7 +310,6 @@
           "hint": "Der minimalste Wert, der bei der Charaktererstellung für Attributswerte zulässig ist.",
           "name": "Min"
         },
-        "standard-array-adjusted": "Einige Standardwerte lagen außerhalb des zulässigen Bereichs ({min}-{max}) und wurden angepasst.",
         "standard-array-fixed": "Die Werte der Standardwerte {original} lagen außerhalb des zulässigen Bereichs ({min}-{max}) und wurden automatisch angepasst."
       },
       "alignments": {
@@ -307,6 +320,7 @@
         "header": "Erscheinungsbild Optionen"
       },
       "art-picker-root": {
+        "browse": "",
         "hint": "Das Hauptverzeichnis für die Bilder Auswahl",
         "name": "Bilder Hauptverzeichnis"
       },
@@ -335,10 +349,8 @@
         "classes-label": "Klassenkompendien festlegen:",
         "description": "Konfiguriere deine benutzerdefinierten Kompendien für Klassen, Völker und Hintergründe. Wenn du für eine Kategorie keine Kompendien auswählst, werden alle gültigen Kompendien als Fallback geladen.",
         "dialog-error": "Dialog kann nicht gerendert werden, siehe Konsole.",
-        "error": "Dokumente konnten nicht aus dem Kompendium-Paket abgerufen werden: {pack}",
         "error-saving": "Beim Speichern deiner Kompendium-Einstellungen ist ein Fehler aufgetreten. Bitte schau in der Konsole nach (F12).",
         "form-saved": "Die Einstellungen des Kompendiums wurden gespeichert.",
-        "invalid-pack": "Ein oder mehrere Kompendienpakete sind nicht mehr gültig.",
         "item": "Gegenstände",
         "items-label": "Gegenständekompendien festlegen:",
         "manage-backgrounds": "Hintergründe verwalten",
@@ -355,10 +367,12 @@
         "save-error": "Konnte Fertig Schaltfläche nicht erstellen, siehe Konsole.",
         "saved": "{type} Kompendium-Einstellungen wurden gespeichert.",
         "select-all": "Alle auswählen",
+        "select-all-in": "",
         "title": "Wähle {type}kompendien!",
         "types": {
           "background": "Hintergrund",
           "class": "Klassen",
+          "item": "",
           "race": "Völker",
           "species": "Spezies"
         }
@@ -369,8 +383,7 @@
       },
       "custom-roll-formula": {
         "hint": "Gib die Würfelformel für die manuelle Generierung von Attributswerten an. Standard ist '4d6kh3'.",
-        "name": "Eigene Manuelle Würfelformel.",
-        "reset": "Eigene Würfelformel war leer, zurücksetzt auf standard: 4d6kh3"
+        "name": "Eigene Manuelle Würfelformel."
       },
       "custom-standard-array": {
         "hint": "Legt die Formel für die Standardwerte Generierung von Attributswerten fest. Standardwert ist 15,14,13,12,10,8",
@@ -459,7 +472,6 @@
           "start": "Schritt 1: Start",
           "token": "Figuranpassung"
         },
-        "instructions": "Wähle aus, welche Felder bei der Charaktererstellung ausgefüllt werden müssen:",
         "menu": {
           "hint": "Lege fest, welche Felder ausgefüllt werden müssen, bevor ein Charakter eingereicht werden kann.",
           "name": "Pflichtfelder"
@@ -470,7 +482,6 @@
         "hint": "Fügt Schaltflächen Weiter/Zurück hinzu, um Benutzern die Navigation durch die Registerkarten zu erleichtern",
         "name": "Aktiviere Navigationstasten"
       },
-      "no-selection": "Es wurden keine Kompendien ausgewählt. Bitte wähle mindestens eines aus.",
       "player-customization": {
         "hint": "Erlaubt deinen Spielern, bei der Charaktererstellung einige Informationen festzulegen, wie z. B. Spielerfarbe, Pronomen und Avatar.",
         "name": "Spieleranpassung zulassen"
@@ -513,7 +524,6 @@
         "discord": "Discord beitreten",
         "error-context": "Fehler beim Laden der Fehlerbehebungsdaten.",
         "error-report": "Fehler beim Erstellen des Fehlerberichts. Bitte erneut versuchen.",
-        "export": "Exportiere Fehlerbehebungsbericht",
         "export-error": "Fehler beim Exportieren des Fehlerbehebungsberichts.",
         "export-success": "Fehlerbehebungsbericht exportiert als {filename}",
         "generate-report": "Öffne Fehlerbehebung",
@@ -524,6 +534,7 @@
           "name": "Fehlerbehebungsbericht"
         },
         "notes": "Der Fehlerbehebungsbericht enthält alle relevanten Informationen, die für den Start des Bug-Squashing-Prozesses benötigt werden. Mit den untenstehenden Schaltflächen kannst du diese Ausgabe als Datei speichern oder in deine Zwischenablage kopieren. Du kannst dem Discord beitreten oder ein Issue auf Github erstellen. Die Kommunikation für dieses Modul ist auf Englisch.",
+        "output-label": "",
         "save-to-file": "Download",
         "title": "Troubleshooter"
       }
@@ -531,14 +542,12 @@
     "unknown": "{type} unbekannt",
     "warnings": {
       "advancement-failed": "Fortschritt von {item} konnte nicht angewendet werden. Deinem Charakter fehlen möglicherweise einige Merkmale.",
-      "advancement-timeout": "Der Fortschrittsprozess für {item} dauerte zu lange und wurde übersprungen.",
       "currency-update-failed": "Die Währung des Charakters konnte nicht aktualisiert werden.",
       "equipment-creation-failed": "Einige Ausrüstungsgegenstände konnten nicht erstellt werden.",
       "equipment-extraction-failed": "Hinweis: Das Dokument enthält Informationen zur Ausrüstung, die jedoch aufgrund des Formats nicht automatisch extrahiert werden konnten.",
       "equipment-processing-failed": "Einige Items der Ausrüstung konnten nicht korrekt verarbeitet werden.",
       "favorites-processing-failed": "Favoriten-Gegenstände konnten nicht richtig verarbeitet werden.",
       "no-packs-found": "Es wurden keine Kompendien gefunden für {type}",
-      "partial-cleanup": "Einige Ressourcen konnten nicht ordnungsgemäß bereinigt werden.",
       "select-background": "Du musst zuerst einen gültigen Hintergrund auswählen.",
       "simplified-journal": "Vereinfachte Ansicht von {page}.",
       "some-advancements-failed": "Einige Fortschritte scheiterten: {failed}. Erfolgreich: {succeeded}."

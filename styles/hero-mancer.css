@@ -1,5 +1,5 @@
 /* ==========================================================================
-  Variables
+  Core Variables
  ========================================================================== */
 :root {
   --border-radius-lg: 0.375rem;
@@ -16,10 +16,10 @@
 }
 
 /* ==========================================================================
-  Utility Classes - Layout
+  Layout & Utility Classes
  ========================================================================== */
 
-/* Flex utilities */
+/* Flexbox */
 .flex {
   display: flex;
 }
@@ -40,33 +40,7 @@
   flex-grow: 1;
 }
 
-.flex-shrink-0 {
-  flex-shrink: 0;
-}
-
-/* Width utilities */
-.width-25 {
-  width: 25%;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.w-auto {
-  width: auto;
-}
-
-/* Height utilities */
-.h-auto {
-  height: auto;
-}
-
-.h-full {
-  height: 100%;
-}
-
-/* Grid utilities */
+/* Grid */
 .grid {
   display: grid;
 }
@@ -87,25 +61,13 @@
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
-.grid-7-col {
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.grid-auto-fit {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-/* ==========================================================================
-  Utility Classes - Alignment
- ========================================================================== */
-
-/* Flex alignment */
+/* Alignment */
 .items-center {
   align-items: center;
 }
 
-.form-group.items-start,
-.items-start {
+.items-start,
+.form-group.items-start {
   align-items: flex-start;
 }
 
@@ -117,15 +79,7 @@
   justify-content: space-between;
 }
 
-.justify-end {
-  justify-content: flex-end;
-}
-
-/* ==========================================================================
-  Utility Classes - Spacing
- ========================================================================== */
-
-/* Gap utilities */
+/* Spacing */
 .gap-xs {
   gap: var(--spacing-xs);
 }
@@ -138,11 +92,6 @@
   gap: var(--spacing-md);
 }
 
-.gap-lg {
-  gap: var(--spacing-lg);
-}
-
-/* Margin utilities */
 .m-0 {
   margin: 0;
 }
@@ -155,10 +104,6 @@
   margin-bottom: var(--spacing-md);
 }
 
-.mb-lg {
-  margin-bottom: var(--spacing-lg);
-}
-
 .ml-xs {
   margin-left: 0.4rem;
 }
@@ -168,24 +113,11 @@
   padding: 0 0.25rem;
 }
 
-/* Padding utilities */
 .p-sm {
   padding: var(--spacing-sm);
 }
 
-.p-md {
-  padding: var(--spacing-md);
-}
-
-.p-lg {
-  padding: var(--spacing-lg);
-}
-
-/* ==========================================================================
-  Utility Classes - Typography
- ========================================================================== */
-
-/* Text alignment */
+/* Typography */
 .text-center {
   text-align: center;
 }
@@ -194,140 +126,45 @@
   text-align: left;
 }
 
-.text-right {
-  text-align: right;
-}
-
-/* Font size */
-.text-sm {
-  font-size: 0.875rem;
-}
-
 .text-md {
   font-size: 1rem;
 }
 
-.text-lg {
-  font-size: 1.25rem;
-}
-
-.text-xl {
-  font-size: 1.5rem;
-}
-
-/* Font style */
 .font-bold {
   font-weight: bold;
 }
 
-.font-normal {
-  font-weight: normal;
+/* Width/Height */
+.width-25 {
+  width: 25%;
 }
 
-.font-italic {
-  font-style: italic;
+.w-full {
+  width: 100%;
 }
 
-/* ==========================================================================
-  Utility Classes - Overflow
- ========================================================================== */
-
-.overflow-auto {
-  overflow: auto;
-}
-
-.overflow-hidden {
-  overflow: hidden;
-}
-
+/* Overflow */
 .overflow-y-auto {
   overflow-y: auto;
 }
 
-.overflow-y-hidden {
-  overflow-y: hidden;
-}
-
-.overflow-x-hidden {
-  overflow-x: hidden;
-}
-
-.overflow-vert-only {
-  overflow: hidden auto;
-}
-
-/* White Space */
 .whitespace-nowrap {
   white-space: nowrap;
 }
 
 /* ==========================================================================
-  Field layout
+  Application Structure
  ========================================================================== */
-.field-column {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-}
 
-.field-column .field-group {
-  margin-bottom: 0.4rem;
-  border: 1px solid var(--color-border-light-tertiary);
-  border-radius: var(--border-radius-md);
-}
-
-/* ==========================================================================
-  Horizontal Rules
-  ========================================================================== */
-
-.application.hm-app hr {
-  height: 2px;
-  border: none;
-  background-image: linear-gradient(90deg, transparent 0%, #e7d1b1 50%, transparent 100%);
-}
-
-.theme-light .application.hm-app hr,
-.theme-light .hm-compendiums-popup-dialog hr {
-  height: 2px;
-  border: none;
-  background-image: linear-gradient(90deg, transparent 0%, #362417 50%, transparent 100%);
-}
-
-/* ==========================================================================
-  Typography
-  ========================================================================== */
-
-.hm-app h2,
-.hm-app h3 {
-  padding: 0.2rem 0 0.3rem;
-}
-
-fieldset#start > h2 {
-  margin: 0;
-}
-
-.hm-app p {
-  display: block;
-  line-height: var(--line-height-20);
-}
-
-.hm-app table {
-  margin: 0;
-}
-
-/* ==========================================================================
-  Main Application Container
-  ========================================================================== */
-
+/* Main Container */
 .application.hm-app {
   width: 1100px;
   max-width: calc(100vw - 100px);
-  height: auto;
   min-height: 0;
   max-height: calc(100vh - 150px);
 }
 
+/* Icons */
 .application.hm-app .fa-egg,
 .application.hm-app .fa-dice,
 .application.hm-app .fa-list-check,
@@ -339,22 +176,29 @@ fieldset#start > h2 {
   color: var(--user-color);
 }
 
-#hero-mancer-app .hm-app-tab-content h1,
-#hero-mancer-app .hm-app-tab-content h2,
-#hero-mancer-app .hm-app-tab-content h3,
-#hero-mancer-app .hm-app-tab-content h4,
-#hero-mancer-app .hm-app-tab-content h5,
-#hero-mancer-app .hm-app-tab-content h6 {
+/* Headers */
+.application.hm-app .hm-app-tab-content h1,
+.application.hm-app .hm-app-tab-content h2,
+.application.hm-app .hm-app-tab-content h3,
+.application.hm-app .hm-app-tab-content h4,
+.application.hm-app .hm-app-tab-content h5,
+.application.hm-app .hm-app-tab-content h6 {
+  max-width: 100%;
   margin: unset;
 }
 
-/* ==========================================================================
-  Application Header
-  ========================================================================== */
+/* Typography */
+.hm-app h2,
+.hm-app h3 {
+  padding: 0.2rem 0 0.3rem;
+}
 
+.hm-app table {
+  margin: 0;
+}
+
+/* Header */
 .hm-app-header {
-  --progress-percent: 0%;
-
   display: flex;
   position: relative;
   flex: 0 0 var(--hm-app-header-height);
@@ -404,7 +248,6 @@ fieldset#start > h2 {
 }
 
 .progress-overlay {
-  position: absolute;
   bottom: 0.3rem;
   width: 100%;
   text-align: center;
@@ -422,9 +265,10 @@ fieldset#start > h2 {
 }
 
 /* ==========================================================================
-  Navigation Tabs
-  ========================================================================== */
+  Navigation & Tabs
+ ========================================================================== */
 
+/* Navigation */
 .application.hm-app .hm-app-nav {
   display: flex;
   flex-flow: row wrap;
@@ -450,7 +294,7 @@ fieldset#start > h2 {
   text-shadow: 0 0 0.625rem var(--color-shadow-primary);
 }
 
-/* Tab Mandatory Indicator styling */
+/* Tab Mandatory Indicator */
 .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid {
   position: relative;
   width: 1.5rem;
@@ -467,20 +311,7 @@ fieldset#start > h2 {
   text-shadow: 0 0 0.2rem #e539354d;
 }
 
-.theme-light .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
-  z-index: 1;
-  position: absolute;
-  top: -0.3rem;
-  right: 1rem;
-  color: #5a0101;
-  font-size: 0.84rem;
-  text-shadow: 0 0 0.2rem #e539354d;
-}
-
-/* ==========================================================================
-  Tab Content
-  ========================================================================== */
-
+/* Tab Content */
 .hm-app-tab-content {
   max-height: 70vh;
   overflow-y: auto;
@@ -491,6 +322,7 @@ fieldset#start > h2 {
 }
 
 .application.hm-app .hm-app-tab-content table {
+  max-width: 100%;
   border-radius: var(--border-radius-xl);
 }
 
@@ -519,9 +351,22 @@ fieldset#start > h2 {
   font-family: 'modesto condensed', serif;
 }
 
+.hm-app-tab-content section {
+  margin-top: 1rem;
+}
+
+.hm-app-tab-content section.first-section {
+  margin-top: 0;
+}
+
+.hm-app-tab-content h3 {
+  margin-bottom: 0.625rem;
+  border-bottom: 1px solid #666;
+}
+
 /* ==========================================================================
   Footer
-  ========================================================================== */
+ ========================================================================== */
 
 .hm-app-footer {
   display: flex;
@@ -613,582 +458,163 @@ button i.nav-prev {
 }
 
 /* ==========================================================================
-  Abilities Section
-  ========================================================================== */
+  Form Elements
+ ========================================================================== */
 
-/* Ability container layout */
-.hm-app .ability-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: auto;
-  padding: 1rem 0;
+/* Fieldsets */
+.application.hm-app fieldset {
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  margin: 1rem 0;
+  padding: 1rem 2rem;
+  border: 1px solid var(--user-color);
+  border-radius: 0.375rem;
+  overflow: auto;
+  overflow-x: hidden;
 }
 
-.hm-app .ability-container.point-buy {
-  height: unset;
-  margin: 0 0.5rem 0.5rem;
+.application.hm-app fieldset > legend {
+  padding: 0 0.5rem;
+  text-transform: uppercase;
 }
 
-/* Ability block layout */
-.hm-app .ability-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 5.25rem;
-  line-height: 2.5rem;
-}
-
-.hm-app .ability-block .ability-dropdown,
-.hm-app .ability-block .ability-score {
-  width: 100%;
-  font-size: var(--font-size-13);
+.application.hm-app fieldset > .empty {
+  padding: 0.375rem;
+  color: var(--color-text-primary);
+  font-style: italic;
   text-align: center;
 }
 
-.hm-app .ability-block .ability-score {
-  margin-bottom: 1.25rem;
-}
-
-/* Point-buy specific styling */
-.ability-container.point-buy {
-  gap: 0.125rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.ability-block.point-buy {
-  display: flex;
-  flex-grow: 0;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  width: 16%;
-  max-width: 16%;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-}
-
-.hm-app .ability-block.point-buy .current-score {
-  display: inline-block;
-  min-width: 0.5rem;
-  text-align: center;
-}
-
-.ability-block.point-buy .ability-label {
-  gap: 0.2rem;
-  font-weight: bold;
-}
-
-.ability-block.point-buy .control-row {
+/* Form groups */
+.hm-app .form-group {
   gap: 0.313rem;
   display: flex;
-  align-items: center;
-  padding-bottom: 0.313rem;
-}
-
-/* Button controls */
-.minus-button,
-.plus-button {
-  display: flex;
-  flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
-  width: 2rem;
-  height: 2rem;
-  font-size: 1rem;
-}
-
-.ability-block.point-buy .adjust-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--border-radius-md);
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.ability-block.point-buy .score-value {
-  min-width: 40px;
-  font-weight: bold;
-  font-size: 1.5rem;
-  text-align: center;
-}
-
-/* Primary ability highlight styling */
-.ability-block .ability-label.primary-ability,
-.ability-block.point-buy .ability-label.primary-ability {
-  color: #ffd700;
-  text-shadow: 0 -0.3rem 1.25rem #ffd70099;
-  animation: primary-ability-pulse 2s infinite ease-in-out;
-}
-
-.theme-light .ability-block .ability-label.primary-ability,
-.theme-light .ability-block.point-buy .ability-label.primary-ability {
-  text-shadow:
-    -1px -1px 1px #000000b3,
-    1px -1px 1px #000000b3,
-    -1px 1px 1px #000000b3,
-    1px 1px 1px #000000b3,
-    0 0 0.3rem #ffd70099;
-  animation: primary-ability-pulse-light 2s infinite ease-in-out;
-}
-
-.ability-dropdown.primary-ability {
-  box-shadow: 0 0 0.3rem 0.3rem #ffd70099;
-}
-
-.ability-dropdown option.hm-used-elsewhere {
-  background-color: var(--user-color);
-}
-
-/* Primary ability tooltip */
-.ability-label.primary-ability {
-  position: relative;
-  cursor: help;
-}
-
-/* Point buy remaining points display */
-.remaining-points-container {
-  gap: 0.5rem;
-  display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  text-align: center;
 }
 
-.remaining-label,
-.points-display {
-  margin-bottom: 0.4rem;
-  font-weight: bold;
-  font-size: 1.2rem;
+.hm-app .form-group .hint {
+  color: var(--color-text-light-primary);
 }
 
-#remaining-points {
-  margin-right: 0.2rem;
-  color: var(--text-color-highlight, #4cae4f);
-}
-
-#total-points {
-  margin-left: 0.2rem;
-}
-
-.theme-light #remaining-points {
-  text-shadow:
-    -1px -1px 0.5px #000c,
-    1px -1px 0.5px #000c,
-    -1px 1px 0.5px #000c,
-    1px 1px 0.5px #000c;
-}
-
-.theme-light #total-points {
-  text-shadow:
-    -0.5px -0.5px 0.5px #000000b3,
-    0.5px -0.5px 0.5px #000000b3,
-    -0.5px 0.5px 0.5px #000000b3,
-    0.5px 0.5px 0.5px #000000b3;
-}
-
-.theme-light .hm-app-tab-content h2,
-.theme-light .hm-app-tab-content h3 {
-  color: var(--light-mode-font-color);
-  text-shadow: 1px 1px 1px #000;
-}
-
-.theme-light .hm-app-tab-content h4,
-.theme-light .hm-app .form-group .hint {
-  color: var(--light-mode-font-color);
-  text-shadow: none;
-}
-
-/* .theme-light .hm-compendiums-popup-dialog hr {
-  background-image: linear-gradient(90deg, transparent 0%, var(--light-mode-font-color) 50%, transparent 100%);
-} */
-
-.theme-light .hm-troubleshooter textarea {
-  color: var(--light-mode-font-color);
-}
-
-/* Settings container */
-.ability-scores-container {
-  width: 60%;
-}
-
-.ability-scores-container input[type='number'] {
-  width: 40px;
-  text-align: center;
-}
-
-/* ==========================================================================
-  Equipment Section - Layout
-  ========================================================================== */
-
-.equipment-container {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--border-radius-xl);
-  background: var(--color-background-alt);
-}
-
-.equipment-choices {
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  display: grid;
-}
-
-.class-equipment-section,
-.background-equipment-section {
-  flex: 1;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 1rem;
-  margin-top: 0.25rem;
-  border: 1px solid #6f6f6f;
-  border-radius: var(--border-radius-lg);
-}
-
-/* ==========================================================================
-  Typography and Headings
-  ========================================================================== */
-
-.hm-app-tab-content .class-equipment-section h3,
-.hm-app-tab-content .background-equipment-section h3 {
-  width: 100%;
-  margin-bottom: unset;
-  text-align: center;
-}
-
-.hm-app-tab-content .class-equipment-section h4,
-.hm-app-tab-content .background-equipment-section h4 {
-  font-size: var(--font-size-15);
-  font-family: signika, sans-serif;
-}
-
-/* ==========================================================================
-  Table Structure
-  ========================================================================== */
-
-table.equipment-item,
-table.wealth-option-container {
-  display: table;
-  width: 100%;
-  margin-bottom: 0.5rem;
-  border-collapse: collapse;
-  background: transparent;
-}
-
-table.equipment-item {
-  border-bottom: 1px solid var(--color-border-dark-secondary);
-}
-
-table.equipment-item tr,
-table.wealth-option-container tr {
-  display: table-row;
-  background: transparent;
-}
-
-table.equipment-item th,
-table.equipment-item td,
-table.wealth-option-container th,
-table.wealth-option-container td {
-  display: table-cell;
-  border: none;
-  vertical-align: middle;
-  background: transparent;
-}
-
-table.equipment-item th {
-  padding: 0.25rem;
-  border-bottom: 1px solid #0000001a;
-  text-align: left;
-}
-
-table.equipment-item td {
-  padding: 0.25rem;
-}
-
-table.equipment-item td:first-child {
-  width: 75%;
-}
-
-table.equipment-item td:last-child {
-  width: 25%;
-  text-align: right;
-}
-
-table.equipment-item tr + tr,
-table.wealth-option-container tr + tr {
-  margin-top: 0;
-}
-
-/* ==========================================================================
-  Form Elements
-  ========================================================================== */
-
-.equipment-item label,
-.equipment-item input,
-.equipment-item select {
+.hm-app .form-group select {
   width: fit-content;
-  margin-top: 0.2rem;
-  margin-right: auto;
-  vertical-align: middle;
+  min-width: 120px;
+  max-width: 200px;
 }
 
-.equipment-choices input[type='checkbox'] {
-  flex-shrink: 0;
-  margin: 0 0.5rem 0.2rem 0;
+/* Rows */
+.form-row,
+.art-selection-row,
+.customization-row {
+  gap: 0.625rem;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.625rem;
 }
 
-.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices select {
-  display: block;
-  width: auto;
-  min-width: 140px;
-  max-width: 100%;
-  margin: 0.25rem 0 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Inputs */
+.form-input,
+.form-select,
+.hm-app-tab-content fieldset input[type='text'],
+.hm-app-tab-content fieldset select {
+  width: 100%;
+  max-width: 250px;
+  margin: 0 0.3rem;
+}
+
+/* Label styles */
+.label-15 {
+  flex: 0 0 20%;
+  margin-right: 0.3rem;
   white-space: nowrap;
 }
 
-.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link {
-  display: inline;
-  margin: 0 0 0 0.2rem;
-  padding: 0;
-  border: none;
-  font-style: italic;
-  background: none;
-}
-
-.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link i {
-  margin: 0 0.2rem 0 0;
-  font-size: inherit;
-}
-
-/* ==========================================================================
-  Wealth Options
-  ========================================================================== */
-
-table.wealth-option-container {
-  margin: 0.625rem 0 1rem;
-  border: 1px solid var(--color-border-light-tertiary);
-  border-radius: var(--border-radius-sm);
-}
-
-table.wealth-option-container tr:first-child td:first-child {
-  gap: 0.5rem;
+.label-43 {
+  gap: 0.313rem;
   display: flex;
+  flex: 0 0 43%;
+  flex-shrink: 0;
   align-items: center;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
-table.wealth-option-container td {
-  padding: 0.5rem 0.625rem;
+.checkbox-label {
+  flex: 1;
+  margin-left: 0.313rem;
+}
+
+/* Button styles */
+.button-7 {
+  flex: 0 0 auto;
+  width: auto;
+  height: 2rem;
+  white-space: nowrap;
+}
+
+button {
+  margin-right: unset;
+}
+
+/* Tooltips */
+.tooltip-icon {
+  color: var(--color-text-dark-secondary);
+  transition: color 0.5s ease;
+}
+
+.tooltip-icon:hover {
+  color: var(--user-color);
+}
+
+.heading-tooltip {
+  font-size: var(--font-size-14);
   vertical-align: middle;
 }
 
-table.wealth-option-container label {
-  margin: 0;
-  padding-top: 0.0625rem;
-  font-weight: 500;
+/* Mandatory field indicators */
+.mandatory-indicator {
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  margin-right: 0.25rem;
+  font-size: 1.1rem;
 }
 
-table.wealth-option-container input[type='checkbox'] {
-  margin: 0;
+.mandatory-indicator.complete {
+  color: #8fd693;
+  text-shadow: 0 0 0.2rem #2e7d324d;
 }
 
-tr.wealth-roll-container td {
+.mandatory-indicator.incomplete {
+  color: #ffb675;
+  text-shadow: 0 0 0.2rem #e539354d;
+}
+
+/* Field validation styling */
+.form-row > label,
+.art-selection-row > label,
+.customization-row > label,
+.ability-block > span.ability-label,
+.ability-block > label,
+.form-group > label,
+.trait-group > label,
+.personality-trait-group > label,
+.description-group > label,
+.notes-group > label,
+.notes-section > h3 {
   gap: 0.5rem;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0.5rem 0.625rem;
-}
-
-.wealth-roll-container input[type='text'] {
-  flex: 1;
-  min-width: 80px;
-  max-width: 120px;
-  margin: 0;
-}
-
-.wealth-roll-button {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: center;
-  align-items: center;
-  width: 2rem;
-  height: 2rem;
-  margin: 0;
-  padding: 0;
-  border-radius: var(--border-radius-sm);
-}
-
-.wealth-roll-button i {
-  margin: 0;
-}
-
-.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices .wealth-roll-container input[type='text'] {
-  width: fit-content;
-  min-width: 0.001rem;
-  max-width: 65px;
-  padding-right: 0.625rem;
-  text-align: center;
-}
-
-/* ==========================================================================
-  Favorite Star
-  ========================================================================== */
-
-.equipment-favorite-container {
-  display: block;
   position: relative;
-  width: 100%;
-  height: 1.2rem;
-  margin: 0;
-  padding: 0;
-  line-height: 1;
-  text-align: right;
-}
-
-.equipment-favorite-label {
-  display: inline-flex;
-  justify-content: center;
   align-items: center;
-  float: right;
-  height: 100%;
-  cursor: pointer;
 }
 
-.equipment-favorite-checkbox {
-  opacity: 0;
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-.equipment-choices .equipment-favorite-container .equipment-favorite-label .equipment-favorite-checkbox {
-  position: absolute;
-}
-
-.equipment-favorite-star {
+.notes-section:has(prose-mirror.mandatory-field) > h3 {
+  gap: 0.5rem;
   display: flex;
-  justify-content: center;
+  position: relative;
   align-items: center;
-  width: 1rem;
-  height: 1rem;
-  color: #aaa;
-  font-size: 1.2rem;
-  transition: color 0.2s ease;
-}
-
-.equipment-favorite-checkbox:checked + .equipment-favorite-star {
-  color: #ffd700;
-}
-
-.equipment-favorite-checkbox:hover + .equipment-favorite-star {
-  color: #f0b400;
-}
-
-td .equipment-favorite-container {
-  display: block;
-  height: 100%;
-  text-align: right;
-}
-
-/* ==========================================================================
-  Empty Notices and Warnings
-  ========================================================================== */
-
-.equipment-empty-notice {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin: 0.625rem 0;
-  padding: 0.5rem;
-  border: 1px solid var(--color-level-error-border);
-  border-radius: var(--border-radius-md);
-}
-
-.equipment-missing-warning {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  text-align: center;
-}
-
-.warning-icon {
-  color: var(--color-level-error);
-  font-size: 2rem;
-}
-
-.extracted-equipment-info {
-  overflow-wrap: break-word;
-  box-sizing: border-box;
-  max-width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  border-left: 2px solid #a0a0a0;
-  overflow: hidden;
-  white-space: normal;
-  word-break: break-all;
-  word-wrap: break-word;
-}
-
-.extracted-equipment-info p {
-  overflow-wrap: break-word;
-  max-width: 100%;
-  margin: 0;
-  overflow: hidden;
-  white-space: normal;
-  word-break: break-all;
-  word-wrap: break-word;
-}
-
-.extracted-equipment-info h4 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-/* ==========================================================================
-  States and Visibility
-  ========================================================================== */
-
-.equipment-item.disabled select,
-.equipment-item.disabled input[type='checkbox'],
-.equipment-item.disabled label {
-  pointer-events: none;
-}
-
-.equipment-choices select:disabled,
-.equipment-choices input:disabled,
-.equipment-choices label.disabled,
-.equipment-choices h4:disabled {
-  opacity: 0.5;
-  color: #878787;
-  cursor: not-allowed;
-}
-
-.equipment-item.disabled .equipment-favorite-container {
-  display: none;
-}
-
-tr.wealth-roll-container[hidden],
-tr.wealth-roll-container[style*='display: none'] {
-  display: none;
-}
-
-tr.wealth-roll-container:not([hidden]),
-tr.wealth-roll-container[style*='display: table-row'] {
-  display: table-row;
 }
 
 /* ==========================================================================
@@ -1208,9 +634,9 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .hm-app-tab-content .dnd5e2-journal .journal-container {
   --scroll-margin: unset;
 
-  width: 100% !important;
   margin-inline: 0.2rem !important;
   padding-inline: 0.2rem !important;
+  width: 100% !important;
 }
 
 .hm-app .hm-app-tab-content .dnd5e2-journal {
@@ -1485,68 +911,755 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 /* ==========================================================================
-  Settings Pages
-  ========================================================================== */
+  Abilities Section
+ ========================================================================== */
 
-/* Customization */
-.hm-app .hm-app-tab-content .input-35,
-.hm-app .hm-app-tab-content color-picker {
+/* Ability container */
+.hm-app .ability-container {
   display: flex;
-  flex: 1;
-  max-width: 35%;
+  justify-content: space-between;
+  align-items: center;
+  height: auto;
+  padding: 1rem 0;
 }
 
-.hm-app .hm-app-tab-content color-picker input[type='text'] {
-  flex: 1;
+/* Standard array ability blocks */
+.hm-app .ability-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 5.25rem;
+  line-height: 2.5rem;
+}
+
+.hm-app .ability-block .ability-dropdown,
+.hm-app .ability-block .ability-score {
   width: 100%;
-  max-width: 100%;
+  font-size: var(--font-size-13);
+  text-align: center;
 }
 
-.hm-app .hm-app-tab-content color-picker input[type='color'] {
-  width: 30px;
-  min-width: 30px;
-  max-width: 35%;
+.hm-app .ability-block .ability-score {
+  margin-bottom: 1.25rem;
 }
 
-/* Ring effects */
-.hm-app .hm-app-tab-content .ring-effects {
+/* Primary ability highlight */
+.ability-block .ability-label.primary-ability,
+.ability-block.point-buy .ability-label.primary-ability {
+  color: #ffd700;
+  text-shadow: 0 -0.3rem 1.25rem #ffd70099;
+  animation: primary-ability-pulse 2s infinite ease-in-out;
+}
+
+.ability-dropdown.primary-ability {
+  box-shadow: 0 0 0.3rem 0.3rem #ffd70099;
+}
+
+.ability-dropdown option.hm-used-elsewhere {
+  background-color: var(--user-color);
+}
+
+/* Point Buy */
+.ability-container.point-buy {
+  gap: 0.125rem;
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+  height: unset;
+  margin: 0 0.5rem 0.5rem;
 }
 
-.hm-app .hm-app-tab-content .ring-effects .checkbox-label {
-  width: calc(100% - 120px);
-  margin-left: 0;
-  padding-left: 0.313rem;
+.ability-block.point-buy {
+  display: flex;
+  flex-grow: 0;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 16%;
+  max-width: 16%;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius-lg);
+  text-align: center;
 }
 
-/* Customization Application */
-.customization-application .form-group,
-.customization-application .form-group .form-group,
-.customization-application .form-group .flex.items-center {
-  gap: unset;
-  width: 100%;
+.ability-block.point-buy .ability-label {
+  gap: 0.2rem;
+  font-weight: bold;
 }
 
-.customization-application .form-group .flex.items-center .form-input {
-  gap: unset;
-  width: 100%;
-  max-width: 100%;
+.ability-block.point-buy .control-row {
+  gap: 0.313rem;
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.313rem;
 }
 
-.customization-application .flex.items-center button.file-picker {
-  aspect-ratio: 1/1;
+.ability-block.point-buy .adjust-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: auto;
-  height: 100%;
-  margin-left: 0.3rem;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--border-radius-md);
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 
-.customization-application .flex.items-center button.file-picker i {
+.ability-block.point-buy .score-value {
+  min-width: 40px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.hm-app .ability-block.point-buy .current-score {
+  display: inline-block;
+  min-width: 0.5rem;
+  text-align: center;
+}
+
+/* Point buy remaining points */
+.remaining-points-container {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.remaining-label,
+.points-display {
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+#remaining-points {
+  margin-right: 0.2rem;
+  color: var(--text-color-highlight, #4cae4f);
+}
+
+#total-points {
+  margin-left: 0.2rem;
+}
+
+/* Settings container */
+.ability-scores-container {
+  width: 60%;
+}
+
+.ability-scores-container input[type='number'] {
+  width: 40px;
+  text-align: center;
+}
+
+/* ==========================================================================
+  Equipment Section
+ ========================================================================== */
+
+/* Table and cell constraints */
+table.equipment-item {
+  width: 100%;
+  border-bottom: 1px solid var(--color-border-dark-secondary);
+  table-layout: fixed;
+}
+
+/* Header cells with long equipment lists */
+table.equipment-item th {
+  overflow-wrap: break-word;
+  max-width: 100%;
+  padding: 0.25rem;
+  text-align: left;
+  hyphens: auto;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+/* Fix content links */
+.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link {
+  overflow-wrap: break-word;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 0 0 0.2rem;
+  padding: 0;
+  border: none;
+  white-space: normal;
+  white-space: normal;
+  word-break: break-all;
+}
+
+/* Fix select elements and options */
+.equipment-choices select,
+.equipment-choices select option {
+  overflow-wrap: break-word;
+  width: 100%;
+  white-space: normal;
+}
+
+/* Improve responsiveness for equipment section */
+@media (width <= 768px) {
+  table.equipment-item th h4.parent-label {
+    font-size: 0.8rem;
+  }
+}
+
+.equipment-container {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius-xl);
+  background: var(--color-background-alt);
+}
+
+.equipment-choices {
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: grid;
+}
+
+.class-equipment-section,
+.background-equipment-section {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 0.25rem;
+  padding: 1rem;
+  border: 1px solid #6f6f6f;
+  border-radius: var(--border-radius-lg);
+}
+
+/* Equipment Tables */
+table.equipment-item,
+table.wealth-option-container {
+  display: table;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border-collapse: collapse;
+}
+
+table.equipment-item tr,
+table.wealth-option-container tr {
+  display: table-row;
+  background: transparent;
+}
+
+table.equipment-item th,
+table.equipment-item td,
+table.wealth-option-container th,
+table.wealth-option-container td {
+  display: table-cell;
+  vertical-align: middle;
+  background: transparent;
+}
+
+table.equipment-item td {
+  padding: 0.25rem;
+}
+
+table.equipment-item td:first-child {
+  width: 75%;
+}
+
+table.equipment-item td:last-child {
+  width: 25%;
+  text-align: right;
+}
+
+table.equipment-item tr + tr,
+table.wealth-option-container tr + tr {
+  width: 100%;
+  margin-top: 0;
+}
+
+/* Headings */
+.hm-app-tab-content .class-equipment-section h3,
+.hm-app-tab-content .background-equipment-section h3 {
+  width: 100%;
+  margin-bottom: unset;
+  text-align: center;
+}
+
+.hm-app-tab-content .class-equipment-section h4,
+.hm-app-tab-content .background-equipment-section h4 {
+  font-size: var(--font-size-15);
+  font-family: signika, sans-serif;
+}
+
+/* Form elements */
+.equipment-item label,
+.equipment-item input,
+.equipment-item select {
+  width: fit-content;
+  margin-top: 0.2rem;
+  margin-right: auto;
+  vertical-align: middle;
+}
+
+.equipment-choices input[type='checkbox'] {
+  flex-shrink: 0;
+  margin: 0 0.5rem 0.2rem 0;
+}
+
+.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices select {
+  display: block;
+  width: auto;
+  min-width: 140px;
+  max-width: 100%;
+  margin: 0.25rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link i {
+  margin: 0 0.2rem 0 0;
+  font-size: inherit;
+}
+
+/* Wealth options */
+table.wealth-option-container {
+  margin: 0.625rem 0 1rem;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: var(--border-radius-sm);
+}
+
+table.wealth-option-container tr:first-child td:first-child {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+table.wealth-option-container td {
+  padding: 0.5rem 0.625rem;
+  vertical-align: middle;
+}
+
+table.wealth-option-container label {
+  margin: 0;
+  padding-top: 0.0625rem;
+  font-weight: 500;
+}
+
+table.wealth-option-container input[type='checkbox'] {
   margin: 0;
 }
+
+tr.wealth-roll-container td {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem 0.625rem;
+}
+
+.wealth-roll-container input[type='text'] {
+  flex: 1;
+  min-width: 80px;
+  max-width: 120px;
+  margin: 0;
+}
+
+.wealth-roll-button {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--border-radius-sm);
+}
+
+.wealth-roll-button i {
+  margin: 0;
+}
+
+.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices .wealth-roll-container input[type='text'] {
+  width: fit-content;
+  min-width: 0.001rem;
+  max-width: 75px;
+  padding-right: 0.625rem;
+  text-align: center;
+}
+
+/* Favorites */
+.equipment-favorite-container {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 1.2rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  text-align: right;
+}
+
+.equipment-favorite-label {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  float: right;
+  height: 100%;
+  cursor: pointer;
+}
+
+.equipment-favorite-checkbox {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.equipment-choices .equipment-favorite-container .equipment-favorite-label .equipment-favorite-checkbox {
+  position: absolute;
+}
+
+.equipment-favorite-star {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1rem;
+  height: 1rem;
+  color: #aaa;
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+}
+
+.equipment-favorite-checkbox:checked + .equipment-favorite-star {
+  color: #ffd700;
+}
+
+.equipment-favorite-checkbox:hover + .equipment-favorite-star {
+  color: #f0b400;
+}
+
+td .equipment-favorite-container {
+  display: block;
+  height: 100%;
+  text-align: right;
+}
+
+/* Empty notices */
+.equipment-empty-notice {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0.625rem 0;
+  padding: 0.5rem;
+  border: 1px solid var(--color-level-error-border);
+  border-radius: var(--border-radius-md);
+}
+
+.equipment-missing-warning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+}
+
+.warning-icon {
+  color: var(--color-level-error);
+  font-size: 2rem;
+}
+
+/* States and visibility */
+.equipment-item.disabled select,
+.equipment-item.disabled input[type='checkbox'],
+.equipment-item.disabled label {
+  pointer-events: none;
+}
+
+.equipment-choices select:disabled,
+.equipment-choices input:disabled,
+.equipment-choices label.disabled,
+.equipment-choices h4:disabled {
+  opacity: 0.5;
+  color: #878787;
+  cursor: not-allowed;
+}
+
+.equipment-item.disabled .equipment-favorite-container {
+  display: none;
+}
+
+tr.wealth-roll-container[hidden],
+tr.wealth-roll-container[style*='display: none'] {
+  display: none;
+}
+
+tr.wealth-roll-container:not([hidden]),
+tr.wealth-roll-container[style*='display: table-row'] {
+  display: table-row;
+}
+
+/* ==========================================================================
+  Biography Tab
+ ========================================================================== */
+
+.hm-app-tab-content .characteristics-section .form-input,
+.hm-app-tab-content .characteristics-section .form-select {
+  flex: 3;
+  min-width: 100%;
+}
+
+/* Personality traits */
+.hm-app-tab-content .personality-trait-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-md);
+}
+
+.hm-app-tab-content .personality-trait-group textarea {
+  min-height: 180px;
+  resize: none;
+}
+
+/* Physical description */
+.hm-app-tab-content .physical-description-section textarea {
+  width: 100%;
+  min-height: 7.5rem;
+  resize: none;
+}
+
+.hm-app-tab-content .biography-tab h2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.hm-app-tab-content .biography-tab label {
+  font-size: var(--font-size-16);
+}
+
+.hm-app-tab-content .input-with-roll textarea {
+  flex: 1;
+  min-height: 7.5rem;
+  font-size: var(--font-size-14);
+  font-family: var(--font-h3);
+  resize: none;
+}
+
+/* Notes section */
+.hm-app-tab-content .notes-grid {
+  gap: 0.625rem;
+  display: grid;
+}
+
+.hm-app-tab-content .notes-group prose-mirror {
+  width: 100%;
+  min-height: 260px;
+}
+
+.hm-app-tab-content .personal-char-section button {
+  gap: 0.094rem;
+  display: flex;
+  align-items: center;
+  align-self: center;
+  width: 60px;
+  height: 30px;
+}
+
+/* ==========================================================================
+  Review/Finalize Tab
+ ========================================================================== */
+
+.hm-app-tab-content .review-container {
+  max-width: 100%;
+  padding: 0 0.5rem;
+}
+
+.hm-app-tab-content .review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hm-app-tab-content .review-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.hm-app-tab-content .review-header .character-portrait {
+  width: 80px;
+  height: 80px;
+}
+
+.hm-app-tab-content .review-header .character-portrait img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.hm-app-tab-content .character-summary {
+  display: block;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.hm-app-tab-content .character-summary span {
+  display: inline;
+  line-height: 1.4;
+}
+
+.hm-app-tab-content .review-container .content-link {
+  border: unset;
+  background: unset;
+}
+
+/* Review layout */
+.hm-app-tab-content .review-sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-app-tab-content .review-section-row {
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  display: grid;
+}
+
+.hm-app-tab-content .review-section {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: 0.375rem;
+  background: #00000005;
+}
+
+.hm-app-tab-content .review-section h3 {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light-secondary);
+  font-size: 1.1em;
+}
+
+.hm-app-tab-content .review-section h3 i {
+  flex-shrink: 0;
+  color: var(--user-color);
+}
+
+.hm-app-tab-content .review-content {
+  font-size: 0.95em;
+}
+
+.hm-app-tab-content .review-item {
+  display: flex;
+  padding-top: 0.375rem;
+  line-height: 1.4;
+}
+
+.hm-app-tab-content .review-label {
+  min-width: 100px;
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+/* Abilities grid */
+.hm-app-tab-content .abilities-grid {
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  display: grid;
+}
+
+.hm-app-tab-content .ability-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.2rem;
+  background: #00000008;
+}
+
+.hm-app-tab-content .ability-label {
+  font-weight: bold;
+}
+
+/* Equipment layout */
+.hm-app-tab-content .equipment-layout {
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+  display: grid;
+}
+
+.hm-app-tab-content .background-equipment,
+.hm-app-tab-content .class-equipment {
+  padding-top: 0.5rem;
+}
+
+.hm-app-tab-content .background-equipment h4,
+.hm-app-tab-content .class-equipment h4 {
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--color-border-light-tertiary);
+  font-size: var(--font-h5-size);
+  text-align: center;
+}
+
+.hm-app-tab-content .background-items,
+.hm-app-tab-content .class-items {
+  padding-top: 0.2rem;
+}
+
+.hm-app-tab-content .equipment-wealth {
+  font-style: italic;
+}
+
+/* Biography preview */
+.hm-app-tab-content .bio-preview {
+  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-app-tab-content .bio-main {
+  padding: 0.5rem;
+  border-radius: 0.2rem;
+  font-style: italic;
+  line-height: 1.5;
+  background: #00000008;
+}
+
+.hm-app-tab-content .final-notes {
+  font-style: italic;
+  text-align: center;
+}
+
+.hm-app-tab-content .bio-detail {
+  margin-top: 0.375rem;
+}
+
+.hm-app-tab-content .bio-detail h4 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.2rem;
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.hm-app-tab-content .bio-detail h4::before {
+  margin-right: 0.375rem;
+  color: var(--color-text-hyperlink);
+  content: '•';
+}
+
+.hm-app-tab-content .backstory-text {
+  max-height: 120px;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: 0.2rem;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+  Compendium Settings & Dialogs
+ ========================================================================== */
 
 /* Popup sections */
 .hm-compendiums-popup-section {
@@ -1559,6 +1672,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .hm-compendiums-popup-section p {
   flex: 1;
   margin: 0;
+  white-space: nowrap;
 }
 
 .hm-compendiums-popup-section button {
@@ -1598,27 +1712,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   max-height: calc(100vh - 200px);
 }
 
-/* Multi-checkbox layout */
-.hm-compendiums-popup-dialog multi-checkbox {
-  display: block;
-  max-height: calc(50vh - 100px);
-  padding-right: 0.5rem;
-  overflow-y: auto;
-}
-
-.hm-compendiums-popup-dialog multi-checkbox label.checkbox {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.625rem;
-  padding: 0.25rem 0;
-}
-
-.hm-compendiums-popup-dialog multi-checkbox label.checkbox input[type='checkbox'] {
-  order: 1;
-  margin-left: 0.625rem;
-}
-
 /* Compendium groups */
 .hm-compendium-groups {
   overflow-y: auto;
@@ -1644,35 +1737,203 @@ tr.wealth-roll-container[style*='display: table-row'] {
   padding: 0;
 }
 
-/* ==========================================================================
-  Troubleshooter
-  ========================================================================== */
-
-.hm-troubleshooter-container textarea {
-  width: 100%;
-  margin-bottom: 0.625rem;
-  overflow-x: hidden;
-  font-size: var(--font-size-12);
-  font-family: monospace;
-  white-space: pre-wrap;
-  resize: none;
+/* Multi-checkbox layout */
+.hm-compendiums-popup-dialog multi-checkbox {
+  display: block;
+  max-height: calc(50vh - 100px);
+  padding-right: 0.5rem;
+  overflow-y: auto;
 }
 
-.troubleshooter-buttons {
-  gap: 0.625rem;
+.hm-compendiums-popup-dialog multi-checkbox label.checkbox,
+.hm-compendiums-popup-dialog .checkbox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+  padding: 0.25rem 0;
+}
+
+.hm-compendiums-popup-dialog multi-checkbox label.checkbox input[type='checkbox'] {
+  order: 1;
+}
+
+.hm-compendiums-popup-dialog .checkbox input[type='checkbox'] {
+  margin-right: 0.625rem;
+}
+
+/* Compendium dialog content */
+.hm-compendium-dialog-content {
+  max-height: calc(80vh - 150px);
+  padding-right: 0.5rem;
+  overflow-y: auto;
+}
+
+.hm-compendium-dialog-content hr {
+  margin: 0.5rem 0;
+}
+
+.hm-compendium-dialog-content .checkbox span {
+  flex: 1;
+  text-align: left;
+}
+
+/* Select all buttons */
+.hm-select-all,
+.hm-select-all-global {
+  margin-right: 0.5rem;
+}
+
+/* ==========================================================================
+  Character Customization Menu
+  ========================================================================== */
+
+/* Customization Application */
+.customization-application .form-group,
+.customization-application .form-group .form-group,
+.customization-application .form-group .flex.items-center {
+  gap: unset;
+  width: 100%;
+}
+
+.customization-application .form-group .flex.items-center .form-input {
+  gap: unset;
+  width: 100%;
+  max-width: 100%;
+}
+
+.customization-application .flex.items-center button.file-picker {
+  aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  width: auto;
+  height: 100%;
+  margin-left: 0.3rem;
 }
 
-.troubleshooter-buttons button {
-  gap: 0.313rem;
+.customization-application .flex.items-center button.file-picker i {
+  margin: 0;
+}
+
+/* Input and Color Picker */
+.hm-app .hm-app-tab-content .input-35,
+.hm-app .hm-app-tab-content color-picker {
   display: flex;
-  align-items: center;
+  flex: 1;
+  max-width: 35%;
+}
+
+.hm-app .hm-app-tab-content color-picker input[type='text'] {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+}
+
+.hm-app .hm-app-tab-content color-picker input[type='color'] {
+  width: 30px;
+  min-width: 30px;
+  max-width: 35%;
+}
+
+/* Ring Effects */
+.hm-app .hm-app-tab-content .ring-effects {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hm-app .hm-app-tab-content .ring-effects .checkbox-label {
+  width: calc(100% - 120px);
+  margin-left: 0;
+  padding-left: 0.313rem;
 }
 
 /* ==========================================================================
-  Mandatory Fields and Validation
+  Ability Score Generation Menu
   ========================================================================== */
+
+/* Dice Rolling popup base styles */
+.hm-dice-rolling-popup .form-group {
+  gap: unset;
+}
+
+/* Dice method options layout */
+.dice-method-options {
+  gap: 1rem;
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.dice-method-options label {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.dice-method-options input[type='checkbox'] {
+  margin: 0;
+}
+
+/* Delay control slider styling */
+.delay-control {
+  gap: 1rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.delay-control input[type='range'] {
+  flex: 1;
+}
+
+.delay-value {
+  min-width: 60px;
+  font-weight: bold;
+  text-align: right;
+}
+
+/* Ability scores container styling */
+.hm-dice-rolling-popup .ability-scores-container {
+  gap: 0.5rem;
+  display: grid;
+  width: 100%;
+  max-width: 400px;
+  margin: 0.5rem 0 1rem;
+}
+
+.hm-dice-rolling-popup .ability-scores-container label {
+  margin-bottom: 0.3rem;
+}
+
+.hm-dice-rolling-popup .ability-scores-container input[type='number'] {
+  width: 60px;
+  text-align: center;
+}
+
+/* Info tooltip alignment */
+.hm-dice-rolling-popup .tooltip-icon {
+  margin-left: 0.3rem;
+}
+
+/* ==========================================================================
+  Field Layout & Mandatory Fields
+  ========================================================================== */
+
+/* Base field layout */
+.field-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.field-column .field-group {
+  margin-bottom: 0.4rem;
+  border: 1px solid var(--color-border-light-tertiary);
+  border-radius: var(--border-radius-md);
+}
 
 /* Mandatory fields popup */
 .hm-mandatory-fields-popup {
@@ -1723,553 +1984,70 @@ tr.wealth-roll-container[style*='display: table-row'] {
   margin: 0;
 }
 
-.mandatory-indicator {
-  display: inline-flex;
-  flex-shrink: 0;
+/* Footer specific styling */
+.hm-mandatory-footer {
+  display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 0.25rem;
-  font-size: 1.1rem;
-}
-
-.mandatory-indicator.complete {
-  color: #8fd693;
-  text-shadow: 0 0 0.2rem #2e7d324d;
-}
-
-.mandatory-indicator.incomplete {
-  color: #ffb675;
-  text-shadow: 0 0 0.2rem #e539354d;
-}
-
-.theme-light .mandatory-indicator.complete {
-  color: #123013;
-  text-shadow: 0 0 0.2rem #2e7d324d;
-}
-
-.theme-light .mandatory-indicator.incomplete {
-  color: #5a0101;
-  text-shadow: 0 0 0.2rem #e539354d;
-}
-
-/* Field validation styling */
-.form-row > label,
-.art-selection-row > label,
-.customization-row > label,
-.ability-block > span.ability-label,
-.ability-block > label,
-.form-group > label,
-.trait-group > label,
-.personality-trait-group > label,
-.description-group > label,
-.notes-group > label,
-.notes-section > h3 {
-  gap: 0.5rem;
-  display: flex;
-  position: relative;
-  align-items: center;
-}
-
-.notes-section:has(prose-mirror.mandatory-field) > h3 {
-  gap: 0.5rem;
-  display: flex;
-  position: relative;
-  align-items: center;
-}
-
-/* Dice Rolling popup */
-.hm-dice-rolling-popup .form-group {
-  gap: unset;
+  padding: 0.625rem;
 }
 
 /* ==========================================================================
-  Form Elements
+  Troubleshooter
   ========================================================================== */
 
-.form-row,
-.art-selection-row,
-.customization-row {
-  gap: 0.625rem;
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.625rem;
+/* Container styling */
+.hm-troubleshooter-container {
+  padding: 0.5rem;
 }
 
-.form-input,
-.form-select,
-.hm-app-tab-content fieldset input[type='text'],
-.hm-app-tab-content fieldset select {
-  width: 100%;
-  max-width: 200px;
-  margin: 0 0.3rem;
-}
-
-/* Label styles */
-.label-15 {
-  flex: 0 0 20%;
-  margin-right: 0.3rem;
-  white-space: nowrap;
-}
-
-.label-43 {
-  gap: 0.313rem;
-  display: flex;
-  flex: 0 0 43%;
-  flex-shrink: 0;
-  align-items: center;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-.checkbox-label {
-  flex: 1;
-  margin-left: 0.313rem;
-}
-
-/* Button styles */
-.button-7 {
-  flex: 0 0 auto;
-  width: auto;
-  height: 2rem;
-  white-space: nowrap;
-}
-
-button {
-  margin-right: unset;
-}
-
-/* Fieldset styling */
-.application.hm-app fieldset {
-  min-width: 0;
-  min-height: 0;
-  max-height: 100%;
-  margin: 1rem 0;
-  padding: 1rem 2rem;
-  border: 1px solid var(--user-color);
-  border-radius: 0.375rem;
-  overflow: auto;
-  overflow-x: hidden;
-}
-
-.application.hm-app fieldset > legend {
-  padding: 0 0.5rem;
-  text-transform: uppercase;
-}
-
-.application.hm-app fieldset > .empty {
-  padding: 0.375rem;
-  color: var(--color-text-primary);
+.hm-troubleshooter-container .notes {
+  margin-bottom: 1rem;
   font-style: italic;
-  text-align: center;
 }
 
-.hm-app .form-group .hint {
-  color: var(--color-text-light-primary);
-}
-
-.application.hm-app fieldset:disabled .form-group label,
-.application.hm-app fieldset:disabled .hint {
-  color: var(--color-text-primary);
-}
-
-/* Form groups */
-.hm-app .form-group {
-  gap: 0.313rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.hm-app .form-group select {
-  width: fit-content;
-  min-width: 120px;
-  max-width: 200px;
-}
-
-/* Tooltip functionality */
-.tooltip-icon {
-  color: var(--color-text-dark-secondary);
-  transition: color 0.5s ease;
-}
-
-.tooltip-icon:hover {
-  color: var(--user-color);
-}
-
-.heading-tooltip {
-  font-size: var(--font-size-14);
-  vertical-align: middle;
-}
-
-/* ==========================================================================
-  Finalize Tab - Summary Section
-  ========================================================================== */
-
-.hm-app-tab-content .summary-section {
-  gap: 0.625rem;
-  grid-template-areas: 'portrait summary';
-  display: grid;
-  margin-bottom: 1.25rem;
-  line-height: 1.9;
-}
-
-.hm-app-tab-content .character-portrait {
-  gap: 0.313rem;
-  grid-area: portrait;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.hm-app-tab-content .character-portrait img {
-  object-fit: cover;
-  width: 9.5rem;
-  height: 9.5rem;
-  border: 1px solid #666;
-  border-radius: var(--border-radius-md);
-}
-
-.hm-app-tab-content .character-name {
-  font-size: 1.2rem;
-}
-
-.message-content .character-summary {
-  line-height: 1.25rem;
-}
-
-.message-content .character-summary h3 {
-  margin-top: 0.625rem;
-}
-
-.message-content .summaries {
-  margin-top: 0.3rem;
-}
-
-.message-content .character-summary a.content-link {
-  padding: unset;
-  border: none;
-  background: none;
-}
-
-/* Target the ability table specifically */
-.message-content .character-summary .ability-scores-summary .ability-table {
+/* Textarea styling */
+.hm-troubleshooter-container textarea {
   width: 100%;
-  margin: 0.625rem 0;
-  border-collapse: collapse;
+  margin-bottom: 0.625rem;
+  overflow-x: hidden;
+  font-size: var(--font-size-12);
+  font-family: monospace;
+  white-space: pre-wrap;
+  resize: none;
 }
 
-/* Make all cells equal width */
-.message-content .character-summary .ability-scores-summary .ability-table th,
-.message-content .character-summary .ability-scores-summary .ability-table td {
-  width: 33.33%;
-  padding: 0.125rem;
-  text-align: center;
-}
-
-/* Style table headers */
-.message-content .character-summary .ability-scores-summary .ability-table th {
-  font-weight: bold;
-  background-color: #e8e8e8;
-}
-
-/* Apply soft colors to each column */
-.message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(1) {
-  font-size: var(--font-size-11);
-  background-color: #f3a0a0;
-}
-
-.message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(2) {
-  font-size: var(--font-size-11);
-  background-color: #bbadeb;
-}
-
-.message-content .character-summary .ability-scores-summary .ability-table tr td:nth-child(3) {
-  font-size: var(--font-size-11);
-  background-color: #88e788;
-}
-
-/* Add some subtle borders */
-.message-content .character-summary .ability-scores-summary .ability-table,
-.message-content .character-summary .ability-scores-summary .ability-table th,
-.message-content .character-summary .ability-scores-summary .ability-table td {
-  border: 1px solid #ddd;
-}
-
-.message-content .character-summary .currency-icon {
-  width: 1rem;
-  height: 1rem;
-  margin-right: 0.3rem;
-  border: none;
-  vertical-align: middle;
-}
-
-.message-content .character-summary .starting-wealth {
+/* Button container */
+.troubleshooter-buttons {
+  gap: 0.625rem;
   display: flex;
-  align-items: center;
-}
-
-.hm-app-tab-content section {
+  justify-content: center;
   margin-top: 1rem;
 }
 
-.hm-app-tab-content section.first-section {
-  margin-top: 0;
-}
-
-.hm-app-tab-content h3 {
-  margin-bottom: 0.625rem;
-  border-bottom: 1px solid #666;
-}
-
-.hm-app-tab-content .characteristics-section .form-input,
-.hm-app-tab-content .characteristics-section .form-select {
-  flex: 3;
-  min-width: 100%;
-}
-
-/* Personality trait groups */
-.hm-app-tab-content .personality-trait-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--spacing-md);
-}
-
-.hm-app-tab-content .personality-trait-group textarea {
-  min-height: 180px;
-  resize: none;
-}
-
-/* Physical description section */
-.hm-app-tab-content .physical-description-section textarea {
-  width: 100%;
-  min-height: 7.5rem;
-  resize: none;
-}
-
-.hm-app-tab-content .biography-tab h2 {
-  margin-bottom: 0.5rem !important;
-}
-
-.hm-app-tab-content .biography-tab label {
-  font-size: var(--font-size-16);
-}
-
-.hm-app-tab-content .input-with-roll textarea {
-  flex: 1;
-  min-height: 7.5rem;
-  font-size: var(--font-size-14);
-  font-family: var(--font-h3);
-  resize: none;
-}
-
-/* Notes section */
-.hm-app-tab-content .notes-grid {
-  gap: 0.625rem;
-  display: grid;
-}
-
-.hm-app-tab-content .notes-group prose-mirror {
-  width: 100%;
-  min-height: 260px;
-}
-
-.hm-app-tab-content .personal-char-section button {
-  gap: 0.094rem;
+/* Button styling */
+.troubleshooter-buttons button {
+  gap: 0.313rem;
   display: flex;
   align-items: center;
-  align-self: center;
-  width: 60px;
-  height: 30px;
 }
 
-.hm-app-tab-content .review-container {
-  max-width: 100%;
-  padding: 0 0.5rem;
+.troubleshooter-buttons button i {
+  margin-right: 0.3rem;
 }
 
-.hm-app-tab-content .review-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Window sizing */
+.application.hm-troubleshooter {
+  min-width: 600px;
 }
 
-.hm-app-tab-content .review-header h2 {
-  margin: 0;
-  font-size: 1.5em;
-  flex: 1;
-}
-
-.hm-app-tab-content .review-header .character-portrait {
-  width: 80px;
-  height: 80px;
-}
-
-.hm-app-tab-content .review-header .character-portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hm-app-tab-content .character-summary {
-  display: block;
-  line-height: 1.8;
-  text-align: left;
-}
-
-.hm-app-tab-content .character-summary span {
-  display: inline;
-  line-height: 1.4;
-}
-
-.hm-app-tab-content .review-container .content-link {
-  background: unset;
-  border: unset;
-}
-
-.hm-app-tab-content .review-sections {
-  display: flex;
-  flex-direction: column;
-}
-
-.hm-app-tab-content .review-section-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.hm-app-tab-content .review-section {
-  background: #00000005;
-  border: 1px solid var(--color-border-light-tertiary);
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-}
-
-.hm-app-tab-content .review-section h3 {
-  font-size: 1.1em;
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border-light-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.hm-app-tab-content .review-section h3 i {
-  color: var(--user-color);
-  flex-shrink: 0;
-}
-
-.hm-app-tab-content .review-content {
-  font-size: 0.95em;
-}
-
-.hm-app-tab-content .review-item {
-  display: flex;
-  padding-top: 0.375rem;
-  line-height: 1.4;
-}
-
-.hm-app-tab-content .review-label {
-  font-weight: bold;
-  margin-right: 0.5rem;
-  min-width: 100px;
-}
-
-.hm-app-tab-content .abilities-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-}
-
-.hm-app-tab-content .ability-item {
-  display: flex;
-  justify-content: space-between;
-  background: #00000008;
-  padding: 0.375rem 0.5rem;
-  border-radius: 0.2rem;
-}
-
-.hm-app-tab-content .ability-label {
-  font-weight: bold;
-}
-
-.hm-app-tab-content .equipment-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.hm-app-tab-content .background-equipment,
-.hm-app-tab-content .class-equipment {
-  padding-top: 0.5rem;
-}
-
-.hm-app-tab-content .background-equipment h4,
-.hm-app-tab-content .class-equipment h4 {
-  text-align: center;
-  font-size: var(--font-h5-size);
-  padding-bottom: 0.375rem;
-  border-bottom: 1px solid var(--color-border-light-tertiary);
-}
-
-.hm-app-tab-content .background-items,
-.hm-app-tab-content .class-items {
-  padding-top: 0.2rem;
-}
-
-.hm-app-tab-content .equipment-wealth {
-  font-style: italic;
-}
-
-.hm-app-tab-content .bio-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.hm-app-tab-content .bio-main {
-  font-style: italic;
+.application.hm-troubleshooter .window-content {
   padding: 0.5rem;
-  background: #00000008;
-  border-radius: 0.2rem;
-  line-height: 1.5;
-}
-
-.hm-app-tab-content .bio-detail {
-  margin-top: 0.375rem;
-}
-
-.hm-app-tab-content .bio-detail h4 {
-  font-weight: bold;
-  margin-bottom: 0.2rem;
-  font-size: 1em;
-  display: flex;
-  align-items: center;
-}
-
-.hm-app-tab-content .bio-detail h4::before {
-  content: '•';
-  margin-right: 0.375rem;
-  color: var(--color-text-hyperlink);
-}
-
-.hm-app-tab-content .backstory-text {
-  max-height: 120px;
-  overflow-y: auto;
-  padding: 0.5rem;
-  border: 1px solid var(--color-border-light-tertiary);
-  border-radius: 0.2rem;
-  line-height: 1.5;
-}
-
-.hm-app-tab-content .final-notes {
-  text-align: center;
-  font-style: italic;
 }
 
 /* ==========================================================================
-  Animations
-  ========================================================================== */
+  Animations & Transitions
+ ========================================================================== */
 
 /* Primary ability animations */
 @keyframes primary-ability-pulse {
@@ -2315,7 +2093,7 @@ button {
   }
 }
 
-/* Animation for dice rolling */
+/* Dice rolling animation */
 @keyframes roll-dice {
   0% {
     color: var(--color-text-hyperlink);
@@ -2369,15 +2147,11 @@ button {
   animation: roll-dice 1.2s ease-in-out;
 }
 
-/* ==========================================================================
-  Transitions
- ========================================================================== */
-
+/* Journal content transitions */
 .hm-app-tab-content .journal-container.loading {
   opacity: 0.7;
 }
 
-/* Journal content transitions */
 .journal-page-content {
   opacity: 0;
   animation: fade-in 0.3s ease forwards;
@@ -2395,7 +2169,7 @@ button {
 
 /* ==========================================================================
   Media Queries
-  ========================================================================== */
+ ========================================================================== */
 
 @media (width <= 999px) {
   /* Application container */
@@ -2491,4 +2265,72 @@ button {
     padding: 0.25rem 0.5rem;
     font-size: var(--font-size-13);
   }
+}
+
+/* ==========================================================================
+  Light Theme Overrides
+ ========================================================================== */
+
+.theme-light .application.hm-app hr,
+.theme-light .hm-compendiums-popup-dialog hr {
+  background-image: linear-gradient(90deg, transparent 0%, #362417 50%, transparent 100%);
+}
+
+.theme-light .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
+  color: #5a0101;
+}
+
+.theme-light .hm-app .form-group .hint {
+  color: var(--light-mode-font-color);
+  text-shadow: none;
+}
+
+.theme-light .mandatory-indicator.complete {
+  color: #123013;
+}
+
+.theme-light .mandatory-indicator.incomplete {
+  color: #5a0101;
+}
+
+.theme-light .ability-block .ability-label.primary-ability,
+.theme-light .ability-block.point-buy .ability-label.primary-ability {
+  text-shadow:
+    -1px -1px 1px #000000b3,
+    1px -1px 1px #000000b3,
+    -1px 1px 1px #000000b3,
+    1px 1px 1px #000000b3,
+    0 0 0.3rem #ffd70099;
+  animation: primary-ability-pulse-light 2s infinite ease-in-out;
+}
+
+.theme-light #remaining-points {
+  text-shadow:
+    -1px -1px 0.5px #000c,
+    1px -1px 0.5px #000c,
+    -1px 1px 0.5px #000c,
+    1px 1px 0.5px #000c;
+}
+
+.theme-light #total-points {
+  text-shadow:
+    -0.5px -0.5px 0.5px #000000b3,
+    0.5px -0.5px 0.5px #000000b3,
+    -0.5px 0.5px 0.5px #000000b3,
+    0.5px 0.5px 0.5px #000000b3;
+}
+
+.theme-light .hm-app-tab-content h2,
+.theme-light .hm-app-tab-content h3 {
+  color: var(--light-mode-font-color);
+  text-shadow: 1px 1px 1px #000;
+}
+
+.theme-light .hm-app-tab-content h4 {
+  color: var(--light-mode-font-color);
+  text-shadow: none;
+}
+
+.theme-light .hm-troubleshooter textarea {
+  color: var(--light-mode-font-color);
 }

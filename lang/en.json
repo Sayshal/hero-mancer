@@ -9,8 +9,6 @@
     "app": {
       "abilities": {
         "decrease": "-1",
-        "default": "prides themself on their impressive abilities",
-        "excels": "excels in",
         "increase": "+1",
         "instructions": {
           "chained-rolls": "Your DM has enabled Chained Rolls. Simply click on one of the dice above to roll all your stats. Don't worry! You can individually re-roll entries, assuming your DM allows it.",
@@ -32,7 +30,6 @@
             "title": "Stat Generation Method: Standard Array"
           }
         },
-        "label": "Ability",
         "methods": {
           "manual": "Manual",
           "pointBuy": "Point Buy",
@@ -45,7 +42,6 @@
         "select-method": "Select stat method",
         "select-placeholder": "Choose",
         "select-value": "Select a value",
-        "summary": "{action} {first} and {second}",
         "tooltip": "Select and assign abilities",
         "your-class": "your class"
       },
@@ -55,7 +51,6 @@
         "preamble": "Choose your character's background from the available options.",
         "select-label": "Background",
         "select-placeholder": "Choose a background",
-        "summary": "Starting as {article} {name}",
         "tooltip": "Select a background for your character"
       },
       "biography": {
@@ -66,7 +61,6 @@
         "backstory-placeholder": "Write a backstory for your character. Consider what organizations they belong to, any allies they've made or enemies they've earned, and other important details from their life before becoming an adventurer.",
         "bonds-placeholder": "Who or what is most dear to your character? What place feels like home? What object means everything to them? Press the Roll button to draw from bonds suggested by your background.",
         "bonds-placeholder-alt": "Who or what is most dear to your character? What place feels like home? What object means everything to them?",
-        "character-details": "Character Details",
         "characteristics": "Characteristics",
         "description-hint": "When you look in the mirror, what do you see? Immerse yourself in your characters physical identity!",
         "faith-hint": "Your DM determines which gods, if any, are worshiped in their campaign. From among the gods available, you can choose a single deity for your character to serve, worship, or pay lip service to. Not religious? Leave this blank!",
@@ -75,9 +69,7 @@
         "height-hint": "Your height is influenced by your race, but can vary outside the norms.",
         "ideals-placeholder": "What principles guide your character? What cause or belief drives them to adventure? What would they fight or die for? Press the Roll button to draw from ideals suggested by your background.",
         "ideals-placeholder-alt": "What principles guide your character? What cause or belief drives them to adventure? What would they fight or die for?",
-        "personal-characteristics": "Personal Characteristics",
         "personality-traits": "Personality Traits",
-        "physical-characteristics": "Physical Characteristics",
         "physical-description": "Physical Description",
         "roll-bonds": "Roll for bonds",
         "roll-flaws": "Roll for flaws",
@@ -100,6 +92,7 @@
         "select-placeholder": "Choose a class",
         "tooltip": "Select a class for your character"
       },
+      "creation-progress": "Completion progress",
       "document-service": {
         "common-labels": {
           "dndbeyond-importer": "DDB",
@@ -131,7 +124,6 @@
         "separator": ", ",
         "starting": "starting",
         "starting-equipment": "starting equipment",
-        "summary": "wielding {items} on their journey.",
         "tooltip": "Manage your character's equipment",
         "type-equipment": "{type} Equipment",
         "unknown-choice": "Unknown linked item.",
@@ -157,13 +149,9 @@
           "biography": "Biography Overview",
           "biography-format": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin.",
           "biography-format-with-faith": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin. A worshipper of {faith}.",
-          "bonds": "Bonds",
           "class-equipment": "Class Equipment",
           "equipment": "Equipment",
-          "flaws": "Flaws",
-          "ideals": "Ideals",
           "no-equipment": "No equipment selected",
-          "personality": "Personality Traits",
           "physical-description": "Physical Description",
           "starting-wealth": "Starting wealth: {amount}"
         },
@@ -174,7 +162,6 @@
           "backgroundDefault": "Starting as an adventurer,",
           "classRace": "this {race} {class}",
           "classRaceDefault": "this unknown race unknown class",
-          "default": "Starting as an adventurer, this unknown race unknown class prides themself on their impressive abilities and begins their adventure.",
           "equipment": "and begins their adventure with {items}.",
           "equipmentDefault": "and begins their adventure.",
           "no-items": "No items selected."
@@ -231,7 +218,6 @@
         "player-avatar": "Player Avatar",
         "player-avatar-placeholder": "Choose art for your player",
         "player-color": "Player Color",
-        "player-color-placeholder": "Choose a color for your player",
         "player-pronouns": "Player Pronouns",
         "player-pronouns-placeholder": "Choose your preferred pronouns",
         "preamble": {
@@ -241,6 +227,7 @@
         "select-art": "Select",
         "token-art-label": "Token Art",
         "token-art-placeholder": "Choose token art for your character",
+        "token-customization": "Token customization",
         "token-same-as-character": "Use same image for token?",
         "token-visibility-placeholder": "Choose display status",
         "tooltip": "Start your character creation"
@@ -278,26 +265,16 @@
       "actor-creation-failed": "Failed to create character. Please try again.",
       "advancement-process": "There was an error applying character advancements. Your character may be incomplete.",
       "advancement-processing-failed": "Error processing character advancements.",
-      "advancement-timeout": "Advancement process timed out. Please check your character sheet for completeness.",
       "art-picker-failed": "Failed to open character art picker",
       "avatar-picker-failed": "Failed to open player avatar picker",
-      "cache-error": "Error loading cached data. Character creation data will be refreshed.",
       "character-creation-failed": "Character creation failed. Please ensure all required fields are completed and that you have proper permissions to create characters.",
-      "cleanup-failed": "Failed to properly clean up some resources. You may need to refresh the page if you experience issues.",
-      "description-update": "Failed to update item description.",
       "document-preparation-failed": "Failed to prepare {type} documents: {error}",
-      "dropdown-initialization": "Failed to initialize dropdown options.",
       "equipment-rendering": "There was an error loading equipment. Please try a different selection or refresh the application.",
-      "event-handler-error": "An error occurred while processing an event.",
       "failed-compendium-retrieval": "Failed to retrieve compendiums: {type} {details}",
       "fetch-fail": "Failed to fetch some documents, please check console for errors.",
       "form-submission": "There was an error submitting the form. Please try again.",
       "invalid-document-type": "Invalid document type specified",
-      "missing-ability-fields": "Missing required ability scores: {fields} ({count} total)",
-      "missing-background-fields": "Missing required background details: {fields} ({count} total)",
-      "missing-basic-fields": "Missing required basic fields: {fields} ({count} total)",
       "missing-equipment": "The selected {type} doesn't contain any Starting Equipment data. Please report this to the creator of the item, not Hero Mancer. If you haven't selected a {type}, you can ignore this warning.",
-      "missing-mandatory-fields": "Required fields missing: {fields}",
       "no-background": "The selected background could not be found.",
       "no-class": "The selected class could not be found.",
       "no-race": "The selected race could not be found.",
@@ -309,7 +286,6 @@
       "select-background": "Please select a background before submitting.",
       "select-class": "Please select a class before submitting.",
       "select-race": "Please select a race before submitting.",
-      "tab-navigation": "There was an error navigating to the selected tab.",
       "token-art-picker-failed": "Failed to open token art picker"
     },
     "info": {
@@ -326,7 +302,6 @@
         "header": "Ability Score Limits",
         "invalid-point-buy": "Point buy total is too low. With minimum score of {min}, you need at least {totalNeeded} points.",
         "invalid-range": "Invalid ability score range. Please ensure Min ≤ Default ≤ Max.",
-        "invalid-standard-array": "Standard array values {values} are outside the allowed range ({min}-{max}).",
         "max": {
           "hint": "The highest value allowed for ability scores during character creation.",
           "name": "Max"
@@ -335,7 +310,6 @@
           "hint": "The lowest value allowed for ability scores during character creation.",
           "name": "Min"
         },
-        "standard-array-adjusted": "Some standard array values were outside the allowed range ({min}-{max}) and have been adjusted.",
         "standard-array-fixed": "Standard array values {original} were outside the allowed range ({min}-{max}) and have been adjusted automatically."
       },
       "alignments": {
@@ -346,6 +320,7 @@
         "header": "Appearance Options"
       },
       "art-picker-root": {
+        "browse": "Choose root location",
         "hint": "The root directory for the Character Art Picker",
         "name": "Art Picker Root Directory"
       },
@@ -374,10 +349,8 @@
         "classes-label": "Set Class Compendiums:",
         "description": "Configure your custom compendiums for classes, races, and backgrounds. If you fail to select any compendiums for any category, all valid compendiums will be loaded as a fallback.",
         "dialog-error": "Unable to render dialog, see console.",
-        "error": "Failed to retrieve documents from compendium pack: {pack}",
         "error-saving": "There was an error saving your compendium settings. Please see console (F12).",
         "form-saved": "Compendium form settings have been saved.",
-        "invalid-pack": "One or more compendium packs are no longer valid.",
         "item": "Item",
         "items-label": "Set Item Compendiums:",
         "manage-backgrounds": "Manage Backgrounds",
@@ -394,10 +367,12 @@
         "save-error": "Unable to create done button, see console.",
         "saved": "{type} compendium settings have been saved.",
         "select-all": "Select All",
+        "select-all-in": "Select all in",
         "title": "Select {type} Compendiums!",
         "types": {
           "background": "Background",
           "class": "Class",
+          "item": "Items",
           "race": "Race",
           "species": "Species"
         }
@@ -408,8 +383,7 @@
       },
       "custom-roll-formula": {
         "hint": "Specify the roll formula for manual ability score generation. Default is '4d6kh3'.",
-        "name": "Custom Manual Roll Formula",
-        "reset": "Custom roll formula was empty, resetting to default: 4d6kh3"
+        "name": "Custom Manual Roll Formula"
       },
       "custom-standard-array": {
         "hint": "Specify the array formula for standard array ability score generation. Default is 15,14,13,12,10,8",
@@ -498,7 +472,6 @@
           "start": "Step 1: Start",
           "token": "Token Customization"
         },
-        "instructions": "Select which fields should be required during character creation:",
         "menu": {
           "hint": "Set which fields must be filled out before submitting a character.",
           "name": "Mandatory Fields"
@@ -509,7 +482,6 @@
         "hint": "Adds Next/Previous buttons to help users navigate through the tabs",
         "name": "Enable Navigation Buttons"
       },
-      "no-selection": "No compendiums selected. Please select at least one.",
       "player-customization": {
         "hint": "Allow your players to set some information up during character creation, such as player color, pronouns, and avatar.",
         "name": "Allow Player Customization"
@@ -552,7 +524,6 @@
         "discord": "Join Discord",
         "error-context": "Error loading troubleshooter data.",
         "error-report": "Error generating troubleshooting report. Please try again.",
-        "export": "Export Troubleshooter",
         "export-error": "Failed to export troubleshooting report.",
         "export-success": "Troubleshooter exported as {filename}",
         "generate-report": "Open Troubleshooter",
@@ -563,6 +534,7 @@
           "name": "Troubleshooter"
         },
         "notes": "The troubleshooter contains all relevant information needed to start the bug-squashing process. Using the buttons below, you can save this output as a file or copy it to your clipboard. Feel free to join the Discord or create an issue on Github.",
+        "output-label": "Troubleshooter output log",
         "save-to-file": "Download",
         "title": "Troubleshooter"
       }
@@ -570,14 +542,12 @@
     "unknown": "unknown {type}",
     "warnings": {
       "advancement-failed": "Failed to apply {item} advancement. Your character may be missing some features.",
-      "advancement-timeout": "The advancement process for {item} took too long and was skipped.",
       "currency-update-failed": "Failed to update character currency.",
       "equipment-creation-failed": "Failed to create some equipment items.",
       "equipment-extraction-failed": "Note: The document contains equipment information, but it could not be automatically extracted due to its format.",
       "equipment-processing-failed": "Some equipment items couldn't be processed correctly.",
       "favorites-processing-failed": "Failed to process favorite items properly.",
       "no-packs-found": "No packs found for {type}",
-      "partial-cleanup": "Some resources could not be properly cleaned up.",
       "select-background": "You must select a valid background first.",
       "simplified-journal": "Simplified view of {page}.",
       "some-advancements-failed": "Some advancements failed: {failed}. Succeeded: {succeeded}."

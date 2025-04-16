@@ -2482,10 +2482,10 @@ export class DOMManager {
 
     // Create personality sections
     const traits = [
-      { key: 'personalityTraits', label: 'hm.app.finalize.review.personality' },
-      { key: 'ideals', label: 'hm.app.finalize.review.ideals' },
-      { key: 'bonds', label: 'hm.app.finalize.review.bonds' },
-      { key: 'flaws', label: 'hm.app.finalize.review.flaws' }
+      { key: 'personalityTraits', label: 'DND5E.PersonalityTraits' },
+      { key: 'ideals', label: 'DND5E.Ideals' },
+      { key: 'bonds', label: 'DND5E.Bonds' },
+      { key: 'flaws', label: 'DND5E.Flaws' }
     ];
 
     // Add each trait section if it has content
