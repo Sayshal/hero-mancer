@@ -54,33 +54,33 @@
         "tooltip": "Wähle den Hintergrund für deinen Charakter"
       },
       "biography": {
-        "age-hint": "",
-        "alignment-hint": "",
-        "backstory": "",
-        "backstory-hint": "",
-        "backstory-placeholder": "",
-        "bonds-placeholder": "",
-        "bonds-placeholder-alt": "",
-        "characteristics": "",
-        "description-hint": "",
-        "faith-hint": "",
-        "flaws-placeholder": "",
-        "flaws-placeholder-alt": "",
-        "height-hint": "",
-        "ideals-placeholder": "",
-        "ideals-placeholder-alt": "",
-        "personality-traits": "",
-        "physical-description": "",
-        "roll-bonds": "",
-        "roll-flaws": "",
-        "roll-ideals": "",
-        "roll-traits": "",
-        "size-hint": "",
-        "size-placeholder": "",
-        "tooltip": "",
-        "traits-placeholder": "",
-        "traits-placeholder-alt": "",
-        "weight-hint": ""
+        "age-hint": "Dein Alter kann einem Beobachter viel über dich verraten. Bist du ein erfahrener Veteran? Ein junger Draufgänger? Je älter du bist, desto detaillierter kann deine Geschichte sein.",
+        "alignment-hint": "Deine Gesinnung definiert deine moralische und ethische Haltung. Obwohl sie normalerweise als optional angesehen wird, kann sie dennoch ein wichtiges Werkzeug für Rollenspiel-Motivationen, Handlungen und mehr sein.",
+        "backstory": "Hintergrundgeschichte",
+        "backstory-hint": "Deine Hintergrundgeschichte bestimmt jede Entscheidung, die du triffst, und oft auch warum. Denke an: Ziele, vergangenes Leben, gegenwärtige Erfahrungen, Familie, Vorlieben, Gewohnheiten, Selbstwahrnehmung, Beziehungen usw.",
+        "backstory-placeholder": "Schreibe eine Hintergrundgeschichte für deinen Charakter. Überlege dir, welchen Organisationen der Charakter angehört, welche Verbündeten er gewonnen oder welche Feinde er sich gemacht hat, und welche anderen wichtigen Details es in seinem Leben gab, bevor er zum Abenteurer wurden.",
+        "bonds-placeholder": "Wer oder was ist dir am wichtigsten? Welcher Ort fühlt sich wie ein Zuhause an? Welches Objekt bedeutet dir alles? Drücke auf die Schaltfläche Würfeln, um aus den Bindungen zu wählen, die durch deinen Hintergrund vorgeschlagen werden.",
+        "bonds-placeholder-alt": "Wer oder was ist dir am wichtigsten? Welcher Ort fühlt sich wie ein Zuhause an? Welcher Gegenstand bedeutet dir alles?",
+        "characteristics": "Erscheinungsbild",
+        "description-hint": "Wenn du in den Spiegel schaust, was siehst du dann? Tauche in die physische Identität deiner Figur ein!",
+        "faith-hint": "Deine SL bestimmt, welche Götter, wenn überhaupt, in der Kampagne verehrt werden. Aus den verfügbaren Göttern kannst du eine einzelne Gottheit auswählen, der dein Charakter dienen, die er verehren oder der er ein Lippenbekenntnis ablegen kann. Bist du nicht religiös? Lass dieses Feld leer!",
+        "flaws-placeholder": "Was sind die Unzulänglichkeiten oder Schwächen deines Charakters? Denke dabei sowohl an Persönliche Eigenheiten als auch an Einschränkungen bei den Attributswerten. Welche Eigenschaften könnten für andere schwierig sein? Drücke auf die Schaltfläche Würfeln, um aus den Fehlern zu wählen, die durch deinen Hintergrund vorgeschlagen werden.",
+        "flaws-placeholder-alt": "Was sind die Unzulänglichkeiten oder Schwächen deines Charakters? Denke dabei sowohl an Persönliche Eigenheiten als auch an Einschränkungen bei den Attributswerten. Welche Eigenschaften könnten für andere schwierig sein?",
+        "height-hint": "Deine Größe wird von deinem Volk beeinflusst, kann aber auch außerhalb der Norm liegen.",
+        "ideals-placeholder": "Von welchen Idealen lässt du dich leiten? Welche Sache oder Überzeugung treibt dich zu Abenteuern an? Wofür würdest du kämpfen oder sterben? Drücke auf die Schaltfläche Würfeln, um aus Idealen zu wählen, die durch deinen Hintergrund angeregt werden.",
+        "ideals-placeholder-alt": "Von welchen Idealen lässt du dich leiten? Welche Sache oder Überzeugung treibt dich zu Abenteuern an? Wofür würdest du kämpfen oder sterben?",
+        "personality-traits": "Persönlichkeitsmerkmale",
+        "physical-description": "Erscheinung",
+        "roll-bonds": "Würfle Bindungen",
+        "roll-flaws": "Würfle Makel",
+        "roll-ideals": "Würfle Ideale",
+        "roll-traits": "Würfle Merkmale",
+        "size-hint": "Deine Größe wird durch dein Volk bestimmt.",
+        "size-placeholder": "Durch Volk bestimmt",
+        "tooltip": "Details zur Charakterbiografie",
+        "traits-placeholder": "Beschreibe die Persönlichkeit deines Charakters. Wie prägen die Attribute seine Persönlichkeit? Ist er weise und nachdenklich oder charismatisch und extrovertiert? Drücke auf die Schaltfläche Würfeln, um aus den Persönlichkeitsmerkmalen auszuwählen, die durch deinen Hintergrund vorgeschlagen werden.",
+        "traits-placeholder-alt": "Beschreibe die Persönlichkeit deines Charakters. Wie prägen die Attribute seine Persönlichkeit? Ist er weise und nachdenklich oder charismatisch und extrovertiert?",
+        "weight-hint": "Dein Gewicht bestimmt einige Dinge, zum Beispiel wer dich hochheben kann. Es ändert normalerweise nichts an den Kampfmechaniken."
       },
       "cancel": "Abbrechen",
       "cancel-description": "Abbrechen und schließe Hero Mancer",
@@ -92,7 +92,7 @@
         "select-placeholder": "Wähle die Klasse",
         "tooltip": "Wähle die Klasse für deinen Charakter"
       },
-      "creation-progress": "",
+      "creation-progress": "Fertigstellungsfortschritt",
       "document-service": {
         "common-labels": {
           "dndbeyond-importer": "DDB",
@@ -138,22 +138,22 @@
       },
       "finalize": {
         "character-portrait": "Charakterporträt",
-        "character-review": "",
-        "final-notes": "",
+        "character-review": "Charakterüberprüfung",
+        "final-notes": "Bitte überprüfe deine Charakterdetails unten. Wenn alles korrekt aussieht, klicke auf die Schaltfläche Senden, um deinen Charakter zu erstellen.",
         "review": {
-          "abilities": "",
-          "appearance-adjectives": "",
-          "background-equipment": "",
-          "backstory": "",
-          "basic-info": "",
-          "biography": "",
-          "biography-format": "",
-          "biography-format-with-faith": "",
-          "class-equipment": "",
-          "equipment": "",
-          "no-equipment": "",
-          "physical-description": "",
-          "starting-wealth": ""
+          "abilities": "Attributswerte",
+          "appearance-adjectives": "schön, hinreißend, beeindruckend, bezaubernd, verführerisch, atemberaubend, faszinierend, bezaubernd, exquisit, glanzvoll",
+          "background-equipment": "Hintergrund-Ausrüstung",
+          "backstory": "Hintergrundgeschichte",
+          "basic-info": "Grundlegende Informationen",
+          "biography": "Biografie-Übersicht",
+          "biography-format": "Ein {alignment} {size} {gender}. Mit {age} Jahren wiegst du {weight} Pfund und bist {height} groß. Mit {eyesAdjektiv} {eyes} Augen, {hair} Haaren und {skinAdjektiv} {skin} Haut.",
+          "biography-format-with-faith": "Ein {alignment} {size} {gender}. Mit {age} Jahren wiegst du {weight} Pfund und bist {height} groß. Mit {eyesAdjektiv} {eyes} Augen, {hair} Haaren und {skinAdjektiv} {skin} Haut. Ein Anhänger von {faith}",
+          "class-equipment": "Klassen-Ausrüstung",
+          "equipment": "Ausrüstung",
+          "no-equipment": "Keine Ausrüstung ausgewählt",
+          "physical-description": "Erscheinung",
+          "starting-wealth": "Startvermögen: {amount}"
         },
         "summary": {
           "abilities": "stolz auf seine beeindruckende {first} und {second}",
@@ -164,7 +164,7 @@
           "classRaceDefault": "ist dieser unbekanntes Volk unbekannte Klasse",
           "equipment": "und beginnt das Abenteuer mit folgenden Gegenständen: {items}.",
           "equipmentDefault": "und beginnt das Abenteuer.",
-          "no-items": ""
+          "no-items": "Keine Gegenstände ausgewählt"
         },
         "tooltip": "Vervollständige deine Charaktererschaffung"
       },
@@ -227,7 +227,7 @@
         "select-art": "Auswählen",
         "token-art-label": "Spielfigur",
         "token-art-placeholder": "Wähle ein Bild für die Figur",
-        "token-customization": "",
+        "token-customization": "Figuranpassung",
         "token-same-as-character": "Verwende dasselbe Bild für die Figur?",
         "token-visibility-placeholder": "Wähle Anzeigestatus",
         "tooltip": "Beginne mit der Erstellung deines Charakters"
@@ -237,7 +237,7 @@
       "tab-names": {
         "abilities": "Attribute",
         "background": "Hintergrund",
-        "biography": "",
+        "biography": "Biografie",
         "class": "Klasse",
         "equipment": "Ausrüstung",
         "finalize": "Vervollständigen",
@@ -291,7 +291,7 @@
     "info": {
       "advancement-progress": "Verarbeitung {item} ({current}/{total})",
       "all-advancements-complete": "Alle Fortschritte des Charakters wurden erfolgreich verarbeitet.",
-      "cpr-effects-applied": ""
+      "cpr-effects-applied": "Couldron of Plentiful Ressourcen entdeckt! Automatisierungen wurden angewendet!"
     },
     "settings": {
       "ability-scores": {
@@ -320,7 +320,7 @@
         "header": "Erscheinungsbild Optionen"
       },
       "art-picker-root": {
-        "browse": "",
+        "browse": "Wähle Hauptverzeichnis",
         "hint": "Das Hauptverzeichnis für die Bilder Auswahl",
         "name": "Bilder Hauptverzeichnis"
       },
@@ -367,12 +367,12 @@
         "save-error": "Konnte Fertig Schaltfläche nicht erstellen, siehe Konsole.",
         "saved": "{type} Kompendium-Einstellungen wurden gespeichert.",
         "select-all": "Alle auswählen",
-        "select-all-in": "",
+        "select-all-in": "Alles auswählen in",
         "title": "Wähle {type}kompendien!",
         "types": {
           "background": "Hintergrund",
           "class": "Klassen",
-          "item": "",
+          "item": "Gegenstände",
           "race": "Völker",
           "species": "Spezies"
         }
@@ -534,7 +534,7 @@
           "name": "Fehlerbehebungsbericht"
         },
         "notes": "Der Fehlerbehebungsbericht enthält alle relevanten Informationen, die für den Start des Bug-Squashing-Prozesses benötigt werden. Mit den untenstehenden Schaltflächen kannst du diese Ausgabe als Datei speichern oder in deine Zwischenablage kopieren. Du kannst dem Discord beitreten oder ein Issue auf Github erstellen. Die Kommunikation für dieses Modul ist auf Englisch.",
-        "output-label": "",
+        "output-label": "Troubleshooter Ausgabeprotokoll",
         "save-to-file": "Download",
         "title": "Troubleshooter"
       }
