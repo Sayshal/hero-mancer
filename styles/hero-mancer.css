@@ -199,6 +199,8 @@
 
 /* Header */
 .hm-app-header {
+  --progress-percent: 0%;
+
   display: flex;
   position: relative;
   flex: 0 0 var(--hm-app-header-height);
