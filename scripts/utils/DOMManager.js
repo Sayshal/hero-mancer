@@ -2383,11 +2383,13 @@ export class DOMManager {
    * @static
    */
   static async #updateBasicInfoReview(container) {
-    // Update character name
-    const nameValue = container.querySelector('.character-name-value');
-    if (nameValue) {
-      const characterName = document.querySelector('#character-name')?.value || game.user.name;
-      nameValue.textContent = characterName;
+    // Get character name
+    const characterName = document.querySelector('#character-name')?.value || game.user.name;
+
+    // Update the character name in the heading
+    const nameDisplay = document.querySelector('.character-name-display');
+    if (nameDisplay) {
+      nameDisplay.textContent = characterName;
     }
 
     // Update race, class, and background with links
@@ -2440,7 +2442,6 @@ export class DOMManager {
 
     // Get the current ability scores
     const abilityScores = this.#collectAbilityScores();
-    HM.log(1, abilityScores);
 
     // Create ability items
     for (const [key, ability] of Object.entries(CONFIG.DND5E.abilities)) {
@@ -2664,15 +2665,19 @@ export class DOMManager {
     const backgroundItems = this.#getBackgroundEquipment();
     const classItems = this.#getClassEquipment();
 
+    // Get background and class names
+    const backgroundName = (await this.#getBackgroundName()) || game.i18n.localize('DND5E.Background');
+    const className = (await this.#getClassName()) || game.i18n.localize('TYPES.Item.class');
+
     // Create equipment layout
     container.innerHTML = `
     <div class="equipment-layout">
       <div class="background-equipment">
-        <h4>${game.i18n.localize('hm.app.finalize.review.background-equipment')}</h4>
+        <h4>${game.i18n.format('hm.app.equipment.type-equipment', { type: backgroundName })}</h4>
         <div class="background-items"></div>
       </div>
       <div class="class-equipment">
-        <h4>${game.i18n.localize('hm.app.finalize.review.class-equipment')}</h4>
+        <h4>${game.i18n.format('hm.app.equipment.type-equipment', { type: className })}</h4>
         <div class="class-items"></div>
       </div>
     </div>
@@ -2718,6 +2723,42 @@ export class DOMManager {
       } else {
         classItemsEl.innerHTML = `<em>${game.i18n.localize('hm.app.finalize.review.no-equipment')}</em>`;
       }
+    }
+  }
+
+  /**
+   * Gets the name of the selected background
+   * @returns {Promise<string>} The background name
+   * @private
+   * @static
+   */
+  static async #getBackgroundName() {
+    if (!HM.SELECTED.background?.uuid) return '';
+
+    try {
+      const background = await fromUuidSync(HM.SELECTED.background.uuid);
+      return background?.name || '';
+    } catch (error) {
+      HM.log(2, `Error getting background name: ${error.message}`);
+      return '';
+    }
+  }
+
+  /**
+   * Gets the name of the selected class
+   * @returns {Promise<string>} The class name
+   * @private
+   * @static
+   */
+  static async #getClassName() {
+    if (!HM.SELECTED.class?.uuid) return '';
+
+    try {
+      const classItem = await fromUuidSync(HM.SELECTED.class.uuid);
+      return classItem?.name || '';
+    } catch (error) {
+      HM.log(2, `Error getting class name: ${error.message}`);
+      return '';
     }
   }
 

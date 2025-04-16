@@ -79,6 +79,10 @@
         "personality-traits": "Personality Traits",
         "physical-characteristics": "Physical Characteristics",
         "physical-description": "Physical Description",
+        "roll-bonds": "Roll for bonds",
+        "roll-flaws": "Roll for flaws",
+        "roll-ideals": "Roll for ideals",
+        "roll-traits": "Roll for traits",
         "size-hint": "Your size is determined by your race.",
         "size-placeholder": "Determined by race",
         "tooltip": "Character biography details",
@@ -172,7 +176,8 @@
           "classRaceDefault": "this unknown race unknown class",
           "default": "Starting as an adventurer, this unknown race unknown class prides themself on their impressive abilities and begins their adventure.",
           "equipment": "and begins their adventure with {items}.",
-          "equipmentDefault": "and begins their adventure."
+          "equipmentDefault": "and begins their adventure.",
+          "no-items": "No items selected."
         },
         "tooltip": "Review your character"
       },

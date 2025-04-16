@@ -405,7 +405,7 @@ fieldset#start > h2 {
 
 .progress-overlay {
   position: absolute;
-  bottom: 5px;
+  bottom: 0.3rem;
   width: 100%;
   text-align: center;
 }
@@ -447,14 +447,14 @@ fieldset#start > h2 {
 }
 
 .application.hm-app .hero-mancer-tabs.tabs.hm-app-nav .item.active {
-  text-shadow: 0 0 10px var(--color-shadow-primary);
+  text-shadow: 0 0 0.625rem var(--color-shadow-primary);
 }
 
 /* Tab Mandatory Indicator styling */
 .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
@@ -464,7 +464,7 @@ fieldset#start > h2 {
   right: 1rem;
   color: #ffb675;
   font-size: 0.84rem;
-  text-shadow: 0 0 4px #e539354d;
+  text-shadow: 0 0 0.2rem #e539354d;
 }
 
 .theme-light .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
@@ -474,7 +474,7 @@ fieldset#start > h2 {
   right: 1rem;
   color: #5a0101;
   font-size: 0.84rem;
-  text-shadow: 0 0 4px #e539354d;
+  text-shadow: 0 0 0.2rem #e539354d;
 }
 
 /* ==========================================================================
@@ -487,7 +487,7 @@ fieldset#start > h2 {
 }
 
 .application.hm-app .hm-app-tab-content p {
-  margin: 10px 0;
+  margin: 0.625rem 0;
 }
 
 .application.hm-app .hm-app-tab-content table {
@@ -506,7 +506,7 @@ fieldset#start > h2 {
   float: right;
   max-width: 200px;
   height: auto;
-  margin-left: 5px;
+  margin-left: 0.3rem;
   border: none;
 }
 
@@ -635,7 +635,7 @@ button i.nav-prev {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 85px;
+  width: 5.25rem;
   line-height: 2.5rem;
 }
 
@@ -647,7 +647,7 @@ button i.nav-prev {
 }
 
 .hm-app .ability-block .ability-score {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 /* Point-buy specific styling */
@@ -723,7 +723,7 @@ button i.nav-prev {
 .ability-block .ability-label.primary-ability,
 .ability-block.point-buy .ability-label.primary-ability {
   color: #ffd700;
-  text-shadow: 0 -5px 20px #ffd70099;
+  text-shadow: 0 -0.3rem 1.25rem #ffd70099;
   animation: primary-ability-pulse 2s infinite ease-in-out;
 }
 
@@ -734,12 +734,12 @@ button i.nav-prev {
     1px -1px 1px #000000b3,
     -1px 1px 1px #000000b3,
     1px 1px 1px #000000b3,
-    0 0 5px #ffd70099;
+    0 0 0.3rem #ffd70099;
   animation: primary-ability-pulse-light 2s infinite ease-in-out;
 }
 
 .ability-dropdown.primary-ability {
-  box-shadow: 0 0 5px 5px #ffd70099;
+  box-shadow: 0 0 0.3rem 0.3rem #ffd70099;
 }
 
 .ability-dropdown option.hm-used-elsewhere {
@@ -935,7 +935,7 @@ table.wealth-option-container tr + tr {
 .equipment-item input,
 .equipment-item select {
   width: fit-content;
-  margin-top: 4px;
+  margin-top: 0.2rem;
   margin-right: auto;
   vertical-align: middle;
 }
@@ -975,7 +975,7 @@ table.wealth-option-container tr + tr {
   ========================================================================== */
 
 table.wealth-option-container {
-  margin: 10px 0 1rem;
+  margin: 0.625rem 0 1rem;
   border: 1px solid var(--color-border-light-tertiary);
   border-radius: var(--border-radius-sm);
 }
@@ -1021,8 +1021,8 @@ tr.wealth-roll-container td {
   flex: 0 0 auto;
   justify-content: center;
   align-items: center;
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   margin: 0;
   padding: 0;
   border-radius: var(--border-radius-sm);
@@ -1108,7 +1108,7 @@ td .equipment-favorite-container {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  margin: 10px 0;
+  margin: 0.625rem 0;
   padding: 0.5rem;
   border: 1px solid var(--color-level-error-border);
   border-radius: var(--border-radius-md);
@@ -1302,7 +1302,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-app-tab-content .journal-container .content-embed {
-  margin: 10px 0;
+  margin: 0.625rem 0;
   text-align: center;
 }
 
@@ -1333,13 +1333,13 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .hm-app-tab-content .journal-container .content-embed.right {
   float: right;
   clear: right;
-  margin-left: 5px;
+  margin-left: 0.3rem;
 }
 
 .hm-app-tab-content .journal-container .content-embed.left {
   float: left;
   clear: left;
-  margin-right: 5px;
+  margin-right: 0.3rem;
 }
 
 .hm-app-tab-content .journal-container .content-embed.center {
@@ -1541,7 +1541,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
   align-items: center;
   width: auto;
   height: 100%;
-  margin-left: 5px;
+  margin-left: 0.3rem;
 }
 
 .customization-application .flex.items-center button.file-picker i {
@@ -1553,7 +1553,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 10px 0;
+  margin: 0.625rem 0;
 }
 
 .hm-compendiums-popup-section p {
@@ -1563,7 +1563,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .hm-compendiums-popup-section button {
   width: auto;
-  margin-left: 10px;
+  margin-left: 0.625rem;
   white-space: nowrap;
 }
 
@@ -1610,13 +1610,13 @@ tr.wealth-roll-container[style*='display: table-row'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
   padding: 0.25rem 0;
 }
 
 .hm-compendiums-popup-dialog multi-checkbox label.checkbox input[type='checkbox'] {
   order: 1;
-  margin-left: 10px;
+  margin-left: 0.625rem;
 }
 
 /* Compendium groups */
@@ -1650,7 +1650,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .hm-troubleshooter-container textarea {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
   overflow-x: hidden;
   font-size: var(--font-size-12);
   font-family: monospace;
@@ -1699,13 +1699,13 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-mandatory-fields-popup .field-group h4 {
-  margin: 5px 0;
+  margin: 0.3rem 0;
   font-size: 1rem;
 }
 
 .hm-mandatory-fields-popup .form-group {
   gap: unset;
-  margin: 5px 0;
+  margin: 0.3rem 0;
   padding-left: 0.625rem;
 }
 
@@ -1734,22 +1734,22 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .mandatory-indicator.complete {
   color: #8fd693;
-  text-shadow: 0 0 4px #2e7d324d;
+  text-shadow: 0 0 0.2rem #2e7d324d;
 }
 
 .mandatory-indicator.incomplete {
   color: #ffb675;
-  text-shadow: 0 0 4px #e539354d;
+  text-shadow: 0 0 0.2rem #e539354d;
 }
 
 .theme-light .mandatory-indicator.complete {
   color: #123013;
-  text-shadow: 0 0 4px #2e7d324d;
+  text-shadow: 0 0 0.2rem #2e7d324d;
 }
 
 .theme-light .mandatory-indicator.incomplete {
   color: #5a0101;
-  text-shadow: 0 0 4px #e539354d;
+  text-shadow: 0 0 0.2rem #e539354d;
 }
 
 /* Field validation styling */
@@ -1830,7 +1830,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .button-7 {
   flex: 0 0 auto;
   width: auto;
-  height: 32px;
+  height: 2rem;
   white-space: nowrap;
 }
 
@@ -1908,7 +1908,7 @@ button {
   gap: 0.625rem;
   grid-template-areas: 'portrait summary';
   display: grid;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
   line-height: 1.9;
 }
 
@@ -1937,11 +1937,11 @@ button {
 }
 
 .message-content .character-summary h3 {
-  margin-top: 10px;
+  margin-top: 0.625rem;
 }
 
 .message-content .summaries {
-  margin-top: 5px;
+  margin-top: 0.3rem;
 }
 
 .message-content .character-summary a.content-link {
@@ -1953,7 +1953,7 @@ button {
 /* Target the ability table specifically */
 .message-content .character-summary .ability-scores-summary .ability-table {
   width: 100%;
-  margin: 10px 0;
+  margin: 0.625rem 0;
   border-collapse: collapse;
 }
 
@@ -1995,9 +1995,9 @@ button {
 }
 
 .message-content .character-summary .currency-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.3rem;
   border: none;
   vertical-align: middle;
 }
@@ -2016,7 +2016,7 @@ button {
 }
 
 .hm-app-tab-content h3 {
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
   border-bottom: 1px solid #666;
 }
 
@@ -2083,7 +2083,7 @@ button {
 
 .hm-app-tab-content .review-container {
   max-width: 100%;
-  padding: 0 8px;
+  padding: 0 0.5rem;
 }
 
 .hm-app-tab-content .review-header {
@@ -2137,21 +2137,21 @@ button {
 }
 
 .hm-app-tab-content .review-section {
-  background: rgb(0 0 0 / 2%);
+  background: #00000005;
   border: 1px solid var(--color-border-light-tertiary);
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
 }
 
 .hm-app-tab-content .review-section h3 {
   font-size: 1.1em;
   margin-top: 0;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-border-light-secondary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .hm-app-tab-content .review-section h3 i {
@@ -2165,28 +2165,28 @@ button {
 
 .hm-app-tab-content .review-item {
   display: flex;
-  margin-bottom: 6px;
+  padding-top: 0.375rem;
   line-height: 1.4;
 }
 
 .hm-app-tab-content .review-label {
   font-weight: bold;
-  margin-right: 8px;
+  margin-right: 0.5rem;
   min-width: 100px;
 }
 
 .hm-app-tab-content .abilities-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .hm-app-tab-content .ability-item {
   display: flex;
   justify-content: space-between;
-  background: rgb(0 0 0 / 3%);
-  padding: 6px 8px;
-  border-radius: 4px;
+  background: #00000008;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.2rem;
 }
 
 .hm-app-tab-content .ability-label {
@@ -2196,25 +2196,25 @@ button {
 .hm-app-tab-content .equipment-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .hm-app-tab-content .background-equipment,
 .hm-app-tab-content .class-equipment {
-  padding-top: 8px;
+  padding-top: 0.5rem;
 }
 
 .hm-app-tab-content .background-equipment h4,
 .hm-app-tab-content .class-equipment h4 {
   text-align: center;
   font-size: var(--font-h5-size);
-  padding-bottom: 6px;
+  padding-bottom: 0.375rem;
   border-bottom: 1px solid var(--color-border-light-tertiary);
 }
 
 .hm-app-tab-content .background-items,
 .hm-app-tab-content .class-items {
-  padding-top: 4px;
+  padding-top: 0.2rem;
 }
 
 .hm-app-tab-content .equipment-wealth {
@@ -2224,24 +2224,24 @@ button {
 .hm-app-tab-content .bio-preview {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .hm-app-tab-content .bio-main {
   font-style: italic;
-  padding: 8px;
-  background: rgb(0 0 0 / 3%);
-  border-radius: 4px;
+  padding: 0.5rem;
+  background: #00000008;
+  border-radius: 0.2rem;
   line-height: 1.5;
 }
 
 .hm-app-tab-content .bio-detail {
-  margin-top: 6px;
+  margin-top: 0.375rem;
 }
 
 .hm-app-tab-content .bio-detail h4 {
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 0.2rem;
   font-size: 1em;
   display: flex;
   align-items: center;
@@ -2249,16 +2249,16 @@ button {
 
 .hm-app-tab-content .bio-detail h4::before {
   content: '•';
-  margin-right: 6px;
+  margin-right: 0.375rem;
   color: var(--color-text-hyperlink);
 }
 
 .hm-app-tab-content .backstory-text {
   max-height: 120px;
   overflow-y: auto;
-  padding: 8px;
+  padding: 0.5rem;
   border: 1px solid var(--color-border-light-tertiary);
-  border-radius: 4px;
+  border-radius: 0.2rem;
   line-height: 1.5;
 }
 
@@ -2274,15 +2274,15 @@ button {
 /* Primary ability animations */
 @keyframes primary-ability-pulse {
   0% {
-    text-shadow: 0 0 5px #ffd70099;
+    text-shadow: 0 0 0.3rem #ffd70099;
   }
 
   50% {
-    text-shadow: 0 0 10px #ffd700cc;
+    text-shadow: 0 0 0.625rem #ffd700cc;
   }
 
   100% {
-    text-shadow: 0 0 5px #ffd70099;
+    text-shadow: 0 0 0.3rem #ffd70099;
   }
 }
 
@@ -2293,7 +2293,7 @@ button {
       1px -1px 1px #000000b3,
       -1px 1px 1px #000000b3,
       1px 1px 1px #000000b3,
-      0 0 5px #ffd70099;
+      0 0 0.3rem #ffd70099;
   }
 
   50% {
@@ -2302,7 +2302,7 @@ button {
       1px -1px 1px #000000e6,
       -1px 1px 1px #000000e6,
       1px 1px 1px #000000e6,
-      0 0 10px #ffd700cc;
+      0 0 0.625rem #ffd700cc;
   }
 
   100% {
@@ -2311,7 +2311,7 @@ button {
       1px -1px 1px #000000b3,
       -1px 1px 1px #000000b3,
       1px 1px 1px #000000b3,
-      0 0 5px #ffd70099;
+      0 0 0.3rem #ffd70099;
   }
 }
 
@@ -2417,7 +2417,7 @@ button {
     flex-grow: 1;
     flex-shrink: 1;
     min-width: 150px;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
   }
 
   /* Form elements */
@@ -2480,7 +2480,6 @@ button {
   }
 }
 
-/* Minimum width requirement for Foundry (700px <= width <= 999px) */
 @media (700px <= width <= 999px) {
   .application.hm-app {
     width: 100%;

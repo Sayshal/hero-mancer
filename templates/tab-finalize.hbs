@@ -6,13 +6,15 @@
 
     <div class="review-container">
 
-        {{!-- Final Notes --}}
-        <div class="final-notes">
-          <p>{{localize 'hm.app.finalize.final-notes'}}</p>
-        </div>
+      {{!-- Final Notes --}}
+      <div class="final-notes">
+        <p>{{localize 'hm.app.finalize.final-notes'}}</p>
+      </div>
+
       {{!-- Character Summary Section --}}
       <div class="review-header">
-        <h2>{{localize 'hm.app.finalize.character-review'}}</h2>
+        <h2 id="character-review-heading">{{localize 'hm.app.finalize.character-review'}}: <span
+            class="character-name-display">-</span></h2>
         <div class="character-portrait">
           <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
         </div>
@@ -29,16 +31,13 @@
 
       <div class="review-sections">
         <div class="review-section-row">
+
           {{!-- Basic Information --}}
           <section class="review-section" aria-labelledby="basic-info-heading">
             <h3 id="basic-info-heading"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
               {{localize 'hm.app.finalize.review.basic-info'}}
             </h3>
             <div class="review-content">
-              <div class="review-item">
-                <span class="review-label">{{localize 'hm.app.start.name-label'}}:</span>
-                <span class="review-value character-name-value">-</span>
-              </div>
               <div class="review-item">
                 <span class="review-label">{{localize 'TYPES.Item.raceLegacy'}}:</span>
                 <span class="review-value race-value">-</span>
@@ -74,13 +73,14 @@
             <div class="equipment-list" aria-live="polite">
               <div class="equipment-layout">
                 <div class="background-equipment">
-                  <h4>{{localize 'hm.app.finalize.review.background-equipment'}}</h4>
+                  <h4 class="background-equipment-header">{{localize 'hm.app.finalize.review.background-equipment'}}
+                  </h4>
                   <div class="background-items">
                     <!-- Background items will go here -->
                   </div>
                 </div>
                 <div class="class-equipment">
-                  <h4>{{localize 'hm.app.finalize.review.class-equipment'}}</h4>
+                  <h4 class="class-equipment-header">{{localize 'hm.app.finalize.review.class-equipment'}}</h4>
                   <div class="class-items">
                     <!-- Class items will go here -->
                   </div>
