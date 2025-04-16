@@ -1,11 +1,27 @@
 /* ==========================================================================
-  Core Variables
+  Base Layer - Core Variables and Foundations
  ========================================================================== */
 :root {
   --border-radius-lg: 0.375rem;
   --border-radius-md: 0.3125rem;
   --border-radius-sm: 0.25rem;
   --border-radius-xl: 0.5rem;
+  --color-cancel-hover: #7a1b1b;
+  --color-error: #ffb675;
+  --color-error-shadow: #e539354d;
+  --color-gold: #ffd700;
+  --color-journal-bg: #f0f0e0;
+  --color-journal-border: #e6bd6b;
+  --color-journal-heading: #782e22;
+  --color-journal-text: #191813;
+  --color-nav-hover: #631c82;
+  --color-randomize-hover: #731b54;
+  --color-reset-hover: #643200;
+  --color-save-hover: #4c3f00;
+  --color-submit-hover: #122b14;
+  --color-success: #8fd693;
+  --color-success-shadow: #2e7d324d;
+  --color-text-primary: var(--color-text-primary, #f0f0f0);
   --hm-app-header-height: 6.25rem;
   --light-mode-font-color: #292929;
   --spacing-lg: 1.5rem;
@@ -16,10 +32,9 @@
 }
 
 /* ==========================================================================
-  Layout & Utility Classes
+  Layout Layer - Layout & Utility Classes
  ========================================================================== */
 
-/* Flexbox */
 .flex {
   display: flex;
 }
@@ -40,7 +55,6 @@
   flex-grow: 1;
 }
 
-/* Grid */
 .grid {
   display: grid;
 }
@@ -54,14 +68,13 @@
 }
 
 .grid-4-col {
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .grid-5-col {
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(5, 1fr);
 }
 
-/* Alignment */
 .items-center {
   align-items: center;
 }
@@ -79,7 +92,6 @@
   justify-content: space-between;
 }
 
-/* Spacing */
 .gap-xs {
   gap: var(--spacing-xs);
 }
@@ -97,33 +109,32 @@
 }
 
 .mb-sm {
-  margin-bottom: var(--spacing-sm);
+  margin-block-end: var(--spacing-sm);
 }
 
 .mb-md {
-  margin-bottom: var(--spacing-md);
+  margin-block-end: var(--spacing-md);
 }
 
 .ml-xs {
-  margin-left: 0.4rem;
+  margin-inline-start: 0.4rem;
 }
 
 .m-lr {
-  margin: 0 0.25rem;
-  padding: 0 0.25rem;
+  margin-inline: 0.25rem;
+  padding-inline: 0.25rem;
 }
 
 .p-sm {
   padding: var(--spacing-sm);
 }
 
-/* Typography */
 .text-center {
   text-align: center;
 }
 
 .text-left {
-  text-align: left;
+  text-align: start;
 }
 
 .text-md {
@@ -134,7 +145,6 @@
   font-weight: bold;
 }
 
-/* Width/Height */
 .width-25 {
   width: 25%;
 }
@@ -143,7 +153,6 @@
   width: 100%;
 }
 
-/* Overflow */
 .overflow-y-auto {
   overflow-y: auto;
 }
@@ -153,10 +162,9 @@
 }
 
 /* ==========================================================================
-  Application Structure
+  Components Layer - Application Structure
  ========================================================================== */
 
-/* Main Container */
 .application.hm-app {
   width: 1100px;
   max-width: calc(100vw - 100px);
@@ -164,32 +172,18 @@
   max-height: calc(100vh - 150px);
 }
 
-/* Icons */
-.application.hm-app .fa-egg,
-.application.hm-app .fa-dice,
-.application.hm-app .fa-list-check,
-.application.hm-app .fa-atlas,
-.application.hm-app .fa-palette,
-.application.hm-app .fa-bug,
+.application.hm-app :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug),
 .hm-troubleshooter .fa-bug,
 .hm-compendiums-popup-dialog .fa-solid {
   color: var(--user-color);
 }
 
-/* Headers */
-.application.hm-app .hm-app-tab-content h1,
-.application.hm-app .hm-app-tab-content h2,
-.application.hm-app .hm-app-tab-content h3,
-.application.hm-app .hm-app-tab-content h4,
-.application.hm-app .hm-app-tab-content h5,
-.application.hm-app .hm-app-tab-content h6 {
+.application.hm-app .hm-app-tab-content :is(h1, h2, h3, h4, h5, h6) {
   max-width: 100%;
   margin: unset;
 }
 
-/* Typography */
-.hm-app h2,
-.hm-app h3 {
+.hm-app :is(h2, h3) {
   padding: 0.2rem 0 0.3rem;
 }
 
@@ -197,17 +191,16 @@
   margin: 0;
 }
 
-/* Header */
 .hm-app-header {
   --progress-percent: 0%;
 
+  margin-block-end: 1rem;
   display: flex;
   position: relative;
   flex: 0 0 var(--hm-app-header-height);
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1rem;
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   text-align: center;
@@ -215,13 +208,10 @@
 }
 
 .hm-app-header::before {
+  inset: 0;
   opacity: 0.8;
   z-index: -2;
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   content: '';
   background: url('../../../systems/dnd5e/ui/texture-gray2.webp') no-repeat center bottom / cover;
   filter: grayscale(100%);
@@ -230,13 +220,10 @@
 .hm-app-header::after {
   background-blend-mode: overlay;
   clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0);
+  inset: 0;
   opacity: 0.4;
   z-index: -1;
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   content: '';
   background:
     url('../../../systems/dnd5e/ui/texture-gray2.webp') no-repeat center bottom / cover,
@@ -250,7 +237,7 @@
 }
 
 .progress-overlay {
-  bottom: 0.3rem;
+  inset-block-end: 0.3rem;
   width: 100%;
   text-align: center;
 }
@@ -270,21 +257,20 @@
   Navigation & Tabs
  ========================================================================== */
 
-/* Navigation */
 .application.hm-app .hm-app-nav {
+  padding-block-end: 0.4rem;
   display: flex;
   flex-flow: row wrap;
   align-items: center;
   align-self: center;
-  padding-bottom: 0.4rem;
   text-align: center;
   white-space: nowrap;
 }
 
 .application.hm-app .hm-app-nav a.item {
+  padding-inline: 0.625rem;
   flex-grow: 1;
   flex-shrink: 0;
-  padding: 0 0.625rem;
   text-overflow: ellipsis;
 }
 
@@ -296,7 +282,6 @@
   text-shadow: 0 0 0.625rem var(--color-shadow-primary);
 }
 
-/* Tab Mandatory Indicator */
 .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid {
   position: relative;
   width: 1.5rem;
@@ -304,16 +289,15 @@
 }
 
 .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
+  inset-block-start: -0.3rem;
+  inset-inline-end: 1rem;
   z-index: 1;
   position: absolute;
-  top: -0.3rem;
-  right: 1rem;
-  color: #ffb675;
+  color: var(--color-error);
   font-size: 0.84rem;
-  text-shadow: 0 0 0.2rem #e539354d;
+  text-shadow: 0 0 0.2rem var(--color-error-shadow);
 }
 
-/* Tab Content */
 .hm-app-tab-content {
   max-height: 70vh;
   overflow-y: auto;
@@ -337,10 +321,10 @@
 }
 
 .hm-app-tab-content img {
+  margin-inline-start: 0.3rem;
   float: right;
   max-width: 200px;
   height: auto;
-  margin-left: 0.3rem;
   border: none;
 }
 
@@ -354,16 +338,16 @@
 }
 
 .hm-app-tab-content section {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .hm-app-tab-content section.first-section {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .hm-app-tab-content h3 {
-  margin-bottom: 0.625rem;
-  border-bottom: 1px solid #666;
+  border-block-end: 1px solid #666;
+  margin-block-end: 0.625rem;
 }
 
 /* ==========================================================================
@@ -409,7 +393,6 @@
   align-items: center;
 }
 
-/* Button styling */
 .hm-app-footer button,
 .hm-footer-left button,
 .hm-footer-right button,
@@ -422,48 +405,44 @@
   white-space: nowrap;
 }
 
-/* Navigation icons */
 button i.nav-next {
-  margin-left: 0.25rem;
+  margin-inline-start: 0.25rem;
   font-size: var(--font-size-10);
 }
 
 button i.nav-prev {
-  margin-right: 0.25rem;
+  margin-inline-end: 0.25rem;
   font-size: var(--font-size-10);
 }
 
-/* Button hover states */
 .hm-app .hm-app-footer .hm-app-footer-submit:hover {
-  background-color: #122b14;
+  background-color: var(--color-submit-hover);
 }
 
 .hm-app .hm-app-footer .hm-app-footer-save:hover {
-  background-color: #4c3f00;
+  background-color: var(--color-save-hover);
 }
 
 .hm-app .hm-app-footer .hm-app-footer-reset:hover {
-  background-color: #643200;
+  background-color: var(--color-reset-hover);
 }
 
 .hm-app .hm-app-footer .hm-app-footer-cancel:hover {
-  background-color: #7a1b1b;
+  background-color: var(--color-cancel-hover);
 }
 
 .hm-app .hm-app-footer .hm-app-footer-randomize:hover {
-  background-color: #731b54;
+  background-color: var(--color-randomize-hover);
 }
 
-.hm-app .hm-app-footer .hm-app-nav-previous:hover,
-.hm-app .hm-app-footer .hm-app-nav-next:hover {
-  background-color: #631c82;
+.hm-app .hm-app-footer :is(.hm-app-nav-previous, .hm-app-nav-next):hover {
+  background-color: var(--color-nav-hover);
 }
 
 /* ==========================================================================
   Form Elements
  ========================================================================== */
 
-/* Fieldsets */
 .application.hm-app fieldset {
   min-width: 0;
   min-height: 0;
@@ -477,7 +456,7 @@ button i.nav-prev {
 }
 
 .application.hm-app fieldset > legend {
-  padding: 0 0.5rem;
+  padding-inline: 0.5rem;
   text-transform: uppercase;
 }
 
@@ -488,7 +467,6 @@ button i.nav-prev {
   text-align: center;
 }
 
-/* Form groups */
 .hm-app .form-group {
   gap: 0.313rem;
   display: flex;
@@ -505,30 +483,23 @@ button i.nav-prev {
   max-width: 200px;
 }
 
-/* Rows */
-.form-row,
-.art-selection-row,
-.customization-row {
+:is(.form-row, .art-selection-row, .customization-row) {
   gap: 0.625rem;
+  margin-block-end: 0.625rem;
   display: flex;
   align-items: center;
-  margin-bottom: 0.625rem;
 }
 
-/* Inputs */
-.form-input,
-.form-select,
-.hm-app-tab-content fieldset input[type='text'],
-.hm-app-tab-content fieldset select {
+:is(.form-input, .form-select),
+.hm-app-tab-content fieldset :is(input[type='text'], select) {
   width: 100%;
   max-width: 250px;
   margin: 0 0.3rem;
 }
 
-/* Label styles */
 .label-15 {
+  margin-inline-end: 0.3rem;
   flex: 0 0 20%;
-  margin-right: 0.3rem;
   white-space: nowrap;
 }
 
@@ -543,11 +514,10 @@ button i.nav-prev {
 }
 
 .checkbox-label {
+  margin-inline-start: 0.313rem;
   flex: 1;
-  margin-left: 0.313rem;
 }
 
-/* Button styles */
 .button-7 {
   flex: 0 0 auto;
   width: auto;
@@ -556,10 +526,9 @@ button i.nav-prev {
 }
 
 button {
-  margin-right: unset;
+  margin-inline-end: unset;
 }
 
-/* Tooltips */
 .tooltip-icon {
   color: var(--color-text-dark-secondary);
   transition: color 0.5s ease;
@@ -574,38 +543,38 @@ button {
   vertical-align: middle;
 }
 
-/* Mandatory field indicators */
 .mandatory-indicator {
+  margin-inline-end: 0.25rem;
   display: inline-flex;
   flex-shrink: 0;
   justify-content: center;
   align-items: center;
-  margin-right: 0.25rem;
   font-size: 1.1rem;
 }
 
 .mandatory-indicator.complete {
-  color: #8fd693;
-  text-shadow: 0 0 0.2rem #2e7d324d;
+  color: var(--color-success);
+  text-shadow: 0 0 0.2rem var(--color-success-shadow);
 }
 
 .mandatory-indicator.incomplete {
-  color: #ffb675;
-  text-shadow: 0 0 0.2rem #e539354d;
+  color: var(--color-error);
+  text-shadow: 0 0 0.2rem var(--color-error-shadow);
 }
 
-/* Field validation styling */
-.form-row > label,
-.art-selection-row > label,
-.customization-row > label,
-.ability-block > span.ability-label,
-.ability-block > label,
-.form-group > label,
-.trait-group > label,
-.personality-trait-group > label,
-.description-group > label,
-.notes-group > label,
-.notes-section > h3 {
+:is(
+    .form-row > label,
+    .art-selection-row > label,
+    .customization-row > label,
+    .ability-block > span.ability-label,
+    .ability-block > label,
+    .form-group > label,
+    .trait-group > label,
+    .personality-trait-group > label,
+    .description-group > label,
+    .notes-group > label,
+    .notes-section > h3
+  ) {
   gap: 0.5rem;
   display: flex;
   position: relative;
@@ -623,13 +592,12 @@ button {
   Journal Container
  ========================================================================== */
 
-/* Base container */
 .hm-app-tab-content .journal-container {
   padding: 0.25rem;
   border-radius: var(--border-radius-md);
   overflow: auto hidden;
-  color: #191813 !important;
-  background-color: #f0f0e0 !important;
+  color: var(--color-journal-text) !important;
+  background-color: var(--color-journal-bg) !important;
   transition: opacity 0.3s ease;
 }
 
@@ -650,7 +618,6 @@ button {
   display: none;
 }
 
-/* Loading state */
 .hm-app-tab-content .journal-container .journal-loading {
   gap: 0.5rem;
   display: flex;
@@ -665,9 +632,7 @@ button {
   color: var(--color-text-hyperlink);
 }
 
-/* Error state */
-.hm-app-tab-content .journal-container .notification.error,
-.hm-app-tab-content .journal-container .notification.warning {
+.hm-app-tab-content .journal-container :is(.notification.error, .notification.warning) {
   margin: 0.5rem 0;
   padding: 0.5rem;
   border-radius: var(--border-radius-sm);
@@ -684,37 +649,28 @@ button {
 }
 
 .hm-app-tab-content .journal-container section {
-  margin-top: unset;
+  margin-block-start: unset;
 }
 
-/* Typography */
-.hm-app-tab-content .journal-container h1,
-.hm-app-tab-content .journal-container h2,
-.hm-app-tab-content .journal-container h3,
-.hm-app-tab-content .journal-container h4,
-.hm-app-tab-content .journal-container h5 {
-  margin-top: 0.8rem;
-  margin-bottom: 0.4rem;
-  border-bottom: 2px solid #e6bd6b;
-  border-image: linear-gradient(to right, #e6bd6b, transparent 90%);
+.hm-app-tab-content .journal-container :is(h1, h2, h3, h4, h5) {
+  border-block-end: 2px solid var(--color-journal-border);
+  margin-block: 0.8rem 0.4rem;
+  border-image: linear-gradient(to right, var(--color-journal-border), transparent 90%);
   border-image-slice: 0 0 1 0;
-  color: #782e22 !important;
+  color: var(--color-journal-heading) !important;
   font-weight: bold;
   font-family: var(--dnd5e-font-modesto) !important;
   text-shadow: unset;
 }
 
-.hm-app-tab-content .journal-container p,
-.hm-app-tab-content .journal-container .content-embed p {
+.hm-app-tab-content .journal-container :is(p, .content-embed p) {
   font-family: var(--font-primary);
-  text-align: left;
+  text-align: start;
 }
 
-/* Links */
-.hm-app-tab-content .journal-container a,
-.hm-app-tab-content .journal-container a.content-link {
+.hm-app-tab-content .journal-container :is(a, a.content-link) {
   border: none;
-  color: #782e22 !important;
+  color: var(--color-journal-heading) !important;
   text-decoration: none;
   background: none;
 }
@@ -723,7 +679,6 @@ button {
   text-decoration: underline;
 }
 
-/* Images and embeds */
 .hm-app-tab-content .journal-container img {
   max-width: 100%;
   margin: unset;
@@ -735,9 +690,8 @@ button {
 }
 
 .hm-app-tab-content .journal-container .content-embed .statblock.npc {
-  margin-right: 0;
-  margin-left: auto;
-  text-align: left;
+  margin-inline: auto 0;
+  text-align: start;
 }
 
 .hm-app-tab-content .journal-container figure.content-embed {
@@ -745,7 +699,7 @@ button {
 }
 
 .hm-app-tab-content .journal-container .content-embed figcaption {
-  text-align: right;
+  text-align: end;
 }
 
 .hm-app-tab-content .journal-container .content-embed figcaption cite {
@@ -754,52 +708,45 @@ button {
 }
 
 .hm-app-tab-content .journal-container figure.content-embed strong.embed-caption {
-  margin-right: 0.3rem;
+  margin-inline-end: 0.3rem;
 }
 
-/* Positioning utilities */
 .hm-app-tab-content .journal-container .content-embed.right {
+  margin-inline-start: 0.3rem;
   float: right;
   clear: right;
-  margin-left: 0.3rem;
 }
 
 .hm-app-tab-content .journal-container .content-embed.left {
+  margin-inline-end: 0.3rem;
   float: left;
   clear: left;
-  margin-right: 0.3rem;
 }
 
 .hm-app-tab-content .journal-container .content-embed.center {
-  margin: auto;
+  margin-inline: auto;
 }
 
 .hm-app-tab-content .journal-container .clear-both {
   clear: both;
 }
 
-/* Width utilities */
-.hm-app-tab-content .journal-container .content-embed.four,
-.hm-app-tab-content .journal-container .four {
+.hm-app-tab-content .journal-container :is(.content-embed.four, .four) {
   width: 400px;
 }
 
-.hm-app-tab-content .journal-container .content-embed.three,
-.hm-app-tab-content .journal-container .three {
+.hm-app-tab-content .journal-container :is(.content-embed.three, .three) {
   width: 300px;
 }
 
-.hm-app-tab-content .journal-container .content-embed.two,
-.hm-app-tab-content .journal-container .two {
+.hm-app-tab-content .journal-container :is(.content-embed.two, .two) {
   width: 200px;
 }
 
-.hm-app-tab-content .journal-container .content-embed.one,
-.hm-app-tab-content .journal-container .one {
+.hm-app-tab-content .journal-container :is(.content-embed.one, .one) {
   width: 100px;
 }
 
-/* Tables */
 .hm-app-tab-content .journal-container table {
   width: 100%;
   border-collapse: collapse;
@@ -810,8 +757,7 @@ button {
   text-align: center;
 }
 
-.hm-app-tab-content .journal-container th,
-.hm-app-tab-content .journal-container td {
+.hm-app-tab-content .journal-container :is(th, td) {
   text-align: center;
 }
 
@@ -820,13 +766,8 @@ button {
   border-collapse: collapse;
 }
 
-.hm-app-tab-content .journal-container table th[rowspan],
-.hm-app-tab-content .journal-container table th[colspan],
-.hm-app-tab-content .journal-container table td,
-.hm-app-tab-content .journal-container .journal-page-content table td,
-.hm-app-tab-content .journal-container table p {
-  padding-right: unset;
-  padding-left: unset;
+.hm-app-tab-content .journal-container :is(table th[rowspan], table th[colspan], table td, .journal-page-content table td, table p) {
+  padding-inline: unset;
   text-align: center;
   vertical-align: middle;
 }
@@ -836,15 +777,11 @@ button {
   padding: unset;
 }
 
-/* Column styling */
-.hm-app-tab-content .journal-container table colgroup col.spellcasting,
-.hm-app-tab-content .journal-container table colgroup col[span='9'],
-.hm-app-tab-content .journal-container table thead tr th[scope='col'] {
+.hm-app-tab-content .journal-container :is(table colgroup col.spellcasting, table colgroup col[span='9'], table thead tr th[scope='col']) {
   width: fit-content;
 }
 
-.hm-app-tab-content .journal-container table thead tr th[scope='col'][colspan='9'],
-.hm-app-tab-content .journal-container table thead tr th[scope='col'][rowspan='2'] {
+.hm-app-tab-content .journal-container table thead tr :is(th[scope='col'][colspan='9'], th[scope='col'][rowspan='2']) {
   width: fit-content;
   max-width: 195px;
   font-size: var(--font-size-13);
@@ -865,7 +802,6 @@ button {
   font-size: var(--font-size-10);
 }
 
-/* Cell-specific styles */
 .hm-app-tab-content .journal-container table td.spell-slots {
   text-align: center;
 }
@@ -876,18 +812,15 @@ button {
 }
 
 .hm-app-tab-content .journal-container table td.features {
-  text-align: left;
+  text-align: start;
   white-space: normal;
 }
 
-.hm-app-tab-content .journal-container table td.level,
-.hm-app-tab-content .journal-container table td.prof,
-.hm-app-tab-content .journal-container table td.scale {
+.hm-app-tab-content .journal-container table :is(td.level, td.prof, td.scale) {
   text-align: center;
   white-space: wrap;
 }
 
-/* Specific column sizing */
 .hm-app-tab-content .journal-container table.features-table th[scope='col'][rowspan='2']:nth-child(2) {
   width: 75px;
 }
@@ -903,20 +836,10 @@ button {
   min-width: 150px;
 }
 
-/* Responsive adjustments */
-@media screen and (width <= 768px) {
-  .hm-app-tab-content .journal-container table.features-table {
-    display: block;
-    overflow-x: auto;
-    font-size: 0.6rem;
-  }
-}
-
 /* ==========================================================================
-  Abilities Section
+  Abilities Tab
  ========================================================================== */
 
-/* Ability container */
 .hm-app .ability-container {
   display: flex;
   justify-content: space-between;
@@ -925,7 +848,6 @@ button {
   padding: 1rem 0;
 }
 
-/* Standard array ability blocks */
 .hm-app .ability-block {
   display: flex;
   flex-direction: column;
@@ -934,21 +856,18 @@ button {
   line-height: 2.5rem;
 }
 
-.hm-app .ability-block .ability-dropdown,
-.hm-app .ability-block .ability-score {
+.hm-app .ability-block :is(.ability-dropdown, .ability-score) {
   width: 100%;
   font-size: var(--font-size-13);
   text-align: center;
 }
 
 .hm-app .ability-block .ability-score {
-  margin-bottom: 1.25rem;
+  margin-block-end: 1.25rem;
 }
 
-/* Primary ability highlight */
-.ability-block .ability-label.primary-ability,
-.ability-block.point-buy .ability-label.primary-ability {
-  color: #ffd700;
+:is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
+  color: var(--color-gold);
   text-shadow: 0 -0.3rem 1.25rem #ffd70099;
   animation: primary-ability-pulse 2s infinite ease-in-out;
 }
@@ -961,7 +880,6 @@ button {
   background-color: var(--user-color);
 }
 
-/* Point Buy */
 .ability-container.point-buy {
   gap: 0.125rem;
   display: flex;
@@ -991,9 +909,9 @@ button {
 
 .ability-block.point-buy .control-row {
   gap: 0.313rem;
+  padding-block-end: 0.313rem;
   display: flex;
   align-items: center;
-  padding-bottom: 0.313rem;
 }
 
 .ability-block.point-buy .adjust-button {
@@ -1020,7 +938,6 @@ button {
   text-align: center;
 }
 
-/* Point buy remaining points */
 .remaining-points-container {
   gap: 0.5rem;
   display: flex;
@@ -1031,23 +948,21 @@ button {
   text-align: center;
 }
 
-.remaining-label,
-.points-display {
-  margin-bottom: 0.4rem;
+:is(.remaining-label, .points-display) {
+  margin-block-end: 0.4rem;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
 #remaining-points {
-  margin-right: 0.2rem;
+  margin-inline-end: 0.2rem;
   color: var(--text-color-highlight, #4cae4f);
 }
 
 #total-points {
-  margin-left: 0.2rem;
+  margin-inline-start: 0.2rem;
 }
 
-/* Settings container */
 .ability-scores-container {
   width: 60%;
 }
@@ -1058,28 +973,25 @@ button {
 }
 
 /* ==========================================================================
-  Equipment Section
+  Equipment Tab
  ========================================================================== */
 
-/* Table and cell constraints */
 table.equipment-item {
+  border-block-end: 1px solid var(--color-border-dark-secondary);
   width: 100%;
-  border-bottom: 1px solid var(--color-border-dark-secondary);
   table-layout: fixed;
 }
 
-/* Header cells with long equipment lists */
 table.equipment-item th {
   overflow-wrap: break-word;
   max-width: 100%;
   padding: 0.25rem;
-  text-align: left;
+  text-align: start;
   hyphens: auto;
   word-break: break-all;
   word-wrap: break-word;
 }
 
-/* Fix content links */
 .application.hm-app .hm-app-tab-content .equipment-container .equipment-choices a.content-link {
   overflow-wrap: break-word;
   display: inline-flex;
@@ -1089,23 +1001,13 @@ table.equipment-item th {
   padding: 0;
   border: none;
   white-space: normal;
-  white-space: normal;
   word-break: break-all;
 }
 
-/* Fix select elements and options */
-.equipment-choices select,
-.equipment-choices select option {
+:is(.equipment-choices select, .equipment-choices select option) {
   overflow-wrap: break-word;
   width: 100%;
   white-space: normal;
-}
-
-/* Improve responsiveness for equipment section */
-@media (width <= 768px) {
-  table.equipment-item th h4.parent-label {
-    font-size: 0.8rem;
-  }
 }
 
 .equipment-container {
@@ -1121,36 +1023,29 @@ table.equipment-item th {
   display: grid;
 }
 
-.class-equipment-section,
-.background-equipment-section {
+:is(.class-equipment-section, .background-equipment-section) {
+  margin-block-start: 0.25rem;
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: 0.25rem;
   padding: 1rem;
   border: 1px solid #6f6f6f;
   border-radius: var(--border-radius-lg);
 }
 
-/* Equipment Tables */
-table.equipment-item,
-table.wealth-option-container {
+:is(table.equipment-item, table.wealth-option-container) {
+  margin-block-end: 0.5rem;
   display: table;
   width: 100%;
-  margin-bottom: 0.5rem;
   border-collapse: collapse;
 }
 
-table.equipment-item tr,
-table.wealth-option-container tr {
+:is(table.equipment-item tr, table.wealth-option-container tr) {
   display: table-row;
   background: transparent;
 }
 
-table.equipment-item th,
-table.equipment-item td,
-table.wealth-option-container th,
-table.wealth-option-container td {
+:is(table.equipment-item th, table.equipment-item td, table.wealth-option-container th, table.wealth-option-container td) {
   display: table-cell;
   vertical-align: middle;
   background: transparent;
@@ -1166,36 +1061,29 @@ table.equipment-item td:first-child {
 
 table.equipment-item td:last-child {
   width: 25%;
-  text-align: right;
+  text-align: end;
 }
 
-table.equipment-item tr + tr,
-table.wealth-option-container tr + tr {
+:is(table.equipment-item tr + tr, table.wealth-option-container tr + tr) {
+  margin-block-start: 0;
   width: 100%;
-  margin-top: 0;
 }
 
-/* Headings */
-.hm-app-tab-content .class-equipment-section h3,
-.hm-app-tab-content .background-equipment-section h3 {
+.hm-app-tab-content :is(.class-equipment-section h3, .background-equipment-section h3) {
+  margin-block-end: unset;
   width: 100%;
-  margin-bottom: unset;
   text-align: center;
 }
 
-.hm-app-tab-content .class-equipment-section h4,
-.hm-app-tab-content .background-equipment-section h4 {
+.hm-app-tab-content :is(.class-equipment-section h4, .background-equipment-section h4) {
   font-size: var(--font-size-15);
   font-family: signika, sans-serif;
 }
 
-/* Form elements */
-.equipment-item label,
-.equipment-item input,
-.equipment-item select {
+:is(.equipment-item label, .equipment-item input, .equipment-item select) {
+  margin-block-start: 0.2rem;
+  margin-inline-end: auto;
   width: fit-content;
-  margin-top: 0.2rem;
-  margin-right: auto;
   vertical-align: middle;
 }
 
@@ -1220,7 +1108,6 @@ table.wealth-option-container tr + tr {
   font-size: inherit;
 }
 
-/* Wealth options */
 table.wealth-option-container {
   margin: 0.625rem 0 1rem;
   border: 1px solid var(--color-border-light-tertiary);
@@ -1239,8 +1126,8 @@ table.wealth-option-container td {
 }
 
 table.wealth-option-container label {
+  padding-block-start: 0.0625rem;
   margin: 0;
-  padding-top: 0.0625rem;
   font-weight: 500;
 }
 
@@ -1280,14 +1167,13 @@ tr.wealth-roll-container td {
 }
 
 .application.hm-app .hm-app-tab-content .equipment-container .equipment-choices .wealth-roll-container input[type='text'] {
+  padding-inline-end: 0.625rem;
   width: fit-content;
   min-width: 0.001rem;
   max-width: 75px;
-  padding-right: 0.625rem;
   text-align: center;
 }
 
-/* Favorites */
 .equipment-favorite-container {
   display: block;
   position: relative;
@@ -1296,7 +1182,7 @@ tr.wealth-roll-container td {
   margin: 0;
   padding: 0;
   line-height: 1;
-  text-align: right;
+  text-align: end;
 }
 
 .equipment-favorite-label {
@@ -1331,7 +1217,7 @@ tr.wealth-roll-container td {
 }
 
 .equipment-favorite-checkbox:checked + .equipment-favorite-star {
-  color: #ffd700;
+  color: var(--color-gold);
 }
 
 .equipment-favorite-checkbox:hover + .equipment-favorite-star {
@@ -1341,10 +1227,9 @@ tr.wealth-roll-container td {
 td .equipment-favorite-container {
   display: block;
   height: 100%;
-  text-align: right;
+  text-align: end;
 }
 
-/* Empty notices */
 .equipment-empty-notice {
   box-sizing: border-box;
   width: 100%;
@@ -1370,17 +1255,11 @@ td .equipment-favorite-container {
   font-size: 2rem;
 }
 
-/* States and visibility */
-.equipment-item.disabled select,
-.equipment-item.disabled input[type='checkbox'],
-.equipment-item.disabled label {
+.equipment-item.disabled :is(select, input[type='checkbox'], label) {
   pointer-events: none;
 }
 
-.equipment-choices select:disabled,
-.equipment-choices input:disabled,
-.equipment-choices label.disabled,
-.equipment-choices h4:disabled {
+:is(.equipment-choices select:disabled, .equipment-choices input:disabled, .equipment-choices label.disabled, .equipment-choices h4:disabled) {
   opacity: 0.5;
   color: #878787;
   cursor: not-allowed;
@@ -1403,18 +1282,15 @@ tr.wealth-roll-container[style*='display: table-row'] {
 /* ==========================================================================
   Biography Tab
  ========================================================================== */
-
-.hm-app-tab-content .characteristics-section .form-input,
-.hm-app-tab-content .characteristics-section .form-select {
+.hm-app-tab-content .characteristics-section :is(.form-input, .form-select) {
   flex: 3;
   min-width: 100%;
 }
 
-/* Personality traits */
 .hm-app-tab-content .personality-trait-group {
+  margin-block-end: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--spacing-md);
 }
 
 .hm-app-tab-content .personality-trait-group textarea {
@@ -1422,7 +1298,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   resize: none;
 }
 
-/* Physical description */
 .hm-app-tab-content .physical-description-section textarea {
   width: 100%;
   min-height: 7.5rem;
@@ -1430,7 +1305,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-app-tab-content .biography-tab h2 {
-  margin-bottom: 0.5rem !important;
+  margin-block-end: 0.5rem !important;
 }
 
 .hm-app-tab-content .biography-tab label {
@@ -1445,7 +1320,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   resize: none;
 }
 
-/* Notes section */
 .hm-app-tab-content .notes-grid {
   gap: 0.625rem;
   display: grid;
@@ -1466,7 +1340,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 /* ==========================================================================
-  Review/Finalize Tab
+  Review Tab
  ========================================================================== */
 
 .hm-app-tab-content .review-container {
@@ -1500,7 +1374,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .hm-app-tab-content .character-summary {
   display: block;
   line-height: 1.8;
-  text-align: left;
+  text-align: start;
 }
 
 .hm-app-tab-content .character-summary span {
@@ -1513,7 +1387,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   background: unset;
 }
 
-/* Review layout */
 .hm-app-tab-content .review-sections {
   display: flex;
   flex-direction: column;
@@ -1533,13 +1406,12 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-app-tab-content .review-section h3 {
+  border-block-end: 1px solid var(--color-border-light-secondary);
   gap: 0.5rem;
+  margin-block: 0 0.75rem;
+  padding-block-end: 0.5rem;
   display: flex;
   align-items: center;
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border-light-secondary);
   font-size: 1.1em;
 }
 
@@ -1553,18 +1425,17 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-app-tab-content .review-item {
+  padding-block-start: 0.375rem;
   display: flex;
-  padding-top: 0.375rem;
   line-height: 1.4;
 }
 
 .hm-app-tab-content .review-label {
+  margin-inline-end: 0.5rem;
   min-width: 100px;
-  margin-right: 0.5rem;
   font-weight: bold;
 }
 
-/* Abilities grid */
 .hm-app-tab-content .abilities-grid {
   gap: 0.5rem;
   grid-template-columns: repeat(3, 1fr);
@@ -1583,36 +1454,31 @@ tr.wealth-roll-container[style*='display: table-row'] {
   font-weight: bold;
 }
 
-/* Equipment layout */
 .hm-app-tab-content .equipment-layout {
   gap: 0.75rem;
   grid-template-columns: 1fr 1fr;
   display: grid;
 }
 
-.hm-app-tab-content .background-equipment,
-.hm-app-tab-content .class-equipment {
-  padding-top: 0.5rem;
+.hm-app-tab-content :is(.background-equipment, .class-equipment) {
+  padding-block-start: 0.5rem;
 }
 
-.hm-app-tab-content .background-equipment h4,
-.hm-app-tab-content .class-equipment h4 {
-  padding-bottom: 0.375rem;
-  border-bottom: 1px solid var(--color-border-light-tertiary);
+.hm-app-tab-content :is(.background-equipment h4, .class-equipment h4) {
+  border-block-end: 1px solid var(--color-border-light-tertiary);
+  padding-block-end: 0.375rem;
   font-size: var(--font-h5-size);
   text-align: center;
 }
 
-.hm-app-tab-content .background-items,
-.hm-app-tab-content .class-items {
-  padding-top: 0.2rem;
+.hm-app-tab-content :is(.background-items, .class-items) {
+  padding-block-start: 0.2rem;
 }
 
 .hm-app-tab-content .equipment-wealth {
   font-style: italic;
 }
 
-/* Biography preview */
 .hm-app-tab-content .bio-preview {
   gap: 0.75rem;
   display: flex;
@@ -1633,19 +1499,19 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-app-tab-content .bio-detail {
-  margin-top: 0.375rem;
+  margin-block-start: 0.375rem;
 }
 
 .hm-app-tab-content .bio-detail h4 {
+  margin-block-end: 0.2rem;
   display: flex;
   align-items: center;
-  margin-bottom: 0.2rem;
   font-weight: bold;
   font-size: 1em;
 }
 
 .hm-app-tab-content .bio-detail h4::before {
-  margin-right: 0.375rem;
+  margin-inline-end: 0.375rem;
   color: var(--color-text-hyperlink);
   content: '•';
 }
@@ -1660,10 +1526,9 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 /* ==========================================================================
-  Compendium Settings & Dialogs
+  Custom Compendiums Settings & Dialogs
  ========================================================================== */
 
-/* Popup sections */
 .hm-compendiums-popup-section {
   display: flex;
   justify-content: space-between;
@@ -1678,17 +1543,16 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-compendiums-popup-section button {
+  margin-inline-start: 0.625rem;
   width: auto;
-  margin-left: 0.625rem;
   white-space: nowrap;
 }
 
-/* Compendium footers */
 .hm-compendiums-footer {
+  padding-block-start: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 1rem;
 }
 
 .hm-compendiums-footer-actions {
@@ -1699,9 +1563,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
   width: 50%;
 }
 
-/* Dialog styling */
-.hm-compendiums-popup-dialog .dialog-content,
-.hm-compendiums-popup-dialog .window-content form {
+.hm-compendiums-popup-dialog :is(.dialog-content, .window-content form) {
   height: fit-content;
   padding: 0.5rem;
   overflow: auto;
@@ -1714,7 +1576,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   max-height: calc(100vh - 200px);
 }
 
-/* Compendium groups */
 .hm-compendium-groups {
   overflow-y: auto;
 }
@@ -1729,9 +1590,9 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-compendium-group-items {
+  margin-inline-start: 1.5rem;
   display: flex;
   flex-direction: column;
-  margin-left: 1.5rem;
 }
 
 .hm-compendium-group .hm-compendium-group-items .hm-compendium-item {
@@ -1739,21 +1600,19 @@ tr.wealth-roll-container[style*='display: table-row'] {
   padding: 0;
 }
 
-/* Multi-checkbox layout */
 .hm-compendiums-popup-dialog multi-checkbox {
+  padding-inline-end: 0.5rem;
   display: block;
   max-height: calc(50vh - 100px);
-  padding-right: 0.5rem;
   overflow-y: auto;
 }
 
-.hm-compendiums-popup-dialog multi-checkbox label.checkbox,
-.hm-compendiums-popup-dialog .checkbox {
+.hm-compendiums-popup-dialog :is(multi-checkbox label.checkbox, .checkbox) {
+  margin-block-end: 0.625rem;
+  padding-block: 0.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.625rem;
-  padding: 0.25rem 0;
 }
 
 .hm-compendiums-popup-dialog multi-checkbox label.checkbox input[type='checkbox'] {
@@ -1761,13 +1620,12 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-compendiums-popup-dialog .checkbox input[type='checkbox'] {
-  margin-right: 0.625rem;
+  margin-inline-end: 0.625rem;
 }
 
-/* Compendium dialog content */
 .hm-compendium-dialog-content {
+  padding-inline-end: 0.5rem;
   max-height: calc(80vh - 150px);
-  padding-right: 0.5rem;
   overflow-y: auto;
 }
 
@@ -1777,23 +1635,18 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .hm-compendium-dialog-content .checkbox span {
   flex: 1;
-  text-align: left;
+  text-align: start;
 }
 
-/* Select all buttons */
-.hm-select-all,
-.hm-select-all-global {
-  margin-right: 0.5rem;
+:is(.hm-select-all, .hm-select-all-global) {
+  margin-inline-end: 0.5rem;
 }
 
 /* ==========================================================================
-  Character Customization Menu
-  ========================================================================== */
+  Customization Settings
+ ========================================================================== */
 
-/* Customization Application */
-.customization-application .form-group,
-.customization-application .form-group .form-group,
-.customization-application .form-group .flex.items-center {
+:is(.customization-application .form-group, .customization-application .form-group .form-group, .customization-application .form-group .flex.items-center) {
   gap: unset;
   width: 100%;
 }
@@ -1806,21 +1659,19 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .customization-application .flex.items-center button.file-picker {
   aspect-ratio: 1/1;
+  margin-inline-start: 0.3rem;
   display: flex;
   justify-content: center;
   align-items: center;
   width: auto;
   height: 100%;
-  margin-left: 0.3rem;
 }
 
 .customization-application .flex.items-center button.file-picker i {
   margin: 0;
 }
 
-/* Input and Color Picker */
-.hm-app .hm-app-tab-content .input-35,
-.hm-app .hm-app-tab-content color-picker {
+.hm-app .hm-app-tab-content :is(.input-35, color-picker) {
   display: flex;
   flex: 1;
   max-width: 35%;
@@ -1838,46 +1689,42 @@ tr.wealth-roll-container[style*='display: table-row'] {
   max-width: 35%;
 }
 
-/* Ring Effects */
 .hm-app .hm-app-tab-content .ring-effects {
   display: flex;
   flex-wrap: wrap;
 }
 
 .hm-app .hm-app-tab-content .ring-effects .checkbox-label {
+  margin-inline-start: 0;
+  padding-inline-start: 0.313rem;
   width: calc(100% - 120px);
-  margin-left: 0;
-  padding-left: 0.313rem;
 }
 
 /* ==========================================================================
-  Ability Score Generation Menu
-  ========================================================================== */
+  Dice Rolling Settings
+ ========================================================================== */
 
-/* Dice Rolling popup base styles */
 .hm-dice-rolling-popup .form-group {
   gap: unset;
 }
 
-/* Dice method options layout */
 .dice-method-options {
   gap: 1rem;
+  margin-block-end: 0.5rem;
   display: flex;
-  margin-bottom: 0.5rem;
 }
 
 .dice-method-options label {
   gap: 0.5rem;
+  margin-inline-end: 1rem;
   display: flex;
   align-items: center;
-  margin-right: 1rem;
 }
 
 .dice-method-options input[type='checkbox'] {
   margin: 0;
 }
 
-/* Delay control slider styling */
 .delay-control {
   gap: 1rem;
   display: flex;
@@ -1893,10 +1740,9 @@ tr.wealth-roll-container[style*='display: table-row'] {
 .delay-value {
   min-width: 60px;
   font-weight: bold;
-  text-align: right;
+  text-align: end;
 }
 
-/* Ability scores container styling */
 .hm-dice-rolling-popup .ability-scores-container {
   gap: 0.5rem;
   display: grid;
@@ -1906,7 +1752,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-dice-rolling-popup .ability-scores-container label {
-  margin-bottom: 0.3rem;
+  margin-block-end: 0.3rem;
 }
 
 .hm-dice-rolling-popup .ability-scores-container input[type='number'] {
@@ -1914,16 +1760,14 @@ tr.wealth-roll-container[style*='display: table-row'] {
   text-align: center;
 }
 
-/* Info tooltip alignment */
 .hm-dice-rolling-popup .tooltip-icon {
-  margin-left: 0.3rem;
+  margin-inline-start: 0.3rem;
 }
 
 /* ==========================================================================
-  Field Layout & Mandatory Fields
-  ========================================================================== */
+  Mandatory Fields Settings
+ ========================================================================== */
 
-/* Base field layout */
 .field-column {
   display: flex;
   flex-direction: column;
@@ -1932,12 +1776,11 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .field-column .field-group {
-  margin-bottom: 0.4rem;
+  margin-block-end: 0.4rem;
   border: 1px solid var(--color-border-light-tertiary);
   border-radius: var(--border-radius-md);
 }
 
-/* Mandatory fields popup */
 .hm-mandatory-fields-popup {
   gap: 0.625rem;
   display: flex;
@@ -1947,7 +1790,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-mandatory-fields-popup .fields-container {
-  padding-right: 0.625rem;
+  padding-inline-end: 0.625rem;
   overflow-y: auto;
 }
 
@@ -1957,7 +1800,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .hm-mandatory-fields-popup .field-group h3 {
-  padding-bottom: 0.313rem;
+  padding-block-end: 0.313rem;
   font-weight: bold;
 }
 
@@ -1968,8 +1811,8 @@ tr.wealth-roll-container[style*='display: table-row'] {
 
 .hm-mandatory-fields-popup .form-group {
   gap: unset;
+  padding-inline-start: 0.625rem;
   margin: 0.3rem 0;
-  padding-left: 0.625rem;
 }
 
 .hm-mandatory-fields-popup .form-group label {
@@ -1986,7 +1829,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   margin: 0;
 }
 
-/* Footer specific styling */
 .hm-mandatory-footer {
   display: flex;
   justify-content: center;
@@ -1995,23 +1837,21 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 /* ==========================================================================
-  Troubleshooter
-  ========================================================================== */
+  Troubleshooter Settings
+ ========================================================================== */
 
-/* Container styling */
 .hm-troubleshooter-container {
   padding: 0.5rem;
 }
 
 .hm-troubleshooter-container .notes {
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   font-style: italic;
 }
 
-/* Textarea styling */
 .hm-troubleshooter-container textarea {
+  margin-block-end: 0.625rem;
   width: 100%;
-  margin-bottom: 0.625rem;
   overflow-x: hidden;
   font-size: var(--font-size-12);
   font-family: monospace;
@@ -2019,15 +1859,13 @@ tr.wealth-roll-container[style*='display: table-row'] {
   resize: none;
 }
 
-/* Button container */
 .troubleshooter-buttons {
   gap: 0.625rem;
+  margin-block-start: 1rem;
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
 }
 
-/* Button styling */
 .troubleshooter-buttons button {
   gap: 0.313rem;
   display: flex;
@@ -2035,10 +1873,9 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .troubleshooter-buttons button i {
-  margin-right: 0.3rem;
+  margin-inline-end: 0.3rem;
 }
 
-/* Window sizing */
 .application.hm-troubleshooter {
   min-width: 600px;
 }
@@ -2051,7 +1888,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   Animations & Transitions
  ========================================================================== */
 
-/* Primary ability animations */
 @keyframes primary-ability-pulse {
   0% {
     text-shadow: 0 0 0.3rem #ffd70099;
@@ -2095,7 +1931,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   }
 }
 
-/* Dice rolling animation */
 @keyframes roll-dice {
   0% {
     color: var(--color-text-hyperlink);
@@ -2149,7 +1984,6 @@ tr.wealth-roll-container[style*='display: table-row'] {
   animation: roll-dice 1.2s ease-in-out;
 }
 
-/* Journal content transitions */
 .hm-app-tab-content .journal-container.loading {
   opacity: 0.7;
 }
@@ -2170,18 +2004,16 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 /* ==========================================================================
-  Media Queries
+  Utilities Layer - Responsive & Theme
  ========================================================================== */
 
-@media (width <= 999px) {
-  /* Application container */
+@container (width <= 999px) {
   .application.hm-app {
     width: 95%;
     max-width: 95%;
     max-height: 75vh;
   }
 
-  /* Navigation */
   .application.hm-app .hm-app-nav {
     gap: 1rem;
     display: flex;
@@ -2190,58 +2022,49 @@ tr.wealth-roll-container[style*='display: table-row'] {
   }
 
   .application.hm-app .hm-app-nav a.item {
+    margin-block-end: 0.625rem;
     flex-grow: 1;
     flex-shrink: 1;
     min-width: 150px;
-    margin-bottom: 0.625rem;
   }
 
-  /* Form elements */
-  .hm-app-tab-content fieldset input[type='text'],
-  .hm-app-tab-content fieldset select {
+  .hm-app-tab-content fieldset :is(input[type='text'], select) {
     width: 80%;
     margin: 0;
   }
 
-  /* Footer */
   .hm-app-footer-actions {
     gap: 0.313rem;
     width: 100%;
   }
 }
 
-@media (width <= 768px) {
-  /* Application container */
+@container (width <= 768px) {
   .application.hm-app {
     width: 100%;
     max-height: 70vh;
   }
 
-  /* Footer */
   .hm-app-footer-actions {
     gap: 0.5rem;
     flex-direction: column;
     width: 100%;
   }
 
-  /* Navigation */
   .application.hm-app .hm-app-nav a.item {
-    padding: 0 0.313rem;
+    padding-inline: 0.313rem;
     font-size: var(--font-size-13);
   }
 
-  /* Form elements */
   .hm-app-tab-content fieldset {
     padding: 0.313rem;
   }
 
-  .hm-app-tab-content fieldset input[type='text'],
-  .hm-app-tab-content fieldset select {
+  .hm-app-tab-content fieldset :is(input[type='text'], select) {
     width: 100%;
     margin: 0;
   }
 
-  /* Equipment grid */
   .equipment-choices {
     grid-template-columns: 1fr;
   }
@@ -2252,7 +2075,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
   }
 
   .ability-scores-container label.font-bold {
-    margin-bottom: 0.25rem;
+    margin-block-end: 0.25rem;
   }
 }
 
@@ -2266,6 +2089,14 @@ tr.wealth-roll-container[style*='display: table-row'] {
   .hm-app-footer-actions button {
     padding: 0.25rem 0.5rem;
     font-size: var(--font-size-13);
+  }
+}
+
+@media screen and (width <= 768px) {
+  .hm-app-tab-content .journal-container table.features-table {
+    display: block;
+    overflow-x: auto;
+    font-size: 0.6rem;
   }
 }
 
@@ -2295,8 +2126,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
   color: #5a0101;
 }
 
-.theme-light .ability-block .ability-label.primary-ability,
-.theme-light .ability-block.point-buy .ability-label.primary-ability {
+.theme-light :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
   text-shadow:
     -1px -1px 1px #000000b3,
     1px -1px 1px #000000b3,
@@ -2322,8 +2152,7 @@ tr.wealth-roll-container[style*='display: table-row'] {
     0.5px 0.5px 0.5px #000000b3;
 }
 
-.theme-light .hm-app-tab-content h2,
-.theme-light .hm-app-tab-content h3 {
+.theme-light .hm-app-tab-content :is(h2, h3) {
   color: var(--light-mode-font-color);
   text-shadow: 1px 1px 1px #000;
 }
