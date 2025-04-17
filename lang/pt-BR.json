@@ -54,33 +54,33 @@
         "tooltip": "Selecione um Antecedente para seu personagem"
       },
       "biography": {
-        "age-hint": "",
-        "alignment-hint": "",
-        "backstory": "",
-        "backstory-hint": "",
-        "backstory-placeholder": "",
-        "bonds-placeholder": "",
-        "bonds-placeholder-alt": "",
-        "characteristics": "",
-        "description-hint": "",
-        "faith-hint": "",
-        "flaws-placeholder": "",
-        "flaws-placeholder-alt": "",
-        "height-hint": "",
-        "ideals-placeholder": "",
-        "ideals-placeholder-alt": "",
-        "personality-traits": "",
-        "physical-description": "",
-        "roll-bonds": "",
-        "roll-flaws": "",
-        "roll-ideals": "",
-        "roll-traits": "",
-        "size-hint": "",
-        "size-placeholder": "",
-        "tooltip": "",
-        "traits-placeholder": "",
-        "traits-placeholder-alt": "",
-        "weight-hint": ""
+        "age-hint": "Sua idade pode dizer muitas coisas a um observador. Você é um veterano experiente? Um jovem empreendedor? Quanto mais velho você for, mais detalhada sua história pode ser.",
+        "alignment-hint": "Seu alinhamento define sua postura moral e ética. Embora normalmente considerado opcional, ainda pode ser uma ferramenta importante para interpretar motivações, ações e muito mais.",
+        "backstory": "Biografia",
+        "backstory-hint": "Sua história define cada decisão que você toma e, muitas vezes, o porquê. Considere: objetivos, vidas passadas, experiências presentes, família, favoritos, hábitos, autopercepção, relacionamentos, etc.",
+        "backstory-placeholder": "Escreva a história de fundo do seu personagem. Considere a quais organizações ele pertence, quaisquer aliados que tenha feito ou inimigos que tenha conquistado e outros detalhes importantes da vida dele antes de se tornar um aventureiro.",
+        "bonds-placeholder": "Quem ou o que é mais querido pelo seu personagem? Que lugar parece um lar? Que objeto significa tudo para ele? Pressione o botão Rolar para selecionar vínculos sugeridos pelo seu Antecedente.",
+        "bonds-placeholder-alt": "Quem ou o que é mais querido pelo seu personagem? Que lugar parece um lar? Que objeto significa tudo para ele?",
+        "characteristics": "Características",
+        "description-hint": "Quando você se olha no espelho, o que vê? Mergulhe na identidade física do seu personagem!",
+        "faith-hint": "Seu Mestre determina quais deuses, se houver, são adorados em sua campanha. Dentre os deuses disponíveis, você pode escolher uma única divindade para seu personagem servir, adorar ou prestar homenagem verbal. Não é religioso? Deixe em branco!",
+        "flaws-placeholder": "Quais são as deficiências ou fraquezas do seu personagem? Considere tanto as peculiaridades de personalidade quanto as limitações de habilidade. Quais características os outros podem achar difíceis? Pressione o botão Rolar para selecionar falhas sugeridas pelo seu Antecedente.",
+        "flaws-placeholder-alt": "Quais são as deficiências ou fraquezas do seu personagem? Considere tanto as peculiaridades de personalidade quanto as limitações de habilidade. Quais características os outros podem achar difíceis?",
+        "height-hint": "Sua altura é influenciada pela sua Raça, mas pode variar fora das normas.",
+        "ideals-placeholder": "Quais princípios guiam seu personagem? Que causa ou crença o impulsiona à aventura? Pelo que ele lutaria ou morreria? Pressione o botão Rolar para escolher os ideais sugeridos pelo seu Antecedente.",
+        "ideals-placeholder-alt": "Quais princípios guiam seu personagem? Que causa ou crença o impulsiona à aventura? Pelo que ele lutaria ou morreria?",
+        "personality-traits": "Traços de Personalidade",
+        "physical-description": "Descrição Física",
+        "roll-bonds": "Rolar para Vínculos",
+        "roll-flaws": "Rolar para Falhas",
+        "roll-ideals": "Rolar para Ideias",
+        "roll-traits": "Rolar para Traços",
+        "size-hint": "Seu tamanho é determinado pela sua Raça.",
+        "size-placeholder": "Determinado pela raça",
+        "tooltip": "Detalhes da biografia do personagem",
+        "traits-placeholder": "Descreva a personalidade do seu personagem. Como suas habilidades moldam quem ele é? Ele é sábio e contemplativo, ou carismático e extrovertido? Pressione o botão Rolar para selecionar traços de personalidade sugeridos pelo seu Antecedente.",
+        "traits-placeholder-alt": "Descreva a personalidade do seu personagem. Como suas habilidades moldam quem ele é? Ele é sábio e contemplativo, ou carismático e extrovertido?",
+        "weight-hint": "Seu peso determinará algumas coisas, principalmente quem pode levantá-lo. Normalmente, isso não altera a mecânica de combate."
       },
       "cancel": "Cancelar",
       "cancel-description": "Cancelar e fechar o Hero Mancer",
@@ -92,7 +92,7 @@
         "select-placeholder": "Escolha uma Classe",
         "tooltip": "Selecione uma Classe para seu personagem"
       },
-      "creation-progress": "",
+      "creation-progress": "Progresso de conclusão",
       "document-service": {
         "common-labels": {
           "dndbeyond-importer": "DDB",
@@ -138,22 +138,22 @@
       },
       "finalize": {
         "character-portrait": "Avatar do Personagem",
-        "character-review": "",
-        "final-notes": "",
+        "character-review": "Revisão do Personagem",
+        "final-notes": "Revise abaixo os detalhes do seu personagem. Se tudo estiver correto, clique no botão Finalizar para criar seu personagem.",
         "review": {
-          "abilities": "",
-          "appearance-adjectives": "",
-          "background-equipment": "",
-          "backstory": "",
-          "basic-info": "",
-          "biography": "",
-          "biography-format": "",
-          "biography-format-with-faith": "",
-          "class-equipment": "",
-          "equipment": "",
-          "no-equipment": "",
-          "physical-description": "",
-          "starting-wealth": ""
+          "abilities": "Atributos",
+          "appearance-adjectives": "lindo, esplêndido, impressionante, cativante, sedutor, deslumbrante, hipnotizante, encantador, requintado, radiante",
+          "background-equipment": "Equipamento de Antecedente",
+          "backstory": "Biografia",
+          "basic-info": "Informações Básicas",
+          "biography": "Visão Geral da Biografia",
+          "biography-format": "Um(a) {gender} {alignment} {size}. Aos {age}, ele(a) pesa {weight}, possui {height} de altura. Com olhos {eyes} {eyesAdjective}, cabelo {hair} e uma {skinAdjective} pele {skin}.",
+          "biography-format-with-faith": "Um(a) {gender} {alignment} {size}. Aos {age}, ele(a) pesa {weight}, possui {height} de altura. Com olhos {eyes} {eyesAdjective}, cabelo {hair} e uma {skinAdjective} pele {skin}. Um(a) devoto(a) de {faith}.",
+          "class-equipment": "Equipamento de Classe",
+          "equipment": "Equipamento",
+          "no-equipment": "Nenhum equipamento selecionado",
+          "physical-description": "Descrição Física",
+          "starting-wealth": "Riqueza inicial: {amount}"
         },
         "summary": {
           "abilities": "se orgulha de seus impressionantes {first} e {second}",
@@ -164,7 +164,7 @@
           "classRaceDefault": "esta Raça desconhecida Classe desconhecida",
           "equipment": "e começa sua aventura com {items}.",
           "equipmentDefault": "e começa sua aventura.",
-          "no-items": ""
+          "no-items": "Nenhum item selecionado"
         },
         "tooltip": "Finalize a criação do seu personagem"
       },
@@ -227,7 +227,7 @@
         "select-art": "Selecione",
         "token-art-label": "Arte do Token",
         "token-art-placeholder": "Escolha a arte do token para seu personagem",
-        "token-customization": "",
+        "token-customization": "Personalização de token",
         "token-same-as-character": "Usar a mesma imagem para o token?",
         "token-visibility-placeholder": "Escolha o status de exibição",
         "tooltip": "Comece a criação do seu personagem"
@@ -237,7 +237,7 @@
       "tab-names": {
         "abilities": "Atributos",
         "background": "Antecedente",
-        "biography": "",
+        "biography": "Biografia",
         "class": "Classe",
         "equipment": "Equipamento",
         "finalize": "Finalizar",
@@ -274,7 +274,11 @@
       "fetch-fail": "Falha ao buscar alguns documentos, verifique se há erros no console.",
       "form-submission": "Ocorreu um erro ao enviar o formulário. Tente novamente.",
       "invalid-document-type": "Tipo de documento especificado inválido",
+      "missing-ability-fields": "Atributos ausentes necessários: {fields} ({count} total)",
+      "missing-background-fields": "Detalhes de Antecedente ausentes necessários: {fields} ({count} total)",
+      "missing-basic-fields": "Campos básicos ausentes necessários: {fields} ({count} total)",
       "missing-equipment": "O {type} selecionado não contém nenhum dado de Equipamento Inicial. Por favor, informe o criador do item, não o Hero Mancer. Se você não selecionou um {type}, pode ignorar este aviso.",
+      "missing-mandatory-fields": "Campos necessários ausentes: {fields}",
       "no-background": "O Antecedente selecionado não pôde ser encontrado.",
       "no-class": "A Classe selecionada não pôde ser encontrada.",
       "no-race": "A Raça selecionada não pôde ser encontrada.",
@@ -290,7 +294,7 @@
     },
     "info": {
       "advancement-progress": "Processando {item} ({current}/{total})",
-      "all-advancements-complete": "Todos as progressões de personagem foram processadas ​​com sucesso.",
+      "all-advancements-complete": "Todos as progressões de personagem foram processadas com sucesso.",
       "cpr-effects-applied": "Cauldron of Plentiful Resouces detectado! Automações aplicadas!"
     },
     "settings": {
@@ -320,7 +324,7 @@
         "header": "Opções de Aparência"
       },
       "art-picker-root": {
-        "browse": "",
+        "browse": "Escolha o local raiz",
         "hint": "O diretório raiz do Seletor de Arte de Personagem",
         "name": "Diretório Raiz do Seletor de Arte"
       },
@@ -367,12 +371,12 @@
         "save-error": "Não é possível criar o botão concluído, consulte o console.",
         "saved": "As configurações do compêndio {type} foram salvas.",
         "select-all": "Selecionar Tudo",
-        "select-all-in": "",
+        "select-all-in": "Selecione tudo em",
         "title": "Selecione compêndios de {type}!",
         "types": {
           "background": "Antecedente",
           "class": "Classe",
-          "item": "",
+          "item": "Itens",
           "race": "Raça",
           "species": "Espécie"
         }
@@ -503,7 +507,7 @@
         "name": "Atraso da Animação de Rolagem"
       },
       "skin-tones": {
-        "hint": "Lista separada por vírgulas de tons de pele usados ​​para randomização de personagens.",
+        "hint": "Lista separada por vírgulas de tons de pele usados para randomização de personagens.",
         "name": "Tons de Pele"
       },
       "stat-generation-swap-mode": {
@@ -534,7 +538,7 @@
           "name": "Troubleshooter"
         },
         "notes": "O Troubleshooter contém todas as informações relevantes necessárias para iniciar o processo de correção de bugs. Usando os botões abaixo, você pode salvar este resultado como um arquivo ou copiá-lo para a sua área de transferência. Sinta-se à vontade para entrar no Discord ou criar um report no GitHub.",
-        "output-label": "",
+        "output-label": "Log de saída do Troubleshooter",
         "save-to-file": "Download",
         "title": "Troubleshooter"
       }
@@ -545,7 +549,7 @@
       "currency-update-failed": "Falha ao atualizar o dinheiro do personagem.",
       "equipment-creation-failed": "Falha ao criar alguns itens de equipamento.",
       "equipment-extraction-failed": "Nota: O documento contém informações sobre o equipamento, mas não pôde ser extraído automaticamente devido ao seu formato.",
-      "equipment-processing-failed": "Alguns itens de equipamento não puderam ser processados ​​corretamente.",
+      "equipment-processing-failed": "Alguns itens de equipamento não puderam ser processados corretamente.",
       "favorites-processing-failed": "Falha ao processar itens favoritos corretamente.",
       "no-packs-found": "Nenhum pacote encontrado para {type}",
       "select-background": "Você deve selecionar um Antecedente válido primeiro.",
