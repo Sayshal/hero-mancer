@@ -2096,8 +2096,12 @@ tr.wealth-roll-container[style*='display: table-row'] {
   background-image: linear-gradient(90deg, transparent 0%, #362417 50%, transparent 100%);
 }
 
+.theme-light .application.hm-app .hero-mancer-tabs.tabs.hm-app-nav .item {
+  color: #292929;
+}
+
 .theme-light .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
-  color: #5a0101;
+  color: #e53935;
 }
 
 .theme-light .hm-app .form-group .hint {
@@ -2106,11 +2110,11 @@ tr.wealth-roll-container[style*='display: table-row'] {
 }
 
 .theme-light .mandatory-indicator.complete {
-  color: #123013;
+  color: #2e7d32;
 }
 
 .theme-light .mandatory-indicator.incomplete {
-  color: #5a0101;
+  color: #e53935;
 }
 
 .theme-light :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
