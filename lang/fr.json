@@ -1,0 +1,556 @@
+{
+  "hm": {
+    "actortab-button": {
+      "creating": "Hero Mancer est en train de créer votre personnage ! ... Cela peut prendre un instant.",
+      "hint": "Ouvrir l'application Hero Mancer",
+      "loading": "Hero Mancer est en cours de chargement ! ... Cela peut prendre un instant.",
+      "name": "Hero Mancer"
+    },
+    "app": {
+      "abilities": {
+        "decrease": "-1",
+        "increase": "+1",
+        "instructions": {
+          "chained-rolls": "Votre MJ a activé les jets enchaînés. Cliquez simplement sur l'un des dés ci-dessus pour lancer toutes vos statistiques. Ne vous inquiétez pas ! Vous pouvez relancer individuellement les entrées, si votre MJ le permet.",
+          "manual": {
+            "description": "Pour chaque caractéristique ci-dessous, lancez la formule désignée (par défaut 4d6 en retirant le plus bas) et entrez le résultat comme votre score de caractéristique. Répétez l'opération pour chaque caractéristique.",
+            "preamble": "La méthode de jet manuel vous permet de créer un profil de personnage unique en lançant des dés pour déterminer chaque score de caractéristique. Par défaut, elle utilise la méthode classique 4d6 en retirant le plus bas, mais votre MJ peut spécifier une formule de jet personnalisée. Bien que les résultats de cette méthode puissent varier de scores élevés à moyens, voire faibles, elle ajoute un élément d'imprévisibilité à la création de personnage qui peut engendrer des forces et des faiblesses distinctes. Cette méthode est parfaite pour créer des personnages variés dans des campagnes courtes ou des one-shots, où des statistiques surprenantes peuvent inspirer un jeu de rôle créatif. Embrassez le hasard et profitez des résultats uniques !",
+            "title": "Méthode de génération de statistiques : Jet manuel"
+          },
+          "no-roll-method": "Erreur lors du chargement d'une méthode de jet valide, veuillez le signaler au développeur.",
+          "point-buy": {
+            "description": "Attribuez des points à chaque score de caractéristique. Vous disposez d'une base de 27 points à dépenser, avec un score maximum plafonné à 15.",
+            "preamble": "La méthode d'achat de points offre une flexibilité en vous permettant d'attribuer un nombre déterminé de points à vos caractéristiques. Répartissez vos points entre les caractéristiques pour créer un profil de personnage équilibré ou spécialisé. Chaque score supérieur à 8 a un coût en points, alors planifiez judicieusement !",
+            "remaining": "Restant",
+            "title": "Méthode de génération de statistiques : Achat de points"
+          },
+          "standard-array": {
+            "description": "Pour chaque caractéristique ci-dessous, choisissez une valeur dans le menu déroulant. Gardez à l'esprit votre classe et vos objectifs de personnage lors de votre décision. Vous ne pouvez utiliser une valeur qu'une seule fois.",
+            "preamble": "La matrice standard vous permet d'attribuer un ensemble de scores prédéfinis aux caractéristiques de votre personnage, conçus pour maintenir l'équilibre des personnages et simplifier la création. Cette méthode est idéale pour les nouveaux joueurs ou ceux qui souhaitent une configuration cohérente et équilibrée au sein du groupe, garantissant que chaque personnage commence au même niveau de puissance. N'oubliez pas que vos bonus raciaux influenceront toujours vos scores de caractéristiques finaux. Tenez compte attentivement de votre classe et de vos bonus raciaux lorsque vous placez ces scores afin d'optimiser les performances de votre personnage dans son rôle principal.",
+            "title": "Méthode de génération de statistiques : Matrice standard"
+          }
+        },
+        "methods": {
+          "manual": "Manuel",
+          "pointBuy": "Achat de points",
+          "standardArray": "Matrice standard"
+        },
+        "primary-tooltip": "{ability} est une caractéristique primaire pour les {class}.",
+        "roll-dice": "Lancer les dés pour la caractéristique",
+        "score-label": "Scores de caractéristiques",
+        "score-placeholder": "Entrer le score",
+        "select-method": "Sélectionner la méthode de statistiques",
+        "select-placeholder": "Choisir",
+        "select-value": "Sélectionner une valeur",
+        "tooltip": "Sélectionner et attribuer les caractéristiques",
+        "your-class": "votre classe"
+      },
+      "background": {
+        "adventurer": "un aventurier",
+        "none": "Aucun historique disponible.",
+        "preamble": "Choisissez l'historique de votre personnage parmi les options disponibles.",
+        "select-label": "Historique",
+        "select-placeholder": "Choisir un historique",
+        "tooltip": "Sélectionner un historique pour votre personnage"
+      },
+      "biography": {
+        "age-hint": "Votre âge peut en dire long à un observateur. Êtes-vous un vétéran chevronné ? Un jeune ambitieux ? Plus vous êtes âgé, plus votre histoire risque d'être détaillée.",
+        "alignment-hint": "Votre alignement définit votre position morale et éthique. Bien que généralement considéré comme facultatif, il peut néanmoins être un outil important pour le jeu de rôle en termes de motivations, d'actions, etc.",
+        "backstory": "Passé",
+        "backstory-hint": "Votre passé définit chaque décision que vous prenez, et souvent pourquoi. Considérez : les objectifs, la vie passée, les expériences présentes, la famille, les favoris, les habitudes, la perception de soi, les relations, etc.",
+        "backstory-placeholder": "Écrivez un passé pour votre personnage. Tenez compte des organisations auxquelles il appartient, des alliés qu'il s'est faits ou des ennemis qu'il s'est créés, et d'autres détails importants de sa vie avant de devenir un aventurier.",
+        "bonds-placeholder": "Qui ou quoi est le plus cher à votre personnage ? Quel endroit lui semble être sa maison ? Quel objet signifie tout pour lui ? Appuyez sur le bouton Lancer pour tirer des liens suggérés par votre historique.",
+        "bonds-placeholder-alt": "Qui ou quoi est le plus cher à votre personnage ? Quel endroit lui semble être sa maison ? Quel objet signifie tout pour lui ?",
+        "characteristics": "Caractéristiques",
+        "description-hint": "Quand vous vous regardez dans le miroir, que voyez-vous ? Immergez-vous dans l'identité physique de votre personnage !",
+        "faith-hint": "Votre MJ détermine quels dieux, le cas échéant, sont vénérés dans sa campagne. Parmi les dieux disponibles, vous pouvez choisir une seule divinité que votre personnage sert, vénère ou à laquelle il fait semblant de croire. Pas religieux ? Laissez ceci vide !",
+        "flaws-placeholder": "Quels sont les défauts ou les faiblesses de votre personnage ? Tenez compte à la fois des bizarreries de personnalité et des limitations de score de caractéristique. Quels traits les autres pourraient-ils trouver difficiles ? Appuyez sur le bouton Lancer pour tirer des défauts suggérés par votre historique.",
+        "flaws-placeholder-alt": "Quels sont les défauts ou les faiblesses de votre personnage ? Tenez compte à la fois des bizarreries de personnalité et des limitations de score de caractéristique. Quels traits les autres pourraient-ils trouver difficiles ?",
+        "height-hint": "Votre taille est influencée par votre race, mais peut varier en dehors des normes.",
+        "ideals-placeholder": "Quels principes guident votre personnage ? Quelle cause ou croyance le pousse à l'aventure ? Pour quoi se battrait-il ou mourrait-il ? Appuyez sur le bouton Lancer pour tirer des idéaux suggérés par votre historique.",
+        "ideals-placeholder-alt": "Quels principes guident votre personnage ? Quelle cause ou croyance le pousse à l'aventure ? Pour quoi se battrait-il ou mourrait-il ?",
+        "personality-traits": "Traits de personnalité",
+        "physical-description": "Description physique",
+        "roll-bonds": "Lancer pour les liens",
+        "roll-flaws": "Lancer pour les défauts",
+        "roll-ideals": "Lancer pour les idéaux",
+        "roll-traits": "Lancer pour les traits",
+        "size-hint": "Votre taille est déterminée par votre race.",
+        "size-placeholder": "Déterminée par la race",
+        "tooltip": "Détails de la biographie du personnage",
+        "traits-placeholder": "Décrivez la personnalité de votre personnage. Comment ses capacités façonnent-elles qui il est ? Est-il sage et contemplatif, ou charismatique et extraverti ? Appuyez sur le bouton Lancer pour tirer des traits de personnalité suggérés par votre historique.",
+        "traits-placeholder-alt": "Décrivez la personnalité de votre personnage. Comment ses capacités façonnent-elles qui il est ? Est-il sage et contemplatif, ou charismatique et extraverti ?",
+        "weight-hint": "Votre poids déterminera quelques éléments, notamment qui peut vous soulever. Il ne modifie généralement pas les mécanismes de combat."
+      },
+      "cancel": "Annuler",
+      "cancel-description": "Annuler et fermer Hero Mancer",
+      "character-created": "Le personnage a été créé avec succès.",
+      "class": {
+        "none": "Aucune classe disponible.",
+        "preamble": "Choisissez la classe de votre personnage parmi les options disponibles.",
+        "select-label": "Classe",
+        "select-placeholder": "Choisir une classe",
+        "tooltip": "Sélectionner une classe pour votre personnage"
+      },
+      "creation-progress": "Progression de la création",
+      "document-service": {
+        "common-labels": {
+          "dndbeyond-importer": "DDB",
+          "elkan5e": "Elkan",
+          "forge": "Forge",
+          "homebrew": "Homebrew",
+          "phb": "PHB",
+          "srd": "SRD"
+        },
+        "other-itdentifier": "Autre"
+      },
+      "done": "Terminer",
+      "equipment": {
+        "add-favorites": "Ajouter aux favoris",
+        "and": "et",
+        "article": "un",
+        "article-plural": "une",
+        "choices-header": "Choix d'équipement",
+        "choose-all": "Sélectionnez tous les éléments suivants :",
+        "choose-one": "Choisissez-en un (1) parmi :",
+        "choose-second-weapon": "Choisir une deuxième arme",
+        "failed-to-load": "Impossible de charger {count} éléments d'équipement.",
+        "gptobuy": "po à dépenser",
+        "lacks-proficiency": "non compétent",
+        "pouch": "bourse à composants",
+        "preamble": "L'onglet d'équipement dans l'outil de création de personnage Hero Mancer permet désormais aux joueurs de gérer entièrement l'équipement de leur personnage et les ressources de départ. Les joueurs peuvent sélectionner l'équipement spécifique à la classe, à l'historique et à la race, ainsi que choisir parmi les packs d'équipement de départ ou les règles de richesse de départ. Cela fournit un flux de travail complet pour équiper le personnage pendant le processus de création.",
+        "roll-wealth": "Lancer la richesse",
+        "select-weapon": "Sélectionner une arme",
+        "separator": ",",
+        "starting": "de départ",
+        "starting-equipment": "équipement de départ",
+        "tooltip": "Gérer l'équipement de votre personnage",
+        "type-equipment": "Équipement {type}",
+        "unknown-choice": "Élément lié inconnu.",
+        "unknown-focus": "Focus inconnu",
+        "unnamed": "objet sans nom",
+        "use-starting-wealth": "Utiliser la richesse de départ",
+        "wealth-placeholder": "0 po",
+        "wealth-roll-message": "{name} a lancé les dés pour la richesse de départ {type} et a obtenu : {result} po."
+      },
+      "errors": {
+        "unexpected-format": "Erreur lors du rendu du contenu : Format inattendu"
+      },
+      "finalize": {
+        "character-portrait": "Portrait du personnage",
+        "character-review": "Revue du personnage",
+        "final-notes": "Veuillez examiner les détails de votre personnage ci-dessous. Si tout semble correct, cliquez sur le bouton Soumettre pour créer votre personnage.",
+        "review": {
+          "abilities": "Scores de caractéristiques",
+          "appearance-adjectives": "magnifique, splendide, frappant, captivant, séduisant, éblouissant, envoûtant, enchanteur, exquis, radieux",
+          "background-equipment": "Équipement d'historique",
+          "backstory": "Passé",
+          "basic-info": "Informations de base",
+          "biography": "Aperçu de la biographie",
+          "biography-format": "Un {alignment} {size} {gender}. À {age} ans, il pèse {weight} et mesure {height}. Avec des yeux {eyesAdjective} {eyes}, des cheveux {hair} et une peau {skinAdjective} {skin}.",
+          "biography-format-with-faith": "Un {alignment} {size} {gender}. À {age} ans, il pèse {weight} et mesure {height}. Avec des yeux {eyesAdjective} {eyes}, des cheveux {hair} et une peau {skinAdjective} {skin}. Un adorateur de {faith}.",
+          "class-equipment": "Équipement de classe",
+          "equipment": "Équipement",
+          "no-equipment": "Aucun équipement sélectionné",
+          "physical-description": "Description physique",
+          "starting-wealth": "Richesse de départ : {amount}"
+        },
+        "summary": {
+          "abilities": "est fier de son impressionnant {first} et {second}",
+          "abilitiesDefault": "est fier de ses impressionnantes capacités",
+          "background": "Commençant comme {article} {background},",
+          "backgroundDefault": "Commençant comme aventurier,",
+          "classRace": "ce {race} {class}",
+          "classRaceDefault": "cette race inconnue, classe inconnue",
+          "equipment": "et commence son aventure avec {items}.",
+          "equipmentDefault": "et commence son aventure.",
+          "no-items": "Aucun objet sélectionné."
+        },
+        "tooltip": "Vérifier votre personnage"
+      },
+      "header-title": "Assistant de création Hero Mancer",
+      "journal": {
+        "no-content-found": "Aucun contenu disponible."
+      },
+      "journal-description-placeholder": "Le journal est en cours de chargement. Ceci est un espace réservé.",
+      "journal-loading": "Chargement du contenu du journal...",
+      "mandatory": {
+        "completed": "Vous avez rempli ce champ",
+        "incomplete": "Ce champ est obligatoire, veuillez le remplir"
+      },
+      "nav": {
+        "next": "Naviguer vers l'onglet suivant",
+        "next-description": "Continuer à l'étape suivante de la création du personnage",
+        "next-format": "Suivant : {tabName}",
+        "previous": "Naviguer vers l'onglet précédent",
+        "previous-description": "Revenir à l'étape précédente de la création du personnage",
+        "previous-format": "Précédent : {tabName}"
+      },
+      "no-description": "Impossible de charger une description valide pour cet élément.",
+      "optionsReset": "Réinitialiser Hero Mancer ! Essayons à nouveau !",
+      "optionsSaved": "Options enregistrées ! Rouvrez Hero Mancer pour continuer là où vous vous étiez arrêté !",
+      "race": {
+        "none": "Aucune race disponible.",
+        "preamble": "Choisissez la race de votre personnage parmi les options disponibles.",
+        "select-label": "Race",
+        "select-placeholder": "Choisir une race",
+        "tooltip": "Sélectionner une race pour votre personnage"
+      },
+      "randomization-complete": "Randomisation du personnage terminée !",
+      "randomize": {
+        "default-name": "Aventurier",
+        "randomize": "Randomiser",
+        "randomize-character": "Randomiser le personnage",
+        "randomizing": "Randomisation du personnage..."
+      },
+      "reset": "Réinitialiser",
+      "reset-description": "Réinitialiser Hero Mancer",
+      "save": "Sauvegarder pour plus tard",
+      "save-description": "Sauvegarder le personnage pour plus tard",
+      "start": {
+        "character-art-label": "Illustration du personnage",
+        "character-art-placeholder": "Choisir une illustration pour votre personnage",
+        "generate-random-name": "Générer un nom aléatoire",
+        "name-label": "Nom du personnage",
+        "name-placeholder": "Choisir un nom pour votre personnage",
+        "player-assignment-label": "Assigner au joueur",
+        "player-assignment-placeholder": "Sélectionner un joueur",
+        "player-avatar": "Avatar du joueur",
+        "player-avatar-placeholder": "Choisir une illustration pour votre joueur",
+        "player-color": "Couleur du joueur",
+        "player-pronouns": "Pronoms du joueur",
+        "player-pronouns-placeholder": "Choisissez vos pronoms préférés",
+        "preamble": {
+          "text": "<p>Ce créateur de personnage interactif vous guidera à travers la construction de votre personnage parfait pour FoundryVTT. Durant ce processus, vous choisirez les <b>attributs</b>, la <b>race</b>, la <b>classe</b> et l'<b>historique</b> ; définirez vos <b>scores de caractéristiques</b> avec la méthode de votre choix ; personnaliserez votre <b>équipement de départ</b> ; et développerez la <b>biographie</b> de votre personnage.</p><p>Naviguez entre les sections en utilisant les <b>onglets ci-dessus</b> ou, si activé par votre MJ, les boutons <b>Suivant/Précédent</b> ci-dessous - votre progression est sauvegardée automatiquement. Utilisez '<b>Sauvegarder pour plus tard</b>' pour continuer à un autre moment.</p><p>Les champs obligatoires sont marqués d'un <i class='fa-solid fa-triangle-exclamation mandatory-indicator incomplete'></i> et deviendront un <i class='fa-solid fa-circle-check mandatory-indicator complete'></i> une fois remplis. Le bouton <b>Soumettre</b>, situé dans l'onglet <i class='fa-solid fa-flag-checkered'></i> <b>Revue</b>, restera désactivé jusqu'à ce que tous les champs obligatoires soient remplis.</p><p>Lorsque vous êtes prêt, appuyez sur <b>Soumettre</b> pour finaliser vos choix. Vous recevrez quelques invites supplémentaires pour faire des sélections non couvertes par Hero Mancer, et vous serez alors prêt à jouer ! Plus vous fournissez de détails, plus votre personnage sera riche dans le monde de votre MJ. Votre aventure commence maintenant !</p>",
+          "title": "Bienvenue dans Hero Mancer !"
+        },
+        "select-art": "Sélectionner",
+        "token-art-label": "Illustration du jeton",
+        "token-art-placeholder": "Choisir une illustration de jeton pour votre personnage",
+        "token-customization": "Personnalisation du jeton",
+        "token-same-as-character": "Utiliser la même image pour le jeton ?",
+        "token-visibility-placeholder": "Choisir le statut d'affichage",
+        "tooltip": "Commencer la création de votre personnage"
+      },
+      "submit": "Soumettre",
+      "submit-description": "Soumettre votre Hero Mancer",
+      "tab-names": {
+        "abilities": "Caractéristiques",
+        "background": "Historique",
+        "biography": "Biographie",
+        "class": "Classe",
+        "equipment": "Équipement",
+        "finalize": "Revue",
+        "race": "Race",
+        "start": "Début"
+      },
+      "tabs": "Onglets de navigation Hero Mancer",
+      "title": "le {components}"
+    },
+    "dialogs": {
+      "reroll": {
+        "cancel": "Annuler",
+        "chain-roll-label": "Lancer tous les scores de caractéristiques en séquence",
+        "confirm": "Relancer",
+        "content": "Un ou plusieurs scores de caractéristiques ont déjà des valeurs. Êtes-vous sûr de vouloir relancer ? Cette action est irréversible.",
+        "title": "Relancer la statistique ?"
+      }
+    },
+    "equipment": {
+      "extracted-info": "Équipement trouvé dans la description :",
+      "no-equipment-notice": "Impossible de trouver des données d'équipement de départ dans la description brute, vous êtes livré à vous-même !"
+    },
+    "errors": {
+      "ability-roll-failed": "Impossible de lancer les scores de caractéristiques. Veuillez essayer une autre méthode de lancement ou actualiser l'application et réessayer.",
+      "actor-creation-failed": "Échec de la création du personnage. Veuillez réessayer.",
+      "advancement-process": "Une erreur s'est produite lors de l'application des améliorations du personnage. Votre personnage peut être incomplet.",
+      "advancement-processing-failed": "Erreur lors du traitement des améliorations du personnage.",
+      "art-picker-failed": "Impossible d'ouvrir le sélecteur d'illustration de personnage",
+      "avatar-picker-failed": "Impossible d'ouvrir le sélecteur d'avatar de joueur",
+      "character-creation-failed": "Échec de la création du personnage. Veuillez vous assurer que tous les champs obligatoires sont remplis et que vous disposez des autorisations nécessaires pour créer des personnages.",
+      "document-preparation-failed": "Échec de la préparation des documents {type} : {error}",
+      "equipment-rendering": "Une erreur s'est produite lors du chargement de l'équipement. Veuillez essayer une autre sélection ou actualiser l'application.",
+      "failed-compendium-retrieval": "Échec de la récupération des compendiums : {type} {details}",
+      "fetch-fail": "Échec de la récupération de certains documents, veuillez vérifier la console pour les erreurs.",
+      "form-submission": "Une erreur s'est produite lors de la soumission du formulaire. Veuillez réessayer.",
+      "invalid-document-type": "Type de document spécifié invalide",
+      "missing-equipment": "Le {type} sélectionné ne contient aucune donnée d'équipement de départ. Veuillez le signaler au créateur de l'élément, pas à Hero Mancer. Si vous n'avez pas sélectionné de {type}, vous pouvez ignorer cet avertissement.",
+      "no-background": "L'historique sélectionné n'a pas pu être trouvé.",
+      "no-class": "La classe sélectionnée n'a pas pu être trouvée.",
+      "no-race": "La race sélectionnée n'a pas pu être trouvée.",
+      "randomization-failed": "Échec de la randomisation du personnage",
+      "randomize-failed": "Impossible de réinitialiser les options aux valeurs par défaut. Veuillez essayer de fermer et de rouvrir le créateur de personnage.",
+      "reset-options-failed": "Échec de l'enregistrement de vos options. Veuillez vérifier que vous disposez des autorisations nécessaires et réessayer.",
+      "roll-failed": "Échec du lancement du score de caractéristique. Veuillez réessayer.",
+      "save-options-failed": "Échec de l'enregistrement de vos options. Veuillez réessayer.",
+      "select-background": "Veuillez sélectionner un historique avant de soumettre.",
+      "select-class": "Veuillez sélectionner une classe avant de soumettre.",
+      "select-race": "Veuillez sélectionner une race avant de soumettre.",
+      "token-art-picker-failed": "Impossible d'ouvrir le sélecteur d'illustration de jeton"
+    },
+    "info": {
+      "advancement-progress": "Traitement de {item} ({current}/{total})",
+      "all-advancements-complete": "Toutes les améliorations du personnage ont été traitées avec succès.",
+      "cpr-effects-applied": "Cauldron of Plentiful Resouces détecté ! Les automatisations ont été appliquées !"
+    },
+    "settings": {
+      "ability-scores": {
+        "default": {
+          "hint": "La valeur de départ pour les scores de caractéristiques lors de la création d'un nouveau personnage.",
+          "name": "Par défaut"
+        },
+        "header": "Limites des scores de caractéristiques",
+        "invalid-point-buy": "Le total d'achat de points est trop bas. Avec un score minimum de {min}, vous avez besoin d'au moins {totalNeeded} points.",
+        "invalid-range": "Plage de scores de caractéristiques invalide. Veuillez vous assurer que Min ≤ Défaut ≤ Max.",
+        "max": {
+          "hint": "La valeur la plus élevée autorisée pour les scores de caractéristiques lors de la création du personnage.",
+          "name": "Max"
+        },
+        "min": {
+          "hint": "La valeur la plus basse autorisée pour les scores de caractéristiques lors de la création du personnage.",
+          "name": "Min"
+        },
+        "standard-array-fixed": "Les valeurs du tableau standard {original} étaient en dehors de la plage autorisée ({min}-{max}) et ont été ajustées automatiquement."
+      },
+      "alignments": {
+        "hint": "Liste des alignements disponibles pour la création de personnage, séparés par des virgules.",
+        "name": "Alignements disponibles"
+      },
+      "appearance-options": {
+        "header": "Options d'apparence"
+      },
+      "art-picker-root": {
+        "browse": "Choisir l'emplacement racine",
+        "hint": "Le répertoire racine pour le sélecteur d'illustration de personnage",
+        "name": "Répertoire racine du sélecteur d'illustration"
+      },
+      "background-packs": {
+        "name": "Packs d'historiques"
+      },
+      "chained-rolls": {
+        "hint": "Enchaîner les lancers de statistiques pour lancer un personnage complet.",
+        "name": "Lancers enchaînés"
+      },
+      "character-options": {
+        "header": "Options de personnalisation"
+      },
+      "class-packs": {
+        "name": "Packs de classes"
+      },
+      "configure-compendiums": "Configurer les compendiums",
+      "configure-customization": "Configurer la personnalisation",
+      "configure-mandatory": "Configurer les champs obligatoires",
+      "configure-rolling": "Configurer les options de lancement",
+      "custom-compendiums": {
+        "all-selected": "Aucun pack sélectionné ! Tous les compendiums {type} disponibles ont été sélectionnés par défaut.",
+        "background": "Historique",
+        "backgrounds-label": "Définir les compendiums d'historiques :",
+        "class": "Classe",
+        "classes-label": "Définir les compendiums de classes :",
+        "description": "Configurez vos compendiums personnalisés pour les classes, les races et les historiques. Si vous ne sélectionnez aucun compendium pour une catégorie, tous les compendiums valides seront chargés par défaut.",
+        "dialog-error": "Impossible d'afficher la boîte de dialogue, voir la console.",
+        "error-saving": "Une erreur s'est produite lors de l'enregistrement de vos paramètres de compendium. Veuillez consulter la console (F12).",
+        "form-saved": "Les paramètres du formulaire de compendium ont été enregistrés.",
+        "item": "Objet",
+        "items-label": "Définir les compendiums d'objets :",
+        "manage-backgrounds": "Gérer les historiques",
+        "manage-classes": "Gérer les classes",
+        "manage-items": "Gérer les objets",
+        "manage-races": "Gérer les races",
+        "menu": {
+          "hint": "Déterminez quels packs Hero Mancer utilisera.",
+          "name": "Compendiums personnalisés"
+        },
+        "no-valid-packs": "Aucun pack de compendium valide n'a été trouvé.",
+        "race": "Race",
+        "races-label": "Définir les compendiums de races :",
+        "save-error": "Impossible de créer le bouton Terminer, voir la console.",
+        "saved": "Les paramètres du compendium {type} ont été enregistrés.",
+        "select-all": "Tout sélectionner",
+        "select-all-in": "Tout sélectionner dans",
+        "title": "Sélectionner les compendiums {type} !",
+        "types": {
+          "background": "Historique",
+          "class": "Classe",
+          "item": "Objets",
+          "race": "Race",
+          "species": "Espèce"
+        }
+      },
+      "custom-point-buy-total": {
+        "hint": "Spécifiez le total d'achat de points si vous n'utilisez pas les calculs standard.",
+        "name": "Total d'achat de points personnalisé"
+      },
+      "custom-roll-formula": {
+        "hint": "Spécifiez la formule de jet pour la génération manuelle des scores de caractéristiques. La valeur par défaut est '4d6kh3'.",
+        "name": "Formule de jet manuel personnalisée"
+      },
+      "custom-standard-array": {
+        "hint": "Spécifiez la formule du tableau pour la génération des scores de caractéristiques du tableau standard. La valeur par défaut est 15,14,13,12,10,8",
+        "invalid-format": "Format invalide : veuillez entrer uniquement des nombres séparés par des virgules.",
+        "name": "Tableau standard personnalisé",
+        "reset-default": "Le tableau standard personnalisé a été réinitialisé aux valeurs par défaut en raison d'une longueur invalide."
+      },
+      "customization": {
+        "error-art-picker": "Erreur lors de la sélection de l'emplacement du sélecteur d'illustration. Veuillez réessayer.",
+        "error-context": "Erreur lors du chargement des paramètres de personnalisation. Les valeurs par défaut peuvent être affichées.",
+        "error-saving": "Erreur lors de l'enregistrement des paramètres de personnalisation du personnage.",
+        "menu": {
+          "hint": "Déterminez les personnalisations que les joueurs peuvent utiliser.",
+          "name": "Personnalisation du personnage"
+        },
+        "save-error": "Échec de l'enregistrement du paramètre : {setting}. Utilisation de la valeur précédente.",
+        "saved": "Paramètres de personnalisation du personnage enregistrés avec succès."
+      },
+      "deities": {
+        "hint": "Liste des divinités disponibles pour la création de personnage, séparées par des virgules.",
+        "name": "Divinités disponibles"
+      },
+      "dice-rolling": {
+        "error-context": "Erreur lors du chargement des paramètres de lancement de dés. Les valeurs par défaut seront utilisées.",
+        "error-saving": "Impossible d'enregistrer les paramètres de dés, voir la console et signaler au développeur.",
+        "menu": {
+          "hint": "Définir les options de génération de statistiques.",
+          "name": "Génération des scores de caractéristiques"
+        },
+        "need-roll-method": "Au moins une méthode de génération de score de caractéristique doit être activée, modifications rejetées.",
+        "saved": "Les paramètres de lancement de dés ont été enregistrés."
+      },
+      "dice-rolling-method": {
+        "hint": "Sélectionnez les méthodes de lancement parmi lesquelles vos utilisateurs peuvent choisir.",
+        "manual-formula": "Manuel",
+        "name": "Génération des scores de caractéristiques",
+        "point-buy": "Achat de points",
+        "standard-array": "Tableau standard"
+      },
+      "elkan": {
+        "hint": "L'activation de ce paramètre assurera la compatibilité avec Elkan5e. Veuillez noter que cela désactivera l'onglet Équipement de Hero Mancer.",
+        "name": "Activer la compatibilité Elkan5e ?"
+      },
+      "enable": {
+        "hint": "Ajoute un bouton pour utiliser Hero Mancer dans l'onglet Acteurs.",
+        "name": "Activer Hero Mancer ?"
+      },
+      "eye-colors": {
+        "hint": "Liste des couleurs d'yeux utilisées pour la randomisation des personnages, séparées par des virgules.",
+        "name": "Couleurs des yeux"
+      },
+      "genders": {
+        "hint": "Liste des genres utilisés pour la randomisation des personnages, séparées par des virgules.",
+        "name": "Genres"
+      },
+      "hair-colors": {
+        "hint": "Liste des couleurs de cheveux utilisées pour la randomisation des personnages, séparées par des virgules.",
+        "name": "Couleurs de cheveux"
+      },
+      "item-packs": {
+        "name": "Packs d'objets"
+      },
+      "logger": {
+        "choices": {
+          "errors": "Erreurs",
+          "off": "Désactivé",
+          "verbose": "Verbeux",
+          "warnings": "Avertissements"
+        },
+        "hint": "Définissez le niveau des logs générés par Hero Mancer. Le dépanneur capturera tout de toute façon. Recommandé : Avertissements.",
+        "name": "Niveau de journalisation"
+      },
+      "mandatory-fields": {
+        "core-fields-hint": "Les champs principaux sont toujours obligatoires et ne peuvent pas être désactivés car ils sont essentiels au fonctionnement.",
+        "error-context": "Erreur lors du chargement des paramètres des champs obligatoires. Utilisation des valeurs par défaut.",
+        "error-saving": "Erreur lors de l'enregistrement des paramètres des champs obligatoires",
+        "groups": {
+          "abilities": "Étape 5 : Caractéristiques",
+          "basic": "Paramètres de base",
+          "biography": "Étape 7 : Biographie",
+          "core": "Étape 2-4 : Sources",
+          "details": "Détails du personnage",
+          "personality": "Caractéristiques personnelles",
+          "physical": "Caractéristiques physiques",
+          "player": "Personnalisation du joueur",
+          "start": "Étape 1 : Début",
+          "token": "Personnalisation du Token"
+        },
+        "menu": {
+          "hint": "Définissez les champs qui doivent être remplis avant de soumettre un personnage.",
+          "name": "Champs obligatoires"
+        },
+        "saved": "Paramètres des champs obligatoires enregistrés"
+      },
+      "nav-buttons": {
+        "hint": "Ajoute des boutons Suivant/Précédent pour aider les utilisateurs à naviguer entre les onglets",
+        "name": "Activer les boutons de navigation"
+      },
+      "player-customization": {
+        "hint": "Autorisez vos joueurs à configurer certaines informations lors de la création du personnage, telles que la couleur du joueur, les pronoms et l'avatar.",
+        "name": "Autoriser la personnalisation du joueur"
+      },
+      "publish-wealth-rolls": {
+        "hint": "Lorsque cette option est activée, les jets de richesse de départ seront publiés dans le chat pour tous les utilisateurs.",
+        "name": "Publier les jets de richesse de départ"
+      },
+      "race-packs": {
+        "name": "Packs de races"
+      },
+      "randomize": {
+        "hint": "Permet aux utilisateurs de randomiser certains aspects de leur processus de création de personnage. Utile pour les one-shots, les jeux aléatoires et les joueurs imprévisibles.",
+        "name": "Activer le randomiseur ?"
+      },
+      "reset-to-default": "Un champ vide a été détecté dans : {setting} ! Réinitialisation à la valeur par défaut.",
+      "roll-delay": {
+        "hint": "Contrôle le délai (en millisecondes) entre chaque jet lors de l'utilisation des lancers enchaînés. Des valeurs plus faibles accélèrent le processus, tandis que des valeurs plus élevées le rendent plus facile à suivre. Ce paramètre n'a aucun effet si vous lancez manuellement avec des dés physiques.",
+        "name": "Délai de l'animation de jet"
+      },
+      "skin-tones": {
+        "hint": "Liste des tons de peau utilisés pour la randomisation des personnages, séparés par des virgules.",
+        "name": "Tons de peau"
+      },
+      "stat-generation-swap-mode": {
+        "hint": "Lorsque cette option est activée, la sélection d'une valeur déjà utilisée échangera les valeurs entre les caractéristiques au lieu d'effacer la sélection précédente. Cela facilite la réorganisation de vos scores de caractéristiques.",
+        "name": "Mode d'échange de la génération de statistiques"
+      },
+      "token-customization": {
+        "hint": "Autorisez vos joueurs à définir certains paramètres de jeton par défaut habituellement réservés au MJ, tels que le statut d'affichage du nom, les paramètres d'anneau de jeton dynamique et les barres d'affichage.",
+        "name": "Autoriser la personnalisation du jeton"
+      },
+      "tokenizer": {
+        "name": "Utiliser le tokenizer pour choisir l'illustration du jeton/personnage."
+      },
+      "troubleshooter": {
+        "copy-error": "Échec de la copie du rapport dans le presse-papiers.",
+        "copy-success": "Dépanneur copié dans le presse-papiers",
+        "copy-to-clipboard": "Copier dans le presse-papiers",
+        "discord": "Rejoindre Discord",
+        "error-context": "Erreur lors du chargement des données du dépanneur.",
+        "error-report": "Erreur lors de la génération du rapport de dépannage. Veuillez réessayer.",
+        "export-error": "Échec de l'exportation du rapport de dépannage.",
+        "export-success": "Dépanneur exporté sous le nom de {filename}",
+        "generate-report": "Ouvrir le dépanneur",
+        "github": "Signaler un problème",
+        "link-error": "Impossible d'ouvrir le lien externe.",
+        "menu": {
+          "hint": "Générez un rapport de dépannage pour vous aider en cas de problème.",
+          "name": "Dépanneur"
+        },
+        "notes": "Le dépanneur contient toutes les informations pertinentes nécessaires pour démarrer le processus de correction des bugs. À l'aide des boutons ci-dessous, vous pouvez enregistrer cette sortie sous forme de fichier ou la copier dans votre presse-papiers. N'hésitez pas à rejoindre le Discord ou à créer un problème sur Github.",
+        "output-label": "Journal de sortie du dépanneur",
+        "save-to-file": "Télécharger",
+        "title": "Dépanneur"
+      }
+    },
+    "unknown": "{type} inconnu",
+    "warnings": {
+      "advancement-failed": "Échec de l'application de l'amélioration {item}. Il peut manquer certaines fonctionnalités à votre personnage.",
+      "currency-update-failed": "Échec de la mise à jour de la monnaie du personnage.",
+      "equipment-creation-failed": "Échec de la création de certains objets d'équipement.",
+      "equipment-extraction-failed": "Remarque : Le document contient des informations sur l'équipement, mais il n'a pas pu être extrait automatiquement en raison de son format.",
+      "equipment-processing-failed": "Certains objets d'équipement n'ont pas pu être traités correctement.",
+      "favorites-processing-failed": "Échec du traitement correct des objets favoris.",
+      "no-packs-found": "Aucun pack trouvé pour {type}",
+      "select-background": "Vous devez d'abord sélectionner un historique valide.",
+      "simplified-journal": "Vue simplifiée de {page}.",
+      "some-advancements-failed": "Certaines améliorations ont échoué : {failed}. Réussies : {succeeded}."
+    }
+  }
+}
