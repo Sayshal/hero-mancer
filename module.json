@@ -39,6 +39,11 @@
       "lang": "pt-BR",
       "name": "Português (Brasil)",
       "path": "lang/pt-BR.json"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
     }
   ],
   "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
