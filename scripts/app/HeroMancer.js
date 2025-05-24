@@ -1,4 +1,13 @@
-import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, DOMManager, HM, JournalPageEmbed, MandatoryFields, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import {
+  ActorCreationService,
+  CharacterArtPicker,
+  CharacterRandomizer,
+  DOMManager,
+  HM,
+  ProgressBar,
+  SavedOptions,
+  StatRoller
+} from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -195,7 +204,16 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       // Navigation buttons logic
-      const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
+      const tabOrder = [
+        'start',
+        'background',
+        'race',
+        'class',
+        'abilities',
+        'equipment',
+        'biography',
+        'finalize'
+      ].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
       const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
 
       switch (partId) {
@@ -238,8 +256,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.navigationButtons = game.settings.get(HM.ID, 'enableNavigationButtons');
           context.isFirstTab = currentTabIndex === 0;
           context.isLastTab = currentTabIndex === tabOrder.length - 1;
-          context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
-          context.nextTabName = currentTabIndex < tabOrder.length - 1 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`) : '';
+          context.previousTabName =
+            currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
+          context.nextTabName =
+            currentTabIndex < tabOrder.length - 1 ?
+              game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`)
+            : '';
           break;
       }
       return context;
@@ -363,8 +385,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       this.#isRendering = true;
 
       // Check if this is a partial render of just the abilities tab
-      const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
-      const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
+      const isAbilitiesPartialRender =
+        options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
+      const isFooterPartialRender =
+        options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
 
       if (isFooterPartialRender) {
         // For footer-only render, update submit button status
@@ -713,7 +737,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       await HM.heroMancer.render(true);
 
       // Get the form element
-      const form = event.currentTarget.closest('form');
+      const form = document.getElementById('hero-mancer-app');
       if (!form) {
         HM.log(2, 'Could not find form element when randomizing character');
         return false;
@@ -722,7 +746,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       // Use the CharacterRandomizer utility to randomize all character aspects
       return await CharacterRandomizer.randomizeAll(form);
     } catch (error) {
-      HM.log(1, 'Error randomizing character:', error);
+      HM.log(1, 'Error randomizing character:', error, { event: event, form: form });
       ui.notifications.error('hm.errors.randomize-failed', { localize: true });
       return false;
     }

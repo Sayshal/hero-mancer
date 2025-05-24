@@ -42,48 +42,54 @@
           </select>
         </div>
       </div>
-    </section>
 
-    {{!-- Physical Characteristics Section --}}
-    <section class='physical-char-section'>
-      <h2>{{localize 'hm.app.finalize.physical-characteristics'}}</h2>
-      <div class='physical-traits-grid grid grid-7-col gap-md mb-sm'>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="eyes">{{localize 'DND5E.Eyes'}}</label>
-          <input id="eyes" type='text' name='eyes' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="hair">{{localize 'DND5E.Hair'}}</label>
-          <input id="hair" type='text' name='hair' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="skin">{{localize 'DND5E.Skin'}}</label>
-          <input id="skin" type='text' name='skin' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="height">{{localize 'DND5E.Height'}}</label>
-          <input id="height" type='text' name='height' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="weight">{{localize 'DND5E.Weight'}}</label>
-          <input id="weight" type='text' name='weight' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="age">{{localize 'DND5E.Age'}}</label>
-          <input id="age" type='text' name='age' class="form-input" />
-        </div>
-        <div class='trait-group flex flex-col items-center gap-xs text-center'>
-          <label for="gender">{{localize 'DND5E.Gender'}}</label>
-          <input id="gender" type='text' name='gender' class="form-input" />
-        </div>
-      </div>
-      <div class='description-group mt-md'>
-        <label for="appearance">{{localize 'hm.app.finalize.physical-description'}}</label>
-        <div class='description-input flex gap-md'>
-          <textarea id="appearance" name='appearance' rows='3'></textarea>
-        </div>
-      </div>
-    </section>
+      <div class="review-sections">
+
+        {{!-- Proficiencies Notice Section --}}
+        <section class="review-section proficiencies-notice" aria-labelledby="proficiencies-heading">
+          <h3 id="proficiencies-heading">
+            <i class="fa-solid fa-certificate" aria-hidden="true"></i>
+            {{localize 'hm.app.finalize.review.proficiencies'}}
+            <i class="fa-solid fa-circle-info tooltip-icon" aria-hidden="true"
+              data-tooltip="{{localize 'hm.app.finalize.review.proficiencies-tooltip'}}"></i>
+          </h3>
+          <div class="review-content proficiencies-content">
+            <div class="proficiencies-warning">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <span>{{localize 'hm.app.finalize.review.proficiencies-reminder'}}</span>
+            </div>
+            <div class="proficiencies-list" aria-live="polite">
+              <!-- Will be dynamically filled by JavaScript -->
+              <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                {{localize 'hm.app.finalize.review.loading-proficiencies'}}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="review-section-row">
+
+          {{!-- Basic Information --}}
+          <section class="review-section" aria-labelledby="basic-info-heading">
+            <h3 id="basic-info-heading"><i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              {{localize 'hm.app.finalize.review.basic-info'}}
+            </h3>
+            <div class="review-content">
+              <div class="review-item">
+                <span class="review-label">{{localize 'TYPES.Item.raceLegacy'}}:</span>
+                <span class="review-value race-value">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">{{localize "TYPES.Item.class"}}:</span>
+                <span class="review-value class-value">-</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">{{localize 'DND5E.Background'}}:</span>
+                <span class="review-value background-value">-</span>
+              </div>
+            </div>
+          </section>
 
     {{!-- Personal Characteristics Section --}}
     <section class='personal-char-section'>

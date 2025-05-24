@@ -1,4 +1,13 @@
-import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
+import {
+  CharacterArtPicker,
+  CustomCompendiums,
+  Customization,
+  DiceRolling,
+  HM,
+  MandatoryFields,
+  StatRoller,
+  Troubleshooter
+} from './utils/index.js';
 
 /**
  * Main registration function that initializes all module settings.
@@ -83,6 +92,21 @@ function registerCoreSettings() {
     config: false,
     type: String,
     default: 'standardArray'
+  });
+
+  game.settings.register(HM.ID, 'hideCompendiumSource', {
+    name: 'hm.settings.hide-compendium-source.name',
+    hint: 'hm.settings.hide-compendium-source.hint',
+    scope: 'client',
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => {
+      // Refresh the Hero Mancer app if it's open
+      if (HM.heroMancer?.rendered) {
+        HM.heroMancer.render(true);
+      }
+    }
   });
 
   HM.log(3, 'Core settings registered.');
@@ -194,7 +218,8 @@ function registerCustomizationSettings() {
     scope: 'world',
     config: false,
     type: String,
-    default: 'Lawful Good, Neutral Good, Chaotic Good, Lawful Neutral, True Neutral, Chaotic Neutral, Lawful Evil, Neutral Evil, Chaotic Evil',
+    default:
+      'Lawful Good, Neutral Good, Chaotic Good, Lawful Neutral, True Neutral, Chaotic Neutral, Lawful Evil, Neutral Evil, Chaotic Evil',
     restricted: true
   });
 
@@ -204,7 +229,8 @@ function registerCustomizationSettings() {
     scope: 'world',
     config: false,
     type: String,
-    default: 'Aphrodite,Apollo,Ares,Artemis,Athena,Demeter,Dionysus,Hades,Hecate,Hephaestus,Hera,Hercules,Hermes,Hestia,Nike,Pan,Poseidon,Tyche,Zeus',
+    default:
+      'Aphrodite,Apollo,Ares,Artemis,Athena,Demeter,Dionysus,Hades,Hecate,Hephaestus,Hera,Hercules,Hermes,Hestia,Nike,Pan,Poseidon,Tyche,Zeus',
     restricted: true
   });
 
@@ -456,4 +482,68 @@ function registerCompatibilitySettings() {
   }
 
   HM.log(3, 'Compatibility settings registered.');
+}
+
+export const RELOAD = new Set([
+  'enable',
+  'classPacks',
+  'racePacks',
+  'backgroundPacks',
+  'itemPacks',
+  'elkanCompatibility',
+  'tokenizerCompatibility'
+]);
+
+export const RERENDER = new Set([
+  'enableRandomize',
+  'alignments',
+  'deities',
+  'eye-colors',
+  'hair-colors',
+  'skin-tones',
+  'genders',
+  'customStandardArray',
+  'chainedRolls',
+  'rollDelay',
+  'customPointBuyTotal',
+  'abilityScoreDefault',
+  'abilityScoreMin',
+  'abilityScoreMax',
+  'statGenerationSwapMode',
+  'mandatoryFields',
+  'enableTokenCustomization',
+  'enableNavigationButtons',
+  'enablePlayerCustomization'
+]);
+
+/**
+ * Checks if any modified settings require a reload
+ * @param {Object} changedSettings - Object with setting keys that were changed
+ * @returns {boolean} True if any changed setting requires a reload
+ */
+export function needsReload(changedSettings) {
+  if (!changedSettings || typeof changedSettings !== 'object') return false;
+
+  return Object.keys(changedSettings).some((key) => RELOAD.has(key));
+}
+
+/**
+ * Checks if any modified settings require a re-render
+ * @param {Object} changedSettings - Object with setting keys that were changed
+ * @returns {boolean} True if any changed setting requires a re-render
+ */
+export function needsRerender(changedSettings) {
+  if (!changedSettings || typeof changedSettings !== 'object') return false;
+
+  return Object.keys(changedSettings).some((key) => RERENDER.has(key));
+}
+
+/**
+ * Re-renders the Hero Mancer application if it exists and updates UI components
+ * @returns {Promise<void>}
+ */
+export async function rerenderHM() {
+  if (!HM.heroMancer) return;
+  const app = HM.heroMancer;
+  await app.close();
 }

@@ -1,25 +1,20 @@
 {
-  "id": "hero-mancer",
-  "title": "Hero Mancer",
-  "description": "The one stop shop for creating your heroes in D&D 5e.",
-  "version": "",
-  "bugs": "https://github.com/Sayshal/hero-mancer/issues",
-  "changelog": "https://github.com/Sayshal/hero-mancer/releases",
-  "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
-  "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
   "authors": [
     {
-      "name": "Tyler",
       "discord": "Tyler",
-      "url": "https://github.com/Sayshal",
-      "flags": {}
+      "flags": {},
+      "name": "Tyler",
+      "url": "https://github.com/Sayshal"
     }
   ],
+  "bugs": "https://github.com/Sayshal/hero-mancer/issues",
+  "changelog": "https://github.com/Sayshal/hero-mancer/releases",
   "compatibility": {
-    "maximum": "13.339",
+    "maximum": "13.399",
     "minimum": "12.331",
     "verified": "12.331"
   },
+  "description": "The one stop shop for creating your heroes in D&D 5e.",
   "download": "",
   "esmodules": ["scripts/app/HeroMancer.js", "scripts/hero-mancer.js", "scripts/settings.js"],
   "flags": {
@@ -28,6 +23,7 @@
       "paths": ["styles", "lang", "templates"]
     }
   },
+  "id": "hero-mancer",
   "languages": [
     {
       "lang": "en",
@@ -45,37 +41,41 @@
       "path": "lang/pt-BR.json"
     }
   ],
+  "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
   "manifest": "https://github.com/Sayshal/hero-mancer/releases/latest/download/module.json",
+  "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
   "relationships": {
+    "optional": [
+      {
+        "compatibility": {
+          "minimum": "1.0.16",
+          "verified": "1.0.16"
+        },
+        "id": "chris-premades",
+        "type": "module"
+      },
+      {
+        "compatibility": {
+          "verified": "v1.12.18.2"
+        },
+        "id": "elkan5e",
+        "type": "module"
+      }
+    ],
     "systems": [
       {
         "compatibility": {
-          "maximum": "4.3.x",
+          "maximum": "5.x.x",
           "minimum": "3.3.1",
-          "verified": "3.3.1"
+          "verified": "4.3.9"
         },
         "id": "dnd5e",
         "type": "system"
       }
-    ],
-    "optional": [
-      {
-        "id": "chris-premades",
-        "type": "module",
-        "compatibility": {
-          "minimum": "1.0.16",
-          "verified": "1.0.16"
-        }
-      },
-      {
-        "id": "elkan5e",
-        "type": "module",
-        "compatibility": {
-          "verified": "v1.12.18.2"
-        }
-      }
     ]
   },
   "styles": ["styles/hero-mancer.css"],
-  "url": "https://github.com/Sayshal/hero-mancer"
+  "title": "Hero Mancer",
+  "url": "https://github.com/Sayshal/hero-mancer",
+  "version": ""
 }

@@ -32,7 +32,10 @@ export class DocumentService {
       }
 
       // Process the documents based on type
-      const result = type === 'race' || type === 'species' ? this.#organizeRacesByTypeIdentifier(data.documents) : this.#getFlatDocuments(data.documents);
+      const result =
+        type === 'race' || type === 'species' ?
+          this.#organizeRacesByFolderName(data.documents)
+        : this.#getFlatDocuments(data.documents);
 
       /**
        * A hook event that fires after documents have been fetched and organized.
@@ -65,7 +68,47 @@ export class DocumentService {
   /* -------------------------------------------- */
 
   /**
-   * Organizes races into groups based on their type identifier
+   * Gets flat list of documents with minimal processing
+   * @param {Array} documents - Documents to process
+   * @returns {Array} Processed documents
+   * @private
+   */
+  static #getFlatDocuments(documents) {
+    if (!documents?.length) {
+      return [];
+    }
+
+    try {
+      // Check if we should hide compendium sources
+      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
+
+      return documents
+        .map((doc) => {
+          // Prepare the display name based on the setting
+          const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName || 'Unknown'})`;
+
+          return {
+            id: doc.id,
+            name: displayName,
+            // Keep the original name for sorting purposes
+            sortName: `${doc.name} (${doc.packName || 'Unknown'})`,
+            description: doc.description,
+            enrichedDescription: doc.enrichedDescription,
+            journalPageId: doc.journalPageId,
+            packName: doc.packName,
+            packId: doc.packId,
+            uuid: doc.uuid
+          };
+        })
+        .sort((a, b) => a.sortName.localeCompare(b.sortName));
+    } catch (error) {
+      HM.log(1, 'Error processing flat documents:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Organizes races into groups based on their folder name
    * @param {Array} documents - Race documents to organize
    * @returns {Array} Grouped race documents
    * @private
@@ -77,6 +120,9 @@ export class DocumentService {
     }
 
     try {
+      // Check if we should hide compendium sources
+      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
+
       // Organize races into type groups
       const typeGroups = new Map();
 
@@ -93,10 +139,14 @@ export class DocumentService {
           });
         }
 
+        // Prepare display name based on setting
+        const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName})`;
+
         // Add document to its group
         typeGroups.get(typeName).docs.push({
           id: doc.id,
           name: doc.name,
+          displayName: displayName,
           packName: doc.packName,
           packId: doc.packId,
           journalPageId: doc.journalPageId,
@@ -115,76 +165,6 @@ export class DocumentService {
       return Array.from(typeGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
     } catch (error) {
       HM.log(1, 'Error organizing races by type:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Formats race type identifier into proper display name
-   * @param {string} identifier - Race type identifier
-   * @returns {string} Formatted display name
-   * @private
-   */
-  static #formatRaceTypeIdentifier(identifier) {
-    // Input validation
-    if (!identifier || typeof identifier !== 'string') {
-      return game.i18n.localize('hm.app.document-service.other-itdentifier');
-    }
-
-    try {
-      return identifier
-        .split('-')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    } catch (error) {
-      HM.log(2, `Error formatting race type identifier "${identifier}":`, error);
-      return game.i18n.localize('hm.app.document-service.other-itdentifier');
-    }
-  }
-
-  /**
-   * Extracts race type identifier from document
-   * @param {Object} doc - Document to extract type from
-   * @returns {string} Type identifier
-   * @private
-   */
-  static #extractRaceTypeIdentifier(doc) {
-    if (!doc?.system) {
-      return game.i18n.localize('hm.app.document-service.other-itdentifier');
-    }
-
-    const possiblePaths = [doc.system?.type?.subtype, doc.system?.type?.value, doc.system?.traits?.type?.value, doc.system?.details?.race, doc.system?.details?.species];
-
-    // Return the first non-empty value, or 'other' if none found
-    return possiblePaths.find((path) => path) || game.i18n.localize('hm.app.document-service.other-itdentifier');
-  }
-
-  /**
-   * Gets flat list of documents with minimal processing
-   * @param {Array} documents - Documents to process
-   * @returns {Array} Processed documents
-   * @private
-   */
-  static #getFlatDocuments(documents) {
-    if (!documents?.length) {
-      return [];
-    }
-
-    try {
-      return documents
-        .map((doc) => ({
-          id: doc.id,
-          name: `${doc.name} (${doc.packName || 'Unknown'})`,
-          description: doc.description,
-          enrichedDescription: doc.enrichedDescription,
-          journalPageId: doc.journalPageId,
-          packName: doc.packName,
-          packId: doc.packId,
-          uuid: doc.uuid
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-    } catch (error) {
-      HM.log(1, 'Error processing flat documents:', error);
       return [];
     }
   }
@@ -400,18 +380,20 @@ export class DocumentService {
 
     try {
       return documents
-        .map(({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
-          id: doc.id,
-          name: doc.name,
-          description,
-          enrichedDescription,
-          journalPageId,
-          folderName,
-          packName,
-          packId,
-          uuid,
-          system
-        }))
+        .map(
+          ({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
+            id: doc.id,
+            name: doc.name,
+            description,
+            enrichedDescription,
+            journalPageId,
+            folderName,
+            packName,
+            packId,
+            uuid,
+            system
+          })
+        )
         .sort((a, b) => {
           // Sort by name first, then by pack name if names are identical
           const nameCompare = a.name.localeCompare(b.name);
@@ -556,7 +538,8 @@ export class DocumentService {
 
     try {
       // If we have a module prefix, only search packs from that module
-      const packsToSearch = modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
+      const packsToSearch =
+        modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
 
       // If we filtered out all packs but still have a modulePrefix, log it
       if (modulePrefix && packsToSearch.length === 0) {
@@ -586,7 +569,10 @@ export class DocumentService {
         }
       }
 
-      HM.log(3, `No matching journal page found for ${itemType} "${itemName}" after searching ${packsToSearch.length} packs`);
+      HM.log(
+        3,
+        `No matching journal page found for ${itemType} "${itemName}" after searching ${packsToSearch.length} packs`
+      );
       return null;
     } catch (error) {
       HM.log(2, `Error during journal page search for ${itemName}:`, error);

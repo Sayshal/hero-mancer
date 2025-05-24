@@ -62,6 +62,21 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   /* -------------------------------------------- */
 
   /**
+   * Actions performed after the first render of the Application.
+   * @param {ApplicationRenderContext} _context Prepared context data
+   * @param {RenderOptions} _options Provided render options
+   * @returns {void}
+   * @protected
+   * @override
+   */
+  _onFirstRender() {
+    CustomCompendiums.PACKS.class = game.settings.get(HM.ID, 'classPacks');
+    CustomCompendiums.PACKS.background = game.settings.get(HM.ID, 'backgroundPacks');
+    CustomCompendiums.PACKS.race = game.settings.get(HM.ID, 'racePacks');
+    CustomCompendiums.PACKS.item = game.settings.get(HM.ID, 'itemPacks');
+  }
+
+  /**
    * Manages the compendium selection and handles validation.
    * @async
    * @param {string} type - The type of compendium to manage (class, race, background, or item)
@@ -111,10 +126,10 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       for (const type of types) {
         try {
           const validPacks = await CustomCompendiums.#collectValidPacks(type, false);
-          const selectedPacks = (await game.settings.get(HM.ID, `${type}Packs`)) || [];
-
-          // Filter selected packs to ensure they're valid
-          const validSelectedPacks = selectedPacks.filter((packId) => Array.from(validPacks).some((pack) => pack.packId === packId));
+          const selectedPacks = game.settings.get(HM.ID, `${type}Packs`) || [];
+          const validSelectedPacks = selectedPacks.filter((packId) =>
+            Array.from(validPacks).some((pack) => pack.packId === packId)
+          );
 
           settingsUpdates.push({
             type,
@@ -374,39 +389,43 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     // Add separator
     groupDiv.appendChild(document.createElement('hr'));
 
-    // Create group header with "Select All" checkbox
-    const groupHeader = document.createElement('div');
-    groupHeader.className = 'hm-compendium-group-header';
-
-    const groupLabel = document.createElement('label');
-    groupLabel.className = 'checkbox';
-
-    const groupCheckbox = document.createElement('input');
-    groupCheckbox.type = 'checkbox';
-    groupCheckbox.className = 'hm-select-all';
-    groupCheckbox.dataset.source = source;
-
-    // Set both property and attribute
-    groupCheckbox.checked = group.allSelected;
-    if (group.allSelected) {
-      groupCheckbox.setAttribute('checked', 'checked');
+    // Global "Select All" checkbox
+    if (globalSelectAll) {
+      globalSelectAll.addEventListener('change', (event) => {
+        const isChecked = event.target.checked;
+        allItemCheckboxes.forEach((input) => (input.checked = isChecked));
+        groupSelectAlls.forEach((input) => (input.checked = isChecked));
+      });
     }
 
-    groupLabel.append(groupCheckbox, group.name);
-    groupHeader.appendChild(groupLabel);
-    groupDiv.appendChild(groupHeader);
+    // Group "Select All" checkboxes
+    groupSelectAlls.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => {
+        const source = event.target.dataset.source;
+        const isChecked = event.target.checked;
+        const sourceCheckboxes = element.querySelectorAll(
+          `input[data-source="${source}"][name="compendiumMultiSelect"]`
+        );
+        sourceCheckboxes.forEach((input) => (input.checked = isChecked));
+        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
+      });
+    });
 
-    // Create group items container
-    const itemsContainer = document.createElement('div');
-    itemsContainer.className = 'hm-compendium-group-items';
+    // Individual checkboxes
+    allItemCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => {
+        const source = event.target.dataset.source;
+        const sourceCheckboxes = element.querySelectorAll(
+          `input[data-source="${source}"][name="compendiumMultiSelect"]`
+        );
+        const selectAllCheckbox = element.querySelector(`.hm-select-all[data-source="${source}"]`);
 
-    // Add each pack checkbox
-    for (const pack of group.packs) {
-      itemsContainer.appendChild(this.#createPackCheckbox(pack, source));
-    }
+        const allChecked = Array.from(sourceCheckboxes).every((input) => input.checked);
+        if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
 
-    groupDiv.appendChild(itemsContainer);
-    return groupDiv;
+        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
+      });
+    });
   }
 
   /**
@@ -474,7 +493,9 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       default: 'true',
       callback: async (event, button) => {
         try {
-          const selectedValues = Array.from(button.form.querySelectorAll('input[name="compendiumMultiSelect"]:checked')).map((input) => input.value);
+          const selectedValues = Array.from(
+            button.form.querySelectorAll('input[name="compendiumMultiSelect"]:checked')
+          ).map((input) => input.value);
 
           // If nothing is selected, select all packs
           if (selectedValues.length === 0) {
@@ -529,96 +550,6 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  }
-
-  /**
-   * Sets up event listeners for compendium dialog checkboxes
-   * @param {HTMLElement} element - The dialog's DOM element
-   * @returns {void}
-   * @private
-   */
-  static #setupCompendiumDialogListeners(element) {
-    // Cache frequently used selectors
-    const allItemCheckboxes = element.querySelectorAll('input[name="compendiumMultiSelect"]');
-    const globalSelectAll = element.querySelector('.hm-select-all-global');
-    const groupSelectAlls = element.querySelectorAll('.hm-select-all');
-
-    // Global "Select All" checkbox
-    if (globalSelectAll) {
-      globalSelectAll.addEventListener('change', (event) => {
-        const isChecked = event.target.checked;
-
-        // Update all checkboxes
-        allItemCheckboxes.forEach((input) => {
-          input.checked = isChecked;
-        });
-
-        // Update all group "select all" checkboxes
-        groupSelectAlls.forEach((input) => {
-          input.checked = isChecked;
-        });
-      });
-    }
-
-    // Group "Select All" checkboxes
-    groupSelectAlls.forEach((checkbox) => {
-      checkbox.addEventListener('change', (event) => {
-        const source = event.target.dataset.source;
-        const isChecked = event.target.checked;
-
-        // Get all checkboxes for this source (cache the NodeList for better performance)
-        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
-
-        // Update all checkboxes in this group
-        sourceCheckboxes.forEach((input) => {
-          input.checked = isChecked;
-        });
-
-        // Update global "select all" checkbox
-        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
-      });
-    });
-
-    // Individual checkboxes
-    allItemCheckboxes.forEach((checkbox) => {
-      checkbox.addEventListener('change', (event) => {
-        const source = event.target.dataset.source;
-
-        // Get all checkboxes and select-all for this source (cache the selectors)
-        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
-        const selectAllCheckbox = element.querySelector(`.hm-select-all[data-source="${source}"]`);
-
-        // Check if all source checkboxes are checked
-        const allChecked = Array.from(sourceCheckboxes).every((input) => input.checked);
-
-        // Update group select-all checkbox
-        if (selectAllCheckbox) {
-          selectAllCheckbox.checked = allChecked;
-        }
-
-        // Update global "select all" checkbox
-        this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
-      });
-    });
-  }
-
-  /**
-   * Updates the global "Select All" checkbox state based on individual checkbox states
-   * @param {HTMLElement} element - The dialog's DOM element
-   * @param {NodeList} [allCheckboxes=null] - Cached NodeList of all checkboxes for better performance
-   * @param {HTMLElement} [globalSelectAllElement=null] - Cached global select-all element
-   * @returns {void}
-   * @private
-   */
-  static #updateGlobalSelectAll(element, allCheckboxes = null, globalSelectAllElement = null) {
-    // Use cached elements if provided, otherwise query the DOM
-    const globalSelectAll = globalSelectAllElement || element.querySelector('.hm-select-all-global');
-    if (!globalSelectAll) return;
-
-    const checkboxes = allCheckboxes || element.querySelectorAll('input[name="compendiumMultiSelect"]');
-    const allChecked = Array.from(checkboxes).every((input) => input.checked);
-
-    globalSelectAll.checked = allChecked;
   }
 
   /**

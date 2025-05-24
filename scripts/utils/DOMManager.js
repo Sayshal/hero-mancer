@@ -1,4 +1,13 @@
-import { EquipmentParser, HeroMancer, HM, JournalPageEmbed, MandatoryFields, SavedOptions, StatRoller, TableManager } from './index.js';
+import {
+  EquipmentParser,
+  FormValidation,
+  HeroMancer,
+  HM,
+  JournalPageEmbed,
+  SavedOptions,
+  StatRoller,
+  TableManager
+} from './index.js';
 
 /**
  * Centralized DOM event and observer management
@@ -258,40 +267,49 @@ export class DOMManager {
     if (!equipmentContainer || HM.COMPAT.ELKAN) return;
 
     // Use mutation observer to catch dynamically added elements
-    this.observe('equipment-container', equipmentContainer, { childList: true, subtree: true, attributes: true }, (mutations) => {
-      let needsUpdate = false;
+    this.observe(
+      'equipment-container',
+      equipmentContainer,
+      { childList: true, subtree: true, attributes: true },
+      (mutations) => {
+        let needsUpdate = false;
 
-      for (const mutation of mutations) {
-        if (mutation.type === 'childList' && mutation.addedNodes.length) {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add listeners to newly added checkboxes
-              const newCheckboxes = node.querySelectorAll?.('.equipment-favorite-checkbox') || [];
-              newCheckboxes.forEach((checkbox) => {
-                this.on(checkbox, 'change', () => {
-                  this.updateEquipmentSummary();
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length) {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // Add listeners to newly added checkboxes
+                const newCheckboxes = node.querySelectorAll?.('.equipment-favorite-checkbox') || [];
+                newCheckboxes.forEach((checkbox) => {
+                  this.on(checkbox, 'change', () => {
+                    this.updateEquipmentSummary();
+                  });
                 });
-              });
 
-              // If we added elements that affect summary, flag for update
-              if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) {
-                needsUpdate = true;
+                // If we added elements that affect summary, flag for update
+                if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) {
+                  needsUpdate = true;
+                }
               }
-            }
-          });
+            });
+          }
+
+          // If attribute changed on a favorite checkbox
+          if (
+            mutation.type === 'attributes' &&
+            mutation.attributeName === 'checked' &&
+            mutation.target.classList.contains('equipment-favorite-checkbox')
+          ) {
+            needsUpdate = true;
+          }
         }
 
-        // If attribute changed on a favorite checkbox
-        if (mutation.type === 'attributes' && mutation.attributeName === 'checked' && mutation.target.classList.contains('equipment-favorite-checkbox')) {
-          needsUpdate = true;
+        // Only update once if needed
+        if (needsUpdate) {
+          this.updateEquipmentSummary();
         }
       }
-
-      // Only update once if needed
-      if (needsUpdate) {
-        this.updateEquipmentSummary();
-      }
-    });
+    );
 
     // Attach listeners to existing equipment items
     this.attachEquipmentListeners(equipmentContainer);
@@ -400,9 +418,14 @@ export class DOMManager {
     proseMirrorElements.forEach((editor, index) => {
       const editorContent = editor.querySelector('.editor-content.ProseMirror');
       if (editorContent) {
-        this.observe(`prose-mirror-${index}`, editorContent, { childList: true, characterData: true, subtree: true }, async () => {
-          MandatoryFields.checkMandatoryFields(element);
-        });
+        this.observe(
+          `prose-mirror-${index}`,
+          editorContent,
+          { childList: true, characterData: true, subtree: true },
+          async () => {
+            FormValidation.checkMandatoryFields(element);
+          }
+        );
       }
     });
   }
@@ -417,7 +440,11 @@ export class DOMManager {
 
     const ringEnabledElement = element.querySelector('input[name="ring.enabled"]');
     const ringOptions = element.querySelectorAll(
-      ['.customization-row:has(color-picker[name="ring.color"])', '.customization-row:has(color-picker[name="backgroundColor"])', '.customization-row.ring-effects'].join(', ')
+      [
+        '.customization-row:has(color-picker[name="ring.color"])',
+        '.customization-row:has(color-picker[name="backgroundColor"])',
+        '.customization-row.ring-effects'
+      ].join(', ')
     );
 
     if (!ringEnabledElement || !ringOptions.length) return;
@@ -431,10 +458,12 @@ export class DOMManager {
     this.on(ringEnabledElement, 'change', (event) => {
       if (!event.currentTarget.checked) {
         // Reset color pickers
-        element.querySelectorAll('color-picker[name="ring.color"], color-picker[name="backgroundColor"]').forEach((picker) => {
-          picker.value = '';
-          picker.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+        element
+          .querySelectorAll('color-picker[name="ring.color"], color-picker[name="backgroundColor"]')
+          .forEach((picker) => {
+            picker.value = '';
+            picker.dispatchEvent(new Event('change', { bubbles: true }));
+          });
 
         // Reset ring effect checkboxes
         element.querySelectorAll('input[name="ring.effects"]').forEach((checkbox) => {
@@ -465,8 +494,14 @@ export class DOMManager {
       if (portraitImg) {
         portraitImg.src = defaultImage;
 
-        // Check if dark mode is active and apply inversion if needed
-        const isDarkMode = game.settings.get('core', 'colorScheme') === 'dark';
+        //V13 Compat - Setting reference changed.
+        let versionCheck = foundry.utils.isNewerVersion(game.version, 12);
+        let isDarkMode;
+        if (versionCheck) {
+          isDarkMode = game.settings.get('core', 'uiConfig').colorScheme.applications;
+        } else {
+          isDarkMode = game.settings?.get('core', 'colorScheme') === 'dark';
+        }
         this.applyDarkModeToImage(portraitImg, isDarkMode, true);
       }
 
@@ -483,8 +518,15 @@ export class DOMManager {
           const isDefaultImage = portraitImg.src.includes('/abilities/');
           portraitImg.src = artInput.value || defaultImage;
 
-          // Only apply dark mode treatment for default images
-          const isDarkMode = game.settings.get('core', 'colorScheme') === 'dark';
+          //V13 Compat - Setting reference changed.
+          let versionCheck = foundry.utils.isNewerVersion(game.version, 12);
+          let isDarkMode;
+          if (versionCheck) {
+            isDarkMode = game.settings.get('core', 'uiConfig').colorScheme.applications;
+          } else {
+            isDarkMode = game.settings?.get('core', 'colorScheme') === 'dark';
+          }
+
           const isStillDefaultImage = !artInput.value || artInput.value.includes('/abilities/');
           this.applyDarkModeToImage(portraitImg, isDarkMode, isStillDefaultImage);
         }
@@ -1103,7 +1145,11 @@ export class DOMManager {
     const totalPoints = StatRoller.getTotalPoints();
     const pointsSpent = StatRoller.calculateTotalPointsSpent(selectedAbilities);
 
-    if (change > 0 && pointsSpent + StatRoller.getPointBuyCostForScore(newScore) - StatRoller.getPointBuyCostForScore(currentScore) > totalPoints) {
+    if (
+      change > 0 &&
+      pointsSpent + StatRoller.getPointBuyCostForScore(newScore) - StatRoller.getPointBuyCostForScore(currentScore) >
+        totalPoints
+    ) {
       HM.log(2, 'Not enough points remaining to increase this score.');
       return;
     }
@@ -1134,7 +1180,8 @@ export class DOMManager {
 
     document.querySelectorAll('.plus-button').forEach((button, index) => {
       const currentScore = selectedAbilities[index];
-      const pointCostForNextIncrease = StatRoller.getPointBuyCostForScore(currentScore + 1) - StatRoller.getPointBuyCostForScore(currentScore);
+      const pointCostForNextIncrease =
+        StatRoller.getPointBuyCostForScore(currentScore + 1) - StatRoller.getPointBuyCostForScore(currentScore);
       const shouldDisable = currentScore >= MAX || remainingPoints < pointCostForNextIncrease;
 
       // Only update if the state actually changes
@@ -1260,18 +1307,48 @@ export class DOMManager {
    * @param {number} remainingPoints - Remaining points
    * @static
    */
-  static updateDropdownSelectionAvailability(dropdown, currentValue, remainingPoints) {
-    const { MIN, MAX } = HM.ABILITY_SCORES;
+  static async updateReviewTab() {
+    try {
+      // Get the finalize tab
+      const finalizeTab = document.querySelector('.tab[data-tab="finalize"]');
+      if (!finalizeTab) {
+        HM.log(2, 'Finalize tab not found');
+        return;
+      }
 
-    dropdown.querySelectorAll('option').forEach((option) => {
-      const optionValue = parseInt(option.value, 10);
-      if (optionValue < MIN || optionValue > MAX) return;
+      // Get the review sections using the correct selectors
+      const basicInfoSection = finalizeTab.querySelector(
+        '.review-section[aria-labelledby="basic-info-heading"] .review-content'
+      );
+      const abilitiesSection = finalizeTab.querySelector(
+        '.review-section[aria-labelledby="abilities-heading"] .abilities-grid'
+      );
+      const equipmentSection = finalizeTab.querySelector(
+        '.review-section[aria-labelledby="equipment-heading"] .equipment-list'
+      );
+      const bioSection = finalizeTab.querySelector('.review-section[aria-labelledby="biography-heading"] .bio-preview');
 
-      const optionCost = StatRoller.getPointBuyCostForScore(optionValue);
-      const canAffordOption = optionCost <= remainingPoints + StatRoller.getPointBuyCostForScore(currentValue);
+      if (!basicInfoSection || !abilitiesSection || !equipmentSection || !bioSection) {
+        HM.log(2, 'Could not find all required review sections');
+        HM.log(
+          3,
+          `Sections found:
+        Basic Info: ${basicInfoSection ? 'Yes' : 'No'}
+        Abilities: ${abilitiesSection ? 'Yes' : 'No'}
+        Equipment: ${equipmentSection ? 'Yes' : 'No'}
+        Bio: ${bioSection ? 'Yes' : 'No'}`
+        );
+        return;
+      }
 
-      option.disabled = !canAffordOption && optionValue !== currentValue;
-    });
+      // Update each section
+      await this.#updateBasicInfoReview(basicInfoSection);
+      await this.#updateAbilitiesReview(abilitiesSection);
+      await this.#updateEquipmentReview(equipmentSection);
+      await this.#updateBiographyReview(bioSection);
+    } catch (error) {
+      HM.log(1, 'Error updating review tab:', error);
+    }
   }
 
   /* -------------------------------------------- */
@@ -1600,7 +1677,8 @@ export class DOMManager {
    */
   static #getBackgroundData() {
     const backgroundSelect = document.querySelector('#background-dropdown');
-    const selectedOption = backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
+    const selectedOption =
+      backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
 
     // Handle default/no selection case
     if (!selectedOption?.value || !HM.SELECTED.background?.uuid) {
@@ -1611,7 +1689,10 @@ export class DOMManager {
     }
 
     const backgroundName = selectedOption.text;
-    const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
+    const article =
+      /^[aeiou]/i.test(backgroundName) ?
+        game.i18n.localize('hm.app.equipment.article-plural')
+      : game.i18n.localize('hm.app.equipment.article');
 
     return {
       article: article,
@@ -1626,7 +1707,9 @@ export class DOMManager {
    */
   static #collectEquipmentItems() {
     // Collect all equipment items at once
-    const selectedEquipment = Array.from(document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked'))
+    const selectedEquipment = Array.from(
+      document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked')
+    )
       .map((el) => this.#extractEquipmentItemData(el))
       .filter(Boolean);
 
@@ -1708,14 +1791,19 @@ export class DOMManager {
     // Format individual items
     const formattedItems = displayEquipment.map((item) => {
       const itemName = item.text;
-      const article = /^[aeiou]/i.test(itemName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
+      const article =
+        /^[aeiou]/i.test(itemName) ?
+          game.i18n.localize('hm.app.equipment.article-plural')
+        : game.i18n.localize('hm.app.equipment.article');
       return `${article} @UUID[${item.uuid}]{${item.text}}`;
     });
 
     // Join items with appropriate separators
     const content = game.i18n.format('hm.app.finalize.summary.equipment', {
       items:
-        formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) + (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') + formattedItems.slice(-1)
+        formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) +
+        (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') +
+        formattedItems.slice(-1)
     });
 
     summary.innerHTML = await TextEditor.enrichHTML(content);
@@ -1779,7 +1867,9 @@ export class DOMManager {
 
       // Get saving throw proficiencies
       if (classItem?.advancement?.byType?.Trait) {
-        const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
+        const level1Traits = classItem.advancement.byType.Trait.filter(
+          (entry) => entry.level === 1 && entry.configuration.grants
+        );
 
         for (const trait of level1Traits) {
           const grants = trait.configuration.grants;
@@ -2144,7 +2234,9 @@ export class DOMManager {
   static #buildInventoryList(actor) {
     if (!actor) return '';
 
-    const items = actor.items.filter((item) => !['class', 'subclass', 'race', 'background', 'feat', 'spell'].includes(item.type));
+    const items = actor.items.filter(
+      (item) => !['class', 'subclass', 'race', 'background', 'feat', 'spell'].includes(item.type)
+    );
 
     let inventoryHTML = `
     <div class="inventory-summary">
@@ -2267,7 +2359,10 @@ export class DOMManager {
    */
   static #renderStandardDescription(doc, descriptionEl) {
     // Find the journal container - might be the description element itself or a child
-    let contentContainer = descriptionEl.classList.contains('journal-container') ? descriptionEl : descriptionEl.querySelector('.journal-container');
+    let contentContainer =
+      descriptionEl.classList.contains('journal-container') ?
+        descriptionEl
+      : descriptionEl.querySelector('.journal-container');
 
     if (!contentContainer) {
       // Create a content container if none exists
@@ -2282,5 +2377,477 @@ export class DOMManager {
     } else {
       contentContainer.innerHTML = doc.description || game.i18n.localize('hm.app.no-description');
     }
+  }
+
+  /**
+   * Updates the basic info section of the review tab
+   * @param {HTMLElement} container - The container element
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #updateBasicInfoReview(container) {
+    // Get character name
+    const characterName = document.querySelector('#character-name')?.value || game.user.name;
+
+    // Update the character name in the heading
+    const nameDisplay = document.querySelector('.character-name-display');
+    if (nameDisplay) {
+      nameDisplay.textContent = characterName;
+    }
+
+    // Update race, class, and background with links
+    await this.#updateReviewValueWithLink(container, '.race-value', HM.SELECTED.race?.uuid);
+    await this.#updateReviewValueWithLink(container, '.class-value', HM.SELECTED.class?.uuid);
+    await this.#updateReviewValueWithLink(container, '.background-value', HM.SELECTED.background?.uuid);
+  }
+
+  /**
+   * Updates a review value with a document link if available
+   * @param {HTMLElement} container - The container element
+   * @param {string} selector - Selector for the value element
+   * @param {string} uuid - Document UUID
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #updateReviewValueWithLink(container, selector, uuid) {
+    const element = container.querySelector(selector);
+    if (!element) return;
+
+    if (!uuid) {
+      element.textContent = game.i18n.localize('hm.unknown');
+      return;
+    }
+
+    try {
+      const doc = await fromUuidSync(uuid);
+      if (doc) {
+        const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
+        element.innerHTML = await TextEditor.enrichHTML(linkHtml);
+      } else {
+        element.textContent = game.i18n.localize('hm.unknown');
+      }
+    } catch (error) {
+      HM.log(2, `Error fetching document ${uuid}:`, error);
+      element.textContent = game.i18n.localize('hm.unknown');
+    }
+  }
+
+  /**
+   * Updates the abilities section of the review tab
+   * @param {HTMLElement} container - The container element
+   * @returns {void}
+   * @private
+   * @static
+   */
+  static #updateAbilitiesReview(container) {
+    container.innerHTML = ''; // Clear existing content
+
+    // Get the current ability scores
+    const abilityScores = this.#collectAbilityScores();
+
+    // Create ability items
+    for (const [key, ability] of Object.entries(CONFIG.DND5E.abilities)) {
+      const score = abilityScores[key] || 10;
+      const mod = Math.floor((score - 10) / 2);
+      const modSign = mod >= 0 ? '+' : '';
+
+      const abilityItem = document.createElement('div');
+      abilityItem.className = 'ability-item';
+      abilityItem.innerHTML = `
+      <span class="ability-label">${ability.abbreviation.toUpperCase()}</span>
+      <span class="ability-score">${score} (${modSign}${mod})</span>
+    `;
+
+      container.appendChild(abilityItem);
+    }
+  }
+
+  /**
+   * Updates the biography section of the review tab
+   * @param {HTMLElement} container - The container element
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #updateBiographyReview(container) {
+    container.innerHTML = ''; // Clear existing content
+
+    // Collect biography data
+    const bioData = this.#collectBiographyData();
+
+    // Create main bio section
+    const bioMainText = await this.#formatMainBiographyText(bioData);
+    const bioMain = document.createElement('div');
+    bioMain.className = 'bio-main';
+    bioMain.innerHTML = bioMainText;
+    container.appendChild(bioMain);
+
+    // Create personality sections
+    const traits = [
+      { key: 'personalityTraits', label: 'DND5E.PersonalityTraits' },
+      { key: 'ideals', label: 'DND5E.Ideals' },
+      { key: 'bonds', label: 'DND5E.Bonds' },
+      { key: 'flaws', label: 'DND5E.Flaws' }
+    ];
+
+    // Add each trait section if it has content
+    traits.forEach((trait) => {
+      if (bioData[trait.key]) {
+        const traitSection = document.createElement('div');
+        traitSection.className = `bio-detail ${trait.key}`;
+        traitSection.innerHTML = `
+        <h4>${game.i18n.localize(trait.label)}</h4>
+        <p>${bioData[trait.key]}</p>
+      `;
+        container.appendChild(traitSection);
+      }
+    });
+
+    // Add physical description if available
+    if (bioData.physicalDescription) {
+      const physDesc = document.createElement('div');
+      physDesc.className = 'bio-detail physical-description';
+      physDesc.innerHTML = `
+      <h4>${game.i18n.localize('hm.app.finalize.review.physical-description')}</h4>
+      <p>${bioData.physicalDescription}</p>
+    `;
+      container.appendChild(physDesc);
+    }
+
+    // Add backstory if available
+    if (bioData.backstory) {
+      const backstory = document.createElement('div');
+      backstory.className = 'bio-detail backstory';
+      backstory.innerHTML = `
+      <h4>${game.i18n.localize('hm.app.finalize.review.backstory')}</h4>
+      <div class="backstory-text">${await TextEditor.enrichHTML(bioData.backstory)}</div>
+    `;
+      container.appendChild(backstory);
+    }
+  }
+
+  /**
+   * Gets equipment items from background
+   * @returns {Array<Object>} Array of background equipment items
+   * @private
+   * @static
+   */
+  static #getBackgroundEquipment() {
+    // Check if using starting wealth for background
+    const useStartingWealth = document.querySelector('#use-starting-wealth-background')?.checked || false;
+
+    if (useStartingWealth) {
+      // If using starting wealth, return special indicator
+      const wealthAmount = document.querySelector('#starting-wealth-amount-background')?.value || '0 gp';
+      return [
+        {
+          uuid: 'special-starting-wealth',
+          name: game.i18n.format('hm.app.finalize.review.starting-wealth', { amount: wealthAmount }),
+          isStartingWealth: true
+        }
+      ];
+    }
+
+    // Otherwise collect selected equipment
+    const backgroundSection = document.querySelector('.background-equipment-section');
+    if (!backgroundSection) return [];
+
+    const items = [];
+
+    // Process select elements (dropdowns)
+    const selects = backgroundSection.querySelectorAll('select:not([disabled])');
+    for (const select of selects) {
+      if (!select.value) continue;
+
+      // Get item details
+      const itemName =
+        select.options[select.selectedIndex]?.textContent ||
+        select.closest('table')?.querySelector('h4')?.textContent ||
+        'Unknown Item';
+      items.push({
+        uuid: select.value,
+        name: itemName,
+        source: 'background'
+      });
+    }
+
+    // Process checkboxes
+    const checkboxes = backgroundSection.querySelectorAll(
+      'input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked'
+    );
+    for (const checkbox of checkboxes) {
+      if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
+
+      // Get item details
+      const itemLink = checkbox.closest('label')?.querySelector('.content-link');
+      const itemName =
+        itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
+      items.push({
+        uuid: checkbox.value,
+        name: itemName,
+        source: 'background'
+      });
+    }
+
+    return items;
+  }
+
+  /**
+   * Gets equipment items from class
+   * @returns {Array<Object>} Array of class equipment items
+   * @private
+   * @static
+   */
+  static #getClassEquipment() {
+    // Check if using starting wealth for class
+    const useStartingWealth = document.querySelector('#use-starting-wealth-class')?.checked || false;
+
+    if (useStartingWealth) {
+      // If using starting wealth, return special indicator
+      const wealthAmount = document.querySelector('#starting-wealth-amount-class')?.value || '0 gp';
+      return [
+        {
+          uuid: 'special-starting-wealth',
+          name: game.i18n.format('hm.app.finalize.review.starting-wealth', { amount: wealthAmount }),
+          isStartingWealth: true
+        }
+      ];
+    }
+
+    // Otherwise collect selected equipment
+    const classSection = document.querySelector('.class-equipment-section');
+    if (!classSection) return [];
+
+    const items = [];
+
+    // Process select elements (dropdowns)
+    const selects = classSection.querySelectorAll('select:not([disabled])');
+    for (const select of selects) {
+      if (!select.value) continue;
+
+      // Get item details
+      const itemName =
+        select.options[select.selectedIndex]?.textContent ||
+        select.closest('table')?.querySelector('h4')?.textContent ||
+        'Unknown Item';
+      items.push({
+        uuid: select.value,
+        name: itemName,
+        source: 'class'
+      });
+    }
+
+    // Process checkboxes
+    const checkboxes = classSection.querySelectorAll(
+      'input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked'
+    );
+    for (const checkbox of checkboxes) {
+      if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
+
+      // Get item details
+      const itemLink = checkbox.closest('label')?.querySelector('.content-link');
+      const itemName =
+        itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
+      items.push({
+        uuid: checkbox.value,
+        name: itemName,
+        source: 'class'
+      });
+    }
+
+    return items;
+  }
+
+  /**
+   * Updates the equipment section of the review tab
+   * @param {HTMLElement} container - The container element
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #updateEquipmentReview(container) {
+    // Clear current content
+    container.innerHTML = '';
+
+    // Check if ELKAN compatibility mode is active
+    if (HM.COMPAT.ELKAN) {
+      container.innerHTML = `<p>${game.i18n.localize('hm.app.finalize.summary.equipmentDefault')}</p>`;
+      return;
+    }
+
+    // Get background and class equipment
+    const backgroundItems = this.#getBackgroundEquipment();
+    const classItems = this.#getClassEquipment();
+
+    // Get background and class names
+    const backgroundName = (await this.#getBackgroundName()) || game.i18n.localize('DND5E.Background');
+    const className = (await this.#getClassName()) || game.i18n.localize('TYPES.Item.class');
+
+    // Create equipment layout
+    container.innerHTML = `
+    <div class="equipment-layout">
+      <div class="background-equipment">
+        <h4>${game.i18n.format('hm.app.equipment.type-equipment', { type: backgroundName })}</h4>
+        <div class="background-items"></div>
+      </div>
+      <div class="class-equipment">
+        <h4>${game.i18n.format('hm.app.equipment.type-equipment', { type: className })}</h4>
+        <div class="class-items"></div>
+      </div>
+    </div>
+  `;
+
+    // Update background equipment section
+    const backgroundItemsEl = container.querySelector('.background-items');
+    if (backgroundItemsEl) {
+      if (backgroundItems.length > 0) {
+        // Check if using starting wealth
+        if (backgroundItems[0].isStartingWealth) {
+          backgroundItemsEl.innerHTML = `<div class="equipment-wealth">${backgroundItems[0].name}</div>`;
+        } else {
+          // Regular equipment items
+          const itemsHtml = await Promise.all(
+            backgroundItems.map(async (item) => {
+              return `<div class="equipment-item">${await TextEditor.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
+            })
+          );
+          backgroundItemsEl.innerHTML = itemsHtml.join('');
+        }
+      } else {
+        backgroundItemsEl.innerHTML = `<em>${game.i18n.localize('hm.app.finalize.review.no-equipment')}</em>`;
+      }
+    }
+
+    // Update class equipment section
+    const classItemsEl = container.querySelector('.class-items');
+    if (classItemsEl) {
+      if (classItems.length > 0) {
+        // Check if using starting wealth
+        if (classItems[0].isStartingWealth) {
+          classItemsEl.innerHTML = `<div class="equipment-wealth">${classItems[0].name}</div>`;
+        } else {
+          // Regular equipment items
+          const itemsHtml = await Promise.all(
+            classItems.map(async (item) => {
+              return `<div class="equipment-item">${await TextEditor.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
+            })
+          );
+          classItemsEl.innerHTML = itemsHtml.join('');
+        }
+      } else {
+        classItemsEl.innerHTML = `<em>${game.i18n.localize('hm.app.finalize.review.no-equipment')}</em>`;
+      }
+    }
+  }
+
+  /**
+   * Gets the name of the selected background
+   * @returns {Promise<string>} The background name
+   * @private
+   * @static
+   */
+  static async #getBackgroundName() {
+    if (!HM.SELECTED.background?.uuid) return '';
+
+    try {
+      const background = await fromUuidSync(HM.SELECTED.background.uuid);
+      return background?.name || '';
+    } catch (error) {
+      HM.log(2, `Error getting background name: ${error.message}`);
+      return '';
+    }
+  }
+
+  /**
+   * Gets the name of the selected class
+   * @returns {Promise<string>} The class name
+   * @private
+   * @static
+   */
+  static async #getClassName() {
+    if (!HM.SELECTED.class?.uuid) return '';
+
+    try {
+      const classItem = await fromUuidSync(HM.SELECTED.class.uuid);
+      return classItem?.name || '';
+    } catch (error) {
+      HM.log(2, `Error getting class name: ${error.message}`);
+      return '';
+    }
+  }
+
+  /**
+   * Collects biography data from form inputs
+   * @returns {Object} Biography data
+   * @private
+   * @static
+   */
+  static #collectBiographyData() {
+    return {
+      alignment: document.querySelector('#alignment')?.value || '',
+      size: document.querySelector('#size')?.value || '',
+      gender: document.querySelector('#gender')?.value || '',
+      age: document.querySelector('#age')?.value || '',
+      weight: document.querySelector('#weight')?.value || '',
+      height: document.querySelector('#height')?.value || '',
+      eyes: document.querySelector('#eyes')?.value || '',
+      hair: document.querySelector('#hair')?.value || '',
+      skin: document.querySelector('#skin')?.value || '',
+      faith: document.querySelector('#faith')?.value || '',
+      personalityTraits: document.querySelector('#personality')?.value || '',
+      ideals: document.querySelector('#ideals')?.value || '',
+      bonds: document.querySelector('#bonds')?.value || '',
+      flaws: document.querySelector('#flaws')?.value || '',
+      physicalDescription: document.querySelector('#description')?.value || '',
+      backstory: document.querySelector('#backstory')?.value || ''
+    };
+  }
+
+  /**
+   * Formats the main biography text with localization
+   * @param {Object} bioData - Biography data
+   * @returns {string} Formatted text
+   * @private
+   * @static
+   */
+  static async #formatMainBiographyText(bioData) {
+    // Get random adjectives for eyes and skin
+    const adjectives = game.i18n.localize('hm.app.finalize.review.appearance-adjectives').split(',');
+    const eyesAdjective = adjectives[Math.floor(Math.random() * adjectives.length)].trim();
+    const skinAdjective = adjectives[Math.floor(Math.random() * adjectives.length)].trim();
+
+    // Base format string
+    let formatString = 'hm.app.finalize.review.biography-format';
+
+    // Data for localization
+    const formatData = {
+      alignment: bioData.alignment || game.i18n.localize('hm.unknown'),
+      size: bioData.size || game.i18n.localize('hm.unknown'),
+      gender: bioData.gender || game.i18n.localize('hm.unknown'),
+      age: bioData.age || game.i18n.localize('hm.unknown'),
+      weight: bioData.weight || game.i18n.localize('hm.unknown'),
+      height: bioData.height || game.i18n.localize('hm.unknown'),
+      eyesAdjective: eyesAdjective,
+      eyes: bioData.eyes || game.i18n.localize('hm.unknown'),
+      hair: bioData.hair || game.i18n.localize('hm.unknown'),
+      skinAdjective: skinAdjective,
+      skin: bioData.skin || game.i18n.localize('hm.unknown')
+    };
+
+    // Check if faith should be included
+    const includeFaith = bioData.faith && bioData.faith !== game.i18n.localize('None');
+
+    // Use format string with or without faith
+    formatString = includeFaith ? 'hm.app.finalize.review.biography-format-with-faith' : formatString;
+
+    // Add faith data if needed
+    if (includeFaith) {
+      formatData.faith = bioData.faith;
+    }
+
+    // Format the text
+    return game.i18n.format(formatString, formatData);
   }
 }

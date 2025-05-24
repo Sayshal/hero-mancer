@@ -1,5 +1,5 @@
-{{!-- Race Selection Tab --}}
-<div class='tab {{tabs.race.cssClass}}' data-tab='race' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.race.cssClass}}' data-tab='race' data-group='hero-mancer-tabs' role="tabpanel" id="race-panel"
+  aria-labelledby="tab-race">
   <fieldset>
     <legend>{{localize 'hm.app.race.tooltip'}}</legend>
     <p>{{localize 'hm.app.race.preamble'}}</p>
@@ -17,15 +17,13 @@
             <optgroup label='{{this.folderName}}'>
               {{#each this.docs}}
                 <option value='{{this.id}} ({{this.packId}}) [{{this.uuid}}]'>
-                  {{this.name}}
-                  ({{this.packName}})
+                  {{this.displayName}}
                 </option>
               {{/each}}
             </optgroup>
           {{else}}
             <option value='{{this.id}}'>
-              {{this.name}}
-              ({{this.packName}})
+              {{this.displayName}}
             </option>
           {{/if}}
         {{else}}
