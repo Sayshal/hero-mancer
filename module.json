@@ -10,7 +10,7 @@
   "bugs": "https://github.com/Sayshal/hero-mancer/issues",
   "changelog": "https://github.com/Sayshal/hero-mancer/releases",
   "compatibility": {
-    "maximum": "13.399",
+    "maximum": "13.400",
     "minimum": "12.331",
     "verified": "12.331"
   },
