@@ -147,6 +147,14 @@ export class DOMManager {
   static cleanup() {
     let cleanupSuccess = true;
 
+    // Reset state variables
+    this._isUpdatingEquipment = false;
+    this._abilityUpdatePromise = null;
+    this._pendingAbilityUpdate = false;
+    this._updatingAbilities = false;
+    this.#equipmentUpdateInProgress = false;
+    this.#pendingEquipmentUpdate = null;
+
     // Clean up event listeners
     try {
       this.#listeners.forEach((events, element) => {
@@ -402,13 +410,13 @@ export class DOMManager {
     formElements.forEach((formElement) => {
       // Change event
       this.on(formElement, 'change', async () => {
-        MandatoryFields.checkMandatoryFields(element);
+        FormValidation.checkMandatoryFields(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
-          MandatoryFields.checkMandatoryFields(element);
+          FormValidation.checkMandatoryFields(element);
         });
       }
     });
@@ -557,18 +565,6 @@ export class DOMManager {
       imgElement.style.filter = 'invert(1)';
     } else {
       imgElement.style.filter = 'none';
-    }
-  }
-
-  /**
-   * Updates character portrait with provided image path
-   * @param {string} imagePath - Path to character image
-   * @static
-   */
-  static updateCharacterPortrait(imagePath) {
-    const portraitImg = document.querySelector('.character-portrait img');
-    if (portraitImg) {
-      portraitImg.src = imagePath;
     }
   }
 
@@ -787,6 +783,106 @@ export class DOMManager {
   }
 
   /**
+   * Updates the character size field based on race advancements
+   * @param {string} raceUuid UUID of the selected race
+   * @static
+   */
+  static async updateRaceSize(raceUuid) {
+    try {
+      if (!raceUuid) {
+        HM.log(3, 'No race UUID provided for size update');
+        return;
+      }
+
+      // Find size input
+      const sizeInput = document.getElementById('size');
+      if (!sizeInput) {
+        HM.log(2, 'Could not find size input element');
+        return;
+      }
+
+      // Get race document
+      const race = await fromUuidSync(raceUuid);
+      if (!race) {
+        HM.log(2, `Could not find race with UUID: ${raceUuid}`);
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+        return;
+      }
+
+      // Log the race and its advancement structure for debugging
+      HM.log(3, `Processing race: ${race.name}`, race);
+
+      // Look for size advancement - handle different data structures
+      let sizesArray = [];
+      let hint = '';
+
+      // Check for size advancement using more detailed property access
+      if (race.advancement?.byType?.Size?.length) {
+        const sizeAdvancement = race.advancement.byType.Size[0];
+        HM.log(3, 'Found Size advancement:', sizeAdvancement);
+
+        // Handle Set vs Array - check if sizes exists and convert if needed
+        if (sizeAdvancement.configuration?.sizes) {
+          // If it's a Set, convert to array
+          if (sizeAdvancement.configuration.sizes instanceof Set) {
+            sizesArray = Array.from(sizeAdvancement.configuration.sizes);
+            HM.log(3, `Converted sizes Set to Array: ${sizesArray.join(', ')}`);
+          }
+          // If it's already an array
+          else if (Array.isArray(sizeAdvancement.configuration.sizes)) {
+            sizesArray = sizeAdvancement.configuration.sizes;
+          }
+
+          hint = sizeAdvancement.hint || '';
+        }
+      }
+
+      // If no size found, clear the field
+      if (!sizesArray.length) {
+        HM.log(2, `No size advancement found for race: ${race.name}`, { advancement: race.advancement });
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+        return;
+      }
+
+      // Format size names
+      const sizeLabels = sizesArray.map((size) => {
+        return CONFIG.DND5E.actorSizes[size]?.label || size;
+      });
+      HM.log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
+
+      // Format based on number of sizes
+      let sizeText = '';
+      if (sizeLabels.length === 1) {
+        sizeText = sizeLabels[0];
+      } else if (sizeLabels.length === 2) {
+        sizeText = `${sizeLabels[0]} or ${sizeLabels[1]}`;
+      } else if (sizeLabels.length > 2) {
+        const lastLabel = sizeLabels.pop();
+        sizeText = `${sizeLabels.join(', ')}, or ${lastLabel}`;
+      }
+
+      // Update input field
+      sizeInput.value = sizeText;
+      HM.log(3, `Updated size input with value: "${sizeText}"`);
+
+      // Add hint as title if available
+      if (hint) {
+        sizeInput.title = hint;
+        HM.log(3, `Added size hint from race: "${hint}"`);
+      }
+    } catch (error) {
+      HM.log(1, `Error updating race size: ${error.message}`, error);
+      const sizeInput = document.getElementById('size');
+      if (sizeInput) {
+        sizeInput.value = '';
+        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+      }
+    }
+  }
+
+  /**
    * Process background selection changes to load relevant tables
    * @param {object} selectedBackground - Selected background data
    * @static
@@ -861,7 +957,7 @@ export class DOMManager {
         if (!tabId) continue;
 
         // Check for incomplete mandatory fields
-        const hasIncompleteFields = MandatoryFields.hasIncompleteTabFields(tabId, form);
+        const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
 
         // Get or create indicator
         let indicator = tab.querySelector('.tab-mandatory-indicator');
@@ -871,7 +967,7 @@ export class DOMManager {
           if (!indicator) {
             operations.push(() => {
               indicator = document.createElement('i');
-              indicator.className = 'fa-duotone fa-solid fa-diamond-exclamation tab-mandatory-indicator';
+              indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
 
               // Find the icon element to position relative to
               const iconElement = tab.querySelector('i:not(.tab-mandatory-indicator)');
@@ -1093,22 +1189,6 @@ export class DOMManager {
   }
 
   /**
-   * Create a debounced update function
-   * @param {Function} updateFn - Function to debounce
-   * @param {number} delay - Delay in ms
-   * @returns {Function} Debounced function
-   */
-  static debounce(updateFn, delay = 50) {
-    let timeout = null;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        updateFn.apply(this, args);
-      }, delay);
-    };
-  }
-
-  /**
    * Updates the display of remaining points in the abilities tab
    * @param {number} remainingPoints - The number of points remaining to spend
    * @static
@@ -1232,27 +1312,12 @@ export class DOMManager {
   }
 
   /**
-   * Retrieves dropdown element from DOM
-   * @param {HTMLElement} html - Parent element
-   * @param {string} type - Dropdown type
-   * @returns {HTMLElement|null} Dropdown element if found
-   * @static
-   */
-  static findDropdownElementByType(html, type) {
-    const dropdown = html.querySelector(`#${type}-dropdown`);
-    if (!dropdown) {
-      HM.log(1, `Dropdown for ${type} not found.`);
-    }
-    return dropdown;
-  }
-
-  /**
-   * Handles standard array mode dropdown updates
+   * Updates the visual state of ability dropdowns based on selected values
    * @param {NodeList} abilityDropdowns - Ability dropdown elements
    * @param {string[]} selectedValues - Currently selected values
    * @static
    */
-  static handleStandardArrayMode(abilityDropdowns, selectedValues) {
+  static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
     // Count value occurrences in the standard array
     const valueOccurrences = {};
     if (abilityDropdowns.length > 0) {
@@ -1301,10 +1366,8 @@ export class DOMManager {
   }
 
   /**
-   * Updates dropdown options based on point cost
-   * @param {HTMLElement} dropdown - Dropdown element
-   * @param {number} currentValue - Current selected value
-   * @param {number} remainingPoints - Remaining points
+   * Updates the character review tab with data from all previous tabs
+   * @returns {Promise<void>}
    * @static
    */
   static async updateReviewTab() {
@@ -1327,6 +1390,9 @@ export class DOMManager {
         '.review-section[aria-labelledby="equipment-heading"] .equipment-list'
       );
       const bioSection = finalizeTab.querySelector('.review-section[aria-labelledby="biography-heading"] .bio-preview');
+      const proficienciesSection = finalizeTab.querySelector(
+        '.review-section[aria-labelledby="proficiencies-heading"] .proficiencies-list'
+      );
 
       if (!basicInfoSection || !abilitiesSection || !equipmentSection || !bioSection) {
         HM.log(2, 'Could not find all required review sections');
@@ -1336,7 +1402,8 @@ export class DOMManager {
         Basic Info: ${basicInfoSection ? 'Yes' : 'No'}
         Abilities: ${abilitiesSection ? 'Yes' : 'No'}
         Equipment: ${equipmentSection ? 'Yes' : 'No'}
-        Bio: ${bioSection ? 'Yes' : 'No'}`
+        Bio: ${bioSection ? 'Yes' : 'No'}
+        Proficiencies: ${proficienciesSection ? 'Yes' : 'No'}`
         );
         return;
       }
@@ -1346,6 +1413,11 @@ export class DOMManager {
       await this.#updateAbilitiesReview(abilitiesSection);
       await this.#updateEquipmentReview(equipmentSection);
       await this.#updateBiographyReview(bioSection);
+
+      // Update proficiencies section if it exists
+      if (proficienciesSection) {
+        await this.#updateProficienciesReview(proficienciesSection);
+      }
     } catch (error) {
       HM.log(1, 'Error updating review tab:', error);
     }
@@ -1488,6 +1560,10 @@ export class DOMManager {
 
     // Update UI based on dropdown type
     await this.#updateUIForDropdownType(element, type);
+
+    if (type === 'race' && uuid) {
+      await this.updateRaceSize(uuid);
+    }
   }
 
   /**
@@ -1598,10 +1674,9 @@ export class DOMManager {
     const abilityScores = element.querySelectorAll('.ability-score');
 
     abilityScores.forEach((input) => {
-      // Use a single debounced handler for both input and change events
-      const debouncedUpdate = this.debounce(() => this.updateAbilitiesSummary(), 100);
-      this.on(input, 'change', debouncedUpdate);
-      this.on(input, 'input', debouncedUpdate);
+      const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
+      this.on(input, 'change', update);
+      this.on(input, 'input', update);
     });
   }
 
@@ -1908,20 +1983,20 @@ export class DOMManager {
         }
       }
       score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
-    } else if (rollMethod === 'standardArray') {
+    } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
-        const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
-        if (nameMatch && nameMatch[1]) {
-          abilityKey = nameMatch[1].toLowerCase();
+        if (rollMethod === 'standardArray') {
+          const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
+          if (nameMatch && nameMatch[1]) {
+            abilityKey = nameMatch[1].toLowerCase();
+          }
+          score = parseInt(dropdown.value) || 0;
+        } else {
+          // manualFormula
+          abilityKey = dropdown.value?.toLowerCase() || '';
+          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
         }
-        score = parseInt(dropdown.value) || 0;
-      }
-    } else if (rollMethod === 'manualFormula') {
-      const dropdown = block.querySelector('.ability-dropdown');
-      if (dropdown) {
-        abilityKey = dropdown.value?.toLowerCase() || '';
-        score = parseInt(block.querySelector('.ability-score')?.value) || 0;
       }
     }
 
@@ -1933,7 +2008,6 @@ export class DOMManager {
     const classItem = classUUID ? fromUuidSync(classUUID) : null;
     const className = classItem?.name || game.i18n.localize('hm.app.abilities.your-class');
 
-    // Apply highlighting based on roll method
     this.#applyAbilityHighlight(block, abilityKey, className, rollMethod);
   }
 
@@ -1952,27 +2026,28 @@ export class DOMManager {
       class: className
     });
 
-    // For all methods, highlight the label
+    // For all methods, highlight the label and add tooltip
     const label = block.querySelector('.ability-label');
     if (label) {
       label.classList.add('primary-ability');
       label.setAttribute('data-tooltip', tooltipText);
     }
 
-    // For standardArray, also highlight the dropdown
-    if (rollMethod === 'standardArray') {
-      const dropdown = block.querySelector('.ability-dropdown');
-      if (dropdown) {
-        dropdown.classList.add('primary-ability');
-      }
-    }
-
-    // For manualFormula, always highlight the dropdown
-    if (rollMethod === 'manualFormula') {
+    // For standardArray and manualFormula, also highlight the dropdown
+    if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
         dropdown.classList.add('primary-ability');
         dropdown.setAttribute('data-tooltip', tooltipText);
+      }
+    }
+
+    // For pointBuy, highlight score display
+    if (rollMethod === 'pointBuy') {
+      const scoreElement = block.querySelector('.current-score');
+      if (scoreElement) {
+        scoreElement.classList.add('primary-ability');
+        scoreElement.setAttribute('data-tooltip', tooltipText);
       }
     }
   }
@@ -2526,6 +2601,420 @@ export class DOMManager {
     `;
       container.appendChild(backstory);
     }
+  }
+
+  /**
+   * Updates the proficiencies section of the review tab
+   * Extracts proficiency data from selected race, class, and background
+   * @param {HTMLElement} container The proficiencies list container
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #updateProficienciesReview(container) {
+    try {
+      // Clear the loading spinner
+      container.innerHTML = '';
+
+      // Initialize proficiency data structure
+      const proficiencyData = {
+        armor: new Set(),
+        weapons: new Set(),
+        tools: new Set(),
+        savingThrows: new Set(),
+        skills: new Set(),
+        languages: new Set()
+      };
+
+      // Extract proficiencies from race
+      if (HM.SELECTED.race?.uuid) {
+        await this.#extractRaceProficiencies(proficiencyData);
+      } else {
+        HM.log(1, 'No race selected, skipping race proficiencies');
+      }
+
+      // Extract proficiencies from class
+      if (HM.SELECTED.class?.uuid) {
+        HM.log(1, `Extracting proficiencies from class: ${HM.SELECTED.class.uuid}`);
+        await this.#extractClassProficiencies(proficiencyData);
+      } else {
+        HM.log(1, 'No class selected, skipping class proficiencies');
+      }
+
+      // Extract proficiencies from background
+      if (HM.SELECTED.background?.uuid) {
+        HM.log(1, `Extracting proficiencies from background: ${HM.SELECTED.background.uuid}`);
+        await this.#extractBackgroundProficiencies(proficiencyData);
+      } else {
+        HM.log(1, 'No background selected, skipping background proficiencies');
+      }
+
+      // Log final proficiency data
+      HM.log(1, 'Final proficiency data collected:', {
+        armor: Array.from(proficiencyData.armor),
+        weapons: Array.from(proficiencyData.weapons),
+        tools: Array.from(proficiencyData.tools),
+        savingThrows: Array.from(proficiencyData.savingThrows),
+        skills: Array.from(proficiencyData.skills),
+        languages: Array.from(proficiencyData.languages)
+      });
+
+      // Generate and display the proficiency HTML
+      const proficiencyHTML = this.#generateProficiencyHTML(proficiencyData);
+      container.innerHTML = proficiencyHTML;
+
+      HM.log(1, '=== Proficiency review update complete ===');
+    } catch (error) {
+      HM.log(1, 'Error updating proficiencies review:', error);
+      container.innerHTML = `<div class="error-message">${game.i18n.localize('hm.app.finalize.review.proficiencies-error')}</div>`;
+    }
+  }
+
+  /**
+   * Extracts proficiencies granted by the selected race
+   * @param {object} proficiencyData The proficiency data object to populate
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #extractRaceProficiencies(proficiencyData) {
+    try {
+      const race = await fromUuidSync(HM.SELECTED.race.uuid);
+      if (!race) {
+        HM.log(2, 'Race document not found');
+        return;
+      }
+
+      HM.log(1, `Extracting from race: ${race.name}`, race);
+
+      // Check for trait advancements (which grant proficiencies)
+      if (race.advancement?.byType?.Trait) {
+        HM.log(1, `Found ${race.advancement.byType.Trait.length} trait advancements in race`);
+
+        for (const trait of race.advancement.byType.Trait) {
+          HM.log(1, `Processing trait: ${trait.title || 'Unnamed'}`, trait);
+
+          if (trait.configuration?.grants) {
+            HM.log(1, `Trait has ${trait.configuration.grants.size} grants`);
+
+            for (const grant of trait.configuration.grants) {
+              HM.log(1, `Processing grant: ${grant}`);
+              this.#categorizeTraitGrant(grant, proficiencyData, race.name);
+            }
+          } else {
+            HM.log(1, 'Trait has no grants');
+          }
+        }
+      } else {
+        HM.log(1, 'No trait advancements found in race');
+      }
+
+      // Check system data for languages
+      if (race.system?.traits?.languages?.value) {
+        HM.log(1, `Found ${race.system.traits.languages.value.length} languages in race system data`);
+
+        for (const lang of race.system.traits.languages.value) {
+          const langConfig = CONFIG.DND5E.languages[lang];
+          HM.log(1, `Processing language: ${lang}`, langConfig);
+
+          if (langConfig) {
+            proficiencyData.languages.add({
+              name: langConfig.label || lang,
+              source: race.name
+            });
+            HM.log(1, `Added language: ${langConfig.label}`);
+          } else {
+            HM.log(2, `Language config not found for: ${lang}`);
+          }
+        }
+      } else {
+        HM.log(1, 'No languages found in race system data');
+      }
+    } catch (error) {
+      HM.log(1, 'Error extracting race proficiencies:', error);
+    }
+  }
+
+  /**
+   * Extracts proficiencies granted by the selected class
+   * @param {object} proficiencyData The proficiency data object to populate
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #extractClassProficiencies(proficiencyData) {
+    try {
+      const classItem = await fromUuidSync(HM.SELECTED.class.uuid);
+      if (!classItem) {
+        HM.log(2, 'Class document not found');
+        return;
+      }
+
+      HM.log(1, `Extracting from class: ${classItem.name}`, classItem);
+
+      // Extract from trait advancements (primary source for 5e classes)
+      if (classItem.advancement?.byType?.Trait) {
+        HM.log(1, `Found ${classItem.advancement.byType.Trait.length} trait advancements in class`);
+
+        for (const trait of classItem.advancement.byType.Trait) {
+          HM.log(1, `Processing class trait: ${trait.title || 'Unnamed'}`, trait);
+
+          if (trait.configuration?.grants) {
+            HM.log(1, `Class trait has ${trait.configuration.grants.size} grants`);
+
+            for (const grant of trait.configuration.grants) {
+              HM.log(1, `Processing class grant: ${grant}`);
+              this.#categorizeTraitGrant(grant, proficiencyData, classItem.name);
+            }
+          } else {
+            HM.log(1, 'Class trait has no grants');
+          }
+        }
+      } else {
+        HM.log(1, 'No trait advancements found in class');
+      }
+
+      // Legacy system data check (may not be used in newer D&D5e)
+      if (classItem.system) {
+        HM.log(1, 'Class system data:', classItem.system);
+      }
+    } catch (error) {
+      HM.log(1, 'Error extracting class proficiencies:', error);
+    }
+  }
+
+  /**
+   * Extracts proficiencies granted by the selected background
+   * @param {object} proficiencyData The proficiency data object to populate
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #extractBackgroundProficiencies(proficiencyData) {
+    try {
+      const background = await fromUuidSync(HM.SELECTED.background.uuid);
+      if (!background) {
+        HM.log(2, 'Background document not found');
+        return;
+      }
+
+      HM.log(1, `Extracting from background: ${background.name}`, background);
+
+      // Check for trait advancements
+      if (background.advancement?.byType?.Trait) {
+        HM.log(1, `Found ${background.advancement.byType.Trait.length} trait advancements in background`);
+
+        for (const trait of background.advancement.byType.Trait) {
+          HM.log(1, `Processing background trait: ${trait.title || 'Unnamed'}`, trait);
+
+          if (trait.configuration?.grants) {
+            HM.log(1, `Background trait has ${trait.configuration.grants.size} grants`);
+
+            for (const grant of trait.configuration.grants) {
+              HM.log(1, `Processing background grant: ${grant}`);
+              this.#categorizeTraitGrant(grant, proficiencyData, background.name);
+            }
+          } else {
+            HM.log(1, 'Background trait has no grants');
+          }
+        }
+      } else {
+        HM.log(1, 'No trait advancements found in background');
+      }
+
+      // Check system data for additional proficiencies
+      if (background.system) {
+        HM.log(1, 'Background system data:', background.system);
+      }
+    } catch (error) {
+      HM.log(1, 'Error extracting background proficiencies:', error);
+    }
+  }
+
+  /**
+   * Categorizes a trait grant into the appropriate proficiency category
+   * @param {string} grant The grant string to categorize
+   * @param {object} proficiencyData The proficiency data object
+   * @param {string} source The source of the proficiency
+   * @private
+   * @static
+   */
+  static #categorizeTraitGrant(grant, proficiencyData, source) {
+    HM.log(1, `Categorizing grant "${grant}" from source "${source}"`);
+
+    try {
+      // Parse the grant string
+      if (grant.startsWith('saves:')) {
+        const ability = grant.split(':')[1];
+        const abilityConfig = CONFIG.DND5E.abilities[ability];
+        HM.log(1, `Saving throw grant for ${ability}:`, abilityConfig);
+
+        if (abilityConfig) {
+          proficiencyData.savingThrows.add({
+            name: abilityConfig.label,
+            source: source
+          });
+          HM.log(1, `Added saving throw proficiency: ${abilityConfig.label}`);
+        } else {
+          HM.log(2, `Ability config not found for: ${ability}`);
+          HM.log(2, 'Available abilities:', Object.keys(CONFIG.DND5E.abilities));
+        }
+      } else if (grant.startsWith('skills:')) {
+        const skill = grant.split(':')[1];
+        const skillConfig = CONFIG.DND5E.skills[skill];
+        HM.log(1, `Skill grant for ${skill}:`, skillConfig);
+
+        if (skillConfig) {
+          proficiencyData.skills.add({
+            name: skillConfig.label,
+            source: source
+          });
+          HM.log(1, `Added skill proficiency: ${skillConfig.label}`);
+        } else {
+          HM.log(2, `Skill config not found for: ${skill}`);
+          HM.log(2, 'Available skills:', Object.keys(CONFIG.DND5E.skills));
+        }
+      } else if (grant.startsWith('languages:')) {
+        const langParts = grant.split(':');
+        const langType = langParts[1]; // e.g., 'standard', 'exotic'
+        const langSpecific = langParts[2]; // e.g., 'common', 'druidic'
+
+        HM.log(1, `Language grant for ${langType}:`, CONFIG.DND5E.languages[langType]);
+
+        if (CONFIG.DND5E.languages[langType]) {
+          const langConfig = CONFIG.DND5E.languages[langType];
+          proficiencyData.languages.add({
+            name: langConfig.label,
+            source: source
+          });
+          HM.log(1, `Added language proficiency: ${langConfig.label}`);
+        } else {
+          HM.log(2, `Language config not found for: ${langType}`);
+          HM.log(2, 'Available languages:', Object.keys(CONFIG.DND5E.languages));
+        }
+      } else if (grant.startsWith('armor:')) {
+        const armor = grant.split(':')[1];
+        const armorConfig = CONFIG.DND5E.armorProficiencies?.[armor] || CONFIG.DND5E.armorTypes?.[armor];
+        HM.log(1, `Armor grant for ${armor}:`, armorConfig);
+
+        if (armorConfig) {
+          proficiencyData.armor.add({
+            name: armorConfig.label || armorConfig,
+            source: source
+          });
+          HM.log(1, `Added armor proficiency: ${armorConfig.label || armorConfig}`);
+        } else {
+          HM.log(2, `Armor config not found for: ${armor}`);
+          HM.log(2, 'Available armor proficiencies:', Object.keys(CONFIG.DND5E.armorProficiencies || {}));
+          HM.log(2, 'Available armor types:', Object.keys(CONFIG.DND5E.armorTypes || {}));
+        }
+      } else if (grant.startsWith('weapon:')) {
+        const weapon = grant.split(':')[1];
+        const weaponConfig = CONFIG.DND5E.weaponProficiencies?.[weapon] || CONFIG.DND5E.weaponTypes?.[weapon];
+        HM.log(1, `Weapon grant for ${weapon}:`, weaponConfig);
+
+        if (weaponConfig) {
+          proficiencyData.weapons.add({
+            name: weaponConfig.label || weaponConfig,
+            source: source
+          });
+          HM.log(1, `Added weapon proficiency: ${weaponConfig.label || weaponConfig}`);
+        } else {
+          HM.log(2, `Weapon config not found for: ${weapon}`);
+          HM.log(2, 'Available weapon proficiencies:', Object.keys(CONFIG.DND5E.weaponProficiencies || {}));
+          HM.log(2, 'Available weapon types:', Object.keys(CONFIG.DND5E.weaponTypes || {}));
+        }
+      } else if (grant.startsWith('tool:')) {
+        const toolParts = grant.split(':');
+        const toolType = toolParts[1];
+        const toolSpecific = toolParts[2];
+
+        // Try different config locations for tools
+        let toolConfig =
+          CONFIG.DND5E.toolProficiencies?.[toolType] ||
+          CONFIG.DND5E.toolIds?.[grant] ||
+          CONFIG.DND5E.toolTypes?.[toolType];
+
+        HM.log(1, `Tool grant for ${grant} (type: ${toolType}):`, toolConfig);
+
+        if (toolConfig) {
+          proficiencyData.tools.add({
+            name: toolConfig.label || toolConfig,
+            source: source
+          });
+          HM.log(1, `Added tool proficiency: ${toolConfig.label || toolConfig}`);
+        } else {
+          HM.log(2, `Tool config not found for: ${grant}`);
+          HM.log(2, 'Available tool proficiencies:', Object.keys(CONFIG.DND5E.toolProficiencies || {}));
+          HM.log(2, 'Available tool IDs:', Object.keys(CONFIG.DND5E.toolIds || {}));
+          HM.log(2, 'Available tool types:', Object.keys(CONFIG.DND5E.toolTypes || {}));
+        }
+      } else {
+        HM.log(2, `Unknown grant format: ${grant}`);
+      }
+    } catch (error) {
+      HM.log(1, `Error categorizing grant "${grant}":`, error);
+    }
+  }
+
+  /**
+   * Generates HTML for displaying proficiencies
+   * @param {object} proficiencyData The categorized proficiency data
+   * @returns {string} HTML string for proficiencies display
+   * @private
+   * @static
+   */
+  static #generateProficiencyHTML(proficiencyData) {
+    HM.log(1, 'Generating proficiency HTML');
+    const sections = [];
+
+    // Helper function to create a proficiency section
+    const createSection = (title, items) => {
+      const itemCount = items.size;
+      HM.log(1, `Creating section "${title}" with ${itemCount} items`);
+
+      if (items.size === 0) return '';
+
+      const itemsArray = Array.from(items);
+      const itemsHTML = itemsArray
+        .map(
+          (item) => `
+        <div class="proficiency-item">
+          <span class="proficiency-name">${item.name}</span>
+          <span class="proficiency-source">(${item.source})</span>
+        </div>
+      `
+        )
+        .join('');
+
+      return `
+      <div class="proficiency-category">
+        <h4 class="proficiency-category-title">${title}</h4>
+        <div class="proficiency-items">
+          ${itemsHTML}
+        </div>
+      </div>
+    `;
+    };
+
+    // Generate sections for each proficiency type
+    sections.push(createSection(game.i18n.localize('DND5E.TraitArmorProf'), proficiencyData.armor));
+    sections.push(createSection(game.i18n.localize('DND5E.TraitWeaponProf'), proficiencyData.weapons));
+    sections.push(createSection(game.i18n.localize('DND5E.TraitToolProf'), proficiencyData.tools));
+    sections.push(createSection(game.i18n.localize('DND5E.ClassSaves'), proficiencyData.savingThrows));
+    sections.push(createSection(game.i18n.localize('DND5E.Skills'), proficiencyData.skills));
+    sections.push(createSection(game.i18n.localize('DND5E.Languages'), proficiencyData.languages));
+
+    // Filter out empty sections
+    const nonEmptySections = sections.filter((s) => s !== '');
+    HM.log(3, `Generated ${nonEmptySections.length} non-empty sections`);
+
+    if (nonEmptySections.length === 0) {
+      HM.log(3, 'No proficiencies found, returning default message');
+      return `<div class="no-proficiencies">${game.i18n.localize('hm.app.finalize.review.no-proficiencies')}</div>`;
+    }
+
+    return nonEmptySections.join('');
   }
 
   /**
