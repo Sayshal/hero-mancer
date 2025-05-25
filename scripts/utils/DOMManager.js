@@ -2627,30 +2627,16 @@ export class DOMManager {
       };
 
       // Extract proficiencies from race
-      if (HM.SELECTED.race?.uuid) {
-        await this.#extractRaceProficiencies(proficiencyData);
-      } else {
-        HM.log(1, 'No race selected, skipping race proficiencies');
-      }
+      await this.#extractRaceProficiencies(proficiencyData);
 
       // Extract proficiencies from class
-      if (HM.SELECTED.class?.uuid) {
-        HM.log(1, `Extracting proficiencies from class: ${HM.SELECTED.class.uuid}`);
-        await this.#extractClassProficiencies(proficiencyData);
-      } else {
-        HM.log(1, 'No class selected, skipping class proficiencies');
-      }
+      await this.#extractClassProficiencies(proficiencyData);
 
       // Extract proficiencies from background
-      if (HM.SELECTED.background?.uuid) {
-        HM.log(1, `Extracting proficiencies from background: ${HM.SELECTED.background.uuid}`);
-        await this.#extractBackgroundProficiencies(proficiencyData);
-      } else {
-        HM.log(1, 'No background selected, skipping background proficiencies');
-      }
+      await this.#extractBackgroundProficiencies(proficiencyData);
 
       // Log final proficiency data
-      HM.log(1, 'Final proficiency data collected:', {
+      HM.log(3, 'Final proficiency data collected:', {
         armor: Array.from(proficiencyData.armor),
         weapons: Array.from(proficiencyData.weapons),
         tools: Array.from(proficiencyData.tools),
@@ -2662,8 +2648,6 @@ export class DOMManager {
       // Generate and display the proficiency HTML
       const proficiencyHTML = this.#generateProficiencyHTML(proficiencyData);
       container.innerHTML = proficiencyHTML;
-
-      HM.log(1, '=== Proficiency review update complete ===');
     } catch (error) {
       HM.log(1, 'Error updating proficiencies review:', error);
       container.innerHTML = `<div class="error-message">${game.i18n.localize('hm.app.finalize.review.proficiencies-error')}</div>`;
@@ -2685,20 +2669,11 @@ export class DOMManager {
         return;
       }
 
-      HM.log(1, `Extracting from race: ${race.name}`, race);
-
       // Check for trait advancements (which grant proficiencies)
       if (race.advancement?.byType?.Trait) {
-        HM.log(1, `Found ${race.advancement.byType.Trait.length} trait advancements in race`);
-
         for (const trait of race.advancement.byType.Trait) {
-          HM.log(1, `Processing trait: ${trait.title || 'Unnamed'}`, trait);
-
           if (trait.configuration?.grants) {
-            HM.log(1, `Trait has ${trait.configuration.grants.size} grants`);
-
             for (const grant of trait.configuration.grants) {
-              HM.log(1, `Processing grant: ${grant}`);
               this.#categorizeTraitGrant(grant, proficiencyData, race.name);
             }
           } else {
@@ -2750,20 +2725,11 @@ export class DOMManager {
         return;
       }
 
-      HM.log(1, `Extracting from class: ${classItem.name}`, classItem);
-
       // Extract from trait advancements (primary source for 5e classes)
       if (classItem.advancement?.byType?.Trait) {
-        HM.log(1, `Found ${classItem.advancement.byType.Trait.length} trait advancements in class`);
-
         for (const trait of classItem.advancement.byType.Trait) {
-          HM.log(1, `Processing class trait: ${trait.title || 'Unnamed'}`, trait);
-
           if (trait.configuration?.grants) {
-            HM.log(1, `Class trait has ${trait.configuration.grants.size} grants`);
-
             for (const grant of trait.configuration.grants) {
-              HM.log(1, `Processing class grant: ${grant}`);
               this.#categorizeTraitGrant(grant, proficiencyData, classItem.name);
             }
           } else {
@@ -2798,20 +2764,11 @@ export class DOMManager {
         return;
       }
 
-      HM.log(1, `Extracting from background: ${background.name}`, background);
-
       // Check for trait advancements
       if (background.advancement?.byType?.Trait) {
-        HM.log(1, `Found ${background.advancement.byType.Trait.length} trait advancements in background`);
-
         for (const trait of background.advancement.byType.Trait) {
-          HM.log(1, `Processing background trait: ${trait.title || 'Unnamed'}`, trait);
-
           if (trait.configuration?.grants) {
-            HM.log(1, `Background trait has ${trait.configuration.grants.size} grants`);
-
             for (const grant of trait.configuration.grants) {
-              HM.log(1, `Processing background grant: ${grant}`);
               this.#categorizeTraitGrant(grant, proficiencyData, background.name);
             }
           } else {
@@ -2840,90 +2797,49 @@ export class DOMManager {
    * @static
    */
   static #categorizeTraitGrant(grant, proficiencyData, source) {
-    HM.log(1, `Categorizing grant "${grant}" from source "${source}"`);
-
     try {
       // Parse the grant string
       if (grant.startsWith('saves:')) {
         const ability = grant.split(':')[1];
         const abilityConfig = CONFIG.DND5E.abilities[ability];
-        HM.log(1, `Saving throw grant for ${ability}:`, abilityConfig);
 
-        if (abilityConfig) {
-          proficiencyData.savingThrows.add({
-            name: abilityConfig.label,
-            source: source
-          });
-          HM.log(1, `Added saving throw proficiency: ${abilityConfig.label}`);
-        } else {
-          HM.log(2, `Ability config not found for: ${ability}`);
-          HM.log(2, 'Available abilities:', Object.keys(CONFIG.DND5E.abilities));
-        }
+        proficiencyData.savingThrows.add({
+          name: abilityConfig.label,
+          source: source
+        });
       } else if (grant.startsWith('skills:')) {
         const skill = grant.split(':')[1];
         const skillConfig = CONFIG.DND5E.skills[skill];
-        HM.log(1, `Skill grant for ${skill}:`, skillConfig);
 
-        if (skillConfig) {
-          proficiencyData.skills.add({
-            name: skillConfig.label,
-            source: source
-          });
-          HM.log(1, `Added skill proficiency: ${skillConfig.label}`);
-        } else {
-          HM.log(2, `Skill config not found for: ${skill}`);
-          HM.log(2, 'Available skills:', Object.keys(CONFIG.DND5E.skills));
-        }
+        proficiencyData.skills.add({
+          name: skillConfig.label,
+          source: source
+        });
       } else if (grant.startsWith('languages:')) {
         const langParts = grant.split(':');
         const langType = langParts[1]; // e.g., 'standard', 'exotic'
         const langSpecific = langParts[2]; // e.g., 'common', 'druidic'
-
-        HM.log(1, `Language grant for ${langType}:`, CONFIG.DND5E.languages[langType]);
-
-        if (CONFIG.DND5E.languages[langType]) {
-          const langConfig = CONFIG.DND5E.languages[langType];
-          proficiencyData.languages.add({
-            name: langConfig.label,
-            source: source
-          });
-          HM.log(1, `Added language proficiency: ${langConfig.label}`);
-        } else {
-          HM.log(2, `Language config not found for: ${langType}`);
-          HM.log(2, 'Available languages:', Object.keys(CONFIG.DND5E.languages));
-        }
+        const langConfig = CONFIG.DND5E.languages[langType];
+        proficiencyData.languages.add({
+          name: langConfig.label,
+          source: source
+        });
       } else if (grant.startsWith('armor:')) {
         const armor = grant.split(':')[1];
         const armorConfig = CONFIG.DND5E.armorProficiencies?.[armor] || CONFIG.DND5E.armorTypes?.[armor];
-        HM.log(1, `Armor grant for ${armor}:`, armorConfig);
 
-        if (armorConfig) {
-          proficiencyData.armor.add({
-            name: armorConfig.label || armorConfig,
-            source: source
-          });
-          HM.log(1, `Added armor proficiency: ${armorConfig.label || armorConfig}`);
-        } else {
-          HM.log(2, `Armor config not found for: ${armor}`);
-          HM.log(2, 'Available armor proficiencies:', Object.keys(CONFIG.DND5E.armorProficiencies || {}));
-          HM.log(2, 'Available armor types:', Object.keys(CONFIG.DND5E.armorTypes || {}));
-        }
+        proficiencyData.armor.add({
+          name: armorConfig.label || armorConfig,
+          source: source
+        });
       } else if (grant.startsWith('weapon:')) {
         const weapon = grant.split(':')[1];
         const weaponConfig = CONFIG.DND5E.weaponProficiencies?.[weapon] || CONFIG.DND5E.weaponTypes?.[weapon];
-        HM.log(1, `Weapon grant for ${weapon}:`, weaponConfig);
 
-        if (weaponConfig) {
-          proficiencyData.weapons.add({
-            name: weaponConfig.label || weaponConfig,
-            source: source
-          });
-          HM.log(1, `Added weapon proficiency: ${weaponConfig.label || weaponConfig}`);
-        } else {
-          HM.log(2, `Weapon config not found for: ${weapon}`);
-          HM.log(2, 'Available weapon proficiencies:', Object.keys(CONFIG.DND5E.weaponProficiencies || {}));
-          HM.log(2, 'Available weapon types:', Object.keys(CONFIG.DND5E.weaponTypes || {}));
-        }
+        proficiencyData.weapons.add({
+          name: weaponConfig.label || weaponConfig,
+          source: source
+        });
       } else if (grant.startsWith('tool:')) {
         const toolParts = grant.split(':');
         const toolType = toolParts[1];
@@ -2935,20 +2851,10 @@ export class DOMManager {
           CONFIG.DND5E.toolIds?.[grant] ||
           CONFIG.DND5E.toolTypes?.[toolType];
 
-        HM.log(1, `Tool grant for ${grant} (type: ${toolType}):`, toolConfig);
-
-        if (toolConfig) {
-          proficiencyData.tools.add({
-            name: toolConfig.label || toolConfig,
-            source: source
-          });
-          HM.log(1, `Added tool proficiency: ${toolConfig.label || toolConfig}`);
-        } else {
-          HM.log(2, `Tool config not found for: ${grant}`);
-          HM.log(2, 'Available tool proficiencies:', Object.keys(CONFIG.DND5E.toolProficiencies || {}));
-          HM.log(2, 'Available tool IDs:', Object.keys(CONFIG.DND5E.toolIds || {}));
-          HM.log(2, 'Available tool types:', Object.keys(CONFIG.DND5E.toolTypes || {}));
-        }
+        proficiencyData.tools.add({
+          name: toolConfig.label || toolConfig,
+          source: source
+        });
       } else {
         HM.log(2, `Unknown grant format: ${grant}`);
       }
@@ -2965,16 +2871,12 @@ export class DOMManager {
    * @static
    */
   static #generateProficiencyHTML(proficiencyData) {
-    HM.log(1, 'Generating proficiency HTML');
     const sections = [];
 
     // Helper function to create a proficiency section
     const createSection = (title, items) => {
       const itemCount = items.size;
-      HM.log(1, `Creating section "${title}" with ${itemCount} items`);
-
       if (items.size === 0) return '';
-
       const itemsArray = Array.from(items);
       const itemsHTML = itemsArray
         .map(
