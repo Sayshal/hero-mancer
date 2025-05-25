@@ -1,4 +1,4 @@
-import { DOMManager, FormValidation, HM } from '../utils/index.js';
+import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -42,10 +42,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   // Cache for form fields to prevent repeated DOM operations
   static #formFieldsCache = null;
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
   }
@@ -56,7 +52,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares context data for the mandatory fields configuration
-   * Loads current field settings and organizes them by category
    * @param {object} _options - Application render options
    * @returns {object} Context data for template rendering
    * @protected
@@ -130,7 +125,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Retrieves all configurable form fields organized by category
-   * Uses caching to prevent repeated generation of the same data
    * @returns {object} Object containing categorized form fields
    */
   getAllFormFields() {
@@ -206,14 +200,14 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
           { key: 'weight', label: `${game.i18n.localize('DND5E.Weight')}`, default: false },
           { key: 'age', label: `${game.i18n.localize('DND5E.Age')}`, default: false },
           { key: 'gender', label: `${game.i18n.localize('DND5E.Gender')}`, default: false },
-          { key: 'appearance', label: `${game.i18n.localize('hm.app.finalize.physical-description')}`, default: false }
+          { key: 'appearance', label: `${game.i18n.localize('hm.app.biography.physical-description')}`, default: false }
         ],
         personality: [
-          { key: 'traits', label: `${game.i18n.localize('hm.app.finalize.personality-traits')}`, default: false },
+          { key: 'traits', label: `${game.i18n.localize('hm.app.biography.personality-traits')}`, default: false },
           { key: 'ideals', label: `${game.i18n.localize('DND5E.Ideals')}`, default: false },
           { key: 'bonds', label: `${game.i18n.localize('DND5E.Bonds')}`, default: false },
           { key: 'flaws', label: `${game.i18n.localize('DND5E.Flaws')}`, default: false },
-          { key: 'backstory', label: `${game.i18n.localize('hm.app.finalize.backstory')}`, default: false }
+          { key: 'backstory', label: `${game.i18n.localize('hm.app.biography.backstory')}`, default: false }
         ]
       };
 
@@ -252,10 +246,23 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
+      const currentMandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
 
-      MandatoryFields._saveMandatoryFields(mandatoryFields);
+      // Compare current and new values
+      const hasChanged = JSON.stringify(currentMandatoryFields.sort()) !== JSON.stringify(mandatoryFields.sort());
+      const changedSettings = hasChanged ? { mandatoryFields: true } : {};
 
-      HM.reloadConfirm({ world: true });
+      if (hasChanged) {
+        MandatoryFields._saveMandatoryFields(mandatoryFields);
+
+        // Handle reloads and re-renders based on what changed
+        if (needsReload(changedSettings)) {
+          HM.reloadConfirm({ world: true });
+        } else if (needsRerender(changedSettings)) {
+          rerenderHM();
+        }
+      }
+
       ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
       return true;
     } catch (error) {
@@ -265,12 +272,16 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
+  /* -------------------------------------------- */
+  /*  Static Protected Methods                    */
+  /* -------------------------------------------- */
+
   /**
    * Collects selected mandatory fields from form checkboxes
    * @param {HTMLFormElement} form - The form element
    * @returns {string[]} Array of selected field names
    * @static
-   * @private
+   * @protected
    */
   static _collectMandatoryFields(form) {
     try {
@@ -289,7 +300,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {string[]} mandatoryFields - Array of field names to save
    * @returns {void}
    * @static
-   * @private
+   * @protected
    */
   static _saveMandatoryFields(mandatoryFields) {
     try {
@@ -297,208 +308,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, `Error saving mandatory fields: ${error.message}`);
       throw error;
-    }
-  }
-
-  /**
-   * Validates the form against mandatory field requirements
-   * Updates UI to indicate incomplete fields and controls submit button state
-   * @param {HTMLElement} form - The form element to check
-   * @returns {Promise<boolean>} True if all mandatory fields are valid
-   * @static
-   */
-  static async checkMandatoryFields(form) {
-    try {
-      if (!form) {
-        HM.log(2, 'No form provided to checkMandatoryFields');
-        return true;
-      }
-
-      let mandatoryFields;
-      try {
-        mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
-      } catch (error) {
-        HM.log(1, `Error fetching mandatory fields: ${error.message}`);
-        mandatoryFields = [];
-      }
-
-      // Update tab indicators regardless of submit button
-      DOMManager.updateTabIndicators(form);
-
-      // Early return only if no mandatory fields
-      if (!mandatoryFields.length) return true;
-
-      // Get all elements and field status in one pass to minimize DOM operations
-      const fieldStatus = MandatoryFields._evaluateFieldStatus(form, mandatoryFields);
-
-      // Update UI based on field status
-      await MandatoryFields._updateFieldIndicators(fieldStatus);
-
-      // Only update submit button if it exists
-      const submitButton = form.querySelector('.hm-app-footer-submit');
-      if (submitButton) {
-        const isValid = fieldStatus.missingFields.length === 0;
-        MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
-      }
-
-      return fieldStatus.missingFields.length === 0;
-    } catch (error) {
-      HM.log(1, `Error in checkMandatoryFields: ${error.message}`);
-      return true; // Default to allowing submission on error
-    }
-  }
-
-  /**
-   * Evaluates the status of all mandatory fields
-   * @param {HTMLElement} form - The form element
-   * @param {string[]} mandatoryFields - Array of mandatory field names
-   * @returns {object} Status information for fields
-   * @static
-   * @private
-   */
-  static _evaluateFieldStatus(form, mandatoryFields) {
-    // Collect all form elements and their status in one operation
-    const fieldStatus = {
-      fields: [],
-      missingFields: []
-    };
-
-    // Use a Map for quick element lookups when processing
-    const elementMap = new Map();
-
-    // First collect all elements to minimize DOM operations
-    mandatoryFields.forEach((field) => {
-      const element = form.querySelector(`[name="${field}"]`);
-      if (!element) return;
-
-      // Add mandatory class if not already present
-      if (!element.classList.contains('mandatory-field')) {
-        element.classList.add('mandatory-field');
-      }
-
-      elementMap.set(field, {
-        element,
-        field,
-        abilityField: field.startsWith('abilities['),
-        isComplete: false,
-        label: null
-      });
-    });
-
-    // Then process all elements efficiently
-    elementMap.forEach((data, field) => {
-      let isComplete = false;
-      let label = null;
-
-      if (data.abilityField) {
-        const abilityBlock = data.element.closest('.ability-block');
-        label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
-        isComplete = FormValidation.isAbilityFieldComplete(data.element, abilityBlock);
-      } else {
-        isComplete = FormValidation.isFieldComplete(data.element);
-        label = FormValidation.findAssociatedLabel(data.element);
-      }
-
-      // Update with completion status
-      data.isComplete = isComplete;
-      data.label = label;
-
-      fieldStatus.fields.push(data);
-
-      if (!isComplete) {
-        fieldStatus.missingFields.push(field);
-      }
-    });
-
-    return fieldStatus;
-  }
-
-  /**
-   * Updates UI indicators for field status
-   * @param {object} fieldStatus - Status information for fields
-   * @returns {Promise<void>}
-   * @static
-   * @private
-   */
-  static async _updateFieldIndicators(fieldStatus) {
-    // Use requestAnimationFrame to batch DOM updates
-    return new Promise((resolve) => {
-      requestAnimationFrame(() => {
-        fieldStatus.fields.forEach((data) => {
-          // Update element class
-          data.element.classList.toggle('complete', data.isComplete);
-
-          // Add indicator to label if present
-          if (data.label) {
-            FormValidation.addIndicator(data.label, data.isComplete);
-          }
-        });
-
-        resolve();
-      });
-    });
-  }
-
-  /**
-   * Updates submit button state based on validation
-   * @param {HTMLElement} submitButton - The submit button element
-   * @param {boolean} isValid - Whether all mandatory fields are valid
-   * @param {string[]} missingFields - Array of missing field names
-   * @returns {void}
-   * @static
-   * @private
-   */
-  static _updateSubmitButton(submitButton, isValid, missingFields) {
-    submitButton.disabled = !isValid;
-
-    if (!isValid) {
-      submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', {
-        fields: missingFields.join(', ')
-      });
-    }
-  }
-
-  /**
-   * Checks if a specific tab has incomplete mandatory fields
-   * @param {string} tabId - The ID of the tab to check
-   * @param {HTMLElement} form - The form element
-   * @returns {boolean} Whether the tab has any incomplete mandatory fields
-   * @static
-   */
-  static hasIncompleteTabFields(tabId, form) {
-    try {
-      if (!form || !tabId) return false;
-
-      // Get the tab element
-      const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
-      if (!tabElement) return false;
-
-      const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
-      if (!mandatoryFields.length) return false;
-
-      // Check each mandatory field in this tab
-      for (const fieldName of mandatoryFields) {
-        // Find element in this tab
-        const element = tabElement.querySelector(`[name="${fieldName}"]`);
-        if (!element) continue; // Field not in this tab
-
-        // Check if field is complete
-        let isComplete = false;
-
-        if (fieldName.startsWith('abilities[')) {
-          const abilityBlock = element.closest('.ability-block');
-          isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
-        } else {
-          isComplete = FormValidation.isFieldComplete(element);
-        }
-
-        if (!isComplete) return true; // Found an incomplete field
-      }
-
-      return false;
-    } catch (error) {
-      HM.log(1, `Error checking tab mandatory fields: ${error.message}`);
-      return false;
     }
   }
 }

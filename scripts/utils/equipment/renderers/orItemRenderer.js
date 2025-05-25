@@ -336,7 +336,7 @@ export class OrItemRenderer extends BaseItemRenderer {
 
     const headerLabel = document.createElement('h4');
     headerLabel.classList.add('parent-label');
-    headerLabel.innerHTML = item.label || game.i18n.localize('hm.app.equipment.choose-multiple');
+    headerLabel.innerHTML = item.label;
 
     headerCell.appendChild(headerLabel);
     headerRow.appendChild(headerCell);

@@ -8,8 +8,8 @@
           <button type='button' data-action='previousTab' class='hm-app-nav-previous'
             data-tooltip='{{localize "hm.app.nav.previous"}}' aria-label='{{localize "hm.app.nav.previous"}}'
             aria-describedby='previous-description'>
-            <i class="fas fa-chevron-left nav-prev"></i>
-            {{localize "hm.app.nav.previous-format" tabName=previousTabName}}
+            <i class="fas fa-chevron-left nav-prev" aria-hidden="true"></i>
+            <span>{{localize "hm.app.nav.previous-format" tabName=previousTabName}}</span>
           </button>
           <span id='previous-description' class='sr-only'>{{localize "hm.app.nav.previous-description"}}</span>
         {{/unless}}
@@ -24,7 +24,7 @@
           <button type='button' data-action='randomize' class='hm-app-footer-randomize'
             data-tooltip='{{localize "hm.app.randomize.randomize-character"}}'
             aria-label='{{localize "hm.app.randomize.randomize-character"}}' aria-describedby='randomize-description'>
-            {{localize 'hm.app.randomize.randomize'}}
+            <span>{{localize 'hm.app.randomize.randomize'}}</span>
           </button>
           <span id='randomize-description' class='sr-only'>{{localize 'hm.app.randomize.randomize-character'}}</span>
         {{/if}}
@@ -33,7 +33,7 @@
         <button type='submit' data-action='saveOptions' class='hm-app-footer-save'
           data-tooltip='{{localize "hm.app.save-description"}}' aria-label='{{localize "hm.app.save"}}'
           aria-describedby='save-description'>
-          {{localize 'hm.app.save'}}
+          <span>{{localize 'hm.app.save'}}</span>
         </button>
         <span id='save-description' class='sr-only'>{{localize 'hm.app.save-description'}}</span>
 
@@ -41,15 +41,15 @@
         <button type='button' data-action='resetOptions' class='hm-app-footer-reset'
           data-tooltip='{{localize "hm.app.reset-description"}}' aria-label='{{localize "hm.app.reset"}}'
           aria-describedby='reset-description'>
-          {{localize 'hm.app.reset'}}
+          <span>{{localize 'hm.app.reset'}}</span>
         </button>
         <span id='reset-description' class='sr-only'>{{localize 'hm.app.reset-description'}}</span>
 
         {{!-- Cancel Button --}}
-        <button type='button' data-action='nosubmit' class='hm-app-footer-cancel'
+        <button type='cancel' data-action='nosubmit' class='hm-app-footer-cancel'
           data-tooltip='{{localize "hm.app.cancel-description"}}' aria-label='{{localize "hm.app.cancel"}}'
           aria-describedby='cancel-description'>
-          {{localize 'hm.app.cancel'}}
+          <span>{{localize 'hm.app.cancel'}}</span>
         </button>
         <span id='cancel-description' class='sr-only'>{{localize 'hm.app.cancel-description'}}</span>
       </div>
@@ -62,15 +62,16 @@
         <button type='submit' data-action="submit" class='hm-app-footer-submit'
           data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
           aria-describedby='submit-description'>
-          {{localize 'hm.app.submit'}}
+          <span>{{localize 'hm.app.submit'}}</span>
         </button>
         <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
       {{else if navigationButtons}}
         {{!-- Next Button --}}
-        <button type='button' data-action='nextTab' class='hm-app-nav-next' {{#if nextDisabled}}disabled{{/if}}
-          data-tooltip='{{localize "hm.app.nav.next"}}' aria-label='{{localize "hm.app.nav.next"}}'
-          aria-describedby='next-description'>
-          {{localize "hm.app.nav.next-format" tabName=nextTabName}} <i class="fas fa-chevron-right nav-next"></i>
+        <button type='button' data-action='nextTab' class='hm-app-nav-next' {{#if nextDisabled}}disabled
+          aria-disabled="true" {{/if}} data-tooltip='{{localize "hm.app.nav.next"}}'
+          aria-label='{{localize "hm.app.nav.next"}}' aria-describedby='next-description'>
+          <span>{{localize "hm.app.nav.next-format" tabName=nextTabName}}</span> <i
+            class="fas fa-chevron-right nav-next" aria-hidden="true"></i>
         </button>
         <span id='next-description' class='sr-only'>{{localize "hm.app.nav.next-description"}}</span>
       {{/if}}

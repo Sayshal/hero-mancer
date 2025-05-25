@@ -50,7 +50,7 @@ function registerCoreSettings() {
 
   game.settings.register(HM.ID, 'enableNavigationButtons', {
     name: 'hm.settings.nav-buttons.name',
-    hint: 'hm.settings.nav-buttons.name',
+    hint: 'hm.settings.nav-buttons.hint',
     scope: 'world',
     config: true,
     type: Boolean,
@@ -407,9 +407,9 @@ function registerDiceRollingSettings() {
     }
   });
 
-  game.settings.register(HM.ID, 'standardArraySwapMode', {
-    name: 'hm.settings.standard-array-swap-mode.name',
-    hint: 'hm.settings.standard-array-swap-mode.hint',
+  game.settings.register(HM.ID, 'statGenerationSwapMode', {
+    name: 'hm.settings.stat-generation-swap-mode.name',
+    hint: 'hm.settings.stat-generation-swap-mode.hint',
     scope: 'world',
     config: false,
     type: Boolean,
@@ -477,6 +477,17 @@ function registerCompatibilitySettings() {
       config: true,
       type: Boolean,
       default: false,
+      requiresReload: true
+    });
+  }
+
+  if (game.modules.get('vtta-tokenizer')?.active) {
+    game.settings.register(HM.ID, 'tokenizerCompatibility', {
+      name: 'hm.settings.tokenizer.name',
+      scope: 'client',
+      config: false,
+      type: Boolean,
+      default: true,
       requiresReload: true
     });
   }

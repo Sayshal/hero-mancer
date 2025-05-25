@@ -1,45 +1,31 @@
-{{!-- Finalize Character Tab - Summary and Details --}}
-<div class='tab {{tabs.finalize.cssClass}}' data-tab='finalize' data-group='hero-mancer-tabs'>
+{{!-- Finalize Tab - Character Review and Summary --}}
+<div class='tab {{tabs.finalize.cssClass}}' data-tab='finalize' data-group='hero-mancer-tabs' role="tabpanel"
+  id="finalize-panel" aria-labelledby="tab-finalize">
   <fieldset>
     <legend>{{localize 'hm.app.finalize.tooltip'}}</legend>
 
-    {{!-- Character Summary Section --}}
-    <div class='summary-section grid gap-md mb-md'>
-      <div class='character-portrait flex flex-col items-center gap-xs'>
-        <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
-        <span class='character-name text-lg'>{{name}}</span>
-      </div>
-      <div class='character-summary p-sm'>
-        <div class='character-summary p-sm'>
-          <span class='background-summary'>{{localize "hm.app.finalize.summary.backgroundDefault"}}</span>
-          <span class='class-race-summary'>{{localize "hm.app.finalize.summary.classRaceDefault"}}</span>
-          <span class='abilities-summary'>{{localize "hm.app.finalize.summary.abilitiesDefault"}}</span>
-          <span class='equipment-summary'>{{localize "hm.app.finalize.summary.equipmentDefault"}}</span>
-        </div>
-      </div>
-    </div>
+    <div class="review-container">
 
-    {{!-- Character Details Section --}}
-    <section class='character-details-section'>
-      <h2>{{localize 'hm.app.finalize.character-details'}}</h2>
-      <div class='character-details-row items-center grid grid-2-col gap-md'>
-        <div class='form-group items-center flex flex-col gap-xs'>
-          <label for="alignment">{{localize 'DND5E.Alignment'}}</label>
-          <select id="alignment" name='alignment' class="form-select">
-            <option value=''>{{localize 'None'}}</option>
-            {{#each alignments}}
-              <option value='{{this}}'>{{this}}</option>
-            {{/each}}
-          </select>
+      {{!-- Final Notes --}}
+      <div class="final-notes">
+        <p>{{localize 'hm.app.finalize.final-notes'}}</p>
+      </div>
+
+      {{!-- Character Summary Section --}}
+      <div class="review-header">
+        <h2 id="character-review-heading">{{localize 'hm.app.finalize.character-review'}}: <span
+            class="character-name-display">-</span></h2>
+        <div class="character-portrait">
+          <img src="{{portraitPath}}" alt='{{localize "hm.app.finalize.character-portrait"}}' />
         </div>
-        <div class='form-group items-center flex flex-col gap-xs '>
-          <label for="faith">{{localize 'DND5E.Faith'}}</label>
-          <select id="faith" name='faith' class="form-select">
-            <option value=''>{{localize 'None'}}</option>
-            {{#each deities}}
-              <option value='{{this}}'>{{this}}</option>
-            {{/each}}
-          </select>
+      </div>
+
+      <div class="character-summary-container">
+        <div class="character-summary">
+          <span class="background-summary">{{localize "hm.app.finalize.summary.backgroundDefault"}}</span>
+          <span class="class-race-summary">{{localize "hm.app.finalize.summary.classRaceDefault"}}</span>
+          <span class="abilities-summary">{{localize "hm.app.finalize.summary.abilitiesDefault"}}</span>
+          <span class="equipment-summary">{{localize "hm.app.finalize.summary.equipmentDefault"}}</span>
         </div>
       </div>
 
@@ -91,69 +77,53 @@
             </div>
           </section>
 
-    {{!-- Personal Characteristics Section --}}
-    <section class='personal-char-section'>
-      <h2>{{localize 'hm.app.finalize.personal-characteristics'}}</h2>
-      <div class='personality-grid grid gap-md'>
-        <div class='personality-group'>
-          <label for="traits">{{localize 'hm.app.finalize.personality-traits'}}</label>
-          <div class='input-with-roll flex gap-md'>
-            <textarea id="traits" name='traits'
-              placeholder='{{localize "hm.app.finalize.traits-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='traits'
-              aria-label="{{localize 'DND5E.Roll'}} {{localize 'hm.app.finalize.personality-traits'}}">
-              <i class='fas fa-dice' aria-hidden="true"></i>
-              {{localize 'DND5E.Roll'}}
-            </button>
-          </div>
+          {{!-- Abilities Section --}}
+          <section class="review-section" aria-labelledby="abilities-heading">
+            <h3 id="abilities-heading"><i class="fa-solid fa-fist-raised" aria-hidden="true"></i>
+              {{localize 'hm.app.finalize.review.abilities'}}
+            </h3>
+            <div class="review-content abilities-grid" aria-live="polite">
+              <!-- Will be dynamically filled by JavaScript -->
+            </div>
+          </section>
         </div>
-        <div class='personality-group'>
-          <label for="ideals">{{localize 'DND5E.Ideals'}}</label>
-          <div class='input-with-roll flex gap-md'>
-            <textarea id="ideals" name='ideals'
-              placeholder='{{localize "hm.app.finalize.ideals-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='ideals'
-              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Ideals'}}">
-              <i class='fas fa-dice' aria-hidden="true"></i>
-              {{localize 'DND5E.Roll'}}
-            </button>
-          </div>
-        </div>
-        <div class='personality-group'>
-          <label for="bonds">{{localize 'DND5E.Bonds'}}</label>
-          <div class='input-with-roll flex gap-md'>
-            <textarea id="bonds" name='bonds' placeholder='{{localize "hm.app.finalize.bonds-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='bonds'
-              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Bonds'}}">
-              <i class='fas fa-dice' aria-hidden="true"></i>
-              {{localize 'DND5E.Roll'}}
-            </button>
-          </div>
-        </div>
-        <div class='personality-group'>
-          <label for="flaws">{{localize 'DND5E.Flaws'}}</label>
-          <div class='input-with-roll flex gap-md'>
-            <textarea id="flaws" name='flaws' placeholder='{{localize "hm.app.finalize.flaws-placeholder"}}'></textarea>
-            <button type='button' class='roll-btn flex items-center gap-xs' data-table='flaws'
-              aria-label="{{localize 'DND5E.Roll'}} {{localize 'DND5E.Flaws'}}">
-              <i class='fas fa-dice' aria-hidden="true"></i>
-              {{localize 'DND5E.Roll'}}
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    {{!-- Backstory Section --}}
-    <section class='notes-section'>
-      <h2>{{localize 'hm.app.finalize.backstory'}}</h2>
-      <div class='notes-grid grid gap-md'>
-        <div class='notes-group'>
-          <prose-mirror id="backstory" name='backstory'
-            data-placeholder='{{localize "hm.app.finalize.backstory-placeholder"}}'>
-          </prose-mirror>
-        </div>
+        {{!-- Equipment Section --}}
+        <section class="review-section" aria-labelledby="equipment-heading">
+          <h3 id="equipment-heading"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            {{localize 'hm.app.finalize.review.equipment'}}
+          </h3>
+          <div class="review-content">
+            <div class="equipment-list" aria-live="polite">
+              <div class="equipment-layout">
+                <div class="background-equipment">
+                  <h4 class="background-equipment-header">{{localize 'hm.app.finalize.review.background-equipment'}}
+                  </h4>
+                  <div class="background-items">
+                    <!-- Background items will go here -->
+                  </div>
+                </div>
+                <div class="class-equipment">
+                  <h4 class="class-equipment-header">{{localize 'hm.app.finalize.review.class-equipment'}}</h4>
+                  <div class="class-items">
+                    <!-- Class items will go here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {{!-- Biography Section --}}
+        <section class="review-section" aria-labelledby="biography-heading">
+          <h3 id="biography-heading"><i class="fa-solid fa-book-open" aria-hidden="true"></i>
+            {{localize 'hm.app.finalize.review.biography'}}
+          </h3>
+          <div class="review-content bio-preview" aria-live="polite">
+            <!-- Will be dynamically filled with a preview of the biography -->
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </fieldset>
 </div>

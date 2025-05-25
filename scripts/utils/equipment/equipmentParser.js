@@ -160,45 +160,6 @@ export class EquipmentParser {
   }
 
   /**
-   * Searches all selectedPacks for a document by ID
-   * @async
-   * @param {string} itemId - Item ID to search for
-   * @returns {Promise<Item|null>} Found item document or null
-   */
-  async findItemDocumentById(itemId) {
-    HM.log(3, `Searching for item ${itemId}`);
-    const result = await this.dataService.findItemDocumentById(itemId);
-    HM.log(3, `${result ? 'Found' : 'Did not find'} item ${itemId}`);
-    return result;
-  }
-
-  /**
-   * Extracts granted proficiencies from advancement data
-   * @async
-   * @param {Array<object>} advancements - Array of advancement configurations
-   * @returns {Promise<Set<string>>} Set of granted proficiency strings
-   */
-  async extractProficienciesFromAdvancements(advancements) {
-    HM.log(3, `Processing ${advancements?.length || 0} advancements`);
-    const result = await this.dataService.extractProficienciesFromAdvancements(advancements);
-    HM.log(3, `Extracted ${result.size} proficiencies`);
-    return result;
-  }
-
-  /**
-   * Fetches starting equipment and proficiencies for a given selection type
-   * @async
-   * @param {'class'|'background'} type - Selection type to fetch equipment for
-   * @returns {Promise<Array<object>>} Starting equipment array
-   */
-  async getStartingEquipment(type) {
-    HM.log(3, `Fetching ${type} equipment`);
-    const result = await this.dataService.getStartingEquipment(type);
-    HM.log(3, `Retrieved ${result.length} items for ${type}`);
-    return result;
-  }
-
-  /**
    * Renders starting wealth options for class or background
    * @async
    * @param {HTMLElement} sectionContainer - Container element to render into
@@ -355,7 +316,7 @@ export class EquipmentParser {
 
     // Update equipment tables in a single pass
     const equipmentTables = sectionContainer.querySelectorAll('table.equipment-item');
-    const selectors = 'select, input[type="checkbox"], label';
+    const selectors = 'select, input[type="checkbox"], label, h4';
 
     equipmentTables.forEach((el) => {
       el.classList.toggle('disabled', isChecked);
@@ -960,17 +921,16 @@ export class EquipmentParser {
   /**
    * Retrieves all selected compendium packs from settings.
    * Combines item packs, class packs, background packs, and race packs into a single array.
-   * @async
    * @returns {Promise<string[]>} Array of compendium pack IDs
    * @static
    */
-  static async getSelectedPacks() {
+  static getSelectedPacks() {
     HM.log(3, 'Retrieving selected packs');
 
-    const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
-    const classPacks = (await game.settings.get(HM.ID, 'classPacks')) || [];
-    const backgroundPacks = (await game.settings.get(HM.ID, 'backgroundPacks')) || [];
-    const racePacks = (await game.settings.get(HM.ID, 'racePacks')) || [];
+    const itemPacks = game.settings.get(HM.ID, 'itemPacks') || [];
+    const classPacks = game.settings.get(HM.ID, 'classPacks') || [];
+    const backgroundPacks = game.settings.get(HM.ID, 'backgroundPacks') || [];
+    const racePacks = game.settings.get(HM.ID, 'racePacks') || [];
 
     const result = [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
     HM.log(3, `Retrieved ${result.length} total packs`);
@@ -995,7 +955,7 @@ export class EquipmentParser {
     this.lookupItemsInitialized = true;
     this.itemUuidMap = new Map();
 
-    const selectedPacks = await this.getSelectedPacks();
+    const selectedPacks = this.getSelectedPacks();
 
     try {
       const allItems = await this.#collectAllItems(selectedPacks);

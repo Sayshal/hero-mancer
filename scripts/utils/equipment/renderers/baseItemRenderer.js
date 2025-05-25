@@ -15,29 +15,6 @@ export class BaseItemRenderer {
   }
 
   /**
-   * Validates if item can be rendered
-   * @param {Object} item - Equipment item
-   * @returns {boolean} True if item can be rendered
-   */
-  canRender(item) {
-    const result = item && !this.hasItemBeenRendered(item);
-    HM.log(3, `Item ${item?._id} can be rendered? ${result}`);
-    return result;
-  }
-
-  /**
-   * Creates a basic container for an equipment item as a table
-   * @param {object} item - Equipment item
-   * @returns {HTMLElement} Table element
-   */
-  createItemContainer(item) {
-    const itemContainer = document.createElement('table');
-    itemContainer.classList.add('equipment-item');
-    HM.log(3, `Created table container for item ${item?._id || 'unknown'}`);
-    return itemContainer;
-  }
-
-  /**
    * Adds a label to equipment item as a table header row
    * @param {HTMLElement} container - Table container
    * @param {Object} item - Equipment item
@@ -83,25 +60,6 @@ export class BaseItemRenderer {
         HM.log(1, `Error adding label for item ${item._source?.key}: ${error.message}`);
       }
     }
-  }
-
-  /**
-   * Helper to add a row with an element and a star cell
-   * @param {HTMLElement} container - Table container
-   * @param {HTMLElement} element - Element to add
-   * @returns {Object} Created row elements
-   */
-  addElementRow(container, element) {
-    const row = document.createElement('tr');
-    const mainCell = document.createElement('td');
-    const starCell = document.createElement('td');
-
-    mainCell.appendChild(element);
-    row.appendChild(mainCell);
-    row.appendChild(starCell);
-    container.appendChild(row);
-
-    return { row, mainCell, starCell };
   }
 
   /**
@@ -371,27 +329,6 @@ export class BaseItemRenderer {
   }
 
   /**
-   * Append favorite container to the item container
-   * @param {HTMLElement} container - Item container
-   * @param {HTMLElement} favoriteContainer - Favorite container
-   */
-  appendFavoriteToContainer(container, favoriteContainer) {
-    if (container.querySelector('label')) {
-      container.querySelector('label').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'Added after label element');
-    } else if (container.querySelector('h4')) {
-      container.querySelector('h4').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'Added after h4 element');
-    } else if (container.querySelector('select')) {
-      container.querySelector('select').insertAdjacentElement('afterend', favoriteContainer);
-      HM.log(3, 'Added after select element');
-    } else {
-      container.appendChild(favoriteContainer);
-      HM.log(3, 'Added to end of container');
-    }
-  }
-
-  /**
    * Extract UUIDs from HTML content
    * @param {string} content - HTML content
    * @returns {string[]} Array of UUIDs
@@ -407,29 +344,6 @@ export class BaseItemRenderer {
 
     HM.log(3, `Found ${uuids.length} UUIDs in content`);
     return uuids;
-  }
-
-  /**
-   * Checks if an item has been rendered
-   * @param {Object} item - Equipment item
-   * @returns {boolean} True if already rendered
-   */
-  hasItemBeenRendered(item) {
-    const result = this.parser.constructor.renderedItems.has(item._id);
-    HM.log(3, `Item ${item?._id} rendered? ${result}`);
-    return result;
-  }
-
-  /**
-   * Creates an error element for failed rendering
-   * @returns {HTMLElement} Error element
-   */
-  createErrorElement() {
-    const errorElement = document.createElement('div');
-    errorElement.classList.add('equipment-item-error');
-    errorElement.textContent = game.i18n.localize('hm.app.equipment.unknown-choice');
-    HM.log(3, 'Created error element');
-    return errorElement;
   }
 
   /**

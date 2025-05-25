@@ -9,7 +9,7 @@
     <div class="form-row flex items-center gap-sm mb-sm">
       <label for='race-dropdown'>{{localize 'hm.app.race.select-label'}}</label>
       <select id='race-dropdown' name='race' class="form-select" data-dtype='String' aria-describedby='race-description'
-        aria-label='{{localize "hm.app.race.select-label"}}'>
+        aria-label='{{localize "hm.app.race.select-label"}}' aria-required="true">
         <option value=''>{{localize 'hm.app.race.select-placeholder'}}</option>
 
         {{#each raceDocs}}
@@ -34,7 +34,7 @@
 
     {{!-- Race Description Display --}}
     <div id='race-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
-      <div class="journal-container" data-journal-id="{{journalPageId}}"></div>
+      <div class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"></div>
     </div>
   </fieldset>
 </div>

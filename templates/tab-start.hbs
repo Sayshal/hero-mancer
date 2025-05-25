@@ -1,5 +1,6 @@
 {{!-- Start Tab - Initial Character Setup --}}
-<div class="tab {{ tabs.start.cssClass }}" data-tab="start" data-group="hero-mancer-tabs">
+<div class="tab {{ tabs.start.cssClass }}" data-tab="start" data-group="hero-mancer-tabs" role="tabpanel"
+  id="start-panel" aria-labelledby="tab-start">
   <fieldset id="start">
     <legend>{{localize 'hm.app.start.tooltip'}}</legend>
 
@@ -12,7 +13,7 @@
     <div class="customization-row character-name-row flex items-center gap-sm mb-sm" id="character-name-row">
       <label for="character-name" class="label-15">{{localize 'hm.app.start.name-label'}}</label>
       <input id="character-name" type="text" name="character-name" class="name-input input-35 form-input"
-        placeholder="{{localize 'hm.app.start.name-placeholder'}}" />
+        placeholder="{{localize 'hm.app.start.name-placeholder'}}" aria-required="true" />
       <button data-action="randomizeCharacterName" type="button" class="select-button button-7"
         data-tooltip="{{localize 'hm.app.start.generate-random-name'}}"
         aria-label="{{localize 'hm.app.start.generate-random-name'}}">
@@ -24,12 +25,14 @@
     {{#if isGM}}
       <div class="form-row flex items-center gap-sm mb-sm">
         <label for="player-assignment" class="label-15">{{localize 'hm.app.start.player-assignment-label'}}</label>
-        <select id="player-assignment" name="player" class="input-35 form-select">
+        <select id="player-assignment" name="player" class="input-35 form-select"
+          aria-describedby="player-assignment-desc">
           <option value="">{{localize 'hm.app.start.player-assignment-placeholder'}}</option>
           {{#each players}}
             <option value="{{this.id}}">{{this.name}}</option>
           {{/each}}
         </select>
+        <span id="player-assignment-desc" class="sr-only">{{localize 'hm.app.start.player-assignment-placeholder'}}</span>
       </div>
     {{/if}}
 
@@ -37,26 +40,29 @@
     <div class="art-selection-row flex items-center gap-sm">
       <label for="character-art-path" class="label-15">{{localize 'hm.app.start.character-art-label'}}</label>
       <input id="character-art-path" type="text" name="character-art" class="art-input input-35 form-input" readonly
-        placeholder="{{localize 'hm.app.start.character-art-placeholder'}}" />
+        placeholder="{{localize 'hm.app.start.character-art-placeholder'}}" aria-describedby="character-art-desc" />
       <button data-action="selectCharacterArt" type="button" class="select-button button-7"
         aria-label="{{localize 'hm.app.start.select-art'}}">
         {{localize 'hm.app.start.select-art'}}
       </button>
       <label class="checkbox-label label-43 flex items-center">
-        <input type="checkbox" id="link-token-art" checked />
-        {{localize 'hm.app.start.token-same-as-character'}}
+        <input type="checkbox" id="link-token-art" checked aria-describedby="link-token-desc" />
+        <span>{{localize 'hm.app.start.token-same-as-character'}}</span>
       </label>
+      <span id="character-art-desc" class="sr-only">{{localize 'hm.app.start.character-art-placeholder'}}</span>
+      <span id="link-token-desc" class="sr-only">{{localize 'hm.app.start.token-same-as-character'}}</span>
     </div>
 
     {{!-- Token Art Selection (conditional) --}}
     <div class="art-selection-row flex items-center gap-sm" id="token-art-row" style="display: none">
       <label for="token-art-path" class="label-15">{{localize 'hm.app.start.token-art-label'}}</label>
       <input id="token-art-path" type="text" name="token-art" class="art-input input-35 form-input" readonly
-        placeholder="{{localize 'hm.app.start.token-art-placeholder'}}" />
+        placeholder="{{localize 'hm.app.start.token-art-placeholder'}}" aria-describedby="token-art-desc" />
       <button data-action="selectTokenArt" type="button" class="select-button button-7"
         aria-label="{{localize 'hm.app.start.select-art'}}">
         {{localize 'hm.app.start.select-art'}}
       </button>
+      <span id="token-art-desc" class="sr-only">{{localize 'hm.app.start.token-art-placeholder'}}</span>
     </div>
 
     {{!-- Player Customization Section --}}
@@ -64,19 +70,21 @@
       <hr />
       <div class="customization-row flex items-center gap-sm mb-sm" id="color-row">
         <label for="player-color" class="label-15">{{localize 'hm.app.start.player-color'}}</label>
-        <color-picker id="player-color" name="player-color" class="input-35" value="#FF0000" />
+        <color-picker id="player-color" name="player-color" class="input-35" value="#FF0000"
+          aria-label="{{localize 'hm.app.start.player-color'}}" />
       </div>
       <div class="customization-row flex items-center gap-sm mb-sm" id="pronoun-row">
         <label for="player-pronouns" class="label-15">{{localize 'hm.app.start.player-pronouns'}}</label>
         <input id="player-pronouns" type="text" name="player-pronouns" class="input-35 form-input"
-          placeholder="{{localize 'hm.app.start.player-pronouns-placeholder'}}" />
+          placeholder="{{localize 'hm.app.start.player-pronouns-placeholder'}}" aria-describedby="pronouns-desc" />
+        <span id="pronouns-desc" class="sr-only">{{localize 'hm.app.start.player-pronouns-placeholder'}}</span>
       </div>
       <div class="customization-row flex items-center gap-sm mb-sm" id="avatar-row">
         <label for="player-avatar-path" class="label-15">{{localize 'hm.app.start.player-avatar'}}</label>
         <input id="player-avatar-path" type="text" name="player-avatar" class="art-input input-35 form-input" readonly
-          placeholder="{{localize 'hm.app.start.player-avatar-placeholder'}}" />
+          placeholder="{{localize 'hm.app.start.player-avatar-placeholder'}}" aria-describedby="avatar-desc" />
         <button data-action="selectPlayerAvatar" type="button" class="select-button button-7"
-          aria-label="{{localize 'hm.app.start.select-art'}}">
+          aria-label="{{localize 'hm.app.start.player-avatar-placeholder'}}">
           {{localize 'hm.app.start.select-art'}}
         </button>
       </div>
@@ -85,64 +93,79 @@
     {{!-- Token Customization Section --}}
     {{#if tokenCustomizationEnabled}}
       <hr />
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="displayName" class="label-15">{{localize "TOKEN.CharShowNameplate"}}</label>
-        <select id="displayName" name="displayName" class="input-35 form-select">
-          <option value="">{{localize "hm.app.start.token-visibility-placeholder"}}</option>
-          {{selectOptions token.displayModes selected=object.displayName}}
-        </select>
-      </div>
+      <section aria-labelledby="token-customization-header">
+        <h3 id="token-customization-header" class="sr-only">{{localize "hm.app.start.token-customization"}}</h3>
 
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="displayBars" class="label-15">{{localize "TOKEN.ResourceDisplay"}}</label>
-        <select id="displayBars" name="displayBars" class="input-35 form-select">
-          <option value="">{{localize "hm.app.start.token-visibility-placeholder"}}</option>
-          {{selectOptions token.barModes selected=object.displayBars}}
-        </select>
-      </div>
-
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="bar1-attribute" class="label-15">{{localize "TOKEN.ResourceBar1A"}}</label>
-        <select id="bar1-attribute" name="bar1.attribute" class="input-35 form-select">
-          {{selectOptions token.barAttributes selected=object.bar1.attribute}}
-        </select>
-      </div>
-
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="bar2-attribute" class="label-15">{{localize "TOKEN.ResourceBar2A"}}</label>
-        <select id="bar2-attribute" name="bar2.attribute" class="input-35 form-select">
-          {{selectOptions token.barAttributes selected=object.bar2.attribute}}
-        </select>
-      </div>
-
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="ring-enabled" class="label-15">{{localize "TOKEN.FIELDS.ring.enabled.label"}}</label>
-        <div class="checkbox-label label-43 flex items-center">
-          <input id="ring-enabled" type="checkbox" name="ring.enabled" {{checked object.ring.enabled}} />
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="displayName" class="label-15">{{localize "TOKEN.CharShowNameplate"}}</label>
+          <select id="displayName" name="displayName" class="input-35 form-select" aria-describedby="display-name-desc">
+            <option value="">{{localize "hm.app.start.token-visibility-placeholder"}}</option>
+            {{selectOptions token.displayModes selected=object.displayName}}
+          </select>
+          <span id="display-name-desc" class="sr-only">{{localize "hm.app.start.token-visibility-placeholder"}}</span>
         </div>
-      </div>
 
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="ring-color" class="label-15">{{localize "TOKEN.FIELDS.ring.colors.ring.label"}}</label>
-        <color-picker id="ring-color" name="ring.color" class="input-35" value="" />
-      </div>
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="displayBars" class="label-15">{{localize "TOKEN.ResourceDisplay"}}</label>
+          <select id="displayBars" name="displayBars" class="input-35 form-select" aria-describedby="display-bars-desc">
+            <option value="">{{localize "hm.app.start.token-visibility-placeholder"}}</option>
+            {{selectOptions token.barModes selected=object.displayBars}}
+          </select>
+          <span id="display-bars-desc" class="sr-only">{{localize "hm.app.start.token-visibility-placeholder"}}</span>
+        </div>
 
-      <div class="customization-row flex items-center gap-sm mb-sm">
-        <label for="background-color" class="label-15">{{localize "DND5E.TokenRings.BackgroundColor"}}</label>
-        <color-picker id="background-color" name="backgroundColor" class="input-35"
-          value="{{ object.backgroundColor }}" />
-      </div>
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="bar1-attribute" class="label-15">{{localize "TOKEN.ResourceBar1A"}}</label>
+          <select id="bar1-attribute" name="bar1.attribute" class="input-35 form-select" aria-describedby="bar1-desc">
+            {{selectOptions token.barAttributes selected=object.bar1.attribute}}
+          </select>
+          <span id="bar1-desc" class="sr-only">{{localize "TOKEN.ResourceBar1A"}}</span>
+        </div>
 
-      <div class="customization-row flex flex-wrap items-center gap-sm mb-sm ring-effects">
-        <label class="label-15">{{localize 'TOKEN.FIELDS.ring.effects.label'}}</label>
-        {{#each token.ring.effects as |label key|}}
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="bar2-attribute" class="label-15">{{localize "TOKEN.ResourceBar2A"}}</label>
+          <select id="bar2-attribute" name="bar2.attribute" class="input-35 form-select" aria-describedby="bar2-desc">
+            {{selectOptions token.barAttributes selected=object.bar2.attribute}}
+          </select>
+          <span id="bar2-desc" class="sr-only">{{localize "TOKEN.ResourceBar2A"}}</span>
+        </div>
+
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="ring-enabled" class="label-15">{{localize "TOKEN.FIELDS.ring.enabled.label"}}</label>
           <div class="checkbox-label label-43 flex items-center">
-            <input type='checkbox' id="ring-effect-{{key}}" name='ring.effects' value='{{key}}'
-              {{checked (lookup ../object.ring.effects key)}} />
-            <label for="ring-effect-{{key}}">{{ label }}</label>
+            <input id="ring-enabled" type="checkbox" name="ring.enabled" {{checked object.ring.enabled}}
+              aria-describedby="ring-enabled-desc" />
+            <span class="sr-only">{{localize "TOKEN.FIELDS.ring.enabled.label"}}</span>
           </div>
-        {{/each}}
-      </div>
+          <span id="ring-enabled-desc" class="sr-only">{{localize "TOKEN.FIELDS.ring.enabled.label"}}</span>
+        </div>
+
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="ring-color" class="label-15">{{localize "TOKEN.FIELDS.ring.colors.ring.label"}}</label>
+          <color-picker id="ring-color" name="ring.color" class="input-35" value=""
+            aria-label="{{localize 'TOKEN.FIELDS.ring.colors.ring.label'}}" />
+        </div>
+
+        <div class="customization-row flex items-center gap-sm mb-sm">
+          <label for="background-color" class="label-15">{{localize "DND5E.TokenRings.BackgroundColor"}}</label>
+          <color-picker id="background-color" name="backgroundColor" class="input-35"
+            value="{{ object.backgroundColor }}" aria-label="{{localize 'DND5E.TokenRings.BackgroundColor'}}" />
+        </div>
+
+        <div class="customization-row flex flex-wrap items-center gap-sm mb-sm ring-effects">
+          <span class="label-15">{{localize 'TOKEN.FIELDS.ring.effects.label'}}</span>
+          <div class="ring-effects-group" role="group" aria-labelledby="ring-effects-label">
+            <span id="ring-effects-label" class="sr-only">{{localize 'TOKEN.FIELDS.ring.effects.label'}}</span>
+            {{#each token.ring.effects as |label key|}}
+              <div class="checkbox-label label-43 flex items-center">
+                <input type='checkbox' id="ring-effect-{{key}}" name='ring.effects' value='{{key}}'
+                  {{checked (lookup ../object.ring.effects key)}} aria-labelledby="ring-effect-label-{{key}}" />
+                <label id="ring-effect-label-{{key}}" for="ring-effect-{{key}}">{{ label }}</label>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      </section>
     {{/if}}
   </fieldset>
 </div>

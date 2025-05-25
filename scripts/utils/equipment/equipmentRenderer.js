@@ -487,46 +487,6 @@ export class EquipmentRenderer {
   }
 
   /**
-   * Render equipment items to a section container
-   * @param {HTMLElement} container - Section container
-   * @param {Array<Object>} itemDocs - Items with their documents
-   */
-  async renderItemElements(container, itemDocs) {
-    HM.log(3, `Rendering ${itemDocs.length} item elements`);
-
-    const processedItems = new Set();
-    const failedItems = [];
-
-    for (const { item, doc } of itemDocs) {
-      if (!item || processedItems.has(item._id || item.key)) {
-        continue;
-      }
-
-      processedItems.add(item._id || item.key);
-
-      // Update item with document info if available
-      if (doc) {
-        item.name = doc.name;
-      } else if (item.key) {
-        item.name = item.key;
-      }
-
-      try {
-        const itemElement = await this.buildEquipmentUIElement(item);
-        if (itemElement) {
-          container.appendChild(itemElement);
-          HM.log(3, `Added element for ${item.name || item.key || 'unnamed item'}`);
-        }
-      } catch (error) {
-        HM.log(1, `Failed to create element for ${item.name || item.key}: ${error.message}`);
-        failedItems.push(item.name || item.key || game.i18n.localize('hm.app.equipment.unnamed'));
-      }
-    }
-
-    this.addFailedItemsNotice(container, failedItems);
-  }
-
-  /**
    * Add notice about failed items if any
    * @param {HTMLElement} container - Container element
    * @param {Array<string>} failedItems - List of failed item names

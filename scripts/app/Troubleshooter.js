@@ -36,10 +36,6 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   get title() {
     return `${HM.NAME} | ${game.i18n.localize('hm.settings.troubleshooter.title')}`;
   }

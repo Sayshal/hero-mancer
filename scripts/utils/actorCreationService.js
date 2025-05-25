@@ -185,24 +185,6 @@ export class ActorCreationService {
     const totalMissing = Object.values(missingFields).flat().length;
 
     if (totalMissing > 0) {
-      // Create a more specific error message based on categories
-      let errorMsg = 'hm.errors.missing-mandatory-fields';
-
-      if (missingFields.basic.length) {
-        errorMsg = 'hm.errors.missing-basic-fields';
-      } else if (missingFields.abilities.length) {
-        errorMsg = 'hm.errors.missing-ability-fields';
-      } else if (missingFields.background.length) {
-        errorMsg = 'hm.errors.missing-background-fields';
-      }
-
-      ui.notifications.error(
-        game.i18n.format(errorMsg, {
-          fields: Object.values(missingFields).flat().join(', '),
-          count: totalMissing
-        })
-      );
-
       return false;
     }
 

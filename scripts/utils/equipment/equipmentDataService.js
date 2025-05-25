@@ -47,7 +47,7 @@ export class EquipmentDataService {
    */
   async findItemDocumentById(itemId) {
     HM.log(3, `Searching for item ${itemId}`);
-    const selectedPacks = await this.getSelectedPacks();
+    const selectedPacks = this.getSelectedPacks();
 
     for (const packId of selectedPacks) {
       const pack = game.packs.get(packId);
@@ -164,15 +164,14 @@ export class EquipmentDataService {
 
   /**
    * Retrieves all selected compendium packs from settings.
-   * @async
    * @returns {Promise<string[]>} Array of compendium pack IDs
    */
-  async getSelectedPacks() {
+  getSelectedPacks() {
     HM.log(3, 'Retrieving selected packs');
-    const itemPacks = (await game.settings.get(HM.ID, 'itemPacks')) || [];
-    const classPacks = (await game.settings.get(HM.ID, 'classPacks')) || [];
-    const backgroundPacks = (await game.settings.get(HM.ID, 'backgroundPacks')) || [];
-    const racePacks = (await game.settings.get(HM.ID, 'racePacks')) || [];
+    const itemPacks = game.settings.get(HM.ID, 'itemPacks') || [];
+    const classPacks = game.settings.get(HM.ID, 'classPacks') || [];
+    const backgroundPacks = game.settings.get(HM.ID, 'backgroundPacks') || [];
+    const racePacks = game.settings.get(HM.ID, 'racePacks') || [];
 
     const result = [...itemPacks, ...classPacks, ...backgroundPacks, ...racePacks];
     HM.log(3, `Retrieved ${result.length} total packs`);

@@ -1,0 +1,176 @@
+{{!-- Biography Tab - Character Details and Story --}}
+<div class='tab {{tabs.biography.cssClass}}' data-tab='biography' data-group='hero-mancer-tabs' role="tabpanel"
+	id="biography-panel" aria-labelledby="tab-biography">
+	<fieldset>
+		<legend>{{localize 'hm.app.biography.tooltip'}}</legend>
+
+		{{!-- Characteristics Section --}}
+		<section class='characteristics-section first-section' aria-labelledby="characteristics-heading">
+			<h2 id="characteristics-heading">{{localize 'hm.app.biography.characteristics'}}</h2>
+
+			{{!-- First Row - 5 columns --}}
+			<div class='grid grid-5-col gap-md mb-md'>
+				<div class='form-group items-center'>
+					<label for="alignment">{{localize 'DND5E.Alignment'}}<i class="fa-solid fa-circle-info tooltip-icon"
+							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.alignment-hint'}}"></i></label>
+					<select id="alignment" name='alignment' class="form-select" aria-describedby="alignment-hint">
+						<option value=''>{{localize 'None'}}</option>
+						{{#each alignments}}
+							<option value='{{this}}'>{{this}}</option>
+						{{/each}}
+					</select>
+					<span id="alignment-hint" class="sr-only">{{localize 'hm.app.biography.alignment-hint'}}</span>
+				</div>
+				<div class='form-group items-center'>
+					<label for="gender">{{localize 'DND5E.Gender'}}</label>
+					<input id="gender" type='text' name='gender' class="form-input" aria-label="{{localize 'DND5E.Gender'}}" />
+				</div>
+				<div class='form-group items-center'>
+					<label for="eyes">{{localize 'DND5E.Eyes'}}</label>
+					<input id="eyes" type='text' name='eyes' class="form-input" aria-label="{{localize 'DND5E.Eyes'}}" />
+				</div>
+				<div class='form-group items-center'>
+					<label for="size">{{localize 'DND5E.Size'}}<i class="fa-solid fa-circle-info tooltip-icon" aria-hidden="true"
+							data-tooltip="{{localize 'hm.app.biography.size-hint'}}"></i></label>
+					<input id="size" type='text' name='size' class="form-input" disabled
+						placeholder='{{localize "hm.app.biography.size-placeholder"}}' aria-describedby="size-hint" />
+					<span id="size-hint" class="sr-only">{{localize 'hm.app.biography.size-hint'}}</span>
+				</div>
+				<div class='form-group items-center'>
+					<label for="height">{{localize 'DND5E.Height'}}<i class="fa-solid fa-circle-info tooltip-icon"
+							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.height-hint'}}"></i></label>
+					<input id="height" type='text' name='height' class="form-input" aria-describedby="height-hint" />
+					<span id="height-hint" class="sr-only">{{localize 'hm.app.biography.height-hint'}}</span>
+				</div>
+			</div>
+
+			{{!-- Second Row - 5 columns --}}
+			<div class='grid grid-5-col gap-md mb-md'>
+				<div class='form-group items-center'>
+					<label for="faith">{{localize 'DND5E.Faith'}}<i class="fa-solid fa-circle-info tooltip-icon"
+							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.faith-hint'}}"></i></label>
+					<select id="faith" name='faith' class="form-select" aria-describedby="faith-hint">
+						<option value=''>{{localize 'None'}}</option>
+						{{#each deities}}
+							<option value='{{this}}'>{{this}}</option>
+						{{/each}}
+					</select>
+					<span id="faith-hint" class="sr-only">{{localize 'hm.app.biography.faith-hint'}}</span>
+				</div>
+				<div class='form-group items-center'>
+					<label for="hair">{{localize 'DND5E.Hair'}}</label>
+					<input id="hair" type='text' name='hair' class="form-input" aria-label="{{localize 'DND5E.Hair'}}" />
+				</div>
+				<div class='form-group items-center'>
+					<label for="skin">{{localize 'DND5E.Skin'}}</label>
+					<input id="skin" type='text' name='skin' class="form-input" aria-label="{{localize 'DND5E.Skin'}}" />
+				</div>
+				<div class='form-group items-center'>
+					<label for="age">{{localize 'DND5E.Age'}}<i class="fa-solid fa-circle-info tooltip-icon" aria-hidden="true"
+							data-tooltip="{{localize 'hm.app.biography.age-hint'}}"></i></label>
+					<input id="age" type='text' name='age' class="form-input" aria-describedby="age-hint" />
+					<span id="age-hint" class="sr-only">{{localize 'hm.app.biography.age-hint'}}</span>
+				</div>
+				<div class='form-group items-center'>
+					<label for="weight">{{localize 'DND5E.Weight'}}<i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.weight-hint'}}"></i></label>
+					<input id="weight" type='text' name='weight' class="form-input" aria-describedby="weight-hint" />
+					<span id="weight-hint" class="sr-only">{{localize 'hm.app.biography.weight-hint'}}</span>
+				</div>
+			</div>
+		</section>
+
+		{{!-- Personal Characteristics Section - 2x2 Grid --}}
+		<section class='personality-section' aria-labelledby="personality-heading">
+			<div class='grid grid-2-col gap-md'>
+				<div class='personality-group'>
+					<div class='input-with-roll'>
+						<div class='flex justify-between items-center mb-sm'>
+							<label for="traits">{{localize 'hm.app.biography.personality-traits'}}<i
+									class="fa-solid fa-circle-info ml-xs tooltip-icon" aria-hidden="true"
+									data-tooltip="{{localize 'hm.app.biography.traits-placeholder-alt'}}"></i></label>
+							<button type='button' class='roll-btn button-7' data-table='traits'
+								aria-label="{{localize 'hm.app.biography.roll-traits'}}">
+								<i class='fas fa-dice' aria-hidden="true"></i> {{localize 'DND5E.Roll'}}
+							</button>
+						</div>
+						<textarea id="traits" name='traits' class="w-full" rows="4"
+							placeholder='{{localize "hm.app.biography.traits-placeholder"}}'
+							aria-describedby="traits-desc"></textarea>
+						<span id="traits-desc" class="sr-only">{{localize 'hm.app.biography.traits-placeholder-alt'}}</span>
+					</div>
+				</div>
+				<div class='personality-group'>
+					<div class='input-with-roll'>
+						<div class='flex justify-between items-center mb-sm'>
+							<label for="ideals">{{localize 'DND5E.Ideals'}}<i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+									aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.ideals-placeholder-alt'}}"></i></label>
+							<button type='button' class='roll-btn button-7' data-table='ideals'
+								aria-label="{{localize 'hm.app.biography.roll-ideals'}}">
+								<i class='fas fa-dice' aria-hidden="true"></i> {{localize 'DND5E.Roll'}}
+							</button>
+						</div>
+						<textarea id="ideals" name='ideals' class="w-full" rows="4"
+							placeholder='{{localize "hm.app.biography.ideals-placeholder"}}'
+							aria-describedby="ideals-desc"></textarea>
+						<span id="ideals-desc" class="sr-only">{{localize 'hm.app.biography.ideals-placeholder-alt'}}</span>
+					</div>
+				</div>
+				<div class='personality-group'>
+					<div class='input-with-roll'>
+						<div class='flex justify-between items-center mb-sm'>
+							<label for="bonds">{{localize 'DND5E.Bonds'}}<i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+									aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.bonds-placeholder-alt'}}"></i></label>
+							<button type='button' class='roll-btn button-7' data-table='bonds'
+								aria-label="{{localize 'hm.app.biography.roll-bonds'}}">
+								<i class='fas fa-dice' aria-hidden="true"></i> {{localize 'DND5E.Roll'}}
+							</button>
+						</div>
+						<textarea id="bonds" name='bonds' class="w-full" rows="4"
+							placeholder='{{localize "hm.app.biography.bonds-placeholder"}}' aria-describedby="bonds-desc"></textarea>
+						<span id="bonds-desc" class="sr-only">{{localize 'hm.app.biography.bonds-placeholder-alt'}}</span>
+					</div>
+				</div>
+				<div class='personality-group'>
+					<div class='input-with-roll'>
+						<div class='flex justify-between items-center mb-sm'>
+							<label for="flaws">{{localize 'DND5E.Flaws'}}<i class="fa-solid fa-circle-info ml-xs tooltip-icon"
+									aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.flaws-placeholder-alt'}}"></i></label>
+							<button type='button' class='roll-btn button-7' data-table='flaws'
+								aria-label="{{localize 'hm.app.biography.roll-flaws'}}">
+								<i class='fas fa-dice' aria-hidden="true"></i> {{localize 'DND5E.Roll'}}
+							</button>
+						</div>
+						<textarea id="flaws" name='flaws' class="w-full" rows="4"
+							placeholder='{{localize "hm.app.biography.flaws-placeholder"}}' aria-describedby="flaws-desc"></textarea>
+						<span id="flaws-desc" class="sr-only">{{localize 'hm.app.biography.flaws-placeholder-alt'}}</span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		{{!-- Physical Description Section --}}
+		<section class='physical-description-section mb-md' aria-labelledby="physical-description-heading">
+			<h2 id="physical-description-heading">{{localize 'hm.app.biography.physical-description'}}<i
+					class="fa-solid fa-circle-info ml-xs tooltip-icon heading-tooltip" aria-hidden="true"
+					data-tooltip="{{localize 'hm.app.biography.description-hint'}}"></i></h2>
+			<textarea id="appearance" name='appearance' class="w-full" rows='4' aria-describedby="appearance-hint"
+				placeholder="{{localize 'hm.app.biography.description-hint'}}"></textarea>
+			<span id="appearance-hint" class="sr-only">{{localize 'hm.app.biography.description-hint'}}</span>
+		</section>
+
+		{{!-- Backstory Section --}}
+		<section class='notes-section' aria-labelledby="backstory-heading">
+			<h2 id="backstory-heading">{{localize 'hm.app.biography.backstory'}}<i
+					class="fa-solid fa-circle-info ml-xs tooltip-icon heading-tooltip" aria-hidden="true"
+					data-tooltip="{{localize 'hm.app.biography.backstory-hint'}}"></i></h2>
+			<div class='notes-group'>
+				<prose-mirror id="backstory" name='backstory'
+					data-placeholder='{{localize "hm.app.biography.backstory-placeholder"}}' aria-describedby="backstory-hint"
+					aria-label="{{localize 'hm.app.biography.backstory'}}">
+				</prose-mirror>
+				<span id="backstory-hint" class="sr-only">{{localize 'hm.app.biography.backstory-hint'}}</span>
+			</div>
+		</section>
+	</fieldset>
+</div>

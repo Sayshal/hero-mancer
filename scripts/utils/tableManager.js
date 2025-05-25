@@ -194,7 +194,7 @@ export class TableManager {
     // Pre-process all updates
     Object.entries(typeToFieldMap).forEach(([tableType, fieldName]) => {
       const hasTable = foundTableTypes?.has(tableType);
-      const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.finalize.${fieldName}-placeholder` : `hm.app.finalize.${fieldName}-placeholder-alt`);
+      const newPlaceholder = game.i18n.localize(hasTable ? `hm.app.biography.${fieldName}-placeholder` : `hm.app.biography.${fieldName}-placeholder-alt`);
       const newDisplay = hasTable ? 'block' : 'none';
 
       // Store updates to apply as a batch
@@ -383,88 +383,6 @@ export class TableManager {
     } catch (error) {
       HM.log(1, 'Error checking if all table results are drawn:', error);
       return true; // On error, assume all drawn to prevent problematic actions
-    }
-  }
-
-  /**
-   * Resets tables to make all results available again
-   * @param {string} backgroundId - Background document ID
-   * @returns {Promise<boolean>} Success status
-   * @static
-   */
-  static async resetTables(backgroundId) {
-    // Validate input
-    if (!backgroundId) {
-      HM.log(2, 'No background ID provided for table reset');
-      return false;
-    }
-
-    const tables = this.currentTables.get(backgroundId);
-    if (!tables || !tables.length) {
-      HM.log(2, `No tables found for background ID: ${backgroundId}`);
-      return false;
-    }
-
-    try {
-      // Reset all tables in parallel with proper error handling
-      const resetPromises = tables.map(async (table) => {
-        try {
-          await table.resetResults();
-          return true;
-        } catch (error) {
-          HM.log(1, `Error resetting table ${table.name}:`, error);
-          return false;
-        }
-      });
-
-      const results = await Promise.all(resetPromises);
-
-      // Check if all tables were reset successfully
-      const allSuccess = results.every((success) => success);
-      if (!allSuccess) {
-        HM.log(2, 'Some tables failed to reset');
-      }
-
-      return allSuccess;
-    } catch (error) {
-      HM.log(1, 'Error resetting tables:', error);
-      return false;
-    }
-  }
-
-  /* -------------------------------------------- */
-  /*  Static Protected Methods                    */
-  /* -------------------------------------------- */
-
-  /**
-   * Extracts roll table UUIDs from description text
-   * @param {string} description - Description text to parse
-   * @returns {string[]} Array of table UUIDs
-   * @static
-   * @protected
-   */
-  static _parseTableUuidsFromDescription(description) {
-    if (!description) {
-      return [];
-    }
-
-    try {
-      const uuidPattern = /@UUID\[(.*?)]/g;
-      const matches = [...description.matchAll(uuidPattern)];
-      return matches
-        .map((match) => {
-          try {
-            const parsed = foundry.utils.parseUuid(match[1]);
-            // Only return IDs for RollTable documents
-            return parsed.type === 'RollTable' ? parsed.id : null;
-          } catch (e) {
-            return null;
-          }
-        })
-        .filter(Boolean);
-    } catch (error) {
-      HM.log(1, 'Error parsing table UUIDs from description:', error);
-      return [];
     }
   }
 }

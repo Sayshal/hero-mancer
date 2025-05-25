@@ -42,8 +42,15 @@ export class CharacterArtPicker {
    * @param {HTMLElement} _target - The element that triggered the event
    * @static
    */
-  static selectCharacterArt(_event, _target) {
+  static selectCharacterArt(event, _target) {
     try {
+      // Handle Tokenizer if active and shift key is not pressed
+      // Handle Tokenizer if active, enabled in settings, and shift key is not pressed
+      if (HM.COMPAT?.TOKENIZER && game.settings.get(HM.ID, 'tokenizerCompatibility') && !event.shiftKey) {
+        return CharacterArtPicker.handleTokenizer(event, 'character');
+      }
+
+      // Original file picker logic
       const rootDir = CharacterArtPicker.rootDirectory;
       const inputField = document.getElementById('character-art-path');
 
@@ -103,8 +110,14 @@ export class CharacterArtPicker {
    * @param {HTMLElement} _target - The element that triggered the event
    * @static
    */
-  static selectTokenArt(_event, _target) {
+  static selectTokenArt(event, _target) {
     try {
+      // Handle Tokenizer if active and shift key is not pressed
+      if (HM.COMPAT?.TOKENIZER && game.settings.get(HM.ID, 'tokenizerCompatibility') && !event.shiftKey) {
+        return CharacterArtPicker.handleTokenizer(event, 'token');
+      }
+
+      // Original file picker logic remains unchanged
       const rootDir = CharacterArtPicker.rootDirectory;
       const inputField = document.getElementById('token-art-path');
 
@@ -187,41 +200,75 @@ export class CharacterArtPicker {
     }
   }
 
-  /* -------------------------------------------- */
-  /*  Static Protected Methods                    */
-  /* -------------------------------------------- */
-
   /**
-   * Toggles visibility of token art row based on checkbox state
-   * @returns {void}
-   * @protected
+   * Handles integration with the Tokenizer module for character and token art
    * @static
+   * @param {Event} event - The triggering event
+   * @param {string} type - The type of art being processed ('character' or 'token')
+   * @returns {boolean} Success status of the Tokenizer interaction
    */
-  static _toggleTokenArtRowVisibility() {
+  static handleTokenizer(event, type) {
     try {
-      const tokenArtRow = document.getElementById('token-art-row');
-      const linkCheckbox = document.getElementById('link-token-art');
+      event.preventDefault();
 
-      if (!tokenArtRow || !linkCheckbox) {
-        HM.log(2, 'Token art row or link checkbox not found');
-        return;
+      const inputField = document.getElementById(`${type}-art-path`);
+      if (!inputField) {
+        HM.log(2, `${type} art input field not found`);
+        return false;
       }
 
-      const isLinked = linkCheckbox.checked;
-      tokenArtRow.style.display = isLinked ? 'none' : 'flex';
+      const characterName = document.getElementById('character-name')?.value || game.user.name;
 
-      if (isLinked) {
-        const tokenInput = document.getElementById('token-art-path');
-        const characterInput = document.getElementById('character-art-path');
+      const options = {
+        name: characterName,
+        type: 'pc'
+      };
 
-        if (tokenInput && characterInput) {
-          tokenInput.value = characterInput.value;
-          tokenInput.dispatchEvent(new Event('change', { bubbles: true }));
-          HM.log(3, 'Token art path updated due to linking');
+      // Get Tokenizer API
+      const tokenizer = game.modules.get('vtta-tokenizer')?.api || window.Tokenizer;
+      if (!tokenizer) {
+        HM.log(1, 'Tokenizer API not found');
+        return false;
+      }
+
+      // Launch Tokenizer
+      tokenizer.launch(options, (response) => {
+        try {
+          HM.log(3, 'Tokenizer response:', response);
+
+          if (type === 'character' && response.avatarFilename) {
+            // Update character art
+            inputField.value = response.avatarFilename;
+            inputField.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // Update portrait preview
+            const portraitImg = document.querySelector('.character-portrait img');
+            if (portraitImg) {
+              portraitImg.src = response.avatarFilename;
+            }
+
+            // Update token if linked or if tokenFilename was returned
+            if ((document.getElementById('link-token-art')?.checked || type === 'token') && response.tokenFilename) {
+              const tokenInput = document.getElementById('token-art-path');
+              if (tokenInput) {
+                tokenInput.value = response.tokenFilename;
+                tokenInput.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }
+          } else if (type === 'token' && response.tokenFilename) {
+            // Update token art
+            inputField.value = response.tokenFilename;
+            inputField.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        } catch (error) {
+          HM.log(1, `Error processing Tokenizer response for ${type}:`, error);
         }
-      }
+      });
+
+      return true;
     } catch (error) {
-      HM.log(1, 'Error toggling token art row visibility:', error);
+      HM.log(1, `Error handling Tokenizer for ${type}:`, error);
+      return false;
     }
   }
 }

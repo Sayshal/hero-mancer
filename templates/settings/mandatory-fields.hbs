@@ -5,16 +5,19 @@
 
     {{!-- COLUMN 1: Step 1: Start --}}
     <div class="field-column">
-      <h3 class="font-bold pb-xs text-center">{{localize "hm.settings.mandatory-fields.groups.start"}}</h3>
+      <h3 class="font-bold pb-xs text-center" id="start-fields-heading">
+        {{localize "hm.settings.mandatory-fields.groups.start"}}</h3>
 
       {{!-- Basic Fields --}}
-      <div class="field-group p-sm">
-        <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.basic"}}</h4>
+      <div class="field-group p-sm" role="group" aria-labelledby="basic-fields-heading">
+        <h4 class="text-md mb-xs" id="basic-fields-heading">{{localize "hm.settings.mandatory-fields.groups.basic"}}
+        </h4>
         {{#each fields.basic}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                aria-label="{{this.label}}">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}
@@ -22,13 +25,15 @@
 
       {{!-- Player Customization Fields --}}
       {{#if playerCustomizationEnabled}}
-        <div class="field-group p-sm">
-          <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.player"}}</h4>
+        <div class="field-group p-sm" role="group" aria-labelledby="player-fields-heading">
+          <h4 class="text-md mb-xs" id="player-fields-heading">{{localize "hm.settings.mandatory-fields.groups.player"}}
+          </h4>
           {{#each fields.player}}
             <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
               <label class="flex items-center gap-sm whitespace-nowrap">
-                <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-                {{this.label}}
+                <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                  aria-label="{{this.label}}">
+                <span>{{this.label}}</span>
               </label>
             </div>
           {{/each}}
@@ -37,13 +42,15 @@
 
       {{!-- Token Customization Fields --}}
       {{#if tokenCustomizationEnabled}}
-        <div class="field-group p-sm">
-          <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.token"}}</h4>
+        <div class="field-group p-sm" role="group" aria-labelledby="token-fields-heading">
+          <h4 class="text-md mb-xs" id="token-fields-heading">{{localize "hm.settings.mandatory-fields.groups.token"}}
+          </h4>
           {{#each fields.token}}
             <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
               <label class="flex items-center gap-sm whitespace-nowrap">
-                <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-                {{this.label}}
+                <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                  aria-label="{{this.label}}">
+                <span>{{this.label}}</span>
               </label>
             </div>
           {{/each}}
@@ -53,16 +60,19 @@
 
     {{!-- COLUMN 2: Step 2-4: Sources --}}
     <div class="field-column">
-      <h3 class="font-bold pb-xs text-center">{{localize "hm.settings.mandatory-fields.groups.core"}}</h3>
+      <h3 class="font-bold pb-xs text-center" id="core-fields-heading">
+        {{localize "hm.settings.mandatory-fields.groups.core"}}</h3>
 
       {{!-- Core Character Fields --}}
-      <div class="field-group p-sm" data-tooltip="{{localize 'hm.settings.mandatory-fields.core-fields-hint'}}">
+      <div class="field-group p-sm" data-tooltip="{{localize 'hm.settings.mandatory-fields.core-fields-hint'}}"
+        role="group" aria-labelledby="core-fields-heading" aria-describedby="core-fields-hint">
+        <span id="core-fields-hint" class="sr-only">{{localize 'hm.settings.mandatory-fields.core-fields-hint'}}</span>
         {{#each fields.core}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
-                disabled>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} disabled
+                aria-label="{{this.label}} ({{localize 'hm.settings.mandatory-fields.core-fields-hint'}})">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}
@@ -71,15 +81,17 @@
 
     {{!-- COLUMN 3: Step 5: Abilities --}}
     <div class="field-column">
-      <h3 class="font-bold pb-xs text-center">{{localize "hm.settings.mandatory-fields.groups.abilities"}}</h3>
+      <h3 class="font-bold pb-xs text-center" id="abilities-fields-heading">
+        {{localize "hm.settings.mandatory-fields.groups.abilities"}}</h3>
 
       {{!-- Abilities Fields --}}
-      <div class="field-group p-sm">
+      <div class="field-group p-sm" role="group" aria-labelledby="abilities-fields-heading">
         {{#each fields.abilities}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                aria-label="{{this.label}}">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}
@@ -88,42 +100,49 @@
 
     {{!-- COLUMN 4: Step 7: Biography --}}
     <div class="field-column">
-      <h3 class="font-bold pb-xs text-center">{{localize "hm.settings.mandatory-fields.groups.biography"}}</h3>
+      <h3 class="font-bold pb-xs text-center" id="biography-fields-heading">
+        {{localize "hm.settings.mandatory-fields.groups.biography"}}</h3>
 
       {{!-- Details Fields --}}
-      <div class="field-group p-sm">
-        <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.details"}}</h4>
+      <div class="field-group p-sm" role="group" aria-labelledby="details-fields-heading">
+        <h4 class="text-md mb-xs" id="details-fields-heading">{{localize "hm.settings.mandatory-fields.groups.details"}}
+        </h4>
         {{#each fields.details}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                aria-label="{{this.label}}">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}
       </div>
 
       {{!-- Physical Fields --}}
-      <div class="field-group p-sm">
-        <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.physical"}}</h4>
+      <div class="field-group p-sm" role="group" aria-labelledby="physical-fields-heading">
+        <h4 class="text-md mb-xs" id="physical-fields-heading">
+          {{localize "hm.settings.mandatory-fields.groups.physical"}}</h4>
         {{#each fields.physical}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                aria-label="{{this.label}}">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}
       </div>
 
       {{!-- Personality Fields --}}
-      <div class="field-group p-sm">
-        <h4 class="text-md mb-xs">{{localize "hm.settings.mandatory-fields.groups.personality"}}</h4>
+      <div class="field-group p-sm" role="group" aria-labelledby="personality-fields-heading">
+        <h4 class="text-md mb-xs" id="personality-fields-heading">
+          {{localize "hm.settings.mandatory-fields.groups.personality"}}</h4>
         {{#each fields.personality}}
           <div class="form-group width-25 flex-col gap-xs pl-sm mb-xs">
             <label class="flex items-center gap-sm whitespace-nowrap">
-              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}>
-              {{this.label}}
+              <input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}}
+                aria-label="{{this.label}}">
+              <span>{{this.label}}</span>
             </label>
           </div>
         {{/each}}

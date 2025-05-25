@@ -1,0 +1,34 @@
+<div class="hm-compendium-dialog-content">
+	{{!-- Global Select All --}}
+	<div class="hm-compendium-global-header">
+		<label class="checkbox">
+			<input type="checkbox" class="hm-select-all-global" {{#if allSelected}}checked{{/if}}
+				aria-label="{{localize 'hm.settings.custom-compendiums.select-all'}}">
+			<span>{{localize 'hm.settings.custom-compendiums.select-all'}}</span>
+		</label>
+	</div>
+
+	{{!-- Source Groups --}}
+	{{#each sourceGroups as |group source|}}
+		<div class="hm-compendium-group">
+			<hr>
+			<div class="hm-compendium-group-header">
+				<label class="checkbox">
+					<input type="checkbox" class="hm-select-all" data-source="{{source}}" {{#if group.allSelected}}checked{{/if}}
+						aria-label="{{localize 'hm.settings.custom-compendiums.select-all-in'}} {{group.name}}">
+					<span>{{group.name}}</span>
+				</label>
+			</div>
+			<div class="hm-compendium-group-items" role="group"
+				aria-label="{{group.name}} {{localize 'COMPENDIUM.SidebarTitle'}}">
+				{{#each group.packs as |pack|}}
+					<label class="checkbox hm-compendium-item">
+						<input type="checkbox" name="compendiumMultiSelect" value="{{pack.value}}" data-source="{{source}}"
+							{{#if pack.selected}}checked{{/if}} aria-label="{{pack.label}}">
+						<span>{{pack.label}}</span>
+					</label>
+				{{/each}}
+			</div>
+		</div>
+	{{/each}}
+</div>

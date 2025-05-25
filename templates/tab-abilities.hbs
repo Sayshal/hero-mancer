@@ -1,12 +1,13 @@
 {{!-- Abilities Tab - Character Stat Management --}}
-<div class='tab {{tabs.abilities.cssClass}}' data-tab='abilities' data-group='hero-mancer-tabs'>
+<div class='tab {{tabs.abilities.cssClass}}' data-tab='abilities' data-group='hero-mancer-tabs' role="tabpanel"
+  id="abilities-panel" aria-labelledby="tab-abilities">
   <fieldset>
     <legend>{{localize 'hm.app.abilities.tooltip'}}</legend>
 
     {{!-- Roll Method Selector --}}
     <div class="roll-method-selector flex items-center gap-sm mb-sm">
       <label for="roll-method">{{localize 'hm.app.abilities.select-method'}}:</label>
-      <select id="roll-method" class="form-select">
+      <select id="roll-method" class="form-select" aria-label="{{localize 'hm.app.abilities.select-method'}}">
         {{#if allowedMethods.standardArray}}
           <option value="standardArray" {{#if (eq diceRollMethod 'standardArray')}}selected{{/if}}>
             {{localize 'hm.settings.dice-rolling-method.standard-array'}}
@@ -27,7 +28,7 @@
 
     {{!-- Point Buy Method --}}
     {{#if (eq diceRollMethod 'pointBuy')}}
-      <h2>{{localize 'hm.app.abilities.instructions.point-buy.title'}}</h2>
+      <h2 id="point-buy-title">{{localize 'hm.app.abilities.instructions.point-buy.title'}}</h2>
       <p><b>{{localize 'hm.app.abilities.instructions.point-buy.description'}}</b></p>
       <p>{{localize 'hm.app.abilities.instructions.point-buy.preamble'}}</p>
       <hr />
@@ -42,12 +43,10 @@
       </div>
 
       {{!-- Point Buy Ability Adjusters --}}
-      <div class="ability-container point-buy flex flex-wrap justify-between gap-md">
+      <div class="ability-container point-buy flex flex-wrap justify-between gap-md" aria-labelledby="point-buy-title">
         {{#each abilities}}
-        {{log this}}
           <div id="ability-block-{{@index}}" class="ability-block point-buy flex flex-col items-center">
-            <span class="ability-label font-bold"
-              aria-label="{{localize 'hm.app.abilities.label'}}">{{this.fullKey}}</span>
+            <span class="ability-label font-bold" aria-label="{{this.fullKey}}">{{this.label}}</span>
 
             <div class="control-row flex items-center gap-xs">
               <button type="button" class="adjust-button minus-button flex justify-center items-center"
@@ -70,21 +69,21 @@
 
       {{!-- Standard Array Method --}}
     {{else if (eq diceRollMethod 'standardArray')}}
-      <h2>{{localize 'hm.app.abilities.instructions.standard-array.title'}}</h2>
+      <h2 id="standard-array-title">{{localize 'hm.app.abilities.instructions.standard-array.title'}}</h2>
       <p><b>{{localize 'hm.app.abilities.instructions.standard-array.description'}}</b></p>
       <p>{{localize 'hm.app.abilities.instructions.standard-array.preamble'}}</p>
 
       {{!-- Standard Array Ability Selectors --}}
-      <div class='ability-container flex justify-between items-center'>
+      <div class='ability-container flex justify-between items-center' aria-labelledby="standard-array-title">
         {{#each abilities}}
           <div id='ability-block-{{@index}}' class='ability-block flex flex-col items-center gap-xs'>
-            <span class='ability-label' aria-label='{{localize "hm.app.abilities.label"}}'>
+            <span class='ability-label' aria-label='{{this.fullKey}}'>
               {{this.abbreviation}}
             </span>
 
             <select id='ability-{{@index}}-dropdown' name='abilities[{{this.key}}]'
               class='ability-dropdown form-select text-center' data-dtype='Number'
-              aria-label='{{localize "hm.app.abilities.select-value"}} {{this.abbreviation}}'>
+              aria-label='{{localize "hm.app.abilities.select-value"}} {{this.fullKey}}'>
               <option value=''>{{localize 'hm.app.abilities.select-placeholder'}}</option>
               {{#each ../standardArray}}
                 <option value='{{this}}'>{{this}}</option>
@@ -96,17 +95,17 @@
 
       {{!-- Manual Formula Method --}}
     {{else if (eq diceRollMethod 'manualFormula')}}
-      <h2>{{localize 'hm.app.abilities.instructions.manual.title'}}</h2>
+      <h2 id="manual-formula-title">{{localize 'hm.app.abilities.instructions.manual.title'}}</h2>
       <p><b>{{localize 'hm.app.abilities.instructions.manual.description'}}</b></p>
       <p>{{localize 'hm.app.abilities.instructions.manual.preamble'}}</p>
 
       {{!-- Manual Formula Ability Inputs --}}
-      <div class='ability-container flex justify-between items-center'>
+      <div class='ability-container flex justify-between items-center' aria-labelledby="manual-formula-title">
         {{#each abilities}}
           <div id='ability-block-{{@index}}' class='ability-block flex flex-col items-center gap-xs'>
             <select id='ability-{{@index}}-dropdown' name='abilities[{{this.key}}]'
               class='ability-dropdown form-select text-center' data-dtype='String'
-              aria-label='{{localize "hm.app.abilities.tooltip"}} {{this.abbreviation}}'>
+              aria-label='{{localize "hm.app.abilities.select-placeholder"}} {{@index}}'>
               <option value=''>{{localize 'hm.app.abilities.select-placeholder'}}</option>
               {{#each ../abilities}}
                 <option value='{{this.key}}'>{{this.abbreviation}}</option>
@@ -119,9 +118,9 @@
               placeholder='{{localize "hm.app.abilities.score-placeholder"}}'
               aria-label='{{localize "hm.app.abilities.score-label"}} {{this.abbreviation}}' />
 
-            <i class='fa-duotone fa-solid fa-dice-d6 fa-2xl' style='cursor: pointer' data-action='rollStat'
-              data-index='{{@index}}' role='button'
-              aria-label='{{localize "hm.app.abilities.roll-dice"}} {{this.abbreviation}}' tabindex='0'></i>
+            <i class='fa-solid fa-dice-d6 fa-2xl' style='cursor: pointer' data-action='rollStat' data-index='{{@index}}'
+              role='button' aria-label='{{localize "hm.app.abilities.roll-dice"}} {{this.abbreviation}}'
+              tabindex='0'></i>
           </div>
         {{/each}}
       </div>

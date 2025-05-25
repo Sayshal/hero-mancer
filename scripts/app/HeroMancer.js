@@ -102,6 +102,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     class: { template: 'modules/hero-mancer/templates/tab-class.hbs', classes: ['hm-app-tab-content'] },
     abilities: { template: 'modules/hero-mancer/templates/tab-abilities.hbs', classes: ['hm-app-tab-content'] },
     equipment: { template: 'modules/hero-mancer/templates/tab-equipment.hbs', classes: ['hm-app-tab-content'] },
+    biography: { template: 'modules/hero-mancer/templates/tab-biography.hbs', classes: ['hm-app-tab-content'] },
     finalize: { template: 'modules/hero-mancer/templates/tab-finalize.hbs', classes: ['hm-app-tab-content'] },
     footer: { template: 'modules/hero-mancer/templates/app-footer.hbs', classes: ['hm-app-footer'] }
   };
@@ -116,18 +117,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @type {boolean}
    */
   #isRendering;
-
-  /* -------------------------------------------- */
-  /*  Constructor                                 */
-  /* -------------------------------------------- */
-
-  constructor(options = {}) {
-    super(options);
-  }
-
-  /* -------------------------------------------- */
-  /*  Getters & Setters                           */
-  /* -------------------------------------------- */
 
   get title() {
     return `${HM.NAME} | ${game.user.name}`;
@@ -229,7 +218,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
           context.abilities = StatRoller.buildAbilitiesContext();
           context.rollStat = this.rollStat;
-          context.rollMethods = StatRoller.getRollMethods();
+          context.rollMethods = StatRoller.rollMethods;
           context.diceRollMethod = diceRollMethod;
           context.allowedMethods = game.settings.get(HM.ID, 'allowedMethods');
           context.standardArray = StatRoller.getStandardArrayValues(diceRollMethod);
@@ -239,7 +228,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.remainingPoints = context.totalPoints - context.pointsSpent;
           context.chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
           break;
-        case 'finalize':
+        case 'biography':
           context.alignments =
             game.settings
               .get(HM.ID, 'alignments')
@@ -296,7 +285,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           icon: 'fa-solid fa-shield-halved',
           skipIf: () => HM.COMPAT?.ELKAN
         },
-        finalize: { icon: 'fa-solid fa-check-circle' }
+        biography: { icon: 'fa-solid fa-book-open' },
+        finalize: { icon: 'fa-solid fa-flag-checkered' }
       };
 
       // Skip these parts as they're not tabs
@@ -384,6 +374,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       this.#isRendering = true;
 
+      DOMManager.updateReviewTab();
+
       // Check if this is a partial render of just the abilities tab
       const isAbilitiesPartialRender =
         options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
@@ -397,9 +389,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           const submitButton = this.element.querySelector('.hm-app-footer-submit');
           if (submitButton) {
             // Get field status from main form
-            const fieldStatus = MandatoryFields._evaluateFieldStatus(this.element, mandatoryFields);
+            const fieldStatus = FormValidation._evaluateFieldStatus(this.element, mandatoryFields);
             const isValid = fieldStatus.missingFields.length === 0;
-            MandatoryFields._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
+            FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
           }
         }
         return;
@@ -415,7 +407,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         // Check mandatory fields only for the abilities tab
         const abilitiesFields = this.element.querySelector('.tab[data-tab="abilities"]');
         if (abilitiesFields) {
-          await MandatoryFields.checkMandatoryFields(abilitiesFields);
+          await FormValidation.checkMandatoryFields(abilitiesFields);
         }
 
         // Early return to avoid reinitializing other components
@@ -434,9 +426,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       await DOMManager.initialize(this.element);
 
       // Check mandatory fields
-      await MandatoryFields.checkMandatoryFields(this.element);
+      await FormValidation.checkMandatoryFields(this.element);
 
       DOMManager.updateTabIndicators(this.element);
+      DOMManager.updateReviewTab();
     } finally {
       this.#isRendering = false;
     }
@@ -799,7 +792,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
 
     // Skip equipment if ELKAN compatibility is enabled
     const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
@@ -824,7 +817,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'finalize'];
+    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
 
     // Skip equipment if ELKAN compatibility is enabled
     const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
@@ -867,39 +860,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, 'Character creation failed:', error);
       ui.notifications.error('hm.errors.character-creation-failed', { localize: true });
-      return null;
-    }
-  }
-
-  /**
-   * Embed a journal page in the description section
-   * @param {string} pageId - The ID of the journal page to embed
-   * @param {string} [itemName] - Optional name of the item for matching
-   * @param {string} [anchor] - Optional anchor to scroll to
-   * @returns {Promise<JournalPageEmbed|null>} The embedded journal or null if failed
-   */
-  async embedJournalPage(pageId, itemName, anchor) {
-    try {
-      // Get or create the container
-      let container = this.element.find('.journal-embed-container')[0];
-      if (!container) {
-        container = document.createElement('div');
-        container.classList.add('journal-embed-container');
-        this.element.find('.description-container').append(container);
-      }
-
-      // Create and render the embed
-      const journalEmbed = new JournalPageEmbed(container, {});
-
-      const result = await journalEmbed.render(pageId, itemName);
-
-      if (result && anchor) {
-        journalEmbed.goToAnchor(anchor);
-      }
-
-      return result;
-    } catch (error) {
-      HM.log(1, `Error embedding journal page: ${error.message}`, error);
       return null;
     }
   }

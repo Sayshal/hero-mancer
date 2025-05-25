@@ -1,4 +1,4 @@
-import { HM } from './index.js';
+import { HM, JournalPageFinder } from './index.js';
 
 /**
  * Service for managing game document preparation and processing
@@ -8,6 +8,39 @@ export class DocumentService {
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
+
+  /**
+   * Initialize document preparation and caching for races, classes, and backgrounds
+   * @static
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} If document preparation or enrichment fails
+   */
+  static async loadAndInitializeDocuments() {
+    HM.log(3, 'Preparing documents for Hero Mancer');
+
+    try {
+      // Define document types to prepare
+      const documentTypes = ['race', 'class', 'background'];
+
+      // Fetch all document types in parallel
+      const results = await Promise.all(documentTypes.map((type) => DocumentService.prepareDocumentsByType(type)));
+
+      // Create documents object with results
+      HM.documents = Object.fromEntries(documentTypes.map((type, index) => [type, results[index]]));
+
+      // Log warnings for any missing document types
+      documentTypes.forEach((type) => {
+        if (!HM.documents[type]?.length) {
+          HM.log(2, `No ${type} documents were loaded. Character creation may be limited.`);
+        }
+      });
+
+      HM.log(3, 'Document preparation complete');
+    } catch (error) {
+      HM.log(1, 'Failed to prepare documents:', error.message);
+    }
+  }
 
   /**
    * Fetches and prepares documents based on the specified type for dropdown use
@@ -113,7 +146,7 @@ export class DocumentService {
    * @returns {Array} Grouped race documents
    * @private
    */
-  static #organizeRacesByTypeIdentifier(documents) {
+  static #organizeRacesByFolderName(documents) {
     if (!documents?.length) {
       HM.log(2, 'Invalid or empty documents array for race organization');
       return [];
@@ -128,13 +161,20 @@ export class DocumentService {
 
       // First pass: create groups and assign documents
       for (const doc of documents) {
-        const typeId = this.#extractRaceTypeIdentifier(doc);
-        const typeName = this.#formatRaceTypeIdentifier(typeId);
+        // Extract base race name (everything before the first comma)
+        let baseName;
+        if (doc.name.includes(',')) {
+          baseName = doc.name.split(',')[0].trim();
+        } else if (doc.name.includes(' ')) {
+          baseName = doc.name.split(' ')[0].trim();
+        } else {
+          baseName = doc.name;
+        }
 
         // Create group if it doesn't exist yet
-        if (!typeGroups.has(typeName)) {
-          typeGroups.set(typeName, {
-            folderName: typeName,
+        if (!typeGroups.has(baseName)) {
+          typeGroups.set(baseName, {
+            folderName: baseName,
             docs: []
           });
         }
@@ -143,7 +183,7 @@ export class DocumentService {
         const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName})`;
 
         // Add document to its group
-        typeGroups.get(typeName).docs.push({
+        typeGroups.get(baseName).docs.push({
           id: doc.id,
           name: doc.name,
           displayName: displayName,
@@ -208,12 +248,45 @@ export class DocumentService {
    */
   static #getValidPacks(selectedPacks, type) {
     try {
-      // If user selected specific packs, filter to those
+      // If user selected specific packs, validate and filter them
       if (selectedPacks.length > 0) {
-        return game.packs.filter((pack) => selectedPacks.includes(pack.metadata.id));
+        const validPacks = [];
+        const invalidPackIds = [];
+
+        // Check each selected pack to see if it exists and is available
+        for (const packId of selectedPacks) {
+          const pack = game.packs.get(packId);
+          if (pack && pack.metadata.type === 'Item') {
+            validPacks.push(pack);
+          } else {
+            invalidPackIds.push(packId);
+            HM.log(2, `Pack ${packId} is either missing or not an Item pack. It will be skipped.`);
+          }
+        }
+
+        // If we found invalid packs, update the settings to remove them
+        if (invalidPackIds.length > 0) {
+          const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
+          HM.log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
+
+          // Update the setting (wrapped in try/catch as this might fail if user lacks permissions)
+          try {
+            game.settings.set(HM.ID, `${type}Packs`, updatedPacks);
+          } catch (e) {
+            HM.log(1, `Failed to update ${type}Packs setting: ${e.message}`);
+          }
+        }
+
+        // If we have valid packs, return them
+        if (validPacks.length > 0) {
+          return validPacks;
+        }
+
+        // Otherwise log a warning that we're using fallback
+        HM.log(2, `No valid packs found in ${type}Packs settings. Falling back to all available Item packs.`);
       }
 
-      // Otherwise, use all Item packs as fallback
+      // Fall back to all Item packs if no valid selected packs
       return game.packs.filter((pack) => pack.metadata.type === 'Item');
     } catch (error) {
       HM.log(1, `Error filtering packs for type ${type}:`, error);
@@ -415,8 +488,8 @@ export class DocumentService {
     if (!doc) return;
 
     try {
-      // First check if there's a journal page we can use
-      const journalPageId = await this.#findRelatedJournalPage(doc);
+      // Use JournalPageFinder from descriptionBuilder.js to find a journal page
+      const journalPageId = await JournalPageFinder.findRelatedJournalPage(doc);
 
       // If we found a journal page, return its ID
       if (journalPageId) {

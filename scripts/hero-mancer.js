@@ -1,5 +1,5 @@
 import { registerSettings } from './settings.js';
-import { API, CustomCompendiums, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
+import { API, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
 
 /**
  * Main Hero Mancer class, define some statics that will be used everywhere in the module.
@@ -23,16 +23,6 @@ export class HM {
    * @type {string}
    */
   static NAME = 'Hero Mancer';
-
-  /**
-   * Storage for document collections (races, classes, backgrounds)
-   * @static
-   * @type {Object}
-   * @property {Array|null} race - Collection of race documents
-   * @property {Array|null} class - Collection of class documents
-   * @property {Array|null} background - Collection of background documents
-   */
-  static DOCS = { race: null, class: null, background: null };
 
   /**
    * Compatibility flags for other modules
@@ -100,7 +90,6 @@ export class HM {
   static init() {
     registerSettings();
     this.LOG_LEVEL = parseInt(game.settings.get(this.ID, 'loggingLevel'));
-    this.DOCS = { ...this.DOCS }; // Clone default structure
     this.ABILITY_SCORES = {
       DEFAULT: game.settings.get(this.ID, 'abilityScoreDefault') || 8,
       MIN: game.settings.get(this.ID, 'abilityScoreMin') || 8,
@@ -201,70 +190,6 @@ export class HM {
   }
 
   /**
-   * Prepares and caches game documents for races, classes, and backgrounds
-   * @static
-   * @async
-   * @returns {Promise<void>}
-   * @throws {Error} If document preparation or enrichment fails
-   */
-  static async loadAndEnrichDocuments() {
-    HM.log(3, 'Preparing documents for Hero Mancer');
-
-    try {
-      const [raceDocs, classDocs, backgroundDocs] = await Promise.all([
-        DocumentService.prepareDocumentsByType('race'),
-        DocumentService.prepareDocumentsByType('class'),
-        DocumentService.prepareDocumentsByType('background')
-      ]);
-
-      // Store in HM.documents
-      this.documents = { race: raceDocs, class: classDocs, background: backgroundDocs };
-
-      if (!this.documents.race?.length) {
-        HM.log(2, 'No race documents were loaded. Character creation may be limited.');
-      }
-      if (!this.documents.class?.length) {
-        HM.log(2, 'No class documents were loaded. Character creation may be limited.');
-      }
-      if (!this.documents.background?.length) {
-        HM.log(2, 'No background documents were loaded. Character creation may be limited.');
-      }
-
-      HM.log(3, 'Document preparation complete', { doc: this.documents });
-    } catch (error) {
-      HM.log(1, 'Failed to prepare documents:', error.message);
-      ui.notifications.error(`Hero Mancer: Failed to prepare documents: ${error.message}`);
-
-      // Recovery steps
-      this.documents = { race: [], class: [], background: [] };
-
-      // Attempt to recover individual document types
-      try {
-        this.documents.race = await DocumentService.prepareDocumentsByType('race');
-        HM.log(2, 'Successfully recovered race documents');
-      } catch (e) {
-        HM.log(1, 'Could not recover race documents:', e.message);
-      }
-
-      try {
-        this.documents.class = await DocumentService.prepareDocumentsByType('class');
-        HM.log(2, 'Successfully recovered class documents');
-      } catch (e) {
-        HM.log(1, 'Could not recover class documents:', e.message);
-      }
-
-      try {
-        this.documents.background = await DocumentService.prepareDocumentsByType('background');
-        HM.log(2, 'Successfully recovered background documents');
-      } catch (e) {
-        HM.log(1, 'Could not recover background documents:', e.message);
-      }
-
-      throw new Error(`Document preparation failed: ${error.message}. Some features may not work correctly.`);
-    }
-  }
-
-  /**
    * Check and set compatibility flags for other modules
    * @static
    * @returns {void}
@@ -283,6 +208,12 @@ export class HM {
     if (game.modules.get('chris-premades')?.active) {
       HM.COMPAT = { CPR: true };
       HM.log(3, 'CPR Detected: Compatibility auto-enabled.');
+    }
+
+    // Tokenizer compatibility
+    if (game.modules.get('vtta-tokenizer')?.active) {
+      HM.COMPAT.TOKENIZER = true;
+      HM.log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
     }
   }
 }
@@ -309,33 +240,19 @@ Hooks.on('init', () => {
     'uuid'
   ];
   CONFIG.JournalEntry.compendiumIndexFields = ['_id', 'name', 'pages', 'type', 'uuid'];
-  CONFIG.JournalEntryPage.compendiumIndexFields = ['_id', 'name', 'type', 'uuid'];
 });
 
 Hooks.once('ready', async () => {
   if (!game.settings.get(HM.ID, 'enable')) return;
 
   HM.checkModuleCompatibility();
-  await HM.loadAndEnrichDocuments();
-
-  // Load compendium selections
-  CustomCompendiums.classPacks = game.settings.get(HM.ID, 'classPacks');
-  CustomCompendiums.racePacks = game.settings.get(HM.ID, 'racePacks');
-  CustomCompendiums.backgroundPacks = game.settings.get(HM.ID, 'backgroundPacks');
-  CustomCompendiums.itemPacks = game.settings.get(HM.ID, 'itemPacks');
-
-  HM.log(3, 'Custom Compendiums Loaded:', {
-    class: CustomCompendiums.classPacks,
-    race: CustomCompendiums.racePacks,
-    background: CustomCompendiums.backgroundPacks,
-    items: CustomCompendiums.itemPacks
-  });
+  await DocumentService.loadAndInitializeDocuments();
 
   if (!HM.COMPAT.ELKAN) await EquipmentParser.initializeLookupItems(); // Completely disable EquipmentParser if Elkan is enabled.
 
   const customArraySetting = game.settings.get(HM.ID, 'customStandardArray') || StatRoller.getStandardArrayDefault();
   if (!customArraySetting || customArraySetting.trim() === '') {
-    await game.settings.set(HM.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
+    game.settings.set(HM.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
     HM.log(3, 'Custom Standard Array was reset to default values due to invalid length.');
   }
 
@@ -344,6 +261,7 @@ Hooks.once('ready', async () => {
 });
 
 Hooks.on('renderActorDirectory', () => {
+  if (!game.settings.get(HM.ID, 'enable')) return;
   // Find header actions container
   const headerActions = document.querySelector('section[class*="actors-sidebar"] header[class*="directory-header"] div[class*="header-actions"]');
   if (!headerActions) return;

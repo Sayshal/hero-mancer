@@ -155,6 +155,14 @@ export class DOMManager {
     this.#equipmentUpdateInProgress = false;
     this.#pendingEquipmentUpdate = null;
 
+    // Reset state variables
+    this._isUpdatingEquipment = false;
+    this._abilityUpdatePromise = null;
+    this._pendingAbilityUpdate = false;
+    this._updatingAbilities = false;
+    this.#equipmentUpdateInProgress = false;
+    this.#pendingEquipmentUpdate = null;
+
     // Clean up event listeners
     try {
       this.#listeners.forEach((events, element) => {
@@ -411,11 +419,13 @@ export class DOMManager {
       // Change event
       this.on(formElement, 'change', async () => {
         FormValidation.checkMandatoryFields(element);
+        FormValidation.checkMandatoryFields(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
+          FormValidation.checkMandatoryFields(element);
           FormValidation.checkMandatoryFields(element);
         });
       }
@@ -958,6 +968,7 @@ export class DOMManager {
 
         // Check for incomplete mandatory fields
         const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
+        const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
 
         // Get or create indicator
         let indicator = tab.querySelector('.tab-mandatory-indicator');
@@ -967,6 +978,7 @@ export class DOMManager {
           if (!indicator) {
             operations.push(() => {
               indicator = document.createElement('i');
+              indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
               indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
 
               // Find the icon element to position relative to
@@ -1313,10 +1325,12 @@ export class DOMManager {
 
   /**
    * Updates the visual state of ability dropdowns based on selected values
+   * Updates the visual state of ability dropdowns based on selected values
    * @param {NodeList} abilityDropdowns - Ability dropdown elements
    * @param {string[]} selectedValues - Currently selected values
    * @static
    */
+  static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
   static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
     // Count value occurrences in the standard array
     const valueOccurrences = {};
@@ -1366,6 +1380,8 @@ export class DOMManager {
   }
 
   /**
+   * Updates the character review tab with data from all previous tabs
+   * @returns {Promise<void>}
    * Updates the character review tab with data from all previous tabs
    * @returns {Promise<void>}
    * @static
@@ -1564,6 +1580,10 @@ export class DOMManager {
     if (type === 'race' && uuid) {
       await this.updateRaceSize(uuid);
     }
+
+    if (type === 'race' && uuid) {
+      await this.updateRaceSize(uuid);
+    }
   }
 
   /**
@@ -1674,6 +1694,9 @@ export class DOMManager {
     const abilityScores = element.querySelectorAll('.ability-score');
 
     abilityScores.forEach((input) => {
+      const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
+      this.on(input, 'change', update);
+      this.on(input, 'input', update);
       const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
       this.on(input, 'change', update);
       this.on(input, 'input', update);
@@ -1984,8 +2007,20 @@ export class DOMManager {
       }
       score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
     } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
+    } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
+        if (rollMethod === 'standardArray') {
+          const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
+          if (nameMatch && nameMatch[1]) {
+            abilityKey = nameMatch[1].toLowerCase();
+          }
+          score = parseInt(dropdown.value) || 0;
+        } else {
+          // manualFormula
+          abilityKey = dropdown.value?.toLowerCase() || '';
+          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
+        }
         if (rollMethod === 'standardArray') {
           const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
           if (nameMatch && nameMatch[1]) {
@@ -2027,6 +2062,7 @@ export class DOMManager {
     });
 
     // For all methods, highlight the label and add tooltip
+    // For all methods, highlight the label and add tooltip
     const label = block.querySelector('.ability-label');
     if (label) {
       label.classList.add('primary-ability');
@@ -2035,13 +2071,22 @@ export class DOMManager {
 
     // For standardArray and manualFormula, also highlight the dropdown
     if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
+    // For standardArray and manualFormula, also highlight the dropdown
+    if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
         dropdown.classList.add('primary-ability');
         dropdown.setAttribute('data-tooltip', tooltipText);
+        dropdown.setAttribute('data-tooltip', tooltipText);
       }
     }
 
+    // For pointBuy, highlight score display
+    if (rollMethod === 'pointBuy') {
+      const scoreElement = block.querySelector('.current-score');
+      if (scoreElement) {
+        scoreElement.classList.add('primary-ability');
+        scoreElement.setAttribute('data-tooltip', tooltipText);
     // For pointBuy, highlight score display
     if (rollMethod === 'pointBuy') {
       const scoreElement = block.querySelector('.current-score');
