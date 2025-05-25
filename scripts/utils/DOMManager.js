@@ -1331,7 +1331,6 @@ export class DOMManager {
    * @static
    */
   static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
-  static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
     // Count value occurrences in the standard array
     const valueOccurrences = {};
     if (abilityDropdowns.length > 0) {
@@ -2071,28 +2070,31 @@ export class DOMManager {
 
     // For standardArray and manualFormula, also highlight the dropdown
     if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
-    // For standardArray and manualFormula, also highlight the dropdown
-    if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
-      const dropdown = block.querySelector('.ability-dropdown');
-      if (dropdown) {
-        dropdown.classList.add('primary-ability');
-        dropdown.setAttribute('data-tooltip', tooltipText);
-        dropdown.setAttribute('data-tooltip', tooltipText);
+      // For standardArray and manualFormula, also highlight the dropdown
+      if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
+        const dropdown = block.querySelector('.ability-dropdown');
+        if (dropdown) {
+          dropdown.classList.add('primary-ability');
+          dropdown.setAttribute('data-tooltip', tooltipText);
+          dropdown.setAttribute('data-tooltip', tooltipText);
+        }
       }
-    }
 
-    // For pointBuy, highlight score display
-    if (rollMethod === 'pointBuy') {
-      const scoreElement = block.querySelector('.current-score');
-      if (scoreElement) {
-        scoreElement.classList.add('primary-ability');
-        scoreElement.setAttribute('data-tooltip', tooltipText);
-    // For pointBuy, highlight score display
-    if (rollMethod === 'pointBuy') {
-      const scoreElement = block.querySelector('.current-score');
-      if (scoreElement) {
-        scoreElement.classList.add('primary-ability');
-        scoreElement.setAttribute('data-tooltip', tooltipText);
+      // For pointBuy, highlight score display
+      if (rollMethod === 'pointBuy') {
+        const scoreElement = block.querySelector('.current-score');
+        if (scoreElement) {
+          scoreElement.classList.add('primary-ability');
+          scoreElement.setAttribute('data-tooltip', tooltipText);
+          // For pointBuy, highlight score display
+          if (rollMethod === 'pointBuy') {
+            const scoreElement = block.querySelector('.current-score');
+            if (scoreElement) {
+              scoreElement.classList.add('primary-ability');
+              scoreElement.setAttribute('data-tooltip', tooltipText);
+            }
+          }
+        }
       }
     }
   }
