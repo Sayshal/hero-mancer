@@ -4,6 +4,7 @@ import {
   CharacterRandomizer,
   DOMManager,
   HM,
+  FormValidation,
   ProgressBar,
   SavedOptions,
   StatRoller

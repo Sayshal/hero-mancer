@@ -968,7 +968,6 @@ export class DOMManager {
 
         // Check for incomplete mandatory fields
         const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
-        const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
 
         // Get or create indicator
         let indicator = tab.querySelector('.tab-mandatory-indicator');
@@ -1693,9 +1692,6 @@ export class DOMManager {
     const abilityScores = element.querySelectorAll('.ability-score');
 
     abilityScores.forEach((input) => {
-      const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
-      this.on(input, 'change', update);
-      this.on(input, 'input', update);
       const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
       this.on(input, 'change', update);
       this.on(input, 'input', update);
@@ -2727,8 +2723,6 @@ export class DOMManager {
             HM.log(1, 'Trait has no grants');
           }
         }
-      } else {
-        HM.log(1, 'No trait advancements found in race');
       }
 
       // Check system data for languages
@@ -2749,8 +2743,6 @@ export class DOMManager {
             HM.log(2, `Language config not found for: ${lang}`);
           }
         }
-      } else {
-        HM.log(1, 'No languages found in race system data');
       }
     } catch (error) {
       HM.log(1, 'Error extracting race proficiencies:', error);
@@ -2785,11 +2777,6 @@ export class DOMManager {
         }
       } else {
         HM.log(1, 'No trait advancements found in class');
-      }
-
-      // Legacy system data check (may not be used in newer D&D5e)
-      if (classItem.system) {
-        HM.log(1, 'Class system data:', classItem.system);
       }
     } catch (error) {
       HM.log(1, 'Error extracting class proficiencies:', error);
@@ -2826,10 +2813,7 @@ export class DOMManager {
         HM.log(1, 'No trait advancements found in background');
       }
 
-      // Check system data for additional proficiencies
-      if (background.system) {
-        HM.log(1, 'Background system data:', background.system);
-      }
+
     } catch (error) {
       HM.log(1, 'Error extracting background proficiencies:', error);
     }
@@ -2899,7 +2883,7 @@ export class DOMManager {
           CONFIG.DND5E.toolTypes?.[toolType];
 
         proficiencyData.tools.add({
-          name: toolConfig.label || toolConfig,
+          name: toolConfig?.label || toolConfig,
           source: source
         });
       } else {

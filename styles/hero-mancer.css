@@ -1488,8 +1488,6 @@ td .equipment-favorite-container {
       /* Proficiencies notice specific styling */
       &.proficiencies-notice {
         margin-bottom: 1rem;
-        border: 2px solid var(--color-border-highlight);
-        background: rgb(255 215 0 / 5%);
 
         .proficiencies-warning {
           display: flex;
@@ -1550,9 +1548,6 @@ td .equipment-favorite-container {
               margin: 0 0 0.5rem;
               padding-bottom: 0.25rem;
               border-bottom: 1px solid var(--color-border-light-tertiary);
-              font-size: 0.95em;
-              font-weight: bold;
-              color: var(--color-text-dark-primary);
             }
 
             .proficiency-items {
