@@ -1,13 +1,4 @@
-import {
-  CharacterArtPicker,
-  CustomCompendiums,
-  Customization,
-  DiceRolling,
-  HM,
-  MandatoryFields,
-  StatRoller,
-  Troubleshooter
-} from './utils/index.js';
+import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
 
 /**
  * Main registration function that initializes all module settings.
@@ -218,8 +209,7 @@ function registerCustomizationSettings() {
     scope: 'world',
     config: false,
     type: String,
-    default:
-      'Lawful Good, Neutral Good, Chaotic Good, Lawful Neutral, True Neutral, Chaotic Neutral, Lawful Evil, Neutral Evil, Chaotic Evil',
+    default: 'Lawful Good, Neutral Good, Chaotic Good, Lawful Neutral, True Neutral, Chaotic Neutral, Lawful Evil, Neutral Evil, Chaotic Evil',
     restricted: true
   });
 
@@ -229,8 +219,7 @@ function registerCustomizationSettings() {
     scope: 'world',
     config: false,
     type: String,
-    default:
-      'Aphrodite,Apollo,Ares,Artemis,Athena,Demeter,Dionysus,Hades,Hecate,Hephaestus,Hera,Hercules,Hermes,Hestia,Nike,Pan,Poseidon,Tyche,Zeus',
+    default: 'Aphrodite,Apollo,Ares,Artemis,Athena,Demeter,Dionysus,Hades,Hecate,Hephaestus,Hera,Hercules,Hermes,Hestia,Nike,Pan,Poseidon,Tyche,Zeus',
     restricted: true
   });
 
@@ -495,15 +484,7 @@ function registerCompatibilitySettings() {
   HM.log(3, 'Compatibility settings registered.');
 }
 
-export const RELOAD = new Set([
-  'enable',
-  'classPacks',
-  'racePacks',
-  'backgroundPacks',
-  'itemPacks',
-  'elkanCompatibility',
-  'tokenizerCompatibility'
-]);
+export const RELOAD = new Set(['enable', 'classPacks', 'racePacks', 'backgroundPacks', 'itemPacks', 'elkanCompatibility', 'tokenizerCompatibility']);
 
 export const RERENDER = new Set([
   'enableRandomize',
