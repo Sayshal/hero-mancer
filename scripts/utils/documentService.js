@@ -65,10 +65,7 @@ export class DocumentService {
       }
 
       // Process the documents based on type
-      const result =
-        type === 'race' || type === 'species' ?
-          this.#organizeRacesByFolderName(data.documents)
-        : this.#getFlatDocuments(data.documents);
+      const result = type === 'race' || type === 'species' ? this.#organizeRacesByFolderName(data.documents) : this.#getFlatDocuments(data.documents);
 
       /**
        * A hook event that fires after documents have been fetched and organized.
@@ -453,20 +450,18 @@ export class DocumentService {
 
     try {
       return documents
-        .map(
-          ({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
-            id: doc.id,
-            name: doc.name,
-            description,
-            enrichedDescription,
-            journalPageId,
-            folderName,
-            packName,
-            packId,
-            uuid,
-            system
-          })
-        )
+        .map(({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
+          id: doc.id,
+          name: doc.name,
+          description,
+          enrichedDescription,
+          journalPageId,
+          folderName,
+          packName,
+          packId,
+          uuid,
+          system
+        }))
         .sort((a, b) => {
           // Sort by name first, then by pack name if names are identical
           const nameCompare = a.name.localeCompare(b.name);
@@ -611,8 +606,7 @@ export class DocumentService {
 
     try {
       // If we have a module prefix, only search packs from that module
-      const packsToSearch =
-        modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
+      const packsToSearch = modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
 
       // If we filtered out all packs but still have a modulePrefix, log it
       if (modulePrefix && packsToSearch.length === 0) {
@@ -642,10 +636,7 @@ export class DocumentService {
         }
       }
 
-      HM.log(
-        3,
-        `No matching journal page found for ${itemType} "${itemName}" after searching ${packsToSearch.length} packs`
-      );
+      HM.log(3, `No matching journal page found for ${itemType} "${itemName}" after searching ${packsToSearch.length} packs`);
       return null;
     } catch (error) {
       HM.log(2, `Error during journal page search for ${itemName}:`, error);

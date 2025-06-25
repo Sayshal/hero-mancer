@@ -518,13 +518,28 @@ export class StatRoller {
    * @static
    */
   static buildAbilitiesContext() {
-    return Object.entries(CONFIG.DND5E.abilities).map(([key, value]) => ({
-      key,
-      abbreviation: value.abbreviation.toUpperCase(),
-      fullKey: value.fullKey.toUpperCase(),
-      label: value.label.toUpperCase(),
-      currentScore: HM.ABILITY_SCORES.DEFAULT
-    }));
+    return Object.entries(CONFIG.DND5E.abilities).map(([key, value]) => {
+      let abbreviation = value.abbreviation;
+      let fullKey = value.fullKey;
+
+      if (!abbreviation) {
+        HM.log(2, `Ability "${key}" is missing 'abbreviation' property. Using key as fallback. You should report this to the developer who added ${key}.`);
+        abbreviation = key.substr(0, 3);
+      }
+
+      if (!fullKey) {
+        HM.log(2, `Hero Mancer: Ability "${key}" is missing 'fullKey' property. Using label as fallback. You should report this to the developer who added ${key}.`);
+        fullKey = value.label || key;
+      }
+
+      return {
+        key,
+        abbreviation: abbreviation.toUpperCase(),
+        fullKey: fullKey.toUpperCase(),
+        label: value.label.toUpperCase(),
+        currentScore: HM.ABILITY_SCORES.DEFAULT
+      };
+    });
   }
 
   /**

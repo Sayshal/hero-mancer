@@ -227,7 +227,9 @@ export class EquipmentDataService {
    */
   isEquipmentHeading(element) {
     const text = element.textContent.toLowerCase();
-    const isEquipment = text.includes(game.i18n.localize('TYPES.Item.equipment').toLowerCase()) || text.toLowerCase().includes(game.i18n.localize('hm.app.equipment.starting-equipment').toLowerCase());
+    const isEquipment =
+      text.includes(game.i18n.localize('TYPES.Item.equipment').toLowerCase()) ||
+      text.toLowerCase().includes(game.i18n.localize('hm.app.equipment.starting-equipment').toLowerCase());
 
     if (!isEquipment) {
       HM.log(3, `EquipmentDataService: Skipping non-equipment heading: "${element.textContent}"`);
@@ -277,7 +279,11 @@ export class EquipmentDataService {
    */
   findEquipmentLabel(tempDiv) {
     HM.log(3, 'Searching for Equipment: label');
-    const equipmentLabels = this.findElementsWithText(tempDiv, '.Serif-Character-Style_Bold-Serif, .Bold-Serif, strong, b, span[class*="bold"], span[style*="font-weight"]', 'Equipment:');
+    const equipmentLabels = this.findElementsWithText(
+      tempDiv,
+      '.Serif-Character-Style_Bold-Serif, .Bold-Serif, strong, b, span[class*="bold"], span[style*="font-weight"]',
+      'Equipment:'
+    );
 
     if (equipmentLabels.length > 0) {
       const equipmentLabel = equipmentLabels[0];

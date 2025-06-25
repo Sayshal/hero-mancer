@@ -152,7 +152,11 @@ export class ProgressBar {
    */
   static #shouldSkipInput(input) {
     return (
-      input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || input.name === 'ring.effects' || input.name === 'player'
+      input.disabled ||
+      input.closest('.equipment-section')?.classList.contains('disabled') ||
+      input.name.startsWith('use-starting-wealth') ||
+      input.name === 'ring.effects' ||
+      input.name === 'player'
     );
   }
 
