@@ -138,7 +138,18 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * @private
    */
   static _validateFormData(formData) {
-    const settings = ['alignments', 'deities', 'eye-colors', 'hair-colors', 'skin-tones', 'genders', 'enableRandomize', 'artPickerRoot', 'enablePlayerCustomization', 'enableTokenCustomization'];
+    const settings = [
+      'alignments',
+      'deities',
+      'eye-colors',
+      'hair-colors',
+      'skin-tones',
+      'genders',
+      'enableRandomize',
+      'artPickerRoot',
+      'enablePlayerCustomization',
+      'enableTokenCustomization'
+    ];
     if (HM.COMPAT.TOKENIZER) settings.push('tokenizerCompatibility');
 
     // Get default values from game settings

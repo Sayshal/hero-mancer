@@ -124,9 +124,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         try {
           const validPacks = await CustomCompendiums.#collectValidPacks(type, false);
           const selectedPacks = game.settings.get(HM.ID, `${type}Packs`) || [];
-          const validSelectedPacks = selectedPacks.filter((packId) =>
-            Array.from(validPacks).some((pack) => pack.packId === packId)
-          );
+          const validSelectedPacks = selectedPacks.filter((packId) => Array.from(validPacks).some((pack) => pack.packId === packId));
 
           settingsUpdates.push({ type, packs: validSelectedPacks });
         } catch (error) {
@@ -359,9 +357,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       checkbox.addEventListener('change', (event) => {
         const source = event.target.dataset.source;
         const isChecked = event.target.checked;
-        const sourceCheckboxes = element.querySelectorAll(
-          `input[data-source="${source}"][name="compendiumMultiSelect"]`
-        );
+        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
         sourceCheckboxes.forEach((input) => (input.checked = isChecked));
         this.#updateGlobalSelectAll(element, allItemCheckboxes, globalSelectAll);
       });
@@ -371,9 +367,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     allItemCheckboxes.forEach((checkbox) => {
       checkbox.addEventListener('change', (event) => {
         const source = event.target.dataset.source;
-        const sourceCheckboxes = element.querySelectorAll(
-          `input[data-source="${source}"][name="compendiumMultiSelect"]`
-        );
+        const sourceCheckboxes = element.querySelectorAll(`input[data-source="${source}"][name="compendiumMultiSelect"]`);
         const selectAllCheckbox = element.querySelector(`.hm-select-all[data-source="${source}"]`);
 
         const allChecked = Array.from(sourceCheckboxes).every((input) => input.checked);
@@ -416,9 +410,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       default: 'true',
       callback: async (event, button) => {
         try {
-          const selectedValues = Array.from(
-            button.form.querySelectorAll('input[name="compendiumMultiSelect"]:checked')
-          ).map((input) => input.value);
+          const selectedValues = Array.from(button.form.querySelectorAll('input[name="compendiumMultiSelect"]:checked')).map((input) => input.value);
 
           // If nothing is selected, select all packs
           if (selectedValues.length === 0) {

@@ -1,13 +1,4 @@
-import {
-  EquipmentParser,
-  FormValidation,
-  HeroMancer,
-  HM,
-  JournalPageEmbed,
-  SavedOptions,
-  StatRoller,
-  TableManager
-} from './index.js';
+import { EquipmentParser, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
 
 /**
  * Centralized DOM event and observer management
@@ -283,49 +274,40 @@ export class DOMManager {
     if (!equipmentContainer || HM.COMPAT.ELKAN) return;
 
     // Use mutation observer to catch dynamically added elements
-    this.observe(
-      'equipment-container',
-      equipmentContainer,
-      { childList: true, subtree: true, attributes: true },
-      (mutations) => {
-        let needsUpdate = false;
+    this.observe('equipment-container', equipmentContainer, { childList: true, subtree: true, attributes: true }, (mutations) => {
+      let needsUpdate = false;
 
-        for (const mutation of mutations) {
-          if (mutation.type === 'childList' && mutation.addedNodes.length) {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                // Add listeners to newly added checkboxes
-                const newCheckboxes = node.querySelectorAll?.('.equipment-favorite-checkbox') || [];
-                newCheckboxes.forEach((checkbox) => {
-                  this.on(checkbox, 'change', () => {
-                    this.updateEquipmentSummary();
-                  });
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Add listeners to newly added checkboxes
+              const newCheckboxes = node.querySelectorAll?.('.equipment-favorite-checkbox') || [];
+              newCheckboxes.forEach((checkbox) => {
+                this.on(checkbox, 'change', () => {
+                  this.updateEquipmentSummary();
                 });
+              });
 
-                // If we added elements that affect summary, flag for update
-                if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) {
-                  needsUpdate = true;
-                }
+              // If we added elements that affect summary, flag for update
+              if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) {
+                needsUpdate = true;
               }
-            });
-          }
-
-          // If attribute changed on a favorite checkbox
-          if (
-            mutation.type === 'attributes' &&
-            mutation.attributeName === 'checked' &&
-            mutation.target.classList.contains('equipment-favorite-checkbox')
-          ) {
-            needsUpdate = true;
-          }
+            }
+          });
         }
 
-        // Only update once if needed
-        if (needsUpdate) {
-          this.updateEquipmentSummary();
+        // If attribute changed on a favorite checkbox
+        if (mutation.type === 'attributes' && mutation.attributeName === 'checked' && mutation.target.classList.contains('equipment-favorite-checkbox')) {
+          needsUpdate = true;
         }
       }
-    );
+
+      // Only update once if needed
+      if (needsUpdate) {
+        this.updateEquipmentSummary();
+      }
+    });
 
     // Attach listeners to existing equipment items
     this.attachEquipmentListeners(equipmentContainer);
@@ -436,14 +418,9 @@ export class DOMManager {
     proseMirrorElements.forEach((editor, index) => {
       const editorContent = editor.querySelector('.editor-content.ProseMirror');
       if (editorContent) {
-        this.observe(
-          `prose-mirror-${index}`,
-          editorContent,
-          { childList: true, characterData: true, subtree: true },
-          async () => {
-            FormValidation.checkMandatoryFields(element);
-          }
-        );
+        this.observe(`prose-mirror-${index}`, editorContent, { childList: true, characterData: true, subtree: true }, async () => {
+          FormValidation.checkMandatoryFields(element);
+        });
       }
     });
   }
@@ -458,11 +435,7 @@ export class DOMManager {
 
     const ringEnabledElement = element.querySelector('input[name="ring.enabled"]');
     const ringOptions = element.querySelectorAll(
-      [
-        '.customization-row:has(color-picker[name="ring.color"])',
-        '.customization-row:has(color-picker[name="backgroundColor"])',
-        '.customization-row.ring-effects'
-      ].join(', ')
+      ['.customization-row:has(color-picker[name="ring.color"])', '.customization-row:has(color-picker[name="backgroundColor"])', '.customization-row.ring-effects'].join(', ')
     );
 
     if (!ringEnabledElement || !ringOptions.length) return;
@@ -476,12 +449,10 @@ export class DOMManager {
     this.on(ringEnabledElement, 'change', (event) => {
       if (!event.currentTarget.checked) {
         // Reset color pickers
-        element
-          .querySelectorAll('color-picker[name="ring.color"], color-picker[name="backgroundColor"]')
-          .forEach((picker) => {
-            picker.value = '';
-            picker.dispatchEvent(new Event('change', { bubbles: true }));
-          });
+        element.querySelectorAll('color-picker[name="ring.color"], color-picker[name="backgroundColor"]').forEach((picker) => {
+          picker.value = '';
+          picker.dispatchEvent(new Event('change', { bubbles: true }));
+        });
 
         // Reset ring effect checkboxes
         element.querySelectorAll('input[name="ring.effects"]').forEach((checkbox) => {
@@ -513,10 +484,10 @@ export class DOMManager {
         portraitImg.src = defaultImage;
 
         //V13 Compat - Setting reference changed.
-        let versionCheck = foundry.utils.isNewerVersion(game.version, 12);
+        let versionCheck = foundry.utils.isNewerVersion(game.version, '12.343');
         let isDarkMode;
         if (versionCheck) {
-          isDarkMode = game.settings.get('core', 'uiConfig').colorScheme.applications;
+          isDarkMode = game.settings?.get('core', 'uiConfig').colorScheme.applications;
         } else {
           isDarkMode = game.settings?.get('core', 'colorScheme') === 'dark';
         }
@@ -537,7 +508,7 @@ export class DOMManager {
           portraitImg.src = artInput.value || defaultImage;
 
           //V13 Compat - Setting reference changed.
-          let versionCheck = foundry.utils.isNewerVersion(game.version, 12);
+          let versionCheck = foundry.utils.isNewerVersion(game.version, '12.343');
           let isDarkMode;
           if (versionCheck) {
             isDarkMode = game.settings.get('core', 'uiConfig').colorScheme.applications;
@@ -1236,11 +1207,7 @@ export class DOMManager {
     const totalPoints = StatRoller.getTotalPoints();
     const pointsSpent = StatRoller.calculateTotalPointsSpent(selectedAbilities);
 
-    if (
-      change > 0 &&
-      pointsSpent + StatRoller.getPointBuyCostForScore(newScore) - StatRoller.getPointBuyCostForScore(currentScore) >
-        totalPoints
-    ) {
+    if (change > 0 && pointsSpent + StatRoller.getPointBuyCostForScore(newScore) - StatRoller.getPointBuyCostForScore(currentScore) > totalPoints) {
       HM.log(2, 'Not enough points remaining to increase this score.');
       return;
     }
@@ -1271,8 +1238,7 @@ export class DOMManager {
 
     document.querySelectorAll('.plus-button').forEach((button, index) => {
       const currentScore = selectedAbilities[index];
-      const pointCostForNextIncrease =
-        StatRoller.getPointBuyCostForScore(currentScore + 1) - StatRoller.getPointBuyCostForScore(currentScore);
+      const pointCostForNextIncrease = StatRoller.getPointBuyCostForScore(currentScore + 1) - StatRoller.getPointBuyCostForScore(currentScore);
       const shouldDisable = currentScore >= MAX || remainingPoints < pointCostForNextIncrease;
 
       // Only update if the state actually changes
@@ -1394,19 +1360,11 @@ export class DOMManager {
       }
 
       // Get the review sections using the correct selectors
-      const basicInfoSection = finalizeTab.querySelector(
-        '.review-section[aria-labelledby="basic-info-heading"] .review-content'
-      );
-      const abilitiesSection = finalizeTab.querySelector(
-        '.review-section[aria-labelledby="abilities-heading"] .abilities-grid'
-      );
-      const equipmentSection = finalizeTab.querySelector(
-        '.review-section[aria-labelledby="equipment-heading"] .equipment-list'
-      );
+      const basicInfoSection = finalizeTab.querySelector('.review-section[aria-labelledby="basic-info-heading"] .review-content');
+      const abilitiesSection = finalizeTab.querySelector('.review-section[aria-labelledby="abilities-heading"] .abilities-grid');
+      const equipmentSection = finalizeTab.querySelector('.review-section[aria-labelledby="equipment-heading"] .equipment-list');
       const bioSection = finalizeTab.querySelector('.review-section[aria-labelledby="biography-heading"] .bio-preview');
-      const proficienciesSection = finalizeTab.querySelector(
-        '.review-section[aria-labelledby="proficiencies-heading"] .proficiencies-list'
-      );
+      const proficienciesSection = finalizeTab.querySelector('.review-section[aria-labelledby="proficiencies-heading"] .proficiencies-list');
 
       if (!basicInfoSection || !abilitiesSection || !equipmentSection || !bioSection) {
         HM.log(2, 'Could not find all required review sections');
@@ -1770,8 +1728,7 @@ export class DOMManager {
    */
   static #getBackgroundData() {
     const backgroundSelect = document.querySelector('#background-dropdown');
-    const selectedOption =
-      backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
+    const selectedOption = backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
 
     // Handle default/no selection case
     if (!selectedOption?.value || !HM.SELECTED.background?.uuid) {
@@ -1782,10 +1739,7 @@ export class DOMManager {
     }
 
     const backgroundName = selectedOption.text;
-    const article =
-      /^[aeiou]/i.test(backgroundName) ?
-        game.i18n.localize('hm.app.equipment.article-plural')
-      : game.i18n.localize('hm.app.equipment.article');
+    const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
 
     return {
       article: article,
@@ -1800,9 +1754,7 @@ export class DOMManager {
    */
   static #collectEquipmentItems() {
     // Collect all equipment items at once
-    const selectedEquipment = Array.from(
-      document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked')
-    )
+    const selectedEquipment = Array.from(document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked'))
       .map((el) => this.#extractEquipmentItemData(el))
       .filter(Boolean);
 
@@ -1884,10 +1836,7 @@ export class DOMManager {
     // Format individual items
     const formattedItems = displayEquipment.map((item) => {
       const itemName = item.text;
-      const article =
-        /^[aeiou]/i.test(itemName) ?
-          game.i18n.localize('hm.app.equipment.article-plural')
-        : game.i18n.localize('hm.app.equipment.article');
+      const article = /^[aeiou]/i.test(itemName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
       return `${article} @UUID[${item.uuid}]{${item.text}}`;
     });
 
@@ -1960,9 +1909,7 @@ export class DOMManager {
 
       // Get saving throw proficiencies
       if (classItem?.advancement?.byType?.Trait) {
-        const level1Traits = classItem.advancement.byType.Trait.filter(
-          (entry) => entry.level === 1 && entry.configuration.grants
-        );
+        const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
 
         for (const trait of level1Traits) {
           const grants = trait.configuration.grants;
@@ -2352,9 +2299,7 @@ export class DOMManager {
   static #buildInventoryList(actor) {
     if (!actor) return '';
 
-    const items = actor.items.filter(
-      (item) => !['class', 'subclass', 'race', 'background', 'feat', 'spell'].includes(item.type)
-    );
+    const items = actor.items.filter((item) => !['class', 'subclass', 'race', 'background', 'feat', 'spell'].includes(item.type));
 
     let inventoryHTML = `
     <div class="inventory-summary">
@@ -2477,10 +2422,7 @@ export class DOMManager {
    */
   static #renderStandardDescription(doc, descriptionEl) {
     // Find the journal container - might be the description element itself or a child
-    let contentContainer =
-      descriptionEl.classList.contains('journal-container') ?
-        descriptionEl
-      : descriptionEl.querySelector('.journal-container');
+    let contentContainer = descriptionEl.classList.contains('journal-container') ? descriptionEl : descriptionEl.querySelector('.journal-container');
 
     if (!contentContainer) {
       // Create a content container if none exists
@@ -2812,8 +2754,6 @@ export class DOMManager {
       } else {
         HM.log(1, 'No trait advancements found in background');
       }
-
-
     } catch (error) {
       HM.log(1, 'Error extracting background proficiencies:', error);
     }
@@ -2877,10 +2817,7 @@ export class DOMManager {
         const toolSpecific = toolParts[2];
 
         // Try different config locations for tools
-        let toolConfig =
-          CONFIG.DND5E.toolProficiencies?.[toolType] ||
-          CONFIG.DND5E.toolIds?.[grant] ||
-          CONFIG.DND5E.toolTypes?.[toolType];
+        let toolConfig = CONFIG.DND5E.toolProficiencies?.[toolType] || CONFIG.DND5E.toolIds?.[grant] || CONFIG.DND5E.toolTypes?.[toolType];
 
         proficiencyData.tools.add({
           name: toolConfig?.label || toolConfig,
@@ -2984,10 +2921,7 @@ export class DOMManager {
       if (!select.value) continue;
 
       // Get item details
-      const itemName =
-        select.options[select.selectedIndex]?.textContent ||
-        select.closest('table')?.querySelector('h4')?.textContent ||
-        'Unknown Item';
+      const itemName = select.options[select.selectedIndex]?.textContent || select.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
       items.push({
         uuid: select.value,
         name: itemName,
@@ -2996,16 +2930,13 @@ export class DOMManager {
     }
 
     // Process checkboxes
-    const checkboxes = backgroundSection.querySelectorAll(
-      'input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked'
-    );
+    const checkboxes = backgroundSection.querySelectorAll('input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked');
     for (const checkbox of checkboxes) {
       if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
 
       // Get item details
       const itemLink = checkbox.closest('label')?.querySelector('.content-link');
-      const itemName =
-        itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
+      const itemName = itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
       items.push({
         uuid: checkbox.value,
         name: itemName,
@@ -3050,10 +2981,7 @@ export class DOMManager {
       if (!select.value) continue;
 
       // Get item details
-      const itemName =
-        select.options[select.selectedIndex]?.textContent ||
-        select.closest('table')?.querySelector('h4')?.textContent ||
-        'Unknown Item';
+      const itemName = select.options[select.selectedIndex]?.textContent || select.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
       items.push({
         uuid: select.value,
         name: itemName,
@@ -3062,16 +2990,13 @@ export class DOMManager {
     }
 
     // Process checkboxes
-    const checkboxes = classSection.querySelectorAll(
-      'input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked'
-    );
+    const checkboxes = classSection.querySelectorAll('input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked');
     for (const checkbox of checkboxes) {
       if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
 
       // Get item details
       const itemLink = checkbox.closest('label')?.querySelector('.content-link');
-      const itemName =
-        itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
+      const itemName = itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
       items.push({
         uuid: checkbox.value,
         name: itemName,
