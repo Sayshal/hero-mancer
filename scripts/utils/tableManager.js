@@ -151,26 +151,53 @@ export class TableManager {
   }
 
   /**
-   * Reset all tables in parallel
+   * Reset all tables in parallel with compendium unlock/lock handling
    * @param {Array} tables - Array of tables to reset
    * @returns {Promise<void>}
    * @private
    * @static
    */
   static async #resetTablesInParallel(tables) {
+    const lockedPacks = new Map();
     try {
+      const packIds = new Set();
+      tables.forEach((table) => {
+        if (table?.pack) packIds.add(table.pack);
+      });
+      for (const packId of packIds) {
+        const pack = game.packs.get(packId);
+        if (pack && pack.locked) {
+          HM.log(3, `Unlocking pack: ${pack.collection}`);
+          lockedPacks.set(packId, true);
+          await pack.configure({ locked: false });
+        }
+      }
       const resetPromises = tables.map(async (table) => {
         try {
           await table.resetResults();
+          HM.log(3, `Successfully reset table: ${table.name}`);
         } catch (error) {
           HM.log(1, `Error resetting table ${table.id}:`, error);
           // Continue with other tables even if one fails
         }
       });
-
       await Promise.all(resetPromises);
     } catch (error) {
       HM.log(1, 'Error in parallel table reset:', error);
+    } finally {
+      try {
+        for (const [packId, wasLocked] of lockedPacks) {
+          if (wasLocked) {
+            const pack = game.packs.get(packId);
+            if (pack && !pack.locked) {
+              HM.log(3, `Re-locking pack: ${pack.collection}`);
+              await pack.configure({ locked: true });
+            }
+          }
+        }
+      } catch (lockError) {
+        HM.log(1, 'Error re-locking packs:', lockError);
+      }
     }
   }
 
