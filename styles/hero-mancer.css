@@ -160,7 +160,7 @@
   min-height: 0;
   max-height: calc(100vh - 9.375rem);
 
-  :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug) {
+  :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug, .fa-sort) {
     color: var(--user-color);
   }
 
