@@ -33,6 +33,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       openCompendiumSettings: (event) => HeroMancer.openMenu(event, 'customCompendiumMenu'),
       openCustomizationSettings: (event) => HeroMancer.openMenu(event, 'customizationMenu'),
       openDiceRollingSettings: (event) => HeroMancer.openMenu(event, 'diceRollingMenu'),
+      openAdvancementOrderConfigSettings: (event) => HeroMancer.openMenu(event, 'advancementOrderMenu'),
       openMandatoryFieldsSettings: (event) => HeroMancer.openMenu(event, 'mandatoryFieldsMenu'),
       openTroubleshooterSettings: (event) => HeroMancer.openMenu(event, 'troubleshootingMenu'),
       previousTab: HeroMancer.navigatePreviousTab,
@@ -66,6 +67,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           label: 'hm.settings.configure-rolling',
           action: 'openDiceRollingSettings',
           dataset: { menu: 'diceRollingMenu' }
+        },
+        {
+          icon: 'fa-solid fa-sort',
+          label: 'hm.settings.configure-advancement-order',
+          action: 'openAdvancementOrderConfigSettings',
+          dataset: { menu: 'advancementOrderMenu' }
         },
         {
           icon: 'fa-solid fa-list-check',

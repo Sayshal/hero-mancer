@@ -1,0 +1,28 @@
+<div class="advancement-order-configuration">
+  <div class="form-group">
+    <p class="hint">{{localize "hm.settings.advancement-order.hint"}}</p>
+  </div>
+
+  <div class="form-group">
+    <label>{{localize "hm.settings.advancement-order.list-label"}}</label>
+    <ul class="advancement-order-list">
+      {{#each advancementConfig}}
+      <li class="advancement-item {{#unless sortable}}not-sortable{{/unless}}" data-index="{{@index}}" data-item-id="{{id}}">
+        <div class="advancement-order-item">
+          {{#if sortable}}<i class="fas fa-grip-vertical drag-handle"></i>{{/if}}
+          <span class="advancement-item-label">{{localizedLabel}}</span>
+        </div>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+
+  <div class="form-group form-buttons">
+    {{#each buttons}}
+    <button type="{{type}}" {{#if action}}data-action="{{action}}"{{/if}}>
+      <i class="{{icon}}"></i>
+      {{localize label}}
+    </button>
+    {{/each}}
+  </div>
+</div>

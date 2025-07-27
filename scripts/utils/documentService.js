@@ -10,35 +10,59 @@ export class DocumentService {
   /* -------------------------------------------- */
 
   /**
-   * Initialize document preparation and caching for races, classes, and backgrounds
-   * @static
-   * @async
+   * Loads and initializes all document types required for Hero Mancer
    * @returns {Promise<void>}
-   * @throws {Error} If document preparation or enrichment fails
+   * @static
    */
   static async loadAndInitializeDocuments() {
-    HM.log(3, 'Preparing documents for Hero Mancer');
-
     try {
-      // Define document types to prepare
-      const documentTypes = ['race', 'class', 'background'];
+      HM.log(3, 'Starting document initialization');
+      const startTime = performance.now();
 
-      // Fetch all document types in parallel
-      const results = await Promise.all(documentTypes.map((type) => DocumentService.prepareDocumentsByType(type)));
+      // Initialize HM.documents if it doesn't exist
+      if (!HM.documents) {
+        HM.documents = {};
+      }
 
-      // Create documents object with results
-      HM.documents = Object.fromEntries(documentTypes.map((type, index) => [type, results[index]]));
+      // Load all document types in parallel
+      const [raceResults, classResults, backgroundResults] = await Promise.allSettled([
+        this.#fetchTypeDocumentsFromCompendiums('race'),
+        this.#fetchTypeDocumentsFromCompendiums('class'),
+        this.#fetchTypeDocumentsFromCompendiums('background')
+      ]);
 
-      // Log warnings for any missing document types
-      documentTypes.forEach((type) => {
-        if (!HM.documents[type]?.length) {
-          HM.log(2, `No ${type} documents were loaded. Character creation may be limited.`);
-        }
-      });
+      // Process race documents
+      if (raceResults.status === 'fulfilled') {
+        HM.documents.race = this.#organizeDocumentsByTopLevelFolder(raceResults.value.documents, 'race');
+        HM.log(3, `Loaded ${HM.documents.race.reduce((total, group) => total + group.docs.length, 0)} race documents in ${HM.documents.race.length} groups`);
+      } else {
+        HM.log(1, 'Failed to load race documents:', raceResults.reason);
+        HM.documents.race = [];
+      }
 
-      HM.log(3, 'Document preparation complete');
+      // Process class documents
+      if (classResults.status === 'fulfilled') {
+        HM.documents.class = this.#organizeDocumentsByTopLevelFolder(classResults.value.documents, 'class');
+        HM.log(3, `Loaded ${HM.documents.class.reduce((total, group) => total + group.docs.length, 0)} class documents in ${HM.documents.class.length} groups`);
+      } else {
+        HM.log(1, 'Failed to load class documents:', classResults.reason);
+        HM.documents.class = [];
+      }
+
+      // Process background documents
+      if (backgroundResults.status === 'fulfilled') {
+        HM.documents.background = this.#organizeDocumentsByTopLevelFolder(backgroundResults.value.documents, 'background');
+        HM.log(3, `Loaded ${HM.documents.background.reduce((total, group) => total + group.docs.length, 0)} background documents in ${HM.documents.background.length} groups`);
+      } else {
+        HM.log(1, 'Failed to load background documents:', backgroundResults.reason);
+        HM.documents.background = [];
+      }
+
+      const totalTime = Math.round(performance.now() - startTime);
+      HM.log(3, `Document initialization completed in ${totalTime}ms`);
     } catch (error) {
-      HM.log(1, 'Failed to prepare documents:', error.message);
+      HM.log(1, 'Critical error during document initialization:', error);
+      ui.notifications.error('hm.errors.document-loading-failed', { localize: true });
     }
   }
 
@@ -104,24 +128,15 @@ export class DocumentService {
    * @private
    */
   static #getFlatDocuments(documents) {
-    if (!documents?.length) {
-      return [];
-    }
-
+    if (!documents?.length) return [];
     try {
-      // Check if we should hide compendium sources
-      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
-
       return documents
         .map((doc) => {
-          // Prepare the display name based on the setting
-          const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName || 'Unknown'})`;
-
+          const displayName = doc.name;
           return {
             id: doc.id,
             name: displayName,
-            // Keep the original name for sorting purposes
-            sortName: `${doc.name} (${doc.packName || 'Unknown'})`,
+            sortName: doc.name,
             description: doc.description,
             enrichedDescription: doc.enrichedDescription,
             journalPageId: doc.journalPageId,
@@ -138,72 +153,33 @@ export class DocumentService {
   }
 
   /**
-   * Organizes races into groups based on their folder name
+   * Organizes races into groups based on their top-level folder name or source
    * @param {Array} documents - Race documents to organize
    * @returns {Array} Grouped race documents
    * @private
    */
   static #organizeRacesByFolderName(documents) {
-    if (!documents?.length) {
-      HM.log(2, 'Invalid or empty documents array for race organization');
-      return [];
-    }
+    return this.#organizeDocumentsByTopLevelFolder(documents, 'race');
+  }
 
-    try {
-      // Check if we should hide compendium sources
-      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
+  /**
+   * Organizes classes into groups based on their top-level folder name or source
+   * @param {Array} documents - Class documents to organize
+   * @returns {Array} Grouped class documents
+   * @private
+   */
+  static #organizeClassesByTopLevelFolder(documents) {
+    return this.#organizeDocumentsByTopLevelFolder(documents, 'class');
+  }
 
-      // Organize races into type groups
-      const typeGroups = new Map();
-
-      // First pass: create groups and assign documents
-      for (const doc of documents) {
-        // Extract base race name (everything before the first comma)
-        let baseName;
-        if (doc.name.includes(',')) {
-          baseName = doc.name.split(',')[0].trim();
-        } else if (doc.name.includes(' ')) {
-          baseName = doc.name.split(' ')[0].trim();
-        } else {
-          baseName = doc.name;
-        }
-
-        // Create group if it doesn't exist yet
-        if (!typeGroups.has(baseName)) {
-          typeGroups.set(baseName, {
-            folderName: baseName,
-            docs: []
-          });
-        }
-
-        // Prepare display name based on setting
-        const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName})`;
-
-        // Add document to its group
-        typeGroups.get(baseName).docs.push({
-          id: doc.id,
-          name: doc.name,
-          displayName: displayName,
-          packName: doc.packName,
-          packId: doc.packId,
-          journalPageId: doc.journalPageId,
-          uuid: doc.uuid,
-          description: doc.system?.description?.value || game.i18n.localize('hm.app.no-description'),
-          enrichedDescription: doc.enrichedDescription
-        });
-      }
-
-      // Second pass: sort documents within each group
-      for (const group of typeGroups.values()) {
-        group.docs.sort((a, b) => a.name.localeCompare(b.name));
-      }
-
-      // Convert map to sorted array
-      return Array.from(typeGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
-    } catch (error) {
-      HM.log(1, 'Error organizing races by type:', error);
-      return [];
-    }
+  /**
+   * Organizes backgrounds into groups based on their top-level folder name or source
+   * @param {Array} documents - Background documents to organize
+   * @returns {Array} Grouped background documents
+   * @private
+   */
+  static #organizeBackgroundsByTopLevelFolder(documents) {
+    return this.#organizeDocumentsByTopLevelFolder(documents, 'background');
   }
 
   /**
@@ -354,7 +330,7 @@ export class DocumentService {
       documents.map(async (doc) => {
         if (!doc) return null;
 
-        const packName = this.#determinePackName(pack.metadata.label, pack.metadata.id);
+        const packName = this.#translateSystemFolderName(pack.metadata.label, pack.metadata.id);
         const { description, enrichedDescription, journalPageId } = await this.#findDescription(doc);
 
         return {
@@ -397,47 +373,6 @@ export class DocumentService {
   }
 
   /**
-   * Determines pack name based on id/label
-   * @param {string} label - Pack label
-   * @param {string} id - Pack id
-   * @returns {string} Formatted pack name
-   * @private
-   */
-  static #determinePackName(label, id) {
-    if (!label || typeof label !== 'string') {
-      return id || 'Unknown Pack';
-    }
-
-    // Use a mapping object for a more maintainable approach
-    const packNameMap = {
-      PHB: 'hm.app.document-service.common-labels.phb',
-      SRD: 'hm.app.document-service.common-labels.srd',
-      Forge: 'hm.app.document-service.common-labels.forge',
-      DDB: 'hm.app.document-service.common-labels.dndbeyond-importer',
-      Elkan: 'hm.app.document-service.common-labels.elkan5e'
-    };
-
-    // Check for matches in the mapping object
-    for (const [key, localizationKey] of Object.entries(packNameMap)) {
-      // Special case for Forge which might be in the ID instead of label
-      if ((key === 'Forge' && id?.includes(key)) || label.includes(key)) {
-        // Extra check for Elkan5e module
-        if (key === 'Elkan' && !game.modules.get('elkan5e')?.active) {
-          continue;
-        }
-        return game.i18n.localize(localizationKey);
-      }
-    }
-
-    // Special case for homebrew
-    if (/[./_-]home[\s_-]?brew[./_-]/i.test(label)) {
-      return game.i18n.localize('hm.app.document-service.common-labels.homebrew');
-    }
-
-    return label;
-  }
-
-  /**
    * Sorts document array by name and pack
    * @param {Array} documents - Documents to sort
    * @returns {Array} Sorted documents
@@ -451,6 +386,7 @@ export class DocumentService {
     try {
       return documents
         .map(({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
+          doc: doc,
           id: doc.id,
           name: doc.name,
           description,
@@ -784,5 +720,194 @@ export class DocumentService {
     }
 
     return null;
+  }
+  /**
+   * Gets the top-level folder name from a pack's folder hierarchy
+   * @param {CompendiumCollection} pack - Pack to analyze
+   * @returns {string|null} Top-level folder name or null if no folder
+   * @private
+   */
+  static #getPackTopLevelFolderName(pack) {
+    if (!pack || !pack.folder) {
+      return null;
+    }
+
+    try {
+      let topLevelFolder;
+      if (pack.folder.depth !== 1) {
+        // Get the top-most parent folder
+        const parentFolders = pack.folder.getParentFolders();
+        topLevelFolder = parentFolders.at(-1)?.name;
+      } else {
+        // This folder is already top-level
+        topLevelFolder = pack.folder.name;
+      }
+
+      return topLevelFolder || null;
+    } catch (error) {
+      HM.log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Determines the best organization name for a document based on its pack's folder structure
+   * @param {object} docData - Document data object
+   * @param {CompendiumCollection} pack - The pack this document comes from
+   * @returns {string} Organization name to use
+   * @private
+   */
+  static #determineOrganizationName(docData, pack) {
+    try {
+      // Try pack's top-level folder first
+      const packTopLevelFolder = this.#getPackTopLevelFolderName(pack);
+      if (packTopLevelFolder) {
+        // Translate folder name using the merged function
+        const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
+        HM.log(3, `Using pack top-level folder "${translatedName}" for ${docData.name}`);
+        return translatedName;
+      }
+
+      // Fall back to pack name if no folder structure, also using the merged function
+      const translatedPackName = this.#translateSystemFolderName(docData.packName, pack.metadata.id);
+      HM.log(3, `Using translated pack name "${translatedPackName}" for ${docData.name}`);
+      return translatedPackName;
+    } catch (error) {
+      HM.log(1, `Error determining organization name for ${docData.name || 'unknown document'}:`, error);
+      return docData.packName || 'Unknown Source';
+    }
+  }
+
+  /**
+   * Translates system folder names and pack names to more user-friendly names
+   * @param {string} name - Folder name or pack label to translate
+   * @param {string} [id] - Optional pack ID for additional context
+   * @returns {string} Translated name
+   * @private
+   */
+  static #translateSystemFolderName(name, id = null) {
+    if (!name || typeof name !== 'string') {
+      return id || 'Unknown Source';
+    }
+
+    // Combined mapping for all name translations with special logic
+    const nameTranslations = {
+      'D&D Legacy Content': 'SRD 5.1',
+      'D&D Modern Content': 'SRD 5.2',
+      'Forge': () => game.i18n.localize('hm.app.document-service.common-labels.forge'),
+      'DDB': () => game.i18n.localize('hm.app.document-service.common-labels.dndbeyond-importer'),
+      'Elkan': () => {
+        if (!game.modules.get('elkan5e')?.active) return null;
+        return game.i18n.localize('hm.app.document-service.common-labels.elkan5e');
+      }
+    };
+    if (nameTranslations[name]) {
+      const result = typeof nameTranslations[name] === 'function' ? nameTranslations[name]() : nameTranslations[name];
+      if (result) return result;
+    }
+
+    // Check for partial matches in name or ID
+    for (const [key, value] of Object.entries(nameTranslations)) {
+      // Skip system folder names for partial matching
+      if (['D&D Legacy Content', 'D&D Modern Content'].includes(key)) continue;
+
+      // Special case for Forge which might be in the ID instead of label
+      const matchesName = name.includes(key);
+      const matchesId = key === 'Forge' && id?.includes(key);
+
+      if (matchesName || matchesId) {
+        const result = typeof value === 'function' ? value() : value;
+        if (result) return result;
+      }
+    }
+
+    // Special case for homebrew pattern
+    if (/[./_-]home[\s_-]?brew[./_-]/i.test(name)) {
+      return game.i18n.localize('hm.app.document-service.common-labels.homebrew');
+    }
+
+    // Return the original name if no translation found
+    return name;
+  }
+
+  /**
+   * Organizes documents into groups based on pack top-level folder
+   * @param {Array} documents - Documents to organize
+   * @param {string} documentType - Type of documents being organized
+   * @returns {Array} Grouped documents
+   * @private
+   */
+  static #organizeDocumentsByTopLevelFolder(documents, documentType) {
+    if (!documents?.length) {
+      HM.log(2, `Invalid or empty documents array for ${documentType} organization`);
+      return [];
+    }
+
+    try {
+      HM.log(3, `Organizing ${documents.length} ${documentType} documents by pack top-level folder`);
+
+      // Organize documents into groups
+      const organizationGroups = new Map();
+
+      // First pass: create groups and assign documents
+      for (const docData of documents) {
+        if (!docData || !docData.doc) {
+          HM.log(2, `Skipping invalid document data in ${documentType} organization - missing doc property`);
+          continue;
+        }
+
+        // Get the pack for this document
+        const pack = game.packs.get(docData.packId);
+        if (!pack) {
+          HM.log(2, `Could not find pack ${docData.packId} for document ${docData.name}`);
+          continue;
+        }
+
+        const organizationName = this.#determineOrganizationName(docData, pack);
+
+        HM.log(3, `Document "${docData.name}" assigned to group "${organizationName}"`);
+
+        // Create group if it doesn't exist yet
+        if (!organizationGroups.has(organizationName)) {
+          organizationGroups.set(organizationName, {
+            folderName: organizationName,
+            docs: []
+          });
+        }
+
+        // Always use clean name without compendium source
+        const displayName = docData.name;
+
+        // Add document to its group
+        organizationGroups.get(organizationName).docs.push({
+          id: docData.id,
+          name: docData.name,
+          displayName: displayName,
+          packName: docData.packName,
+          packId: docData.packId,
+          journalPageId: docData.journalPageId,
+          uuid: docData.uuid,
+          description: docData.description,
+          enrichedDescription: docData.enrichedDescription,
+          folderName: docData.folderName,
+          packTopLevelFolder: this.#getPackTopLevelFolderName(pack)
+        });
+      }
+
+      // Second pass: sort documents within each group
+      for (const group of organizationGroups.values()) {
+        group.docs.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      // Convert map to sorted array
+      const result = Array.from(organizationGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
+
+      HM.log(3, `Organized ${documentType} into ${result.length} groups: ${result.map((g) => `${g.folderName} (${g.docs.length})`).join(', ')}`);
+
+      return result;
+    } catch (error) {
+      HM.log(1, `Error organizing ${documentType} by pack top-level folder:`, error);
+      return [];
+    }
   }
 }

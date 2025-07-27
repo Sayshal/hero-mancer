@@ -15,7 +15,15 @@
         <option value=''>{{localize 'hm.app.background.select-placeholder'}}</option>
 
         {{#each backgroundDocs}}
-          <option value='{{this.id}} [{{this.uuid}}]'>{{this.name}}</option>
+          {{#if this.folderName}}
+            <optgroup label='{{this.folderName}}'>
+              {{#each this.docs}}
+                <option value='{{this.id}} [{{this.uuid}}]'>{{this.displayName}}</option>
+              {{/each}}
+            </optgroup>
+          {{else}}
+            <option value='{{this.id}} [{{this.uuid}}]'>{{this.displayName}}</option>
+          {{/if}}
         {{else}}
           <option>{{localize 'hm.app.background.none'}}</option>
         {{/each}}

@@ -1,4 +1,5 @@
 export { API } from '../api.js';
+export { AdvancementOrderConfiguration } from '../app/AdvancementOrderConfiguration.js';
 export { CustomCompendiums } from '../app/CustomCompendiums.js';
 export { Customization } from '../app/Customization.js';
 export { DiceRolling } from '../app/DiceRolling.js';

@@ -1,4 +1,4 @@
-import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
+import { AdvancementOrderConfiguration, CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
 
 /**
  * Main registration function that initializes all module settings.
@@ -16,6 +16,7 @@ export function registerSettings() {
   registerCompendiumSettings();
   registerCustomizationSettings();
   registerDiceRollingSettings();
+  registerAdvancementOrderSettings();
   registerMandatoryFieldsSettings();
   registerTroubleshootingSettings();
 
@@ -83,21 +84,6 @@ function registerCoreSettings() {
     config: false,
     type: String,
     default: 'standardArray'
-  });
-
-  game.settings.register(HM.ID, 'hideCompendiumSource', {
-    name: 'hm.settings.hide-compendium-source.name',
-    hint: 'hm.settings.hide-compendium-source.hint',
-    scope: 'client',
-    config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => {
-      // Refresh the Hero Mancer app if it's open
-      if (HM.heroMancer?.rendered) {
-        HM.heroMancer.render(true);
-      }
-    }
   });
 
   HM.log(3, 'Core settings registered.');
@@ -406,6 +392,36 @@ function registerDiceRollingSettings() {
   });
 
   HM.log(3, 'Dice Rolling settings registered.');
+}
+
+/**
+ * Registers advancement order settings
+ * @function
+ * @returns {void}
+ */
+function registerAdvancementOrderSettings() {
+  game.settings.registerMenu(HM.ID, 'advancementOrderMenu', {
+    name: 'hm.settings.advancement-order.menu.name',
+    hint: 'hm.settings.advancement-order.menu.hint',
+    icon: 'fa-solid fa-sort',
+    label: 'hm.settings.configure-advancement-order',
+    type: AdvancementOrderConfiguration,
+    restricted: true
+  });
+
+  game.settings.register(HM.ID, 'advancementOrder', {
+    name: 'hm.settings.advancement-order.name',
+    scope: 'world',
+    config: false,
+    type: Array,
+    default: [
+      { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
+      { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
+      { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
+    ]
+  });
+
+  HM.log(3, 'Advancement Order settings registered.');
 }
 
 /**

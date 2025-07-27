@@ -255,15 +255,16 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     const validPacksArray = Array.from(validPacks);
     const selectedPacksSet = new Set(selectedPacks);
 
-    // Group packs by source
+    // Group packs by their top-level folder name
     const sourceGroups = new Map();
     validPacksArray.forEach((pack) => {
-      const source = pack.packId.split('.')[0];
+      // Use the new organization logic instead of splitting pack ID
+      const source = this.#determinePackOrganizationName(pack);
       const isSelected = selectedPacksSet.has(pack.packId);
 
       if (!sourceGroups.has(source)) {
         sourceGroups.set(source, {
-          name: this.#formatSourceName(source),
+          name: source,
           packs: [],
           allSelected: true
         });
@@ -442,28 +443,6 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
-   * Formats source names for better readability
-   * @param {string} source - The raw source identifier
-   * @returns {string} Formatted source name
-   * @private
-   */
-  static #formatSourceName(source) {
-    if (!source || typeof source !== 'string') {
-      HM.log(2, `Invalid source name format: ${source}`);
-      return 'Unknown Source';
-    }
-
-    if (source === 'dnd5e') return 'SRD';
-
-    return source
-      .replace('dnd-', '')
-      .replace(/-/g, ' ')
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
-
-  /**
    * Gets the localized name for a compendium type
    * @param {string} type - The type of compendium
    * @returns {string} The localized type name
@@ -502,6 +481,120 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         return 'fa-solid fa-shield-halved';
       default:
         return 'fa-solid fa-atlas';
+    }
+  }
+
+  /**
+   * Gets the top-level folder name from a pack's folder hierarchy
+   * @param {CompendiumCollection} pack - Pack to analyze
+   * @returns {string|null} Top-level folder name or null if no folder
+   * @private
+   */
+  static #getPackTopLevelFolderName(pack) {
+    if (!pack || !pack.folder) {
+      return null;
+    }
+
+    try {
+      let topLevelFolder;
+      if (pack.folder.depth !== 1) {
+        // Get the top-most parent folder
+        const parentFolders = pack.folder.getParentFolders();
+        topLevelFolder = parentFolders.at(-1)?.name;
+      } else {
+        // This folder is already top-level
+        topLevelFolder = pack.folder.name;
+      }
+
+      return topLevelFolder || null;
+    } catch (error) {
+      HM.log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Translates system folder names to more user-friendly names
+   * @param {string} name - Folder name to translate
+   * @param {string} [id] - Optional pack ID for additional context
+   * @returns {string} Translated name
+   * @private
+   */
+  static #translateSystemFolderName(name, id = null) {
+    if (!name || typeof name !== 'string') {
+      return id || 'Unknown Source';
+    }
+
+    // Combined mapping for all name translations with special logic
+    const nameTranslations = {
+      'D&D Legacy Content': 'SRD 5.1',
+      'D&D Modern Content': 'SRD 5.2',
+      'Forge': () => game.i18n.localize('hm.app.document-service.common-labels.forge'),
+      'DDB': () => game.i18n.localize('hm.app.document-service.common-labels.dndbeyond-importer'),
+      'Elkan': () => {
+        if (!game.modules.get('elkan5e')?.active) return null;
+        return game.i18n.localize('hm.app.document-service.common-labels.elkan5e');
+      }
+    };
+
+    if (nameTranslations[name]) {
+      const result = typeof nameTranslations[name] === 'function' ? nameTranslations[name]() : nameTranslations[name];
+      if (result) return result;
+    }
+
+    // Check for partial matches in name or ID
+    for (const [key, value] of Object.entries(nameTranslations)) {
+      // Skip system folder names for partial matching
+      if (['D&D Legacy Content', 'D&D Modern Content'].includes(key)) continue;
+
+      // Special case for Forge which might be in the ID instead of label
+      const matchesName = name.includes(key);
+      const matchesId = key === 'Forge' && id?.includes(key);
+
+      if (matchesName || matchesId) {
+        const result = typeof value === 'function' ? value() : value;
+        if (result) return result;
+      }
+    }
+
+    // Special case for homebrew pattern
+    if (/[./_-]home[\s_-]?brew[./_-]/i.test(name)) {
+      return game.i18n.localize('hm.app.document-service.common-labels.homebrew');
+    }
+
+    // Return the original name if no translation found
+    return name;
+  }
+
+  /**
+   * Determines the organization name for a pack based on its folder structure
+   * @param {Object} pack - Pack object with packId and packName
+   * @returns {string} Organization name to use
+   * @private
+   */
+  static #determinePackOrganizationName(pack) {
+    try {
+      // Get the actual compendium pack from the game
+      const actualPack = game.packs.get(pack.packId);
+      if (!actualPack) {
+        return this.#translateSystemFolderName(pack.packName);
+      }
+
+      // Try pack's top-level folder first
+      const packTopLevelFolder = this.#getPackTopLevelFolderName(actualPack);
+      if (packTopLevelFolder) {
+        const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
+        HM.log(3, `Using pack top-level folder "${translatedName}" for ${pack.packName}`);
+        return translatedName;
+      }
+
+      // Fall back to pack name if no folder structure
+      const translatedPackName = this.#translateSystemFolderName(pack.packName, pack.packId);
+      HM.log(3, `Using translated pack name "${translatedPackName}" for ${pack.packName}`);
+      return translatedPackName;
+    } catch (error) {
+      HM.log(1, `Error determining organization name for ${pack.packName || 'unknown pack'}:`, error);
+      return pack.packName || 'Unknown Source';
     }
   }
 }
