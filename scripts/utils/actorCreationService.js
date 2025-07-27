@@ -130,9 +130,11 @@ export class ActorCreationService {
   static async #processItemsAndAdvancements(actor, characterData, equipment, event, startingWealth) {
     const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(characterData.backgroundData, characterData.raceData, characterData.classData);
     if (!backgroundItem || !raceItem || !classItem) return;
+    const expectedItems = { background: { name: backgroundItem.name, type: 'background' }, race: { name: raceItem.name, type: 'race' }, class: { name: classItem.name, type: 'class' } };
+    HM.log(3, `Expected items for validation:`, expectedItems);
     await this.#processEquipmentAndFavorites(actor, equipment, event, startingWealth);
     const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
-    await this.#processAdvancements(orderedItems, actor);
+    await this.#processAdvancements(orderedItems, actor, expectedItems);
   }
 
   /**
@@ -252,6 +254,74 @@ export class ActorCreationService {
     }
 
     return true;
+  }
+
+  /**
+   * Validates that required Race, Background, and Class items are present on the actor
+   * @param {Actor} actor - The actor to validate
+   * @param {object} expectedItems - Expected items with their names and types
+   * @returns {object} Validation results with success status and any errors
+   * @private
+   * @static
+   */
+  static #validateRequiredItems(actor, expectedItems) {
+    HM.log(3, `Validating required R/B/C items for actor: ${actor.name}`);
+    const validation = { success: true, errors: [], warnings: [] };
+    const actorItems = actor.items;
+    HM.log(3, `Actor has ${actorItems.size} total items`);
+    const raceItems = actorItems.filter((item) => item.type === 'race');
+    HM.log(3, `Found ${raceItems.length} race items: ${raceItems.map((i) => i.name).join(', ')}`);
+    if (raceItems.length === 0) {
+      const error = `Missing Race item: Expected "${expectedItems.race?.name || 'Unknown Race'}" but found none`;
+      HM.log(1, error);
+      validation.errors.push(error);
+      validation.success = false;
+    } else if (raceItems.length > 1) {
+      const warning = `Multiple Race items found: ${raceItems.map((i) => i.name).join(', ')}`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    } else if (expectedItems.race && raceItems[0].name !== expectedItems.race.name) {
+      const warning = `Race item name mismatch: Expected "${expectedItems.race.name}" but found "${raceItems[0].name}"`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    }
+    const backgroundItems = actorItems.filter((item) => item.type === 'background');
+    HM.log(3, `Found ${backgroundItems.length} background items: ${backgroundItems.map((i) => i.name).join(', ')}`);
+    if (backgroundItems.length === 0) {
+      const error = `Missing Background item: Expected "${expectedItems.background?.name || 'Unknown Background'}" but found none`;
+      HM.log(1, error);
+      validation.errors.push(error);
+      validation.success = false;
+    } else if (backgroundItems.length > 1) {
+      const warning = `Multiple Background items found: ${backgroundItems.map((i) => i.name).join(', ')}`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    } else if (expectedItems.background && backgroundItems[0].name !== expectedItems.background.name) {
+      const warning = `Background item name mismatch: Expected "${expectedItems.background.name}" but found "${backgroundItems[0].name}"`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    }
+    const classItems = actorItems.filter((item) => item.type === 'class');
+    HM.log(3, `Found ${classItems.length} class items: ${classItems.map((i) => i.name).join(', ')}`);
+    if (classItems.length === 0) {
+      const error = `Missing Class item: Expected "${expectedItems.class?.name || 'Unknown Class'}" but found none`;
+      HM.log(1, error);
+      validation.errors.push(error);
+      validation.success = false;
+    } else if (classItems.length > 1) {
+      const warning = `Multiple Class items found: ${classItems.map((i) => i.name).join(', ')}`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    } else if (expectedItems.class && classItems[0].name !== expectedItems.class.name) {
+      const warning = `Class item name mismatch: Expected "${expectedItems.class.name}" but found "${classItems[0].name}"`;
+      HM.log(2, warning);
+      validation.warnings.push(warning);
+    }
+    const otherItems = actorItems.filter((item) => !['race', 'background', 'class'].includes(item.type));
+    HM.log(3, `Additional items found (${otherItems.length}): ${otherItems.map((i) => `${i.name} (${i.type})`).join(', ')}`);
+    if (validation.success) HM.log(3, `Validation passed: All required R/B/C items are present`);
+    else HM.log(1, `Validation failed: ${validation.errors.length} errors found`);
+    return validation;
   }
 
   /* -------------------------------------------- */
@@ -821,31 +891,26 @@ export class ActorCreationService {
    * Processes character advancement for class, race, and background
    * @param {Array<Item>} items - Items to process for advancement
    * @param {Actor} actor - The actor to apply advancements to
+   * @param {object} expectedItems - Expected items for validation
    * @returns {Promise<void>}
    * @private
    * @static
    */
-  static async #processAdvancements(items, actor) {
+  static async #processAdvancements(items, actor, expectedItems = {}) {
     if (!Array.isArray(items) || !items.length) {
       HM.log(2, 'No items provided for advancement');
       return;
     }
-
+    HM.log(3, `Starting advancement processing for ${items.length} items`);
     try {
-      // Separate items with and without advancements
       const { itemsWithAdvancements, itemsWithoutAdvancements } = this.#categorizeItemsByAdvancements(items);
-
-      // Process items with advancements
-      if (itemsWithAdvancements.length) {
-        await this.#runAdvancementManagers(itemsWithAdvancements, actor);
-      }
-
-      // Add items without advancements directly
+      HM.log(3, `Items with advancements: ${itemsWithAdvancements.length}, without: ${itemsWithoutAdvancements.length}`);
+      if (itemsWithAdvancements.length) await this.#runAdvancementManagers(itemsWithAdvancements, actor, expectedItems);
       if (itemsWithoutAdvancements.length) {
+        HM.log(3, `Adding ${itemsWithoutAdvancements.length} items without advancements directly`);
         await this.#addItemsWithoutAdvancements(actor, itemsWithoutAdvancements);
+        this.#logActorItemsByType(actor, 'after adding items without advancements');
       }
-
-      // Generate character summary
       await this.#createCharacterSummary(actor);
     } catch (error) {
       HM.log(1, 'Error in processAdvancements:', error);
@@ -921,12 +986,19 @@ export class ActorCreationService {
    * Runs advancement managers for items with advancements
    * @param {Array<Item>} items - Items with advancements
    * @param {Actor} actor - Actor to apply advancements to
+   * @param {object} expectedItems - Expected items for validation
    * @returns {Promise<void>}
    * @private
    * @static
    */
-  static async #runAdvancementManagers(items, actor) {
+  static async #runAdvancementManagers(items, actor, expectedItems = {}) {
     if (!items.length) return;
+
+    HM.log(3, `Starting advancement processing for ${items.length} items: ${items.map((i) => `${i.name} (${i.type})`).join(', ')}`);
+
+    // Log initial actor state
+    HM.log(3, `Pre-advancement actor state: ${actor.items.size} items`);
+    this.#logActorItemsByType(actor, 'before advancement');
 
     let currentManager = null;
     const results = { success: [], failure: [] };
@@ -935,6 +1007,10 @@ export class ActorCreationService {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         HM.log(3, `Processing advancements for ${item.name} (${i + 1}/${items.length})`);
+
+        // Log actor state before this item's advancement
+        HM.log(3, `Before ${item.name} advancement: ${actor.items.size} items on actor`);
+        this.#logActorItemsByType(actor, `before ${item.name}`);
 
         try {
           currentManager = await this.#createAdvancementManager(actor, item);
@@ -959,6 +1035,10 @@ export class ActorCreationService {
               clearTimeout(timeout);
               HM.log(3, `Completed advancements for ${item.name}`);
 
+              // Log actor state after this item's advancement
+              HM.log(3, `After ${item.name} advancement: ${actor.items.size} items on actor`);
+              this.#logActorItemsByType(actor, `after ${item.name}`);
+
               await new Promise((resolve) => {
                 setTimeout(resolve, this.ADVANCEMENT_DELAY.transitionDelay);
               });
@@ -973,6 +1053,10 @@ export class ActorCreationService {
         } catch (error) {
           results.failure.push(item.name);
           HM.log(1, `Error processing advancements for ${item.name}:`, error);
+
+          // Log actor state after failed advancement
+          this.#logActorItemsByType(actor, `after failed ${item.name}`);
+
           ui.notifications.warn(
             game.i18n.format('hm.warnings.advancement-failed', {
               item: item.name
@@ -986,10 +1070,59 @@ export class ActorCreationService {
 
       // Report overall results and apply CPR effects if enabled
       this.#reportAdvancementResults(results, actor);
+
+      // Log final actor state
+      HM.log(3, `Post-advancement actor state: ${actor.items.size} items`);
+      this.#logActorItemsByType(actor, 'after all advancements');
+
+      // VALIDATION: Check for required R/B/C items before opening sheet
+      const validation = this.#validateRequiredItems(actor, expectedItems);
+
+      if (!validation.success) {
+        // Show error notifications for validation failures
+        validation.errors.forEach((error) => {
+          ui.notifications.error(`Character Validation Error: ${error}`, { permanent: true });
+        });
+
+        HM.log(1, `Character validation failed for ${actor.name}:`, {
+          errors: validation.errors,
+          warnings: validation.warnings,
+          actorItems: actor.items.map((i) => ({ name: i.name, type: i.type, id: i.id }))
+        });
+      }
+
+      // Show warnings even if validation passed
+      if (validation.warnings.length > 0) {
+        validation.warnings.forEach((warning) => {
+          ui.notifications.warn(`Character Validation Warning: ${warning}`, { permanent: false });
+        });
+      }
     } finally {
       if (currentManager) await currentManager.close().catch((e) => null);
+
+      // Always open the sheet, even if validation failed (as per requirements)
+      HM.log(3, `Opening character sheet for ${actor.name}`);
       actor.sheet.render(true);
     }
+  }
+
+  /**
+   * Logs actor items grouped by type for debugging
+   * @param {Actor} actor - The actor to log
+   * @param {string} stage - Description of when this logging occurs
+   * @private
+   * @static
+   */
+  static #logActorItemsByType(actor, stage) {
+    const itemsByType = {};
+    actor.items.forEach((item) => {
+      if (!itemsByType[item.type]) itemsByType[item.type] = [];
+      itemsByType[item.type].push({ name: item.name, id: item.id, uuid: item.uuid });
+    });
+    HM.log(3, `Actor items ${stage}:`, {
+      totalItems: actor.items.size,
+      itemsByType: Object.fromEntries(Object.entries(itemsByType).map(([type, items]) => [type, `${items.length} items: ${items.map((i) => i.name).join(', ')}`]))
+    });
   }
 
   /**
