@@ -155,10 +155,10 @@
   Components Layer - Application Structure
  ========================================================================== */
 .application.hm-app {
-  width: 1100px;
-  max-width: calc(100vw - 100px);
+  width: 68.75rem;
+  max-width: calc(100vw - 6.25rem);
   min-height: 0;
-  max-height: calc(100vh - 150px);
+  max-height: calc(100vh - 9.375rem);
 
   :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug) {
     color: var(--user-color);
@@ -258,10 +258,10 @@
         color: rgb(255 255 255);
         font-size: 0.9rem;
         text-shadow:
-          -1px -1px 0 rgb(0 0 0),
-          1px -1px 0 rgb(0 0 0),
-          -1px 1px 0 rgb(0 0 0),
-          1px 1px 0 rgb(0 0 0);
+          -0.063rem -0.063rem 0 rgb(0 0 0),
+          0.063rem -0.063rem 0 rgb(0 0 0),
+          -0.063rem 0.063rem 0 rgb(0 0 0),
+          0.063rem 0.063rem 0 rgb(0 0 0);
       }
     }
   }
@@ -291,7 +291,7 @@
     img {
       margin-inline-start: 0.3rem;
       float: right;
-      max-width: 200px;
+      max-width: 12.5rem;
       height: auto;
       border: none;
     }
@@ -314,7 +314,7 @@
     }
 
     h3 {
-      border-block-end: 1px solid rgb(102 102 102);
+      border-block-end: 0.063rem solid rgb(102 102 102);
       margin-block-end: 0.625rem;
     }
   }
@@ -421,7 +421,7 @@
     max-height: 100%;
     margin: 1rem 0;
     padding: 1rem 2rem;
-    border: 1px solid var(--user-color);
+    border: 0.063rem solid var(--user-color);
     border-radius: 0.375rem;
     overflow: auto;
     overflow-x: hidden;
@@ -454,8 +454,8 @@
 
     select {
       width: fit-content;
-      min-width: 120px;
-      max-width: 200px;
+      min-width: 7.5rem;
+      max-width: 12.5rem;
     }
   }
 }
@@ -493,14 +493,14 @@
 
 :is(.form-input, .form-select) {
   width: 100%;
-  max-width: 250px;
+  max-width: 15.625rem;
   margin: 0 0.3rem;
 }
 
 .hm-app-tab-content fieldset {
   :is(input[type='text'], select) {
     width: 100%;
-    max-width: 250px;
+    max-width: 15.625rem;
     margin: 0 0.3rem;
   }
 }
@@ -651,7 +651,7 @@
     }
 
     :is(h1, h2, h3, h4, h5) {
-      border-block-end: 2px solid var(--color-journal-border);
+      border-block-end: 0.125rem solid var(--color-journal-border);
       margin-block: 0.8rem 0.4rem;
       border-image: linear-gradient(to right, var(--color-journal-border), transparent 90%);
       border-image-slice: 0 0 1 0;
@@ -704,22 +704,22 @@
 
       &.four,
       .four {
-        width: 400px;
+        width: 25rem;
       }
 
       &.three,
       .three {
-        width: 300px;
+        width: 18.75rem;
       }
 
       &.two,
       .two {
-        width: 200px;
+        width: 12.5rem;
       }
 
       &.one,
       .one {
-        width: 100px;
+        width: 6.25rem;
       }
 
       .statblock.npc {
@@ -785,17 +785,17 @@
 
         th[scope='col'] {
           &[rowspan='2'] {
-            width: 75px;
-            max-width: 100px;
+            width: 4.688rem;
+            max-width: 6.25rem;
             font-size: var(--font-size-12);
             white-space: normal;
 
             &:nth-child(2) {
-              width: 75px;
+              width: 4.688rem;
             }
 
             &:nth-child(3) {
-              min-width: 150px;
+              min-width: 9.375rem;
             }
           }
         }
@@ -828,19 +828,19 @@
 
       thead tr {
         th[scope='col'] {
-          width: 35px;
+          width: 2.188rem;
           padding: unset;
 
           &[colspan='9'],
           &[rowspan='2'] {
             width: fit-content;
-            max-width: 195px;
+            max-width: 12.188rem;
             font-size: var(--font-size-13);
           }
         }
 
         &:nth-child(2) th[scope='col'] {
-          width: 35px;
+          width: 2.188rem;
           padding: unset;
           font-size: var(--font-size-10);
         }
@@ -912,7 +912,7 @@
       box-sizing: border-box;
       width: 16%;
       max-width: 16%;
-      border: 1px solid rgb(204 204 204);
+      border: 0.063rem solid rgb(204 204 204);
       border-radius: var(--border-radius-lg);
       text-align: center;
 
@@ -938,15 +938,15 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 30px;
-        height: 30px;
+        width: 1.875rem;
+        height: 1.875rem;
         border-radius: var(--border-radius-md);
         font-size: 1.2rem;
         cursor: pointer;
       }
 
       .score-value {
-        min-width: 40px;
+        min-width: 2.5rem;
         font-weight: bold;
         font-size: 1.5rem;
         text-align: center;
@@ -1006,7 +1006,7 @@
   width: 60%;
 
   input[type='number'] {
-    width: 40px;
+    width: 2.5rem;
     text-align: center;
   }
 }
@@ -1015,7 +1015,7 @@
   Equipment Tab
  ========================================================================== */
 table.equipment-item {
-  border-block-end: 1px solid var(--color-border-dark-secondary);
+  border-block-end: 0.063rem solid var(--color-border-dark-secondary);
   width: 100%;
   table-layout: fixed;
 
@@ -1061,7 +1061,7 @@ table.equipment-item {
 
   .equipment-choices {
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
     display: grid;
 
     a.content-link {
@@ -1090,7 +1090,7 @@ table.equipment-item {
     select {
       display: block;
       width: auto;
-      min-width: 140px;
+      min-width: 8.75rem;
       max-width: 100%;
       margin: 0.25rem 0 0;
       overflow: hidden;
@@ -1129,7 +1129,7 @@ table.equipment-item {
   flex-direction: column;
   align-items: flex-start;
   padding: 1rem;
-  border: 1px solid rgb(111 111 111);
+  border: 0.063rem solid rgb(111 111 111);
   border-radius: var(--border-radius-lg);
 }
 
@@ -1179,7 +1179,7 @@ table.equipment-item {
 
 table.wealth-option-container {
   margin: 0.625rem 0 1rem;
-  border: 1px solid var(--color-border-light-tertiary);
+  border: 0.063rem solid var(--color-border-light-tertiary);
   border-radius: var(--border-radius-sm);
 
   tr:first-child td:first-child {
@@ -1215,8 +1215,8 @@ tr.wealth-roll-container {
 
   input[type='text'] {
     flex: 1;
-    min-width: 80px;
-    max-width: 120px;
+    min-width: 5rem;
+    max-width: 7.5rem;
     margin: 0;
   }
 
@@ -1252,7 +1252,7 @@ tr.wealth-roll-container {
     padding-inline-end: 0.625rem;
     width: fit-content;
     min-width: 0.001rem;
-    max-width: 75px;
+    max-width: 4.688rem;
     text-align: center;
   }
 }
@@ -1319,7 +1319,7 @@ td .equipment-favorite-container {
   max-width: 100%;
   margin: 0.625rem 0;
   padding: 0.5rem;
-  border: 1px solid var(--color-level-error-border);
+  border: 0.063rem solid var(--color-level-error-border);
   border-radius: var(--border-radius-md);
 }
 
@@ -1355,7 +1355,7 @@ td .equipment-favorite-container {
     flex-direction: column;
 
     textarea {
-      min-height: 180px;
+      min-height: 11.25rem;
       resize: none;
     }
   }
@@ -1393,7 +1393,7 @@ td .equipment-favorite-container {
 
   .notes-group prose-mirror {
     width: 100%;
-    min-height: 260px;
+    min-height: 16.25rem;
   }
 
   .personal-char-section button {
@@ -1401,8 +1401,8 @@ td .equipment-favorite-container {
     display: flex;
     align-items: center;
     align-self: center;
-    width: 60px;
-    height: 30px;
+    width: 3.75rem;
+    height: 1.875rem;
   }
 }
 
@@ -1426,8 +1426,8 @@ td .equipment-favorite-container {
       }
 
       .character-portrait {
-        width: 80px;
-        height: 80px;
+        width: 5rem;
+        height: 5rem;
 
         img {
           object-fit: cover;
@@ -1466,12 +1466,12 @@ td .equipment-favorite-container {
 
     .review-section {
       padding: 0.75rem;
-      border: 1px solid var(--color-border-light-tertiary);
+      border: 0.063rem solid var(--color-border-light-tertiary);
       border-radius: 0.375rem;
       background: rgb(0 0 0 / 2%);
 
       h3 {
-        border-block-end: 1px solid var(--color-border-light-secondary);
+        border-block-end: 0.063rem solid var(--color-border-light-secondary);
         gap: 0.5rem;
         margin-block: 0 0.75rem;
         padding-block-end: 0.5rem;
@@ -1507,7 +1507,7 @@ td .equipment-favorite-container {
         }
 
         .proficiencies-list {
-          max-height: 300px;
+          max-height: 18.75rem;
           overflow-y: auto;
 
           .loading-spinner {
@@ -1547,7 +1547,7 @@ td .equipment-favorite-container {
             .proficiency-category-title {
               margin: 0 0 0.5rem;
               padding-bottom: 0.25rem;
-              border-bottom: 1px solid var(--color-border-light-tertiary);
+              border-bottom: 0.063rem solid var(--color-border-light-tertiary);
             }
 
             .proficiency-items {
@@ -1590,7 +1590,7 @@ td .equipment-favorite-container {
 
         .review-label {
           margin-inline-end: 0.5rem;
-          min-width: 100px;
+          min-width: 6.25rem;
           font-weight: bold;
         }
       }
@@ -1623,7 +1623,7 @@ td .equipment-favorite-container {
         padding-block-start: 0.5rem;
 
         h4 {
-          border-block-end: 1px solid var(--color-border-light-tertiary);
+          border-block-end: 0.063rem solid var(--color-border-light-tertiary);
           padding-block-end: 0.375rem;
           font-size: var(--font-h5-size);
           text-align: center;
@@ -1671,9 +1671,9 @@ td .equipment-favorite-container {
       }
 
       .backstory-text {
-        max-height: 120px;
+        max-height: 7.5rem;
         padding: 0.5rem;
-        border: 1px solid var(--color-border-light-tertiary);
+        border: 0.063rem solid var(--color-border-light-tertiary);
         border-radius: 0.2rem;
         overflow-y: auto;
         line-height: 1.5;
@@ -1732,10 +1732,10 @@ td .equipment-favorite-container {
   }
 
   .window-content {
-    min-width: 260px;
-    max-width: 520px;
+    min-width: 16.25rem;
+    max-width: 32.5rem;
     height: fit-content;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 12.5rem);
   }
 
   .hm-compendium-groups {
@@ -1767,7 +1767,7 @@ td .equipment-favorite-container {
   multi-checkbox {
     padding-inline-end: 0.5rem;
     display: block;
-    max-height: calc(50vh - 100px);
+    max-height: calc(50vh - 6.25rem);
     overflow-y: auto;
 
     label.checkbox {
@@ -1804,7 +1804,7 @@ td .equipment-favorite-container {
 
   .hm-compendium-dialog-content {
     padding-inline-end: 0.5rem;
-    max-height: calc(80vh - 150px);
+    max-height: calc(80vh - 9.375rem);
     overflow-y: auto;
 
     hr {
@@ -1868,8 +1868,8 @@ td .equipment-favorite-container {
     }
 
     input[type='color'] {
-      width: 30px;
-      min-width: 30px;
+      width: 1.875rem;
+      min-width: 1.875rem;
       max-width: 35%;
     }
   }
@@ -1881,7 +1881,7 @@ td .equipment-favorite-container {
     .checkbox-label {
       margin-inline-start: 0;
       padding-inline-start: 0.313rem;
-      width: calc(100% - 120px);
+      width: calc(100% - 7.5rem);
     }
   }
 }
@@ -1916,14 +1916,14 @@ td .equipment-favorite-container {
     display: flex;
     align-items: center;
     width: 100%;
-    max-width: 400px;
+    max-width: 25rem;
 
     input[type='range'] {
       flex: 1;
     }
 
     .delay-value {
-      min-width: 60px;
+      min-width: 3.75rem;
       font-weight: bold;
       text-align: end;
     }
@@ -1933,7 +1933,7 @@ td .equipment-favorite-container {
     gap: 0.5rem;
     display: grid;
     width: 100%;
-    max-width: 400px;
+    max-width: 25rem;
     margin: 0.5rem 0 1rem;
 
     label {
@@ -1941,13 +1941,100 @@ td .equipment-favorite-container {
     }
 
     input[type='number'] {
-      width: 60px;
+      width: 3.75rem;
       text-align: center;
     }
   }
 
   .tooltip-icon {
     margin-inline-start: 0.3rem;
+  }
+}
+
+/* ==========================================================================
+  Advancement Order Configuration
+ ========================================================================== */
+.advancement-order-configuration {
+  .advancement-order-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 0.063rem solid var(--color-border-light-tertiary);
+    border-radius: 0.25rem;
+    background: var(--color-bg);
+    min-height: 7.5rem;
+  }
+
+  .advancement-order-item {
+    border-bottom: 0.063rem solid var(--color-border-light-tertiary);
+    background: var(--color-bg-alt);
+    cursor: move;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--color-bg-option);
+    }
+
+    &.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+    }
+  }
+
+  .drag-handle {
+    color: var(--color-text-light-6);
+    cursor: grab;
+    flex-shrink: 0;
+
+    &:hover {
+      color: var(--color-text-light-5);
+    }
+  }
+
+  .advancement-item-label {
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .drop-placeholder {
+    height: 0.125rem;
+    background: var(--color-text-hyperlink);
+    margin: 0.125rem 0;
+    border-radius: 0.063rem;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 0.625rem;
+    justify-content: flex-end;
+    margin-top: 1.25rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.313rem;
+      padding: 0.5rem 1rem;
+    }
   }
 }
 
@@ -1962,7 +2049,7 @@ td .equipment-favorite-container {
 
   .field-group {
     margin-block-end: 0.4rem;
-    border: 1px solid var(--color-border-light-tertiary);
+    border: 0.063rem solid var(--color-border-light-tertiary);
     border-radius: var(--border-radius-md);
   }
 }
@@ -2069,7 +2156,7 @@ td .equipment-favorite-container {
 }
 
 .application.hm-troubleshooter {
-  min-width: 600px;
+  min-width: 37.5rem;
 
   .window-content {
     padding: 0.5rem;
@@ -2096,28 +2183,28 @@ td .equipment-favorite-container {
 @keyframes primary-ability-pulse-light {
   0% {
     text-shadow:
-      -1px -1px 1px rgb(0 0 0 / 70.2%),
-      1px -1px 1px rgb(0 0 0 / 70.2%),
-      -1px 1px 1px rgb(0 0 0 / 70.2%),
-      1px 1px 1px rgb(0 0 0 / 70.2%),
+      -0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      -0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
       0 0 0.3rem rgb(255 215 0 / 60%);
   }
 
   50% {
     text-shadow:
-      -1px -1px 1px rgb(0 0 0 / 90.2%),
-      1px -1px 1px rgb(0 0 0 / 90.2%),
-      -1px 1px 1px rgb(0 0 0 / 90.2%),
-      1px 1px 1px rgb(0 0 0 / 90.2%),
+      -0.063rem -0.063rem 0.063rem rgb(0 0 0 / 90.2%),
+      0.063rem -0.063rem 0.063rem rgb(0 0 0 / 90.2%),
+      -0.063rem 0.063rem 0.063rem rgb(0 0 0 / 90.2%),
+      0.063rem 0.063rem 0.063rem rgb(0 0 0 / 90.2%),
       0 0 0.625rem rgb(255 215 0 / 80%);
   }
 
   100% {
     text-shadow:
-      -1px -1px 1px rgb(0 0 0 / 70.2%),
-      1px -1px 1px rgb(0 0 0 / 70.2%),
-      -1px 1px 1px rgb(0 0 0 / 70.2%),
-      1px 1px 1px rgb(0 0 0 / 70.2%),
+      -0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      -0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
       0 0 0.3rem rgb(255 215 0 / 60%);
   }
 }
@@ -2188,7 +2275,7 @@ td .equipment-favorite-container {
 /* ==========================================================================
   Utilities Layer - Responsive & Theme
  ========================================================================== */
-@container (width <= 999px) {
+@container (width <= 62.438rem) {
   .application.hm-app {
     width: 95%;
     max-width: 95%;
@@ -2204,7 +2291,7 @@ td .equipment-favorite-container {
         margin-block-end: 0.625rem;
         flex-grow: 1;
         flex-shrink: 1;
-        min-width: 150px;
+        min-width: 9.375rem;
       }
     }
 
@@ -2222,7 +2309,7 @@ td .equipment-favorite-container {
   }
 }
 
-@container (width <= 768px) {
+@container (width <= 48rem) {
   .application.hm-app {
     width: 100%;
     max-height: 70vh;
@@ -2262,7 +2349,7 @@ td .equipment-favorite-container {
   }
 }
 
-@media (700px <= width <= 999px) {
+@media (43.75rem <= width <= 62.438rem) {
   .application.hm-app {
     width: 100%;
     height: auto;
@@ -2275,7 +2362,7 @@ td .equipment-favorite-container {
   }
 }
 
-@media screen and (width <= 768px) {
+@media screen and (width <= 48rem) {
   .hm-app-tab-content .journal-container table.features-table {
     display: block;
     overflow-x: auto;
@@ -2322,34 +2409,34 @@ td .equipment-favorite-container {
 
   :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
     text-shadow:
-      -1px -1px 1px rgb(0 0 0 / 70.2%),
-      1px -1px 1px rgb(0 0 0 / 70.2%),
-      -1px 1px 1px rgb(0 0 0 / 70.2%),
-      1px 1px 1px rgb(0 0 0 / 70.2%),
+      -0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem -0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      -0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
+      0.063rem 0.063rem 0.063rem rgb(0 0 0 / 70.2%),
       0 0 0.3rem rgb(255 215 0 / 60%);
     animation: primary-ability-pulse-light 2s infinite ease-in-out;
   }
 
   #remaining-points {
     text-shadow:
-      -1px -1px 0.5px rgb(0 0 0 / 80%),
-      1px -1px 0.5px rgb(0 0 0 / 80%),
-      -1px 1px 0.5px rgb(0 0 0 / 80%),
-      1px 1px 0.5px rgb(0 0 0 / 80%);
+      -0.063rem -0.063rem 0.031rem rgb(0 0 0 / 80%),
+      0.063rem -0.063rem 0.031rem rgb(0 0 0 / 80%),
+      -0.063rem 0.063rem 0.031rem rgb(0 0 0 / 80%),
+      0.063rem 0.063rem 0.031rem rgb(0 0 0 / 80%);
   }
 
   #total-points {
     text-shadow:
-      -0.5px -0.5px 0.5px rgb(0 0 0 / 70.2%),
-      0.5px -0.5px 0.5px rgb(0 0 0 / 70.2%),
-      -0.5px 0.5px 0.5px rgb(0 0 0 / 70.2%),
-      0.5px 0.5px 0.5px rgb(0 0 0 / 70.2%);
+      -0.031rem -0.031rem 0.031rem rgb(0 0 0 / 70.2%),
+      0.031rem -0.031rem 0.031rem rgb(0 0 0 / 70.2%),
+      -0.031rem 0.031rem 0.031rem rgb(0 0 0 / 70.2%),
+      0.031rem 0.031rem 0.031rem rgb(0 0 0 / 70.2%);
   }
 
   .hm-app-tab-content {
     :is(h2, h3) {
       color: var(--light-mode-font-color);
-      text-shadow: 1px 1px 1px rgb(0 0 0);
+      text-shadow: 0.063rem 0.063rem 0.063rem rgb(0 0 0);
     }
 
     h4 {

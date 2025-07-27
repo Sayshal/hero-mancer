@@ -129,11 +129,46 @@ export class ActorCreationService {
    */
   static async #processItemsAndAdvancements(actor, characterData, equipment, event, startingWealth) {
     const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(characterData.backgroundData, characterData.raceData, characterData.classData);
-
     if (!backgroundItem || !raceItem || !classItem) return;
-
     await this.#processEquipmentAndFavorites(actor, equipment, event, startingWealth);
-    await this.#processAdvancements([classItem, raceItem, backgroundItem], actor);
+    const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
+    await this.#processAdvancements(orderedItems, actor);
+  }
+
+  /**
+   * Gets advancement items in the configured order
+   * @param {object} backgroundItem - Background item
+   * @param {object} raceItem - Race item
+   * @param {object} classItem - Class item
+   * @returns {Array<Item>} Items ordered according to GM settings
+   * @private
+   * @static
+   */
+  static #getOrderedAdvancementItems(backgroundItem, raceItem, classItem) {
+    try {
+      const orderConfig = game.settings.get(HM.ID, 'advancementOrder') || [
+        { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
+        { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
+        { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
+      ];
+      const itemMap = { background: backgroundItem, race: raceItem, class: classItem };
+      const orderedItems = orderConfig
+        .filter((config) => itemMap[config.id])
+        .sort((a, b) => a.order - b.order)
+        .map((config) => itemMap[config.id]);
+      HM.log(
+        3,
+        `Advancement order: ${orderConfig
+          .filter((c) => itemMap[c.id])
+          .sort((a, b) => a.order - b.order)
+          .map((c) => c.id)
+          .join(' → ')}`
+      );
+      return orderedItems;
+    } catch (error) {
+      HM.log(1, 'Error getting ordered advancement items, using default order:', error);
+      return [backgroundItem, raceItem, classItem];
+    }
   }
 
   /* -------------------------------------------- */
