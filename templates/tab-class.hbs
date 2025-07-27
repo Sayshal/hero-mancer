@@ -14,7 +14,19 @@
         <option value=''>{{localize 'hm.app.class.select-placeholder'}}</option>
 
         {{#each classDocs}}
-          <option value='{{this.id}} [{{this.uuid}}]'>{{this.name}}</option>
+          {{#if this.folderName}}
+            <optgroup label='{{this.folderName}}'>
+              {{#each this.docs}}
+                <option value='{{this.id}} ({{this.packId}}) [{{this.uuid}}]'>
+                  {{this.displayName}}
+                </option>
+              {{/each}}
+            </optgroup>
+          {{else}}
+            <option value='{{this.id}} ({{this.packId}}) [{{this.uuid}}]'>
+              {{this.displayName}}
+            </option>
+          {{/if}}
         {{else}}
           <option>{{localize 'hm.app.class.none'}}</option>
         {{/each}}
@@ -22,7 +34,8 @@
     </div>
 
     {{!-- Class Description Display --}}
-    <div id="class-description" class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"
-      role="region" aria-live="polite" aria-atomic="true"></div>
+    <div id='class-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
+      <div class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"></div>
+    </div>
   </fieldset>
 </div>
