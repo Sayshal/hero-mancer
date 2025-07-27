@@ -342,8 +342,6 @@
   "hm.settings.genders.name": "Genders",
   "hm.settings.hair-colors.hint": "Comma-separated list of hair colors used for character randomization.",
   "hm.settings.hair-colors.name": "Hair Colors",
-  "hm.settings.hide-compendium-source.hint": "Hide the compendium source names (in parentheses) from dropdown selections. Items will still be sorted by source internally.",
-  "hm.settings.hide-compendium-source.name": "Hide Compendium Sources",
   "hm.settings.item-packs.name": "Item Packs",
   "hm.settings.logger.choices.errors": "Errors",
   "hm.settings.logger.choices.off": "Off",

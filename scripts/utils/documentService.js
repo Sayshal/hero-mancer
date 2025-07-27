@@ -128,24 +128,15 @@ export class DocumentService {
    * @private
    */
   static #getFlatDocuments(documents) {
-    if (!documents?.length) {
-      return [];
-    }
-
+    if (!documents?.length) return [];
     try {
-      // Check if we should hide compendium sources
-      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
-
       return documents
         .map((doc) => {
-          // Prepare the display name based on the setting
-          const displayName = hideCompendiumSource ? doc.name : `${doc.name} (${doc.packName || 'Unknown'})`;
-
+          const displayName = doc.name;
           return {
             id: doc.id,
             name: displayName,
-            // Keep the original name for sorting purposes
-            sortName: `${doc.name} (${doc.packName || 'Unknown'})`,
+            sortName: doc.name,
             description: doc.description,
             enrichedDescription: doc.enrichedDescription,
             journalPageId: doc.journalPageId,
@@ -801,21 +792,15 @@ export class DocumentService {
 
     // Combined mapping for all name translations with special logic
     const nameTranslations = {
-      // System folder names
-      'D&D Legacy Content': 'SRD 2014',
-      'D&D Modern Content': 'SRD 5.1',
-
-      // Pack name patterns with localization keys
+      'D&D Legacy Content': 'SRD 5.1',
+      'D&D Modern Content': 'SRD 5.2',
       'Forge': () => game.i18n.localize('hm.app.document-service.common-labels.forge'),
       'DDB': () => game.i18n.localize('hm.app.document-service.common-labels.dndbeyond-importer'),
       'Elkan': () => {
-        // Special check for Elkan5e module
         if (!game.modules.get('elkan5e')?.active) return null;
         return game.i18n.localize('hm.app.document-service.common-labels.elkan5e');
       }
     };
-
-    // Check for direct matches first
     if (nameTranslations[name]) {
       const result = typeof nameTranslations[name] === 'function' ? nameTranslations[name]() : nameTranslations[name];
       if (result) return result;
@@ -861,9 +846,6 @@ export class DocumentService {
     try {
       HM.log(3, `Organizing ${documents.length} ${documentType} documents by pack top-level folder`);
 
-      // Check if we should hide compendium sources
-      const hideCompendiumSource = game.settings.get(HM.ID, 'hideCompendiumSource');
-
       // Organize documents into groups
       const organizationGroups = new Map();
 
@@ -893,8 +875,8 @@ export class DocumentService {
           });
         }
 
-        // Prepare display name based on setting
-        const displayName = hideCompendiumSource ? docData.name : `${docData.name} (${docData.packName})`;
+        // Always use clean name without compendium source
+        const displayName = docData.name;
 
         // Add document to its group
         organizationGroups.get(organizationName).docs.push({

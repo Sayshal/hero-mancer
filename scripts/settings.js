@@ -86,21 +86,6 @@ function registerCoreSettings() {
     default: 'standardArray'
   });
 
-  game.settings.register(HM.ID, 'hideCompendiumSource', {
-    name: 'hm.settings.hide-compendium-source.name',
-    hint: 'hm.settings.hide-compendium-source.hint',
-    scope: 'client',
-    config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => {
-      // Refresh the Hero Mancer app if it's open
-      if (HM.heroMancer?.rendered) {
-        HM.heroMancer.render(true);
-      }
-    }
-  });
-
   HM.log(3, 'Core settings registered.');
 }
 
