@@ -100,7 +100,7 @@ jobs:
 
           cat payload.json  # Debug: Print the payload
 
-          curl -X POST "https://api.foundryvtt.com/_api/packages/release_version" \
+          curl -X POST "https://foundryvtt.com/_api/packages/release_version/" \
             -H "Content-Type: application/json" \
             -H "Authorization: ${{ secrets.FOUNDRY_API_TOKEN }}" \
             -d @payload.json
