@@ -255,7 +255,7 @@
   "hm.settings.advancement-order.list-label": "Ordem de Processamento de Progressão:",
   "hm.settings.advancement-order.menu.hint": "Configura a ordem em que as progressões dos personagens são processadas.",
   "hm.settings.advancement-order.menu.name": "Ordem de Progressão",
-  "hm.settings.advancement-order.name": "Advancement Processing Order",
+  "hm.settings.advancement-order.name": "Ordem de Processamento de Progressão",
   "hm.settings.advancement-order.saved": "Configuração de ordem de progressão salva com sucesso.",
   "hm.settings.alignments.hint": "Lista separada por vírgulas de alinhamentos disponíveis para criação de personagens.",
   "hm.settings.alignments.name": "Alinhamentos Disponíveis",
