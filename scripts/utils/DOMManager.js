@@ -1493,17 +1493,12 @@ export class DOMManager {
     if (journalContainer) {
       // Find the document with this ID
       let doc = null;
-      if (type === 'race') {
-        for (const folder of HM.documents.race) {
-          const foundDoc = folder.docs.find((d) => d.id === id);
-          if (foundDoc) {
-            doc = foundDoc;
-            break;
-          }
+      for (const folder of HM.documents[type] || []) {
+        const foundDoc = folder.docs.find((d) => d.id === id);
+        if (foundDoc) {
+          doc = foundDoc;
+          break;
         }
-      } else {
-        const docsArray = HM.documents[type] || [];
-        doc = docsArray.find((d) => d.id === id);
       }
 
       if (doc) {
