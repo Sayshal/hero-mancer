@@ -867,6 +867,161 @@
 }
 
 /* ==========================================================================
+  V13 Journal Content-Link Icon and Table Fixes
+ ========================================================================== */
+
+.hm-app-tab-content {
+  .journal-container,
+  .dnd5e2-journal {
+    /* Override dnd5e system styling for content-link icons to make them more readable */
+    :is(a.content-link, .inline-roll) > i,
+    a.roll-link-group .roll-link > i,
+    a.roll-link-group.roll-link > i,
+    :is(.roll-link-group, .reference-link) a > i {
+      color: var(--color-journal-heading) !important;
+      opacity: 0.6 !important;
+      filter: brightness(0.7);
+    }
+
+    /* Make tables more readable by removing grey backgrounds and improving contrast */
+    table {
+      background-color: transparent !important;
+
+      &.features-table {
+        background-color: rgb(248 246 240) !important;
+        border: 1px solid var(--color-journal-border);
+
+        thead {
+          background-color: rgb(235 230 220) !important;
+
+          th {
+            background-color: rgb(225 220 210) !important;
+            color: var(--color-journal-heading) !important;
+            font-weight: bold;
+            border-bottom: 1px solid var(--color-journal-border);
+          }
+        }
+
+        tbody {
+          tr {
+            background-color: rgb(248 246 240) !important;
+
+            &:nth-child(even) {
+              background-color: rgb(243 241 235) !important;
+            }
+
+            &:hover {
+              background-color: rgb(238 236 230) !important;
+            }
+
+            td {
+              background-color: transparent !important;
+              color: rgb(25 24 19) !important;
+              border-bottom: 1px solid rgb(220 215 205);
+
+              &.features {
+                text-align: start;
+
+                a.content-link {
+                  color: var(--color-journal-heading) !important;
+                  font-weight: 500;
+
+                  &:hover {
+                    text-decoration: underline;
+                  }
+
+                  i {
+                    margin-right: 0.25em;
+                    opacity: 0.5 !important;
+                  }
+                }
+              }
+
+              &.level,
+              &.prof,
+              &.scale,
+              &.spell-slots {
+                text-align: center;
+                font-weight: 500;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /* Ensure general table styling is readable */
+    :is(th, td) {
+      color: rgb(25 24 19) !important;
+
+      &:not(.features) {
+        background-color: transparent !important;
+      }
+    }
+
+    /* Fix any other grey backgrounds from dnd5e system */
+    .journal-page-content {
+      background-color: transparent !important;
+
+      section {
+        background-color: transparent !important;
+      }
+    }
+  }
+}
+
+/* Light theme specific adjustments */
+.theme-light {
+  .hm-app-tab-content {
+    .journal-container,
+    .dnd5e2-journal {
+      /* Adjust content-link icons for light theme */
+      :is(a.content-link, .inline-roll) > i,
+      a.roll-link-group .roll-link > i,
+      a.roll-link-group.roll-link > i,
+      :is(.roll-link-group, .reference-link) a > i {
+        filter: brightness(0.5) !important;
+      }
+
+      /* Light theme table adjustments */
+      table.features-table {
+        background-color: rgb(255 255 255) !important;
+        border: 1px solid rgb(200 200 200);
+
+        thead th {
+          background-color: rgb(245 245 245) !important;
+          color: rgb(41 41 41) !important;
+          border-bottom: 1px solid rgb(200 200 200);
+        }
+
+        tbody {
+          tr {
+            background-color: rgb(255 255 255) !important;
+
+            &:nth-child(even) {
+              background-color: rgb(250 250 250) !important;
+            }
+
+            &:hover {
+              background-color: rgb(240 240 240) !important;
+            }
+
+            td {
+              color: rgb(41 41 41) !important;
+              border-bottom: 1px solid rgb(220 220 220);
+
+              &.features a.content-link {
+                color: rgb(41 41 41) !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ==========================================================================
   Abilities Tab
  ========================================================================== */
 .hm-app {
