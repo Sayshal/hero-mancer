@@ -305,6 +305,7 @@ export class JournalPageEmbed {
    * @returns {Promise<JournalPageEmbed|null>} This instance or null if rendering failed
    */
   async render(pageId, itemName = null) {
+    this.pageId = pageId;
     // Log that we're attempting to render a journal page
     HM.log(3, `Attempting to render journal page ${pageId}${itemName ? ` for ${itemName}` : ''}`);
 
@@ -436,33 +437,75 @@ export class JournalPageEmbed {
   async #renderPageWithSheet(page) {
     try {
       const sheetClass = page._getSheetClass();
-      this.sheet = new sheetClass(page, { editable: this.options.editable });
-
-      // Prepare the container
-      this.#prepareContainer();
-
-      // Render the sheet content
-      const data = await this.sheet.getData();
-      const view = await this.sheet._renderInner(data);
-
-      // Clear and add the content
-      this.container.innerHTML = '';
-      this.#appendSheetContent(view);
-
-      // Activate listeners
-      this.#activateSheetListeners();
-
-      // Handle TOC if applicable
-      if (this.sheet.toc) {
-        this._renderHeadings();
-      }
-
-      // Signal completion
-      this.sheet._callHooks('render', $(this.container), data);
-
-      HM.log(3, `Journal page ${this.pageId} rendered successfully with sheet`);
+      this.sheet = new sheetClass({ document: page, editable: this.options.editable });
+      let isV13Sheet = this.sheet instanceof foundry.applications.api.ApplicationV2;
+      if (isV13Sheet) await this.#renderV13Sheet(page);
+      else await this.#renderLegacySheet();
     } catch (error) {
-      HM.log(1, `Error with sheet rendering: ${error.message}`);
+      this.#renderFallbackContent(page);
+    }
+  }
+
+  /**
+   * Render a V13+ ApplicationV2 style sheet using direct template rendering
+   * @param {JournalEntryPage} page - The page to render
+   * @returns {Promise<void>}
+   * @private
+   */
+  async #renderV13Sheet(page) {
+    this.#prepareContainer();
+
+    try {
+      const context = await this.sheet._prepareContext({ editable: false });
+      const viewTemplate = `systems/dnd5e/templates/journal/page-${page.type}-view.hbs`;
+      const html = await renderTemplate(viewTemplate, context);
+      this.container.innerHTML = html;
+    } catch (directError) {
+      await this.#renderPageDirectly(page);
+    }
+  }
+
+  /**
+   * Render a legacy style sheet (V12 and earlier)
+   * @returns {Promise<void>}
+   * @private
+   */
+  async #renderLegacySheet() {
+    this.#prepareContainer();
+    const data = await this.sheet.getData();
+    const view = await this.sheet._renderInner(data);
+    this.container.innerHTML = '';
+    this.#appendSheetContent(view);
+    this.#activateSheetListeners();
+    if (this.sheet.toc) this._renderHeadings();
+    this.sheet._callHooks('render', $(this.container), data);
+  }
+
+  /**
+   * Render a page directly without using its sheet
+   * @param {JournalEntryPage} page - The page to render
+   * @returns {Promise<void>}
+   * @private
+   */
+  async #renderPageDirectly(page) {
+    try {
+      this.container.innerHTML = '';
+      const pageContainer = document.createElement('div');
+      pageContainer.classList.add('journal-page-content', 'class-page-content');
+      const title = document.createElement('h1');
+      title.textContent = page.name;
+      pageContainer.appendChild(title);
+      if (page.text?.content) {
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = await TextEditor.enrichHTML(page.text.content);
+        pageContainer.appendChild(contentDiv);
+      } else if (page.system) {
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = '<p>Class information would be displayed here.</p>';
+        pageContainer.appendChild(infoDiv);
+      }
+      this.container.appendChild(pageContainer);
+    } catch (error) {
       this.#renderFallbackContent(page);
     }
   }
@@ -473,9 +516,7 @@ export class JournalPageEmbed {
    */
   #prepareContainer() {
     this.container.classList.add('journal-page-embed');
-    if (this.options.scrollable) {
-      this.container.classList.add('scrollable');
-    }
+    if (this.options.scrollable) this.container.classList.add('scrollable');
   }
 
   /**
@@ -484,16 +525,10 @@ export class JournalPageEmbed {
    * @private
    */
   #appendSheetContent(view) {
-    if (view instanceof jQuery) {
-      view.appendTo(this.container);
-    } else if (view instanceof HTMLElement || view instanceof DocumentFragment) {
-      this.container.appendChild(view);
-    } else if (typeof view === 'string') {
-      this.container.innerHTML = view;
-    } else {
-      HM.log(2, 'Unexpected return type from _renderInner:', typeof view);
-      this.container.innerHTML = `<div class="notification error">${game.i18n.localize('hm.app.errors.unexpected-format')}</div>`;
-    }
+    if (view instanceof jQuery) view.appendTo(this.container);
+    else if (view instanceof HTMLElement || view instanceof DocumentFragment) this.container.appendChild(view);
+    else if (typeof view === 'string') this.container.innerHTML = view;
+    else this.container.innerHTML = `<div class="notification error">${game.i18n.localize('hm.app.errors.unexpected-format')}</div>`;
   }
 
   /**
@@ -502,6 +537,8 @@ export class JournalPageEmbed {
    */
   #activateSheetListeners() {
     if (!this.sheet) return;
+    let isV13Sheet = this.sheet instanceof foundry.applications.api.ApplicationV2;
+    if (isV13Sheet) return;
     this.sheet._activateCoreListeners($(this.container));
     this.sheet.activateListeners($(this.container));
   }
@@ -513,10 +550,20 @@ export class JournalPageEmbed {
    */
   #renderFallbackContent(page) {
     this.container.innerHTML = `
-      <div class="notification warning">${game.i18n.format('hm.warnings.simplified-journal', { page: page.name })}</div>
-      <h2>${page.name}</h2>
-      <div class="journal-content">${page.text?.content || game.i18n.localize('hm.app.journal.no-content-found')}</div>
-    `;
+    <div class="notification warning">${game.i18n.format('hm.warnings.simplified-journal', { page: page.name })}</div>
+    <h2>${page.name}</h2>
+    <div class="journal-content">${page.text?.content || game.i18n.localize('hm.app.journal.no-content-found')}</div>
+  `;
+  }
+
+  /**
+   * Normalize item name for matching
+   * @param {string} itemName - Item name to normalize
+   * @returns {string} Normalized name
+   * @private
+   */
+  #normalizeItemName(itemName) {
+    return itemName?.toLowerCase()?.trim() || '';
   }
 
   /**
@@ -528,76 +575,22 @@ export class JournalPageEmbed {
    */
   async #findMatchingPage(pages, itemName) {
     if (!pages?.size || !itemName) return null;
-
     const normalizedItemName = this.#normalizeItemName(itemName);
-
-    HM.log(3, `Finding page matching "${itemName}" among ${pages.size} pages`);
-
-    // Create a prioritized list of matching strategies
     const matchStrategies = [
-      // 1. Exact case-sensitive match
       (page) => page.name === itemName,
-
-      // 2. Case-insensitive exact match
       (page) => page.name.toLowerCase() === normalizedItemName,
-
-      // 3. Base race match for special races
       (page) => {
         const baseRaceName = JournalPageFinder._getBaseRaceName(itemName);
         return baseRaceName && page.name.toLowerCase() === baseRaceName.toLowerCase();
       },
-
-      // 4. Substantial partial matches
-      (page) => {
-        const pageName = page.name.toLowerCase();
-        if (pageName.length < 3) return false; // Skip very short names
-
-        // Either page contains item name or item name contains page name
-        return (pageName.includes(normalizedItemName) && normalizedItemName.length > 3) || (normalizedItemName.includes(pageName) && pageName.length > 3);
-      }
+      (page) => page.name.toLowerCase().includes(normalizedItemName),
+      (page) => normalizedItemName.includes(page.name.toLowerCase())
     ];
-
-    // Filter out art handouts first
-    const filteredPages = Array.from(pages).filter((page) => !page.name.toLowerCase().includes('handout') && !page.name.toLowerCase().includes('art'));
-
-    if (filteredPages.length < pages.size) {
-      HM.log(3, `Filtered out ${pages.size - filteredPages.length} art/handout pages`);
-    }
-
-    // Try each strategy in order until we find a match
     for (const strategy of matchStrategies) {
-      const match = filteredPages.find(strategy);
-      if (match) {
-        HM.log(3, `Found matching page "${match.name}" for "${itemName}"`);
-        return match;
-      }
+      const matchingPage = pages.find(strategy);
+      if (matchingPage) return matchingPage;
     }
-
-    // If no match in filtered pages, try the full set as a last resort
-    HM.log(3, 'No match in filtered pages, trying full set as fallback');
-    for (const strategy of matchStrategies) {
-      const match = Array.from(pages).find(strategy);
-      if (match) {
-        HM.log(3, `Found fallback match "${match.name}" for "${itemName}"`);
-        return match;
-      }
-    }
-
-    HM.log(3, `No matching page found for "${itemName}"`);
     return null;
-  }
-
-  /**
-   * Normalize an item name for matching
-   * @param {string} name - The item name to normalize
-   * @returns {string} - Normalized name
-   * @private
-   */
-  #normalizeItemName(name) {
-    if (!name) return '';
-
-    // Remove content in parentheses
-    return name.split('(')[0].trim().toLowerCase();
   }
 
   /**
@@ -606,7 +599,6 @@ export class JournalPageEmbed {
    */
   _renderHeadings() {
     if (!this.sheet?.toc || Object.keys(this.sheet.toc).length === 0) return;
-
     const headings = Object.values(this.sheet.toc);
     headings.forEach(({ element, slug }) => {
       if (element) element.dataset.anchor = slug;
