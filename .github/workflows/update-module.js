@@ -37,7 +37,7 @@ fs.readFile(moduleJsonPath, 'utf8', (err, data) => {
   }
 
   moduleJson.version = version;
-  moduleJson.download = `https://github.com/Sayshal/hero-mancer/releases/download/${version}/module.zip`;
+  moduleJson.download = `${moduleJson.url}/releases/download/${version}/module.zip`;
 
   fs.writeFile(moduleJsonPath, JSON.stringify(moduleJson, null, 2), 'utf8', (err) => {
     if (err) {
