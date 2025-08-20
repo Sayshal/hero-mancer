@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern */
 /* stylelint-disable selector-max-compound-selectors */
 /* stylelint-disable max-nesting-depth */
 /* stylelint-disable no-duplicate-selectors */
@@ -889,7 +890,7 @@
 
       &.features-table {
         background-color: rgb(248 246 240) !important;
-        border: 1px solid var(--color-journal-border);
+        border: 0.063rem solid var(--color-journal-border);
 
         thead {
           background-color: rgb(235 230 220) !important;
@@ -898,7 +899,7 @@
             background-color: rgb(225 220 210) !important;
             color: var(--color-journal-heading) !important;
             font-weight: bold;
-            border-bottom: 1px solid var(--color-journal-border);
+            border-bottom: 0.063rem solid var(--color-journal-border);
           }
         }
 
@@ -917,7 +918,7 @@
             td {
               background-color: transparent !important;
               color: rgb(25 24 19) !important;
-              border-bottom: 1px solid rgb(220 215 205);
+              border-bottom: 0.063rem solid rgb(220 215 205);
 
               &.features {
                 text-align: start;
@@ -986,12 +987,12 @@
       /* Light theme table adjustments */
       table.features-table {
         background-color: rgb(255 255 255) !important;
-        border: 1px solid rgb(200 200 200);
+        border: 0.063rem solid rgb(200 200 200);
 
         thead th {
           background-color: rgb(245 245 245) !important;
           color: rgb(41 41 41) !important;
-          border-bottom: 1px solid rgb(200 200 200);
+          border-bottom: 0.063rem solid rgb(200 200 200);
         }
 
         tbody {
@@ -1008,7 +1009,7 @@
 
             td {
               color: rgb(41 41 41) !important;
-              border-bottom: 1px solid rgb(220 220 220);
+              border-bottom: 0.063rem solid rgb(220 220 220);
 
               &.features a.content-link {
                 color: rgb(41 41 41) !important;
@@ -1549,6 +1550,34 @@ td .equipment-favorite-container {
   .notes-group prose-mirror {
     width: 100%;
     min-height: 16.25rem;
+    background: var(--input-background-color);
+    border: 0.063rem solid var(--input-border-color);
+    border-radius: 0.25rem;
+
+    .editor-content.ProseMirror {
+      --color-text-selection-bg: var(--color-cool-3);
+      --prosemirror-background-color: rgb(48 40 49);
+      --prosemirror-text-color: rgb(247 243 232);
+      --prosemirror-focus-outline-color: rgb(88 74 117);
+
+      min-height: 3.75rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--prosemirror-background-color);
+      border: 0.063rem solid var(--input-border-color);
+      border-radius: 0.25rem;
+      box-shadow: var(--input-box-shadow);
+      font-family: var(--font-monospace);
+      font-size: var(--font-size-14);
+      color: var(--prosemirror-text-color);
+      user-select: text;
+      cursor: var(--cursor-text);
+      resize: vertical;
+
+      &:focus {
+        outline: 0.125rem solid var(--prosemirror-focus-outline-color);
+        outline-offset: -0.125rem;
+      }
+    }
   }
 
   .personal-char-section button {
@@ -2602,5 +2631,11 @@ td .equipment-favorite-container {
 
   .hm-troubleshooter textarea {
     color: var(--light-mode-font-color);
+  }
+
+  .notes-group prose-mirror .editor-content.ProseMirror {
+    --prosemirror-background-color: rgb(0 0 0 / 10.2%);
+    --prosemirror-text-color: rgb(17 17 17);
+    --prosemirror-focus-outline-color: rgb(201 89 63);
   }
 }
