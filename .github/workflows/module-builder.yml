@@ -90,7 +90,7 @@ jobs:
         run: |
           cat << EOF > payload.json
           {
-            "id": "$MODULE_ID",
+            "id": "${{ steps.get-version.outputs.module_id }}",
             "release": {
               "version": "${{ steps.get-version.outputs.version }}",
               "manifest": "${{ env.REPO_URL }}/releases/latest/download/module.json",
@@ -116,22 +116,18 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
-          MODULE_TITLE="${{ steps.get-version.outputs.module_title }}"
-          MODULE_ID="${{ steps.get-version.outputs.module_id }}"
           RELEASE_NOTES=$(< release_notes.txt)
 
           JSON_PAYLOAD=$(jq -n \
-            --arg title "$MODULE_TITLE Release" \
-            --arg version "$VERSION" \
-            --arg foundry_url "https://foundryvtt.com/packages/$MODULE_ID" \
-            --arg release_url "${{ env.REPO_URL }}/releases/download/$VERSION/module.json" \
-            --arg download_url "${{ env.REPO_URL }}/releases/download/$VERSION/module.zip" \
+            --arg title "${{ steps.get-version.outputs.module_title }} Release" \
+            --arg version "${{ steps.get-version.outputs.version }}" \
+            --arg foundry_url "https://foundryvtt.com/packages/${{ steps.get-version.outputs.module_id }}" \
+            --arg release_url "${{ env.REPO_URL }}/releases/download/${{ steps.get-version.outputs.version }}/module.json" \
+            --arg download_url "${{ env.REPO_URL }}/releases/download/${{ steps.get-version.outputs.version }}/module.zip" \
             --arg release_notes "$RELEASE_NOTES" \
             --arg compat_min "${{ steps.get-version.outputs.compat_min }}" \
             --arg compat_max "${{ steps.get-version.outputs.compat_max }}" \
             '{
-              content: "<@&1384920094597185556> <@&1384920304316579953>",
               embeds: [{
                 title: $title,
                 fields: [
