@@ -15,25 +15,12 @@
     "verified": "12.343"
   },
   "description": "The one stop shop for creating your heroes in D&D 5e.",
-  "download": "https://github.com/Sayshal/hero-mancer/releases/download/1.4.6/module.zip",
-  "esmodules": [
-    "scripts/app/HeroMancer.js",
-    "scripts/hero-mancer.js",
-    "scripts/settings.js"
-  ],
+  "download": "",
+  "esmodules": ["scripts/app/HeroMancer.js", "scripts/hero-mancer.js", "scripts/settings.js"],
   "flags": {
     "hotReload": {
-      "extensions": [
-        "css",
-        "html",
-        "hbs",
-        "json"
-      ],
-      "paths": [
-        "styles",
-        "lang",
-        "templates"
-      ]
+      "extensions": ["css", "html", "hbs", "json"],
+      "paths": ["styles", "lang", "templates"]
     }
   },
   "id": "hero-mancer",
@@ -102,10 +89,8 @@
       }
     ]
   },
-  "styles": [
-    "styles/hero-mancer.css"
-  ],
+  "styles": ["styles/hero-mancer.css"],
   "title": "Hero Mancer",
   "url": "https://github.com/Sayshal/hero-mancer",
-  "version": "1.4.6"
+  "version": ""
 }
