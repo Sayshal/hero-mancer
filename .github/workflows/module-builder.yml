@@ -128,12 +128,13 @@ jobs:
             --arg compat_min "${{ steps.get-version.outputs.compat_min }}" \
             --arg compat_max "${{ steps.get-version.outputs.compat_max }}" \
             '{
+            content: "<@&1384920094597185556> <@&1384920304316579953>",
               embeds: [{
                 title: $title,
                 fields: [
                   {name: "Version", value: $version, inline: true},
                   {name: "Core Compatibility", value: ($compat_min + " - " + $compat_max), inline: true},
-                  {name: "System Compatibility", value:"5.2.1+", inline: true},
+                  {name: "System Compatibility", value:"5.1.2+", inline: true},
                   {name: "Foundry Package", value: $foundry_url, inline: false},
                   {name: "Release Tag", value: $release_url, inline: false},
                   {name: "Manual Download", value: $download_url, inline: false},
