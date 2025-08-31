@@ -19,18 +19,15 @@ jobs:
       - name: Get Version
         id: get-version
         run: |
-          version_data=($(node .github/workflows/get-version.js))
-
+          mapfile -t version_data < <(node .github/workflows/get-version.js)
           summary=$(git log -1 --pretty=%s)
-          version=$(echo "$summary" | grep -o -E '[v]?[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | sed 's/^v//')
-          echo "version=$version" >> $GITHUB_OUTPUT
-          compat_min=$(echo "${version_data[1]}" | sed 's/COMPAT_MIN://')
-          compat_verified=$(echo "${version_data[2]}" | sed 's/COMPAT_VERIFIED://')
-          compat_max=$(echo "${version_data[3]}" | sed 's/COMPAT_MAX://')
-
-          module_id=$(echo "${version_data[4]}" | sed 's/MODULE_ID://')
-          module_title=$(echo "${version_data[5]}" | sed 's/MODULE_TITLE://')
-          module_url=$(echo "${version_data[6]}" | sed 's/MODULE_URL://')
+          version=$(echo "$summary" | grep -o -E '[v]?[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed 's/^v//')
+          compat_min=$(echo "${version_data[1]}" | sed 's/^COMPAT_MIN://')
+          compat_verified=$(echo "${version_data[2]}" | sed 's/^COMPAT_VERIFIED://')
+          compat_max=$(echo "${version_data[3]}" | sed 's/^COMPAT_MAX://')
+          module_id=$(echo "${version_data[4]}" | sed 's/^MODULE_ID://')
+          module_title=$(echo "${version_data[5]}" | sed 's/^MODULE_TITLE://')
+          module_url=$(echo "${version_data[6]}" | sed 's/^MODULE_URL://')
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "compat_min=$compat_min" >> $GITHUB_OUTPUT
           echo "compat_verified=$compat_verified" >> $GITHUB_OUTPUT
@@ -134,7 +131,6 @@ jobs:
                 fields: [
                   {name: "Version", value: $version, inline: true},
                   {name: "Core Compatibility", value: ($compat_min + " - " + $compat_max), inline: true},
-                  {name: "System Compatibility", value:"5.1.2+", inline: true},
                   {name: "Foundry Package", value: $foundry_url, inline: false},
                   {name: "Release Tag", value: $release_url, inline: false},
                   {name: "Manual Download", value: $download_url, inline: false},
