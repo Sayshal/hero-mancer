@@ -617,7 +617,7 @@ export class DOMManager {
         background: backgroundData.link
       });
 
-      summary.innerHTML = await TextEditor.enrichHTML(content);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } catch (error) {
       HM.log(1, 'Error updating background summary:', error);
 
@@ -651,7 +651,7 @@ export class DOMManager {
         class: classLink
       });
 
-      summary.innerHTML = await TextEditor.enrichHTML(content);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } catch (error) {
       HM.log(1, 'Error updating class/race summary:', error);
 
@@ -661,7 +661,7 @@ export class DOMManager {
         class: game.i18n.format('hm.unknown', { type: 'class' })
       });
 
-      summary.innerHTML = await TextEditor.enrichHTML(fallbackContent);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(fallbackContent);
     }
   }
 
@@ -1841,7 +1841,7 @@ export class DOMManager {
         formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) + (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') + formattedItems.slice(-1)
     });
 
-    summary.innerHTML = await TextEditor.enrichHTML(content);
+    summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
   }
 
   /**
@@ -2163,7 +2163,7 @@ export class DOMManager {
         first: `&Reference[${selectedAbilities[0]}]`,
         second: `&Reference[${selectedAbilities[1]}]`
       });
-      abilitiesSummary.innerHTML = await TextEditor.enrichHTML(content);
+      abilitiesSummary.innerHTML = foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } else {
       abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
     }
@@ -2471,7 +2471,7 @@ export class DOMManager {
       const doc = await fromUuidSync(uuid);
       if (doc) {
         const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
-        element.innerHTML = await TextEditor.enrichHTML(linkHtml);
+        element.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(linkHtml);
       } else {
         element.textContent = game.i18n.localize('hm.unknown');
       }
@@ -2569,7 +2569,7 @@ export class DOMManager {
       backstory.className = 'bio-detail backstory';
       backstory.innerHTML = `
       <h4>${game.i18n.localize('hm.app.finalize.review.backstory')}</h4>
-      <div class="backstory-text">${await TextEditor.enrichHTML(bioData.backstory)}</div>
+      <div class="backstory-text">${await foundry.applications.ux.TextEditor.implementation.enrichHTML(bioData.backstory)}</div>
     `;
       container.appendChild(backstory);
     }
@@ -3044,7 +3044,7 @@ export class DOMManager {
           // Regular equipment items
           const itemsHtml = await Promise.all(
             backgroundItems.map(async (item) => {
-              return `<div class="equipment-item">${await TextEditor.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
+              return `<div class="equipment-item">${await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
             })
           );
           backgroundItemsEl.innerHTML = itemsHtml.join('');
@@ -3065,7 +3065,7 @@ export class DOMManager {
           // Regular equipment items
           const itemsHtml = await Promise.all(
             classItems.map(async (item) => {
-              return `<div class="equipment-item">${await TextEditor.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
+              return `<div class="equipment-item">${await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`)}</div>`;
             })
           );
           classItemsEl.innerHTML = itemsHtml.join('');
