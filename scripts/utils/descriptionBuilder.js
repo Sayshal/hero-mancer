@@ -422,7 +422,7 @@ export class JournalPageEmbed {
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('journal-page-content');
-    contentDiv.innerHTML = await TextEditor.enrichHTML(page.text.content);
+    contentDiv.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(page.text.content);
 
     this.container.appendChild(contentDiv);
     HM.log(3, `Text page ${page.id} rendered directly`);
@@ -458,7 +458,7 @@ export class JournalPageEmbed {
     try {
       const context = await this.sheet._prepareContext({ editable: false });
       const viewTemplate = `systems/dnd5e/templates/journal/page-${page.type}-view.hbs`;
-      const html = await renderTemplate(viewTemplate, context);
+      const html = await foundry.applications.handlebars.renderTemplate(viewTemplate, context);
       this.container.innerHTML = html;
     } catch (directError) {
       await this.#renderPageDirectly(page);
@@ -497,7 +497,7 @@ export class JournalPageEmbed {
       pageContainer.appendChild(title);
       if (page.text?.content) {
         const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = await TextEditor.enrichHTML(page.text.content);
+        contentDiv.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(page.text.content);
         pageContainer.appendChild(contentDiv);
       } else if (page.system) {
         const infoDiv = document.createElement('div');

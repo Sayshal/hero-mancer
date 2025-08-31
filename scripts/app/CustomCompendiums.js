@@ -300,7 +300,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       const dialogData = this.#prepareCompendiumDialogData(validPacks, selectedPacks);
 
       // Render template
-      const content = await renderTemplate(this.DIALOG_TEMPLATE, dialogData);
+      const content = await foundry.applications.handlebars.renderTemplate(this.DIALOG_TEMPLATE, dialogData);
 
       // Create dialog configuration
       const dialogConfig = {

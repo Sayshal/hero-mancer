@@ -952,7 +952,12 @@ export class ActorCreationService {
    */
   static async #addItemsWithoutAdvancements(actor, items) {
     try {
-      const itemData = items.map((item) => item.toObject());
+      const itemData = items.map((item) => {
+        const data = item.toObject();
+        data._stats = data._stats || {};
+        data._stats.compendiumSource = item.uuid || null;
+        return data;
+      });
       await actor.createEmbeddedDocuments('Item', itemData);
     } catch (error) {
       HM.log(1, 'Error adding items without advancements:', error);
@@ -1162,8 +1167,13 @@ export class ActorCreationService {
    */
   static async #createAdvancementManager(actor, item, retryCount = 0) {
     try {
+      const itemData = item.toObject();
+      // Set compendium source from the item's UUID
+      itemData._stats = itemData._stats || {};
+      itemData._stats.compendiumSource = item.uuid || null;
+
       const manager = await Promise.race([
-        dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, item.toObject()),
+        dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, itemData),
         new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Manager creation timed out')), this.ADVANCEMENT_DELAY.renderTimeout);
         })
