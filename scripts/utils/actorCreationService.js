@@ -417,9 +417,25 @@ export class ActorCreationService {
    */
   static async #createEquipmentItems(actor, equipment) {
     if (!equipment.length) return [];
+    const fullyLoadedEquipment = await Promise.all(
+      equipment.map(async (item) => {
+        if (item.pack && (!item.system?.activities || Object.keys(item.system).length < 5)) {
+          try {
+            const pack = game.packs.get(item.pack);
+            if (pack) {
+              const fullItem = await pack.getDocument(item._id);
+              if (fullItem) return { ...fullItem.toObject(), system: { ...fullItem.system, quantity: item.system?.quantity || 1, equipped: item.system?.equipped || true } };
+            }
+          } catch (error) {
+            HM.log(1, `Failed to load compendium item ${item.name}:`, error);
+          }
+        }
+        return item;
+      })
+    );
 
     try {
-      return await actor.createEmbeddedDocuments('Item', equipment, { keepId: true });
+      return await actor.createEmbeddedDocuments('Item', fullyLoadedEquipment, { keepId: true });
     } catch (error) {
       HM.log(1, 'Failed to create equipment items:', error);
       ui.notifications.warn('hm.warnings.equipment-creation-failed', { localize: true });
@@ -951,6 +967,7 @@ export class ActorCreationService {
    * @static
    */
   static async #addItemsWithoutAdvancements(actor, items) {
+    HM.log(1, 'DEBUG ITEM DATA', { items: items });
     try {
       const itemData = items.map((item) => {
         const data = item.toObject();
