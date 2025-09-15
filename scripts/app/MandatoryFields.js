@@ -161,17 +161,15 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
           { key: 'character-art', label: `${game.i18n.localize('hm.app.start.character-art-label')}`, default: false },
           { key: 'token-art', label: `${game.i18n.localize('hm.app.start.token-art-label')}`, default: false }
         ],
-        player:
-          playerCustomizationEnabled ?
-            [
+        player: playerCustomizationEnabled
+          ? [
               { key: 'player-color', label: `${game.i18n.localize('hm.app.start.player-color')}`, default: false },
               { key: 'player-pronouns', label: `${game.i18n.localize('hm.app.start.player-pronouns')}`, default: false },
               { key: 'player-avatar', label: `${game.i18n.localize('hm.app.start.player-avatar')}`, default: false }
             ]
           : [],
-        token:
-          tokenCustomizationEnabled ?
-            [
+        token: tokenCustomizationEnabled
+          ? [
               { key: 'displayName', label: `${game.i18n.localize('TOKEN.CharShowNameplate')}`, default: false },
               { key: 'displayBars', label: `${game.i18n.localize('TOKEN.ResourceDisplay')}`, default: false },
               { key: 'bar1.attribute', label: `${game.i18n.localize('TOKEN.ResourceBar1A')}`, default: false },

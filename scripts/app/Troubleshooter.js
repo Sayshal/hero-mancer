@@ -387,11 +387,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   static getLogLevelInfo() {
     try {
       const level = HM.LOG_LEVEL;
-      const name =
-        level === 0 ? 'Disabled'
-        : level === 1 ? 'Errors'
-        : level === 2 ? 'Warnings'
-        : 'Verbose';
+      const name = level === 0 ? 'Disabled' : level === 1 ? 'Errors' : level === 2 ? 'Warnings' : 'Verbose';
       return { level, name };
     } catch (error) {
       HM.log(1, `Error getting log level info: ${error.message}`);
@@ -531,8 +527,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
 
           compendiums[type] = packs.map((packId) => {
             const pack = game.packs.get(packId);
-            return pack ?
-                {
+            return pack
+              ? {
                   id: packId,
                   name: pack.metadata.label,
                   system: pack.metadata.system,

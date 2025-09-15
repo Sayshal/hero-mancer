@@ -570,18 +570,18 @@
 /* Label styling with mandatory indicators */
 .application.hm-app {
   :is(
-      .form-row > label,
-      .art-selection-row > label,
-      .customization-row > label,
-      .ability-block > span.ability-label,
-      .ability-block > label,
-      .form-group > label,
-      .trait-group > label,
-      .personality-trait-group > label,
-      .description-group > label,
-      .notes-group > label,
-      .notes-section > h3
-    ) {
+    .form-row > label,
+    .art-selection-row > label,
+    .customization-row > label,
+    .ability-block > span.ability-label,
+    .ability-block > label,
+    .form-group > label,
+    .trait-group > label,
+    .personality-trait-group > label,
+    .description-group > label,
+    .notes-group > label,
+    .notes-section > h3
+  ) {
     gap: 0.5rem;
     display: flex;
     position: relative;

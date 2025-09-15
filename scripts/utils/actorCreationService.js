@@ -359,18 +359,16 @@ export class ActorCreationService {
    */
   static async #collectEquipment(event, useClassWealth, useBackgroundWealth) {
     // Get background equipment if not using background wealth
-    const backgroundEquipment =
-      !useBackgroundWealth ?
-        await EquipmentParser.collectEquipmentSelections(event, {
+    const backgroundEquipment = !useBackgroundWealth
+      ? await EquipmentParser.collectEquipmentSelections(event, {
           includeClass: false,
           includeBackground: true
         })
       : [];
 
     // Get class equipment if not using class wealth
-    const classEquipment =
-      !useClassWealth ?
-        await EquipmentParser.collectEquipmentSelections(event, {
+    const classEquipment = !useClassWealth
+      ? await EquipmentParser.collectEquipmentSelections(event, {
           includeClass: true,
           includeBackground: false
         })

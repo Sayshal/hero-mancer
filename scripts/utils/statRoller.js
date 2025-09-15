@@ -853,9 +853,8 @@ export class StatRoller {
    */
   static #getRerollDialogContent(chainedRolls) {
     // Only show the chain roll checkbox if chain rolls are enabled in settings
-    const chainRollCheckbox =
-      chainedRolls ?
-        `
+    const chainRollCheckbox = chainedRolls
+      ? `
     <div class="form-group">
       <label class="checkbox">
         <input type="checkbox" name="chainRoll" ${this.chainRollEnabled ? 'checked' : ''}>

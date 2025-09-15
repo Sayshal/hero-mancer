@@ -529,9 +529,9 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     const nameTranslations = {
       'D&D Legacy Content': 'SRD 5.1',
       'D&D Modern Content': 'SRD 5.2',
-      'Forge': () => game.i18n.localize('hm.app.document-service.common-labels.forge'),
-      'DDB': () => game.i18n.localize('hm.app.document-service.common-labels.dndbeyond-importer'),
-      'Elkan': () => {
+      Forge: () => game.i18n.localize('hm.app.document-service.common-labels.forge'),
+      DDB: () => game.i18n.localize('hm.app.document-service.common-labels.dndbeyond-importer'),
+      Elkan: () => {
         if (!game.modules.get('elkan5e')?.active) return null;
         return game.i18n.localize('hm.app.document-service.common-labels.elkan5e');
       }

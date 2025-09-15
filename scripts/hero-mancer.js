@@ -99,11 +99,7 @@ export class HM {
 
     // Logging setup
     if (this.LOG_LEVEL > 0) {
-      const logMessage = `Logging level set to ${
-        this.LOG_LEVEL === 1 ? 'Errors'
-        : this.LOG_LEVEL === 2 ? 'Warnings'
-        : 'Verbose'
-      }`;
+      const logMessage = `Logging level set to ${this.LOG_LEVEL === 1 ? 'Errors' : this.LOG_LEVEL === 2 ? 'Warnings' : 'Verbose'}`;
       HM.log(3, logMessage); // Log at verbose level
     }
   }
@@ -138,10 +134,7 @@ export class HM {
 
     const now = new Date();
     const logEntry = {
-      type:
-        level === 1 ? 'error'
-        : level === 2 ? 'warn'
-        : 'debug',
+      type: level === 1 ? 'error' : level === 2 ? 'warn' : 'debug',
       timestamp: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`,
       level,
       content: args

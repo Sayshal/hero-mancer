@@ -766,8 +766,7 @@ export class OrItemRenderer extends BaseItemRenderer {
         if (!subChildItem) throw new Error(`Item not found for UUID: ${subChild.key}`);
 
         if (combinedLabel) combinedLabel += ', ';
-        combinedLabel +=
-          `${subChild.count > 1 || subChild.count !== null ? subChild.count : ''} <a class="content-link" draggable="true" data-uuid="${subChild.key}">${subChildItem.name}</a>`.trim();
+        combinedLabel += `${subChild.count > 1 || subChild.count !== null ? subChild.count : ''} <a class="content-link" draggable="true" data-uuid="${subChild.key}">${subChildItem.name}</a>`.trim();
         combinedIds.push(subChild?.uuid || subChild?._id);
 
         if (isPartOfOrChoice) {
@@ -809,10 +808,7 @@ export class OrItemRenderer extends BaseItemRenderer {
   isPartOfOrChoice(child) {
     if (!child.group) return false;
 
-    return (
-      this.parser.equipmentData.class.some((p) => p._id === child.group && p.type === 'OR') ||
-      this.parser.equipmentData.background.some((p) => p._id === child.group && p.type === 'OR')
-    );
+    return this.parser.equipmentData.class.some((p) => p._id === child.group && p.type === 'OR') || this.parser.equipmentData.background.some((p) => p._id === child.group && p.type === 'OR');
   }
 
   /**

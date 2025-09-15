@@ -335,9 +335,8 @@ export class EquipmentRenderer {
 
     // Add a header for the section
     const header = document.createElement('h3');
-    header.innerHTML =
-      isPlaceholder ?
-        game.i18n.format('hm.app.equipment.type-equipment', { type: type.charAt(0).toUpperCase() + type.slice(1) })
+    header.innerHTML = isPlaceholder
+      ? game.i18n.format('hm.app.equipment.type-equipment', { type: type.charAt(0).toUpperCase() + type.slice(1) })
       : game.i18n.format('hm.app.equipment.type-equipment', { type: dropdownText });
 
     container.appendChild(header);
