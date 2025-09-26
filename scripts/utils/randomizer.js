@@ -693,25 +693,48 @@ export class CharacterRandomizer {
    */
   static #randomizeAlignment(form) {
     try {
-      const alignmentSelect = form.querySelector('select[name="alignment"]');
-      if (!alignmentSelect) {
-        HM.log(2, 'Alignment select not found');
+      const alignmentElement = form.querySelector('select[name="alignment"], input[name="alignment"]');
+      if (!alignmentElement) {
+        HM.log(2, 'Alignment element not found');
         return false;
       }
 
-      const options = Array.from(alignmentSelect.options).filter((opt) => !opt.disabled && opt.value);
+      // Check if it's a dropdown or input field
+      if (alignmentElement.tagName.toLowerCase() === 'select') {
+        // Handle dropdown
+        const options = Array.from(alignmentElement.options).filter((opt) => !opt.disabled && opt.value);
 
-      if (!options.length) {
-        HM.log(2, 'No valid alignment options found');
-        return false;
+        if (!options.length) {
+          HM.log(2, 'No valid alignment options found');
+          return false;
+        }
+
+        const randomOption = this.#getRandomItem(options);
+        alignmentElement.value = randomOption.value;
+        alignmentElement.dispatchEvent(new Event('change', { bubbles: true }));
+
+        HM.log(3, `Selected random alignment: ${randomOption.text}`);
+        return true;
+      } else {
+        // Handle input field
+        const alignments = game.settings
+          .get(HM.ID, 'alignments')
+          .split(',')
+          .map((a) => a.trim())
+          .filter((a) => a);
+
+        if (!alignments.length) {
+          HM.log(2, 'No valid alignment options found in settings');
+          return false;
+        }
+
+        const randomAlignment = this.#getRandomItem(alignments);
+        alignmentElement.value = randomAlignment;
+        alignmentElement.dispatchEvent(new Event('input', { bubbles: true }));
+
+        HM.log(3, `Selected random alignment: ${randomAlignment}`);
+        return true;
       }
-
-      const randomOption = this.#getRandomItem(options);
-      alignmentSelect.value = randomOption.value;
-      alignmentSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random alignment: ${randomOption.text}`);
-      return true;
     } catch (error) {
       HM.log(1, 'Error randomizing alignment:', error);
       return false;
@@ -726,25 +749,48 @@ export class CharacterRandomizer {
    */
   static #randomizeFaith(form) {
     try {
-      const faithSelect = form.querySelector('select[name="faith"]');
-      if (!faithSelect) {
-        HM.log(2, 'Faith select not found');
+      const faithElement = form.querySelector('select[name="faith"], input[name="faith"]');
+      if (!faithElement) {
+        HM.log(2, 'Faith element not found');
         return false;
       }
 
-      const options = Array.from(faithSelect.options).filter((opt) => !opt.disabled && opt.value);
+      // Check if it's a dropdown or input field
+      if (faithElement.tagName.toLowerCase() === 'select') {
+        // Handle dropdown
+        const options = Array.from(faithElement.options).filter((opt) => !opt.disabled && opt.value);
 
-      if (!options.length) {
-        HM.log(2, 'No valid faith options found');
-        return false;
+        if (!options.length) {
+          HM.log(2, 'No valid faith options found');
+          return false;
+        }
+
+        const randomOption = this.#getRandomItem(options);
+        faithElement.value = randomOption.value;
+        faithElement.dispatchEvent(new Event('change', { bubbles: true }));
+
+        HM.log(3, `Selected random faith: ${randomOption.text}`);
+        return true;
+      } else {
+        // Handle input field
+        const deities = game.settings
+          .get(HM.ID, 'deities')
+          .split(',')
+          .map((d) => d.trim())
+          .filter((d) => d);
+
+        if (!deities.length) {
+          HM.log(2, 'No valid faith options found in settings');
+          return false;
+        }
+
+        const randomFaith = this.#getRandomItem(deities);
+        faithElement.value = randomFaith;
+        faithElement.dispatchEvent(new Event('input', { bubbles: true }));
+
+        HM.log(3, `Selected random faith: ${randomFaith}`);
+        return true;
       }
-
-      const randomOption = this.#getRandomItem(options);
-      faithSelect.value = randomOption.value;
-      faithSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random faith: ${randomOption.text}`);
-      return true;
     } catch (error) {
       HM.log(1, 'Error randomizing faith:', error);
       return false;

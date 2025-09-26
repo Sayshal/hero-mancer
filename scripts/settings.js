@@ -258,6 +258,17 @@ function registerCustomizationSettings() {
     default: false
   });
 
+  // Add this after the existing alignment and deities settings
+  game.settings.register(HM.ID, 'enableAlignmentFaithInputs', {
+    name: 'hm.settings.alignment-faith-inputs.name',
+    hint: 'hm.settings.alignment-faith-inputs.hint',
+    scope: 'world',
+    config: false,
+    type: Boolean,
+    default: false,
+    requiresReload: false
+  });
+
   HM.log(3, 'Customization settings registered.');
 }
 
@@ -499,8 +510,8 @@ function registerCompatibilitySettings() {
 
   if (game.modules.get('dice-so-nice')?.active) {
     game.settings.register(HM.ID, 'enableDiceSoNice', {
-      name: 'Enable 3D Dice for Ability Rolls',
-      hint: 'Show 3D dice animations for ability score rolls using Dice So Nice module',
+      name: 'hm.settings.dicesonice.name',
+      hint: 'hm.settings.dicesonice.hint',
       scope: 'client',
       config: true,
       type: Boolean,

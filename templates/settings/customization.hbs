@@ -20,7 +20,8 @@
 				class="font-bold">{{localize 'hm.settings.player-customization.name'}}</label>
 		</div>
 		<p class='hint' id="player-customization-hint" aria-hidden="true">
-			{{localize 'hm.settings.player-customization.hint'}}</p>
+			{{localize 'hm.settings.player-customization.hint'}}
+		</p>
 	</div>
 
 	{{!-- Token Customization Option --}}
@@ -32,6 +33,19 @@
 				class="font-bold">{{localize 'hm.settings.token-customization.name'}}</label>
 		</div>
 		<p class='hint' id="token-customization-hint" aria-hidden="true">{{localize 'hm.settings.token-customization.hint'}}
+		</p>
+	</div>
+
+	{{!-- Alignment & Faith Input Option --}}
+	<div class="form-group flex flex-col items-start">
+		<div class="flex items-center">
+			<input type='checkbox' id="enableAlignmentFaithInputs" name='enableAlignmentFaithInputs'
+				{{#if enableAlignmentFaithInputs}}checked{{/if}} aria-labelledby="alignment-faith-inputs-label" />
+			<label id="alignment-faith-inputs-label" for="enableAlignmentFaithInputs"
+				class="font-bold">{{localize 'hm.settings.alignment-faith-inputs.name'}}</label>
+		</div>
+		<p class='hint' id="alignment-faith-inputs-hint" aria-hidden="true">
+			{{localize 'hm.settings.alignment-faith-inputs.hint'}}
 		</p>
 	</div>
 

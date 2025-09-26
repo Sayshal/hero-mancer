@@ -13,12 +13,17 @@
 				<div class='form-group items-center'>
 					<label for="alignment">{{localize 'DND5E.Alignment'}}<i class="fa-solid fa-circle-info tooltip-icon"
 							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.alignment-hint'}}"></i></label>
-					<select id="alignment" name='alignment' class="form-select" aria-describedby="alignment-hint">
-						<option value=''>{{localize 'None'}}</option>
-						{{#each alignments}}
-							<option value='{{this}}'>{{this}}</option>
-						{{/each}}
-					</select>
+					{{#if enableAlignmentFaithInputs}}
+						<input id="alignment" type='text' name='alignment' class="form-input" aria-describedby="alignment-hint"
+							placeholder="{{localize 'hm.app.biography.alignment-placeholder'}}" />
+					{{else}}
+						<select id="alignment" name='alignment' class="form-select" aria-describedby="alignment-hint">
+							<option value=''>{{localize 'None'}}</option>
+							{{#each alignments}}
+								<option value='{{this}}'>{{this}}</option>
+							{{/each}}
+						</select>
+					{{/if}}
 					<span id="alignment-hint" class="sr-only">{{localize 'hm.app.biography.alignment-hint'}}</span>
 				</div>
 				<div class='form-group items-center'>
@@ -49,14 +54,20 @@
 				<div class='form-group items-center'>
 					<label for="faith">{{localize 'DND5E.Faith'}}<i class="fa-solid fa-circle-info tooltip-icon"
 							aria-hidden="true" data-tooltip="{{localize 'hm.app.biography.faith-hint'}}"></i></label>
-					<select id="faith" name='faith' class="form-select" aria-describedby="faith-hint">
-						<option value=''>{{localize 'None'}}</option>
-						{{#each deities}}
-							<option value='{{this}}'>{{this}}</option>
-						{{/each}}
-					</select>
+					{{#if enableAlignmentFaithInputs}}
+						<input id="faith" type='text' name='faith' class="form-input" aria-describedby="faith-hint"
+							placeholder="{{localize 'hm.app.biography.faith-placeholder'}}" />
+					{{else}}
+						<select id="faith" name='faith' class="form-select" aria-describedby="faith-hint">
+							<option value=''>{{localize 'None'}}</option>
+							{{#each deities}}
+								<option value='{{this}}'>{{this}}</option>
+							{{/each}}
+						</select>
+					{{/if}}
 					<span id="faith-hint" class="sr-only">{{localize 'hm.app.biography.faith-hint'}}</span>
 				</div>
+				{{!-- Rest of the second row remains the same... --}}
 				<div class='form-group items-center'>
 					<label for="hair">{{localize 'DND5E.Hair'}}</label>
 					<input id="hair" type='text' name='hair' class="form-input" aria-label="{{localize 'DND5E.Hair'}}" />
