@@ -228,6 +228,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
               .get(HM.ID, 'deities')
               .split(',')
               .map((d) => d.trim()) || [];
+          context.enableAlignmentFaithInputs = game.settings.get(HM.ID, 'enableAlignmentFaithInputs');
           break;
         case 'footer':
           context.randomizeButton = game.settings.get(HM.ID, 'enableRandomize');

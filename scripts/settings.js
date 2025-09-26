@@ -258,6 +258,17 @@ function registerCustomizationSettings() {
     default: false
   });
 
+  // Add this after the existing alignment and deities settings
+  game.settings.register(HM.ID, 'enableAlignmentFaithInputs', {
+    name: 'hm.settings.alignment-faith-inputs.name',
+    hint: 'hm.settings.alignment-faith-inputs.hint',
+    scope: 'world',
+    config: false,
+    type: Boolean,
+    default: false,
+    requiresReload: false
+  });
+
   HM.log(3, 'Customization settings registered.');
 }
 
@@ -494,6 +505,17 @@ function registerCompatibilitySettings() {
       type: Boolean,
       default: true,
       requiresReload: true
+    });
+  }
+
+  if (game.modules.get('dice-so-nice')?.active) {
+    game.settings.register(HM.ID, 'enableDiceSoNice', {
+      name: 'hm.settings.dicesonice.name',
+      hint: 'hm.settings.dicesonice.hint',
+      scope: 'client',
+      config: true,
+      type: Boolean,
+      default: true
     });
   }
 
