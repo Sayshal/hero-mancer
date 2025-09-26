@@ -330,6 +330,9 @@ export class DocumentService {
       documents.map(async (doc) => {
         if (!doc) return null;
 
+        // Filter out documents where folder.name contains "sidekick" (case-insensitive)
+        if (doc.folder?.name && doc.folder.name.toLowerCase().includes('sidekick')) return null;
+
         const packName = this.#translateSystemFolderName(pack.metadata.label, pack.metadata.id);
         const { description, enrichedDescription, journalPageId } = await this.#findDescription(doc);
 
