@@ -222,6 +222,9 @@ export class StatRoller {
       const roll = new Roll(rollFormula);
       await roll.evaluate();
 
+      // Show Dice So Nice animation if available
+      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
+
       // Apply min/max constraints to roll result
       const { MIN, MAX } = HM.ABILITY_SCORES;
       const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
@@ -309,8 +312,22 @@ export class StatRoller {
       // Wait a moment to show animation before performing roll
       await new Promise((r) => setTimeout(r, 100));
 
-      // Perform the roll
-      const constrainedResult = await this.#performRoll(rollFormula);
+      // Perform the roll with 3D animation
+      const roll = new Roll(rollFormula);
+      await roll.evaluate();
+
+      // Show Dice So Nice animation if available
+      let diceAnimationPromise = Promise.resolve();
+      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) {
+        diceAnimationPromise = game.dice3d.showForRoll(roll, game.user, false);
+      }
+
+      // Apply constraints while animation plays
+      const { MIN, MAX } = HM.ABILITY_SCORES;
+      const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
+
+      // Wait for dice animation to complete
+      await diceAnimationPromise;
 
       // Update the input
       if (input && constrainedResult !== null) {
@@ -318,17 +335,14 @@ export class StatRoller {
         input.dispatchEvent(new Event('change', { bubbles: true }));
       }
 
-      // Keep animation visible for a moment after result
-      await new Promise((r) => setTimeout(r, 200));
-
-      // Remove animation
+      // Remove CSS animation
       if (diceIcon) {
         diceIcon.classList.remove('rolling');
       }
 
-      // Delay before next roll
+      // Delay before next roll (minus time already spent)
       if (i < blocks.length - 1) {
-        await new Promise((r) => setTimeout(r, delay - 300));
+        await new Promise((r) => setTimeout(r, Math.max(0, delay - 300)));
       }
     }
   }

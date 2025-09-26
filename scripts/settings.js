@@ -497,6 +497,17 @@ function registerCompatibilitySettings() {
     });
   }
 
+  if (game.modules.get('dice-so-nice')?.active) {
+    game.settings.register(HM.ID, 'enableDiceSoNice', {
+      name: 'Enable 3D Dice for Ability Rolls',
+      hint: 'Show 3D dice animations for ability score rolls using Dice So Nice module',
+      scope: 'client',
+      config: true,
+      type: Boolean,
+      default: true
+    });
+  }
+
   HM.log(3, 'Compatibility settings registered.');
 }
 
