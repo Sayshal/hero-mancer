@@ -329,13 +329,11 @@ export class DocumentService {
     return await Promise.all(
       documents.map(async (doc) => {
         if (!doc) return null;
-
-        // Filter out documents where folder.name contains "sidekick" (case-insensitive)
-        if (doc.folder?.name && doc.folder.name.toLowerCase().includes('sidekick')) return null;
-
+        const hasSidekickFolder = doc.folder?.name && doc.folder.name.toLowerCase().includes('sidekick');
+        const hasSidekickProperty = doc.system?.properties && doc.system.properties.has('sidekick');
+        if (hasSidekickFolder || hasSidekickProperty) return null;
         const packName = this.#translateSystemFolderName(pack.metadata.label, pack.metadata.id);
         const { description, enrichedDescription, journalPageId } = await this.#findDescription(doc);
-
         return {
           doc,
           packName,
