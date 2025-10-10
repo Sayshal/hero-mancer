@@ -217,22 +217,6 @@ export class HM {
 
 Hooks.on('init', () => {
   HM.init();
-  CONFIG.Item.compendiumIndexFields = [
-    '_id',
-    'name',
-    'pack',
-    'system.description.value',
-    'system.identifier',
-    'system.item',
-    'system.properties',
-    'system.source.rules',
-    'system.startingEquipment',
-    'system.type.value',
-    'system.wealth',
-    'type',
-    'uuid'
-  ];
-  CONFIG.JournalEntry.compendiumIndexFields = ['_id', 'name', 'pages', 'type', 'uuid'];
 });
 
 Hooks.once('ready', async () => {
