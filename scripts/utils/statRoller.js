@@ -751,6 +751,13 @@ export class StatRoller {
 
     const newValue = dropdown.value;
 
+    // Get the standard array to count available occurrences of each value
+    const standardArrayValues = this.getStandardArrayValues('standardArray');
+    const availableOccurrences = {};
+    standardArrayValues.forEach((val) => {
+      availableOccurrences[val] = (availableOccurrences[val] || 0) + 1;
+    });
+
     // Handle swapping logic when enabled
     if (swapMode && newValue) {
       const duplicateIndex = selectedValues.findIndex((value, i) => i !== index && value === newValue);
@@ -776,19 +783,27 @@ export class StatRoller {
         }
       }
     }
-    // If not in swap mode, clear any duplicate selections
+    // If not in swap mode, only clear duplicates if we exceed available occurrences
     else if (newValue) {
-      const duplicateIndex = selectedValues.findIndex((value, i) => i !== index && value === newValue);
+      // Count how many times this value is already selected
+      const currentSelectionCount = selectedValues.filter((v) => v === newValue).length;
+      const maxAllowed = availableOccurrences[newValue] || 1;
 
-      if (duplicateIndex !== -1) {
-        abilityDropdowns[duplicateIndex].value = '';
-        selectedValues[duplicateIndex] = '';
+      // Only clear duplicates if we've exceeded the available occurrences
+      if (currentSelectionCount > maxAllowed) {
+        // Find the first occurrence of this value that isn't the current dropdown
+        const duplicateIndex = selectedValues.findIndex((value, i) => i !== index && value === newValue);
 
-        this.#abilityDropdownValues.set(duplicateIndex, '');
-        this.#lastHandledChanges.set(duplicateIndex, {
-          value: '',
-          time: Date.now()
-        });
+        if (duplicateIndex !== -1) {
+          abilityDropdowns[duplicateIndex].value = '';
+          selectedValues[duplicateIndex] = '';
+
+          this.#abilityDropdownValues.set(duplicateIndex, '');
+          this.#lastHandledChanges.set(duplicateIndex, {
+            value: '',
+            time: Date.now()
+          });
+        }
       }
     }
 
