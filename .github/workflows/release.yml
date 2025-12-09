@@ -1,0 +1,179 @@
+name: Release Creation
+
+on:
+  push:
+    tags:
+      - 'release-*'
+
+env:
+  REPO_URL: https://github.com/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Read module ID from module.json
+    - name: Get module ID
+      id: module_id
+      run: echo "id=$(jq -r '.id' module.json)" >> $GITHUB_OUTPUT
+
+    # Extract version from tag (release-X.Y.Z -> X.Y.Z)
+    - name: Set up variables
+      id: get_vars
+      run: |
+        TAG=${GITHUB_REF/refs\/tags\//}
+        VERSION=${TAG#release-}
+        MODULE_ID=${{ steps.module_id.outputs.id }}
+        echo "TAG_NAME=$TAG" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "MODULE_ID=$MODULE_ID" >> $GITHUB_ENV
+        echo "ZIP_NAME=$MODULE_ID-$VERSION.zip" >> $GITHUB_ENV
+        echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/$MODULE_ID-$VERSION.zip" >> $GITHUB_ENV
+        echo "RELEASE_MANIFEST_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.json" >> $GITHUB_ENV
+
+        echo "Tag: $TAG"
+        echo "Version: $VERSION"
+        echo "Module ID: $MODULE_ID"
+
+    # Update module.json with version and download URLs
+    - name: Update module.json
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'module.json'
+      env:
+        version: ${{ env.VERSION }}
+        download: ${{ env.RELEASE_DOWNLOAD_URL }}
+        manifest: ${{ env.RELEASE_MANIFEST_URL }}
+        flags.hotReload: false
+
+    # Verify the version in module.json matches the tag
+    - name: Verify version
+      run: |
+        MODULE_VERSION=$(jq -r '.version' module.json)
+        if [[ ! "$MODULE_VERSION" == "${{ env.VERSION }}" ]]; then
+          echo "Error: module.json version ($MODULE_VERSION) does not match tag version (${{ env.VERSION }})"
+          exit 1
+        fi
+        echo "Version verified: $MODULE_VERSION"
+
+    # Create zip with module files
+    - name: Zip Files
+      run: |
+        zip -r ${{ env.ZIP_NAME }} \
+          lang/ \
+          scripts/ \
+          styles/ \
+          templates/ \
+          LICENSE \
+          module.json \
+          README.md \
+          -x "*.lock" \
+          -x "package*.json" \
+          -x "node_modules/*"
+
+    # Fetch existing release body if it exists
+    - name: Fetch Release Body
+      id: release
+      uses: cardinalby/git-get-release-action@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        tag: ${{ env.TAG_NAME }}
+        doNotFailIfNotFound: true
+
+    # Update release with the built files
+    - name: Update Release with Files
+      id: create_version_release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        omitNameDuringUpdate: true
+        draft: false
+        prerelease: true
+        omitDraftDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: './module.json, ./${{ env.ZIP_NAME }}'
+        tag: ${{ env.TAG_NAME }}
+        body: |
+          ${{ steps.release.outputs.body }}
+
+          **Installation:** To manually install this release, use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
+
+    # Read module metadata for later steps
+    - name: Read module metadata
+      id: module
+      run: |
+        echo "title=$(jq -r '.title' module.json)" >> $GITHUB_OUTPUT
+        echo "compat_min=$(jq -r '.compatibility.minimum' module.json)" >> $GITHUB_OUTPUT
+        echo "compat_verified=$(jq -r '.compatibility.verified' module.json)" >> $GITHUB_OUTPUT
+        echo "compat_max=$(jq -r '.compatibility.maximum' module.json)" >> $GITHUB_OUTPUT
+
+    # Release to Foundry Package API
+    - name: Release Foundry Package
+      run: |
+        cat << EOF > payload.json
+        {
+          "id": "${{ env.MODULE_ID }}",
+          "release": {
+            "version": "${{ env.VERSION }}",
+            "manifest": "${{ env.RELEASE_MANIFEST_URL }}",
+            "download": "${{ env.RELEASE_DOWNLOAD_URL }}",
+            "notes": "${{ env.REPO_URL }}/releases/tag/${{ env.TAG_NAME }}",
+            "compatibility": {
+              "minimum": "${{ steps.module.outputs.compat_min }}",
+              "verified": "${{ steps.module.outputs.compat_verified }}",
+              "maximum": "${{ steps.module.outputs.compat_max }}"
+            }
+          }
+        }
+        EOF
+
+        cat payload.json
+
+        curl -X POST "https://foundryvtt.com/_api/packages/release_version/" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: ${{ secrets.FOUNDRY_API_TOKEN }}" \
+          -d @payload.json
+
+    # Post release notification to Discord
+    - name: Post to Discord
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        RELEASE_BODY: ${{ steps.release.outputs.body }}
+      run: |
+        # Get release notes from the release body, or use a default message
+        RELEASE_NOTES="${RELEASE_BODY:-New release available!}"
+
+        JSON_PAYLOAD=$(jq -n \
+          --arg title "${{ steps.module.outputs.title }} v${{ env.VERSION }}" \
+          --arg version "${{ env.VERSION }}" \
+          --arg foundry_url "https://foundryvtt.com/packages/${{ env.MODULE_ID }}" \
+          --arg release_url "${{ env.RELEASE_MANIFEST_URL }}" \
+          --arg download_url "${{ env.RELEASE_DOWNLOAD_URL }}" \
+          --arg release_notes "$RELEASE_NOTES" \
+          --arg compat_min "${{ steps.module.outputs.compat_min }}" \
+          --arg compat_max "${{ steps.module.outputs.compat_max }}" \
+          '{
+            content: "<@&1384920094597185556> <@&1384920304316579953>",
+            embeds: [{
+              title: $title,
+              description: $release_notes,
+              fields: [
+                {name: "Core Compatibility", value: ($compat_min + " - " + $compat_max), inline: true},
+                {name: "Foundry Package", value: $foundry_url, inline: false}
+              ]
+            }]
+          }')
+
+        echo "JSON Payload:"
+        echo "$JSON_PAYLOAD" | jq '.'
+
+        curl -H "Content-Type: application/json" \
+            -d "$JSON_PAYLOAD" \
+            $DISCORD_WEBHOOK
