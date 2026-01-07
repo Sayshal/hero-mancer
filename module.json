@@ -12,7 +12,7 @@
   "compatibility": {
     "maximum": "13.400",
     "minimum": "12",
-    "verified": "12.343"
+    "verified": "13.351"
   },
   "description": "The one stop shop for creating your heroes in D&D 5e.",
   "download": "",
@@ -95,7 +95,7 @@
         "compatibility": {
           "maximum": "5.x.x",
           "minimum": "3.3.1",
-          "verified": "4.4.4"
+          "verified": "5.2.4"
         },
         "id": "dnd5e",
         "type": "system"

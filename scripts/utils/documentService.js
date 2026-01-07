@@ -1,4 +1,4 @@
-import { HM, JournalPageFinder } from './index.js';
+import { getTextEditor, HM, JournalPageFinder } from './index.js';
 
 /**
  * Service for managing game document preparation and processing
@@ -435,7 +435,7 @@ export class DocumentService {
       const rawDescription = doc.system?.description?.value || game.i18n.localize('hm.app.no-description');
 
       // Enrich the description HTML
-      let enrichedDescription = await TextEditor.enrichHTML(rawDescription, { async: true });
+      let enrichedDescription = await getTextEditor().enrichHTML(rawDescription, { async: true });
 
       // Apply the h3->h2 transformations
       enrichedDescription = enrichedDescription

@@ -1,3 +1,9 @@
+/**
+ * Get TextEditor class compatible with V12 and V13
+ * @returns {typeof TextEditor} TextEditor class
+ */
+export const getTextEditor = () => foundry.applications?.ux?.TextEditor ?? TextEditor;
+
 export { API } from '../api.js';
 export { AdvancementOrderConfiguration } from '../app/AdvancementOrderConfiguration.js';
 export { CustomCompendiums } from '../app/CustomCompendiums.js';

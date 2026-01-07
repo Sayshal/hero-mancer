@@ -1,4 +1,4 @@
-import { HM } from './index.js';
+import { getTextEditor, HM } from './index.js';
 
 /**
  * Utility class for finding and handling journal pages
@@ -422,7 +422,7 @@ export class JournalPageEmbed {
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('journal-page-content');
-    contentDiv.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(page.text.content);
+    contentDiv.innerHTML = await getTextEditor().enrichHTML(page.text.content);
 
     this.container.appendChild(contentDiv);
     HM.log(3, `Text page ${page.id} rendered directly`);
@@ -497,7 +497,7 @@ export class JournalPageEmbed {
       pageContainer.appendChild(title);
       if (page.text?.content) {
         const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(page.text.content);
+        contentDiv.innerHTML = await getTextEditor().enrichHTML(page.text.content);
         pageContainer.appendChild(contentDiv);
       } else if (page.system) {
         const infoDiv = document.createElement('div');

@@ -500,7 +500,7 @@ function registerCompatibilitySettings() {
   if (game.modules.get('vtta-tokenizer')?.active) {
     game.settings.register(HM.ID, 'tokenizerCompatibility', {
       name: 'hm.settings.tokenizer.name',
-      scope: 'client',
+      scope: 'world',
       config: false,
       type: Boolean,
       default: true,

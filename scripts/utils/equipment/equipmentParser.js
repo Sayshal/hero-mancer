@@ -1319,7 +1319,7 @@ export class EquipmentParser {
     let skippedCount = 0;
 
     for (const item of index) {
-      const isMagic = Array.isArray(item.system?.properties) && item.system.properties.includes('mgc');
+      const isMagic = item.system?.properties?.has?.('mgc') || (Array.isArray(item.system?.properties) && item.system.properties.includes('mgc'));
 
       this.itemUuidMap.set(item._id, item.uuid);
 
