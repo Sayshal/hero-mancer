@@ -237,6 +237,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.isLastTab = currentTabIndex === tabOrder.length - 1;
           context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
           context.nextTabName = currentTabIndex < tabOrder.length - 1 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`) : '';
+          context.canCreateActor = game.user.can('ACTOR_CREATE') || game.user.isGM;
           break;
       }
       return context;

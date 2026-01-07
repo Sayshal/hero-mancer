@@ -1,4 +1,4 @@
-import { DOMManager, EquipmentParser, HeroMancer, HM } from './index.js';
+import { CharacterApprovalService, DOMManager, EquipmentParser, HeroMancer, HM } from './index.js';
 
 /**
  * Service class that handles character creation in the Hero Mancer
@@ -29,6 +29,14 @@ export class ActorCreationService {
    */
   static async createCharacter(event, formData) {
     HM.log(3, 'Starting character creation');
+
+    // Check if player has permission to create actors
+    const canCreateActor = game.user.can('ACTOR_CREATE') || game.user.isGM;
+    if (!canCreateActor) {
+      HM.log(3, 'User lacks ACTOR_CREATE permission, submitting for GM approval');
+      return await this.#submitForApproval(event, formData);
+    }
+
     const targetUser = this.#determineTargetUser(formData);
 
     try {
@@ -50,6 +58,129 @@ export class ActorCreationService {
     } catch (error) {
       HM.log(1, 'Error in character creation:', error);
       ui.notifications.error('hm.errors.form-submission', { localize: true });
+    }
+  }
+
+  /**
+   * Create a character for another player (GM only)
+   * @param {object} characterData - The stored character data
+   * @param {User} targetUser - The user to create the character for
+   * @returns {Promise<Actor|void>} Created actor or void if operation didn't complete
+   * @static
+   */
+  static async createCharacterForPlayer(characterData, targetUser) {
+    if (!game.user.isGM) {
+      HM.log(1, 'Only GMs can create characters for other players');
+      return;
+    }
+
+    HM.log(3, 'GM creating character for player:', targetUser.name);
+    const formData = characterData.formData || {};
+
+    try {
+      // Validate mandatory fields
+      if (!this.#validateMandatoryFields(formData)) return;
+
+      const { useClassWealth, useBackgroundWealth, startingWealth } = await this.#processWealthOptions(formData);
+
+      const extractedCharacterData = this.#extractCharacterData(formData);
+      if (!this.#validateCharacterData(extractedCharacterData)) return;
+
+      // Create actor with ownership for target player
+      const actor = await this.#createActorDocumentForPlayer(formData, extractedCharacterData.abilities, targetUser);
+
+      // Fetch items and process advancements
+      const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(
+        extractedCharacterData.backgroundData,
+        extractedCharacterData.raceData,
+        extractedCharacterData.classData
+      );
+      if (!backgroundItem || !raceItem || !classItem) return;
+
+      const expectedItems = {
+        background: { name: backgroundItem.name, type: 'background' },
+        race: { name: raceItem.name, type: 'race' },
+        class: { name: classItem.name, type: 'class' }
+      };
+
+      // Process equipment with empty selections (no form event available)
+      if (startingWealth) {
+        await this.#updateActorCurrency(actor, startingWealth);
+      }
+
+      const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
+      await this.#processAdvancements(orderedItems, actor, expectedItems);
+
+      HM.log(3, 'Character creation for player completed successfully');
+      return actor;
+    } catch (error) {
+      HM.log(1, 'Error creating character for player:', error);
+      ui.notifications.error('hm.errors.form-submission', { localize: true });
+    }
+  }
+
+  /**
+   * Submit character for GM approval when player lacks ACTOR_CREATE permission
+   * @param {Event} event - Form submission event
+   * @param {FormDataExtended} formData - Processed form data
+   * @returns {Promise<void>}
+   * @private
+   * @static
+   */
+  static async #submitForApproval(event, formData) {
+    // Validate mandatory fields first
+    if (!this.#validateMandatoryFields(formData.object)) return;
+
+    const characterData = this.#extractCharacterData(formData.object);
+    if (!this.#validateCharacterData(characterData)) return;
+
+    // Store form data for later processing by GM
+    const submissionData = {
+      formData: formData.object,
+      timestamp: Date.now()
+    };
+
+    await CharacterApprovalService.submitForApproval(submissionData, game.user);
+
+    // Close the HeroMancer form
+    if (HM.heroMancer) {
+      await HM.heroMancer.close();
+    }
+  }
+
+  /**
+   * Creates actor document with ownership for a target player (GM use only)
+   * @param {object} formData - Form data containing character details
+   * @param {object} abilities - Processed ability scores
+   * @param {User} targetUser - The user to assign ownership to
+   * @returns {Promise<Actor>} The created actor
+   * @private
+   * @static
+   */
+  static async #createActorDocumentForPlayer(formData, abilities, targetUser) {
+    try {
+      const actorName = formData['character-name'] || targetUser.name;
+      const actorData = this.#buildActorData(formData, abilities, actorName);
+
+      // Set ownership for target player
+      actorData.ownership = {
+        default: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
+        [game.user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER,
+        [targetUser.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER
+      };
+
+      ui.notifications.info('hm.actortab-button.creating', { localize: true });
+      const actor = await Actor.create(actorData);
+
+      // Set as active character for target user
+      await targetUser.update({ character: actor.id });
+
+      HM.log(3, 'Created Actor for player:', actor);
+      return actor;
+    } catch (error) {
+      HM.log(1, 'Failed to create actor document for player:', error);
+      ui.notifications.error('hm.errors.actor-creation-failed', { localize: true });
+      throw error;
     }
   }
 

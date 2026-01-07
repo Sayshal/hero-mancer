@@ -1,5 +1,5 @@
 import { registerSettings } from './settings.js';
-import { API, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
+import { API, CharacterApprovalService, DocumentService, EquipmentParser, HeroMancer, StatRoller } from './utils/index.js';
 
 /**
  * Main Hero Mancer class, define some statics that will be used everywhere in the module.
@@ -223,6 +223,7 @@ Hooks.once('ready', async () => {
   if (!game.settings.get(HM.ID, 'enable')) return;
 
   HM.checkModuleCompatibility();
+  CharacterApprovalService.registerSocketListeners();
   await DocumentService.loadAndInitializeDocuments();
 
   if (!HM.COMPAT.ELKAN) await EquipmentParser.initializeLookupItems(); // Completely disable EquipmentParser if Elkan is enabled.

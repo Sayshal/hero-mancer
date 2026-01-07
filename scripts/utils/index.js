@@ -9,6 +9,7 @@ export { Troubleshooter } from '../app/Troubleshooter.js';
 export { HM } from '../hero-mancer.js';
 export { needsReload, needsRerender, rerenderHM } from '../settings.js';
 export { ActorCreationService } from './actorCreationService.js';
+export { CharacterApprovalService } from './characterApprovalService.js';
 export { CharacterArtPicker } from './characterArtPicker.js';
 export { JournalPageEmbed, JournalPageFinder } from './descriptionBuilder.js';
 export { DocumentService } from './documentService.js';

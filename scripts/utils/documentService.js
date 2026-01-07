@@ -435,7 +435,7 @@ export class DocumentService {
       const rawDescription = doc.system?.description?.value || game.i18n.localize('hm.app.no-description');
 
       // Enrich the description HTML
-      let enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(rawDescription, { async: true });
+      let enrichedDescription = await TextEditor.enrichHTML(rawDescription, { async: true });
 
       // Apply the h3->h2 transformations
       enrichedDescription = enrichedDescription

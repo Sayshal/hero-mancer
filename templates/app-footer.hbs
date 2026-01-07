@@ -58,13 +58,22 @@
     {{!-- Right div for Next/Submit Button --}}
     <div class='hm-footer-right'>
       {{#if isLastTab}}
-        {{!-- Submit Button (on last tab) --}}
-        <button type='submit' data-action="submit" class='hm-app-footer-submit'
-          data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
-          aria-describedby='submit-description'>
-          <span>{{localize 'hm.app.submit'}}</span>
-        </button>
-        <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
+        {{!-- Submit Button (on last tab) - text changes based on permission --}}
+        {{#if canCreateActor}}
+          <button type='submit' data-action="submit" class='hm-app-footer-submit'
+            data-tooltip='{{localize "hm.app.submit-description"}}' aria-label='{{localize "hm.app.submit"}}'
+            aria-describedby='submit-description'>
+            <span>{{localize 'hm.app.submit'}}</span>
+          </button>
+          <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
+        {{else}}
+          <button type='submit' data-action="submit" class='hm-app-footer-submit hm-submit-approval'
+            data-tooltip='{{localize "hm.approval.submit-description"}}' aria-label='{{localize "hm.approval.submit-for-approval"}}'
+            aria-describedby='submit-description'>
+            <span>{{localize 'hm.approval.submit-for-approval'}}</span>
+          </button>
+          <span id='submit-description' class='sr-only'>{{localize 'hm.approval.submit-description'}}</span>
+        {{/if}}
       {{else if navigationButtons}}
         {{!-- Next Button --}}
         <button type='button' data-action='nextTab' class='hm-app-nav-next' {{#if nextDisabled}}disabled

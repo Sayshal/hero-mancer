@@ -32,8 +32,8 @@ jobs:
         echo "TAG_NAME=$TAG" >> $GITHUB_ENV
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "MODULE_ID=$MODULE_ID" >> $GITHUB_ENV
-        echo "ZIP_NAME=$MODULE_ID-$VERSION.zip" >> $GITHUB_ENV
-        echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/$MODULE_ID-$VERSION.zip" >> $GITHUB_ENV
+        echo "ZIP_NAME=module.zip" >> $GITHUB_ENV
+        echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.zip" >> $GITHUB_ENV
         echo "RELEASE_MANIFEST_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.json" >> $GITHUB_ENV
 
         echo "Tag: $TAG"
