@@ -37,6 +37,7 @@
     }
   },
   "id": "hero-mancer",
+  "socket": true,
   "languages": [
     {
       "lang": "en",

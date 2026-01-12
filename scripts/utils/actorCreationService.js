@@ -1,4 +1,4 @@
-import { CharacterApprovalService, DOMManager, EquipmentParser, HeroMancer, HM } from './index.js';
+import { CharacterApprovalService, DOMManager, EquipmentParser, HeroMancer, HM, SavedOptions } from './index.js';
 
 /**
  * Service class that handles character creation in the Hero Mancer
@@ -62,7 +62,7 @@ export class ActorCreationService {
   }
 
   /**
-   * Create a character for another player (GM only)
+   * Create a character for another player (GM only) - creates actor without advancements
    * @param {object} characterData - The stored character data
    * @param {User} targetUser - The user to create the character for
    * @returns {Promise<Actor|void>} Created actor or void if operation didn't complete
@@ -74,20 +74,48 @@ export class ActorCreationService {
       return;
     }
 
-    HM.log(3, 'GM creating character for player:', targetUser.name);
+    HM.log(3, 'GM creating actor for player:', targetUser.name);
     const formData = characterData.formData || {};
 
     try {
       // Validate mandatory fields
       if (!this.#validateMandatoryFields(formData)) return;
 
-      const { useClassWealth, useBackgroundWealth, startingWealth } = await this.#processWealthOptions(formData);
-
       const extractedCharacterData = this.#extractCharacterData(formData);
       if (!this.#validateCharacterData(extractedCharacterData)) return;
 
-      // Create actor with ownership for target player
+      // Create actor with ownership for target player (without advancements)
       const actor = await this.#createActorDocumentForPlayer(formData, extractedCharacterData.abilities, targetUser);
+
+      HM.log(3, 'Actor created for player, advancements will be processed on player client');
+      return actor;
+    } catch (error) {
+      HM.log(1, 'Error creating actor for player:', error);
+      ui.notifications.error('hm.errors.form-submission', { localize: true });
+    }
+  }
+
+  /**
+   * Continue character creation with advancements (called on player's client after GM approval)
+   * @param {string} actorId - The ID of the actor to continue creating
+   * @param {object} characterData - The stored character data
+   * @returns {Promise<Actor|void>} Completed actor or void if operation didn't complete
+   * @static
+   */
+  static async continueCharacterCreation(actorId, characterData) {
+    const actor = game.actors.get(actorId);
+    if (!actor) {
+      HM.log(1, 'Actor not found for continuation:', actorId);
+      ui.notifications.error('hm.errors.actor-not-found', { localize: true });
+      return;
+    }
+
+    HM.log(3, 'Continuing character creation for:', actor.name);
+    const formData = characterData.formData || {};
+
+    try {
+      const { useClassWealth, useBackgroundWealth, startingWealth } = await this.#processWealthOptions(formData);
+      const extractedCharacterData = this.#extractCharacterData(formData);
 
       // Fetch items and process advancements
       const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(
@@ -103,7 +131,7 @@ export class ActorCreationService {
         class: { name: classItem.name, type: 'class' }
       };
 
-      // Process equipment with empty selections (no form event available)
+      // Process starting wealth
       if (startingWealth) {
         await this.#updateActorCurrency(actor, startingWealth);
       }
@@ -111,10 +139,10 @@ export class ActorCreationService {
       const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
       await this.#processAdvancements(orderedItems, actor, expectedItems);
 
-      HM.log(3, 'Character creation for player completed successfully');
+      HM.log(3, 'Character creation continuation completed successfully');
       return actor;
     } catch (error) {
-      HM.log(1, 'Error creating character for player:', error);
+      HM.log(1, 'Error continuing character creation:', error);
       ui.notifications.error('hm.errors.form-submission', { localize: true });
     }
   }
@@ -129,10 +157,16 @@ export class ActorCreationService {
    */
   static async #submitForApproval(event, formData) {
     // Validate mandatory fields first
-    if (!this.#validateMandatoryFields(formData.object)) return;
+    if (!this.#validateMandatoryFields(formData.object)) {
+      ui.notifications.warn('hm.errors.mandatory-fields-incomplete', { localize: true });
+      return;
+    }
 
     const characterData = this.#extractCharacterData(formData.object);
     if (!this.#validateCharacterData(characterData)) return;
+
+    // Save options so player can resume if rejected
+    await SavedOptions.saveOptions(formData.object);
 
     // Store form data for later processing by GM
     const submissionData = {

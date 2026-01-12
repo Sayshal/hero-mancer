@@ -1,4 +1,4 @@
-import { ActorCreationService, HM } from './index.js';
+import { ActorCreationService, HM, SavedOptions } from './index.js';
 
 /**
  * Service for handling character approval workflow when players lack ACTOR_CREATE permission
@@ -141,21 +141,29 @@ export class CharacterApprovalService {
     const { characterData, userId, userName } = data;
     const formData = characterData.formData || {};
 
-    // Build summary content
-    const characterName = formData['character-name'] || game.i18n.localize('hm.approval.unnamed');
-    const raceLabel = formData.race?.split(' ')[0] || game.i18n.localize('hm.unknown');
-    const classLabel = formData.class?.split(' ')[0] || game.i18n.localize('hm.unknown');
-    const backgroundLabel = formData.background?.split(' ')[0] || game.i18n.localize('hm.unknown');
+    // Get proper item names from UUIDs
+    const raceInfo = await this.#getItemInfoFromSelection(formData.race);
+    const classInfo = await this.#getItemInfoFromSelection(formData.class);
+    const backgroundInfo = await this.#getItemInfoFromSelection(formData.background);
 
-    const content = `
-      <div class="hm-approval-review">
-        <p><strong>${game.i18n.localize('hm.approval.player')}:</strong> ${userName}</p>
-        <p><strong>${game.i18n.localize('hm.approval.character-name')}:</strong> ${characterName}</p>
-        <p><strong>${game.i18n.localize('hm.app.race.select-label')}:</strong> ${raceLabel}</p>
-        <p><strong>${game.i18n.localize('hm.app.class.select-label')}:</strong> ${classLabel}</p>
-        <p><strong>${game.i18n.localize('hm.app.background.select-label')}:</strong> ${backgroundLabel}</p>
-      </div>
-    `;
+    // Prepare template context
+    const context = {
+      characterName: formData['character-name'] || game.i18n.localize('hm.approval.unnamed'),
+      portraitPath: formData['character-art'] || 'icons/svg/mystery-man.svg',
+      raceName: raceInfo.name,
+      className: classInfo.name,
+      backgroundName: backgroundInfo.name,
+      userName,
+      abilities: this.#extractAbilityScores(formData),
+      physical: this.#getPhysicalData(formData),
+      hasPhysical: this.#getPhysicalData(formData).length > 0,
+      personality: this.#getPersonalityData(formData),
+      hasPersonality: this.#getPersonalityData(formData).length > 0,
+      backstory: formData.backstory || null
+    };
+
+    // Render template
+    const content = await renderTemplate('modules/hero-mancer/templates/approval-review.hbs', context);
 
     const result = await foundry.applications.api.DialogV2.wait({
       window: {
@@ -176,7 +184,8 @@ export class CharacterApprovalService {
           icon: 'fas fa-times'
         }
       ],
-      rejectClose: false
+      rejectClose: false,
+      position: { width: 700 }
     });
 
     if (result === 'approve') {
@@ -184,6 +193,106 @@ export class CharacterApprovalService {
     } else if (result === 'reject') {
       await this.#rejectCharacter(userId, userName);
     }
+  }
+
+  /**
+   * Get item info from a selection string by looking up the UUID
+   * @param {string} selectionString - Selection string like "id [uuid] (packId)"
+   * @returns {Promise<{name: string, uuid: string}>}
+   * @private
+   * @static
+   */
+  static async #getItemInfoFromSelection(selectionString) {
+    if (!selectionString) return { name: game.i18n.localize('hm.unknown'), uuid: null };
+
+    try {
+      // Extract UUID from the selection string
+      const uuidMatch = selectionString.match(/\[(.*?)]/);
+      if (uuidMatch && uuidMatch[1]) {
+        const item = await fromUuid(uuidMatch[1]);
+        if (item) return { name: item.name, uuid: uuidMatch[1] };
+      }
+    } catch (error) {
+      HM.log(2, 'Error fetching item info:', error);
+    }
+
+    // Fallback to ID parsing
+    const idPart = selectionString.split(' ')[0];
+    return { name: idPart, uuid: null };
+  }
+
+  /**
+   * Extract ability scores from form data with modifiers
+   * @param {object} formData - Form data object
+   * @returns {object} Ability scores keyed by abbreviation with score and mod
+   * @private
+   * @static
+   */
+  static #extractAbilityScores(formData) {
+    const abilities = {};
+    const abilityKeys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+
+    for (const key of abilityKeys) {
+      const score = formData[`abilities[${key}]-score`] || formData[`abilities[${key}]`] || '—';
+      const numScore = parseInt(score);
+      const mod = isNaN(numScore) ? '—' : Math.floor((numScore - 10) / 2);
+      const modStr = typeof mod === 'number' ? (mod >= 0 ? `+${mod}` : `${mod}`) : mod;
+
+      abilities[key] = { score, mod: modStr };
+    }
+
+    return abilities;
+  }
+
+  /**
+   * Get physical description data for template
+   * @param {object} formData - Form data object
+   * @returns {Array<{label: string, value: string}>} Physical field data
+   * @private
+   * @static
+   */
+  static #getPhysicalData(formData) {
+    const fields = [
+      { key: 'gender', label: 'DND5E.Gender' },
+      { key: 'age', label: 'DND5E.Age' },
+      { key: 'height', label: 'DND5E.Height' },
+      { key: 'weight', label: 'DND5E.Weight' },
+      { key: 'eyes', label: 'DND5E.Eyes' },
+      { key: 'hair', label: 'DND5E.Hair' },
+      { key: 'skin', label: 'DND5E.Skin' },
+      { key: 'alignment', label: 'DND5E.Alignment' },
+      { key: 'faith', label: 'DND5E.Faith' }
+    ];
+
+    return fields
+      .filter((f) => formData[f.key])
+      .map((f) => ({
+        label: game.i18n.localize(f.label),
+        value: formData[f.key]
+      }));
+  }
+
+  /**
+   * Get personality traits data for template
+   * @param {object} formData - Form data object
+   * @returns {Array<{label: string, value: string}>} Personality field data
+   * @private
+   * @static
+   */
+  static #getPersonalityData(formData) {
+    const fields = [
+      { key: 'traits', label: 'DND5E.PersonalityTraits' },
+      { key: 'ideals', label: 'DND5E.Ideals' },
+      { key: 'bonds', label: 'DND5E.Bonds' },
+      { key: 'flaws', label: 'DND5E.Flaws' }
+    ];
+
+    return fields
+      .filter((f) => formData[f.key])
+      .map((f) => ({
+        label: game.i18n.localize(f.label),
+        value: formData[f.key]
+      }));
   }
 
   /**
@@ -197,7 +306,7 @@ export class CharacterApprovalService {
     HM.log(3, 'Approving character for user:', userId);
 
     try {
-      // Create the actor
+      // Create the actor (without advancements - those will be processed on player's client)
       const actor = await this.createActorForPlayer(characterData, userId);
 
       if (actor) {
@@ -207,12 +316,13 @@ export class CharacterApprovalService {
           await targetUser.unsetFlag(HM.ID, 'pendingCharacterSubmission');
         }
 
-        // Notify the player
+        // Notify the player and send character data for advancement processing
         game.socket.emit(this.SOCKET_NAME, {
           type: this.EVENTS.CHARACTER_APPROVED,
           userId,
           actorId: actor.id,
-          actorName: actor.name
+          actorName: actor.name,
+          characterData
         });
 
         ui.notifications.info(game.i18n.format('hm.approval.gm-approved', { name: actor.name }));
@@ -254,14 +364,22 @@ export class CharacterApprovalService {
    * @private
    * @static
    */
-  static #handleApprovalNotification(data) {
-    HM.log(3, 'Character approved:', data);
+  static async #handleApprovalNotification(data) {
+    HM.log(3, 'Character approved, continuing creation:', data);
     ui.notifications.info(game.i18n.format('hm.approval.player-approved', { name: data.actorName }));
 
-    // Open the actor sheet
-    const actor = game.actors.get(data.actorId);
-    if (actor) {
-      actor.sheet.render(true);
+    // Continue character creation with advancements on player's client
+    if (data.characterData) {
+      await ActorCreationService.continueCharacterCreation(data.actorId, data.characterData);
+
+      // Clear saved options now that character is fully created
+      await SavedOptions.resetOptions();
+    } else {
+      // Fallback: just open the actor sheet if no character data provided
+      const actor = game.actors.get(data.actorId);
+      if (actor) {
+        actor.sheet.render(true);
+      }
     }
   }
 
@@ -271,8 +389,12 @@ export class CharacterApprovalService {
    * @private
    * @static
    */
-  static #handleRejectionNotification(data) {
-    HM.log(3, 'Character rejected:', data);
-    ui.notifications.warn(game.i18n.localize('hm.approval.player-rejected'));
+  static async #handleRejectionNotification(data) {
+    HM.log(3, 'Character rejected, reopening Hero Mancer:', data);
+    ui.notifications.warn(game.i18n.localize('hm.approval.player-rejected-resume'));
+
+    // Reopen Hero Mancer so player can make changes
+    const { HeroMancer } = await import('../app/HeroMancer.js');
+    new HeroMancer().render(true);
   }
 }

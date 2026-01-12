@@ -2555,6 +2555,219 @@ td .equipment-favorite-container {
 }
 
 /* ==========================================================================
+  Character Approval Review Dialog
+ ========================================================================== */
+.hm-approval-review {
+  max-height: 70vh;
+  overflow-y: auto;
+  font-family: var(--font-primary);
+  padding: 0.5rem;
+}
+
+/* Header Card */
+.hm-approval-header {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgb(0 0 0 / 40%) 0%, rgb(0 0 0 / 20%) 100%);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+}
+
+.hm-approval-portrait {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 3px solid var(--color-border-light-primary);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+.hm-approval-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hm-approval-title h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-text-light-highlight);
+  text-shadow: 1px 1px 2px rgb(0 0 0 / 50%);
+}
+
+.hm-approval-title .subtitle {
+  font-size: 1rem;
+  color: var(--color-text-light-primary);
+  margin-bottom: 0.125rem;
+}
+
+.hm-approval-title .player-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: rgb(255 255 255 / 15%);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-light-primary);
+  width: fit-content;
+}
+
+.hm-approval-title .player-tag i {
+  opacity: 0.8;
+}
+
+/* Abilities Row */
+.hm-approval-abilities {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.hm-approval-ability {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  background: linear-gradient(180deg, rgb(0 0 0 / 30%) 0%, rgb(0 0 0 / 15%) 100%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 6px;
+}
+
+.hm-approval-ability .abbr {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-dark-secondary);
+  margin-bottom: 0.125rem;
+}
+
+.hm-approval-ability .score {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-text-light-highlight);
+}
+
+.hm-approval-ability .mod {
+  font-size: 0.75rem;
+  color: var(--color-text-light-primary);
+}
+
+/* Sections */
+.hm-approval-section {
+  margin-bottom: 0.75rem;
+  background: rgb(0 0 0 / 20%);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 5%);
+}
+
+.hm-approval-section h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-dark-secondary);
+}
+
+.hm-approval-section h3 i {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Grid layouts */
+.hm-approval-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.hm-approval-grid.two-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.hm-approval-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.hm-approval-item .label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-dark-secondary);
+}
+
+.hm-approval-item .value {
+  font-size: 0.9rem;
+  color: var(--color-text-light-primary);
+}
+
+/* Text blocks */
+.hm-approval-text {
+  background: rgb(0 0 0 / 20%);
+  padding: 0.5rem 0.625rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--color-text-light-primary);
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgb(255 255 255 / 5%);
+}
+
+.hm-approval-text p {
+  margin: 0 0 0.5rem 0;
+}
+
+.hm-approval-text p:last-child {
+  margin-bottom: 0;
+}
+
+.hm-approval-text:empty::before {
+  content: "\2014";
+  color: var(--color-text-dark-secondary);
+}
+
+/* Scrollbar styling */
+.hm-approval-review::-webkit-scrollbar,
+.hm-approval-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hm-approval-review::-webkit-scrollbar-track,
+.hm-approval-text::-webkit-scrollbar-track {
+  background: rgb(0 0 0 / 20%);
+  border-radius: 3px;
+}
+
+.hm-approval-review::-webkit-scrollbar-thumb,
+.hm-approval-text::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 20%);
+  border-radius: 3px;
+}
+
+.hm-approval-review::-webkit-scrollbar-thumb:hover,
+.hm-approval-text::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 30%);
+}
+
+/* ==========================================================================
   Light Theme Overrides
  ========================================================================== */
 .theme-light {

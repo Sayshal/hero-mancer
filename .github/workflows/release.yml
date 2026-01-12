@@ -35,6 +35,7 @@ jobs:
         echo "ZIP_NAME=module.zip" >> $GITHUB_ENV
         echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.zip" >> $GITHUB_ENV
         echo "RELEASE_MANIFEST_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.json" >> $GITHUB_ENV
+        echo "LATEST_MANIFEST_URL=${{ env.REPO_URL }}/releases/latest/download/module.json" >> $GITHUB_ENV
 
         echo "Tag: $TAG"
         echo "Version: $VERSION"
@@ -48,7 +49,7 @@ jobs:
       env:
         version: ${{ env.VERSION }}
         download: ${{ env.RELEASE_DOWNLOAD_URL }}
-        manifest: ${{ env.RELEASE_MANIFEST_URL }}
+        manifest: ${{ env.LATEST_MANIFEST_URL }}
         flags.hotReload: false
 
     # Verify the version in module.json matches the tag
