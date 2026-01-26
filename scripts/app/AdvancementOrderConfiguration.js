@@ -1,7 +1,7 @@
 import { HM } from '../hero-mancer.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const DragDropClass = foundry.utils.isNewerVersion(game.version, '12.999') ? foundry?.applications?.ux?.DragDrop?.implementation : DragDrop;
+const DragDropClass = foundry.applications.ux.DragDrop.implementation;
 
 /**
  * Application to configure advancement processing order
@@ -159,8 +159,8 @@ export class AdvancementOrderConfiguration extends HandlebarsApplicationMixin(Ap
   }
 
   /** @override */
-  _prepareContext(options) {
-    const context = super._prepareContext(options);
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       if (!Array.isArray(this.config) || this.config.length === 0) this.initializeConfig();
       return {

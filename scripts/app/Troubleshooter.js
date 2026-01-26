@@ -46,20 +46,22 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares context data for the troubleshooter application
-   * @param {object} _options - Application render options
-   * @returns {object} Context data for template rendering
+   * @param {object} options - Application render options
+   * @returns {Promise<object>} Context data for template rendering
    * @protected
    * @override
    */
-  _prepareContext(_options) {
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       return {
+        ...context,
         output: Troubleshooter.generateTextReport()
       };
     } catch (error) {
       HM.log(1, `Error preparing troubleshooter context: ${error.message}`);
       ui.notifications.error('hm.settings.troubleshooter.error-context', { localize: true });
-      return { output: game.i18n.localize('hm.settings.troubleshooter.error-report') };
+      return { ...context, output: game.i18n.localize('hm.settings.troubleshooter.error-report') };
     }
   }
 

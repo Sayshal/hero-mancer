@@ -49,11 +49,12 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares context data for the dice rolling settings application
-   * @param {object} _options - Application render options
+   * @param {object} options - Application render options
    * @returns {Promise<object>} Context data for template rendering with dice rolling settings
    * @protected
    */
-  _prepareContext(_options) {
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       const settingsToFetch = [
         { key: 'allowedMethods', defaultValue: {} },
@@ -67,8 +68,6 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
         { key: 'abilityScoreMin', defaultValue: 8 },
         { key: 'abilityScoreMax', defaultValue: 15 }
       ];
-
-      const context = {};
 
       for (const setting of settingsToFetch) {
         try {
@@ -84,7 +83,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, `Error preparing dice rolling context: ${error.message}`);
       ui.notifications.error('hm.settings.dice-rolling.error-context', { localize: true });
-      return this._getDefaultContext();
+      return { ...context, ...this._getDefaultContext() };
     }
   }
 
@@ -111,13 +110,14 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Actions to perform after the application renders
    * Sets up event listeners for the roll delay slider
-   * @param {object} _context - The rendered context data
-   * @param {object} _options - The render options
+   * @param {object} context - The rendered context data
+   * @param {object} options - The render options
    * @returns {void}
    * @protected
    * @override
    */
-  _onRender(_context, _options) {
+  _onRender(context, options) {
+    super._onRender(context, options);
     try {
       this._setupDelaySlider();
     } catch (error) {

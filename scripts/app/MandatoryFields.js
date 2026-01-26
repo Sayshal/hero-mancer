@@ -52,12 +52,13 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares context data for the mandatory fields configuration
-   * @param {object} _options - Application render options
-   * @returns {object} Context data for template rendering
+   * @param {object} options - Application render options
+   * @returns {Promise<object>} Context data for template rendering
    * @protected
    * @override
    */
-  _prepareContext(_options) {
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       let fieldCategories;
       let mandatoryFields;
@@ -108,6 +109,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       return {
+        ...context,
         fields: processedFields,
         playerCustomizationEnabled,
         tokenCustomizationEnabled
@@ -115,7 +117,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, `Error preparing context: ${error.message}`);
       ui.notifications.error('hm.settings.mandatory-fields.error-context', { localize: true });
-      return { fields: {}, playerCustomizationEnabled: false, tokenCustomizationEnabled: false };
+      return { ...context, fields: {}, playerCustomizationEnabled: false, tokenCustomizationEnabled: false };
     }
   }
 

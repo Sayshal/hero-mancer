@@ -52,11 +52,12 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares context data for the customization settings application
-   * @param {object} _options - Application render options
-   * @returns {object} Context data for template rendering with customization settings
+   * @param {object} options - Application render options
+   * @returns {Promise<object>} Context data for template rendering with customization settings
    * @protected
    */
-  _prepareContext(_options) {
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       const settingsToFetch = [
         'alignments',
@@ -78,7 +79,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
         settingsToFetch.push('tokenizerCompatibility');
       }
 
-      const context = {};
       context.tokenizerModuleActive = tokenizerModuleActive;
 
       for (const setting of settingsToFetch) {
@@ -94,7 +94,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (error) {
       HM.log(1, `Error preparing context: ${error.message}`);
       ui.notifications.error('hm.settings.customization.error-context', { localize: true });
-      return {};
+      return context;
     }
   }
 

@@ -128,11 +128,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * Prepares the main context data for the character creation application
    * Initializes abilities, processes compatibility settings, and prepares all tab data
    * @param {object} options - Application render options
-   * @returns {object} Complete context for character creation rendering
+   * @returns {Promise<object>} Complete context for character creation rendering
    * @protected
    * @override
    */
-  _prepareContext(options) {
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     try {
       if (!HM.documents.race || !HM.documents.class || !HM.documents.background) {
         ui.notifications.info('hm.actortab-button.loading', { localize: true });
@@ -148,7 +149,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       // Prepare context with globally required data
-      let context = {
+      return {
+        ...context,
         raceDocs: HM.documents.race || [],
         classDocs: HM.documents.class || [],
         backgroundDocs: HM.documents.background || [],
@@ -159,11 +161,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           color: user.color.css
         }))
       };
-      HM.log(3, 'Full Context:', context);
-      return context;
     } catch (error) {
       HM.log(1, 'Error preparing context:', error);
       return {
+        ...context,
         raceDocs: [],
         classDocs: [],
         backgroundDocs: [],
@@ -350,13 +351,14 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Actions performed after any render of the Application.
-   * @param {ApplicationRenderContext} _context Prepared context data
+   * @param {ApplicationRenderContext} context Prepared context data
    * @param {RenderOptions} options Provided render options
    * @returns {void}
    * @protected
    * @override
    */
-  async _onRender(_context, options) {
+  async _onRender(context, options) {
+    super._onRender(context, options);
     if (this.#isRendering) return;
     try {
       this.#isRendering = true;
