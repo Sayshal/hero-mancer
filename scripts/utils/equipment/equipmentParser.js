@@ -176,7 +176,7 @@ export class EquipmentParser {
         return;
       }
 
-      const item = await fromUuidSync(itemUUID);
+      const item = fromUuidSync(itemUUID);
       if (!item) {
         HM.log(3, `Could not find item for UUID ${itemUUID}`);
         return;
@@ -859,7 +859,7 @@ export class EquipmentParser {
           const uuid = link.dataset.uuid;
           if (uuid) {
             HM.log(3, `Found UUID ${uuid} for ID ${itemId}`);
-            const item = await fromUuidSync(uuid);
+            const item = fromUuidSync(uuid);
             if (item) {
               return item;
             }

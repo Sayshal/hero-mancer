@@ -235,8 +235,8 @@ export class FocusItemRenderer extends BaseItemRenderer {
     }
 
     try {
-      // Check if we already have a UUID in the item itself
-      if (itemId.uuid) {
+      // Check if itemId is an object with a UUID property
+      if (typeof itemId === 'object' && itemId?.uuid) {
         HM.log(3, `Found direct UUID ${itemId.uuid} for ${focusName}`);
         return itemId.uuid;
       }

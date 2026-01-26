@@ -139,7 +139,7 @@ export class AndItemRenderer extends BaseItemRenderer {
     }
 
     try {
-      const doc = await fromUuidSync(item._source.key);
+      const doc = fromUuidSync(item._source.key);
 
       if (!doc) {
         HM.log(3, `No document found for ${item._id}`);
@@ -263,7 +263,7 @@ export class AndItemRenderer extends BaseItemRenderer {
       }
 
       // Pre-fetch document for main item to avoid multiple lookups
-      const childDoc = await fromUuidSync(child._source.key);
+      const childDoc = fromUuidSync(child._source.key);
       if (!childDoc) {
         HM.log(2, `Document not found for ${child._id}`);
         return [];
@@ -296,7 +296,7 @@ export class AndItemRenderer extends BaseItemRenderer {
    */
   async checkItemRelation(childDoc, item) {
     try {
-      const itemDoc = await fromUuidSync(item._source?.key);
+      const itemDoc = fromUuidSync(item._source?.key);
       if (!itemDoc) return false;
 
       // Check if one is a weapon and one is ammo
@@ -379,7 +379,7 @@ export class AndItemRenderer extends BaseItemRenderer {
       if (processedIds.has(child._source?.key)) continue;
       processedIds.add(child._source?.key);
 
-      const linkedItem = await fromUuidSync(child._source?.key);
+      const linkedItem = fromUuidSync(child._source?.key);
       if (!linkedItem) continue;
 
       const count = child._source?.count > 1 || child._source?.count !== null ? child._source?.count : '';

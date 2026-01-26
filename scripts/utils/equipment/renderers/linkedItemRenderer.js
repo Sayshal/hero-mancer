@@ -145,9 +145,9 @@ export class LinkedItemRenderer extends BaseItemRenderer {
           displayLabel = displayLabel.replace(/^\d+&times;\s*/, '').replace('</i>', `</i>${displayCount} `);
         }
       } else {
-        // Handle plain text labels
-        const displayCount = item._source?.count > 1 || item._source?.count !== null ? item._source.count : '';
-        if (displayCount && !displayLabel.includes(displayCount)) {
+        // Handle plain text labels - only show count if greater than 1
+        const displayCount = item._source?.count > 1 ? item._source.count : '';
+        if (displayCount && !displayLabel.includes(String(displayCount))) {
           displayLabel = `${displayCount} ${displayLabel}`;
         }
       }

@@ -2,12 +2,98 @@ import { getTextEditor, HM, JournalPageFinder } from './index.js';
 
 /**
  * Service for managing game document preparation and processing
+ * Uses index-first loading for performance, with lazy loading of full documents.
  * @class
  */
 export class DocumentService {
   /* -------------------------------------------- */
+  /*  Static Properties                           */
+  /* -------------------------------------------- */
+
+  /**
+   * Cache for fully loaded documents (keyed by UUID)
+   * @type {Map<string, Object>}
+   * @private
+   */
+  static #documentCache = new Map();
+
+  /**
+   * Cache for enriched descriptions (keyed by UUID)
+   * @type {Map<string, {description: string, enrichedDescription: string, journalPageId: string}>}
+   * @private
+   */
+  static #descriptionCache = new Map();
+
+  /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
+
+  /**
+   * Get a fully loaded document by UUID, with caching
+   * @param {string} uuid - Document UUID
+   * @returns {Promise<Object|null>} Full document or null
+   * @static
+   */
+  static async getFullDocument(uuid) {
+    if (!uuid) return null;
+
+    // Check cache first
+    if (this.#documentCache.has(uuid)) {
+      return this.#documentCache.get(uuid);
+    }
+
+    try {
+      const doc = await fromUuid(uuid);
+      if (doc) {
+        this.#documentCache.set(uuid, doc);
+      }
+      return doc;
+    } catch (error) {
+      HM.log(1, `Error loading document ${uuid}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get enriched description for a document, with caching and lazy loading
+   * @param {string} uuid - Document UUID
+   * @returns {Promise<{description: string, enrichedDescription: string, journalPageId: string}>}
+   * @static
+   */
+  static async getDocumentDescription(uuid) {
+    if (!uuid) {
+      return { description: '', enrichedDescription: '', journalPageId: null };
+    }
+
+    // Check cache first
+    if (this.#descriptionCache.has(uuid)) {
+      return this.#descriptionCache.get(uuid);
+    }
+
+    try {
+      const doc = await this.getFullDocument(uuid);
+      if (!doc) {
+        return { description: '', enrichedDescription: '', journalPageId: null };
+      }
+
+      const result = await this.#findDescription(doc);
+      this.#descriptionCache.set(uuid, result);
+      return result;
+    } catch (error) {
+      HM.log(1, `Error getting description for ${uuid}:`, error);
+      return { description: '', enrichedDescription: '', journalPageId: null };
+    }
+  }
+
+  /**
+   * Clear document and description caches
+   * @static
+   */
+  static clearCaches() {
+    this.#documentCache.clear();
+    this.#descriptionCache.clear();
+    HM.log(3, 'DocumentService caches cleared');
+  }
 
   /**
    * Loads and initializes all document types required for Hero Mancer
@@ -268,7 +354,7 @@ export class DocumentService {
   }
 
   /**
-   * Process all packs to extract documents of specified type
+   * Process all packs to extract documents of specified type using index-first loading
    * @param {CompendiumCollection[]} packs - Packs to process
    * @param {string} type - Document type to filter
    * @returns {Promise<{validPacks: Array, failedPacks: Array, processingErrors: Array}>}
@@ -279,7 +365,7 @@ export class DocumentService {
     const failedPacks = [];
     const processingErrors = [];
 
-    // Process each pack sequentially for better control
+    // Process each pack using index for performance
     for (const pack of packs) {
       if (!pack?.metadata) {
         HM.log(2, 'Invalid pack encountered during processing');
@@ -287,25 +373,31 @@ export class DocumentService {
       }
 
       try {
-        // Track fetch start time for performance monitoring
         const startTime = performance.now();
-        const documents = await pack.getDocuments({ type });
+
+        // Use getIndex instead of getDocuments for much faster loading
+        const index = await pack.getIndex({ fields: ['system.properties', 'folder'] });
         const endTime = performance.now();
 
-        if (endTime - startTime > 1000) {
-          HM.log(2, `Pack retrieval slow for ${pack.metadata.label}: ${Math.round(endTime - startTime)}ms`);
+        if (endTime - startTime > 500) {
+          HM.log(2, `Pack index slow for ${pack.metadata.label}: ${Math.round(endTime - startTime)}ms`);
         }
 
-        if (!documents?.length) {
+        // Filter index entries by type
+        const typeEntries = index.filter((entry) => entry.type === type);
+
+        if (!typeEntries.length) {
           HM.log(3, `No documents of type ${type} found in ${pack.metadata.label}`);
           continue;
         }
 
-        // Process all documents in this pack
-        const packDocuments = await this.#processPackDocuments(pack, documents);
+        // Process index entries (no full document load needed)
+        const packDocuments = await this.#processPackIndexEntries(pack, typeEntries);
         validPacks.push(...packDocuments.filter(Boolean));
+
+        HM.log(3, `Indexed ${typeEntries.length} ${type} entries from ${pack.metadata.label}`);
       } catch (error) {
-        HM.log(1, `Failed to retrieve documents from pack ${pack.metadata.label}:`, error);
+        HM.log(1, `Failed to retrieve index from pack ${pack.metadata.label}:`, error);
         processingErrors.push(error.message);
         failedPacks.push(pack.metadata.label);
       }
@@ -318,35 +410,46 @@ export class DocumentService {
   }
 
   /**
-   * Process documents from a single pack
+   * Process index entries from a single pack (no full document load)
    * @param {CompendiumCollection} pack - The pack being processed
-   * @param {Document[]} documents - Documents to process
-   * @returns {Promise<Array>} Processed documents
+   * @param {Object[]} entries - Index entries to process
+   * @returns {Promise<Array>} Processed entries with minimal data
    * @private
    */
-  static async #processPackDocuments(pack, documents) {
-    // Process all documents in this pack with Promise.all
-    return await Promise.all(
-      documents.map(async (doc) => {
-        if (!doc) return null;
-        const hasSidekickFolder = doc.folder?.name && doc.folder.name.toLowerCase().includes('sidekick');
-        const hasSidekickProperty = doc.system?.properties && doc.system.properties.has('sidekick');
+  static async #processPackIndexEntries(pack, entries) {
+    const packName = this.#translateSystemFolderName(pack.metadata.label, pack.metadata.id);
+
+    return entries
+      .map((entry) => {
+        if (!entry) return null;
+
+        // Filter out sidekicks using index data
+        const folderName = entry.folder ? pack.folders.get(entry.folder)?.name : null;
+        const hasSidekickFolder = folderName?.toLowerCase().includes('sidekick');
+        const hasSidekickProperty = entry.system?.properties && new Set(entry.system.properties).has('sidekick');
         if (hasSidekickFolder || hasSidekickProperty) return null;
-        const packName = this.#translateSystemFolderName(pack.metadata.label, pack.metadata.id);
-        const { description, enrichedDescription, journalPageId } = await this.#findDescription(doc);
+
+        // Build UUID from pack collection and entry ID
+        const uuid = `Compendium.${pack.collection}.${entry._id}`;
+
+        // Return minimal data - descriptions loaded lazily when needed
         return {
-          doc,
+          doc: null, // Not loading full doc anymore
           packName,
-          uuid: doc.uuid,
+          uuid,
           packId: pack.metadata.id,
-          description,
-          enrichedDescription,
-          journalPageId,
-          folderName: doc.folder?.name || null,
-          system: doc.system
+          description: null, // Loaded lazily via getDocumentDescription()
+          enrichedDescription: null, // Loaded lazily
+          journalPageId: null, // Loaded lazily
+          folderName,
+          system: entry.system || null,
+          // Index data
+          id: entry._id,
+          name: entry.name,
+          img: entry.img
         };
       })
-    );
+      .filter(Boolean);
   }
 
   /**
@@ -375,7 +478,7 @@ export class DocumentService {
 
   /**
    * Sorts document array by name and pack
-   * @param {Array} documents - Documents to sort
+   * @param {Array} documents - Documents to sort (index entries, not full docs)
    * @returns {Array} Sorted documents
    * @private
    */
@@ -386,18 +489,19 @@ export class DocumentService {
 
     try {
       return documents
-        .map(({ doc, packName, packId, description, enrichedDescription, journalPageId, folderName, uuid, system }) => ({
-          doc: doc,
-          id: doc.id,
-          name: doc.name,
-          description,
-          enrichedDescription,
-          journalPageId,
-          folderName,
-          packName,
-          packId,
-          uuid,
-          system
+        .map((entry) => ({
+          doc: entry.doc, // May be null with index-first loading
+          id: entry.id,
+          name: entry.name,
+          img: entry.img,
+          description: entry.description,
+          enrichedDescription: entry.enrichedDescription,
+          journalPageId: entry.journalPageId,
+          folderName: entry.folderName,
+          packName: entry.packName,
+          packId: entry.packId,
+          uuid: entry.uuid,
+          system: entry.system
         }))
         .sort((a, b) => {
           // Sort by name first, then by pack name if names are identical
@@ -833,7 +937,7 @@ export class DocumentService {
 
   /**
    * Organizes documents into groups based on pack top-level folder
-   * @param {Array} documents - Documents to organize
+   * @param {Array} documents - Documents (or index entries) to organize
    * @param {string} documentType - Type of documents being organized
    * @returns {Array} Grouped documents
    * @private
@@ -852,8 +956,9 @@ export class DocumentService {
 
       // First pass: create groups and assign documents
       for (const docData of documents) {
-        if (!docData || !docData.doc) {
-          HM.log(2, `Skipping invalid document data in ${documentType} organization - missing doc property`);
+        // With index-first loading, doc may be null but we need uuid and name
+        if (!docData || !docData.uuid || !docData.name) {
+          HM.log(2, `Skipping invalid document data in ${documentType} organization - missing uuid or name`);
           continue;
         }
 
@@ -866,8 +971,6 @@ export class DocumentService {
 
         const organizationName = this.#determineOrganizationName(docData, pack);
 
-        HM.log(3, `Document "${docData.name}" assigned to group "${organizationName}"`);
-
         // Create group if it doesn't exist yet
         if (!organizationGroups.has(organizationName)) {
           organizationGroups.set(organizationName, {
@@ -876,20 +979,18 @@ export class DocumentService {
           });
         }
 
-        // Always use clean name without compendium source
-        const displayName = docData.name;
-
-        // Add document to its group
+        // Add document to its group (descriptions loaded lazily)
         organizationGroups.get(organizationName).docs.push({
           id: docData.id,
           name: docData.name,
-          displayName: displayName,
+          displayName: docData.name,
+          img: docData.img,
           packName: docData.packName,
           packId: docData.packId,
-          journalPageId: docData.journalPageId,
+          journalPageId: docData.journalPageId, // May be null, loaded lazily
           uuid: docData.uuid,
-          description: docData.description,
-          enrichedDescription: docData.enrichedDescription,
+          description: docData.description, // May be null, loaded lazily
+          enrichedDescription: docData.enrichedDescription, // May be null, loaded lazily
           folderName: docData.folderName,
           packTopLevelFolder: this.#getPackTopLevelFolderName(pack)
         });

@@ -385,7 +385,7 @@ export class EquipmentRenderer {
       return;
     }
 
-    const doc = await fromUuidSync(uuid);
+    const doc = fromUuidSync(uuid);
     if (!doc) {
       HM.log(3, `Document not found for UUID ${uuid}`);
       return;
@@ -462,7 +462,7 @@ export class EquipmentRenderer {
           }
 
           try {
-            const doc = await fromUuidSync(item.key);
+            const doc = fromUuidSync(item.key);
             updateProgress();
             return { item, doc };
           } catch (error) {

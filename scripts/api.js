@@ -1,4 +1,4 @@
-import { EquipmentParser, HM } from './utils/index.js';
+import { DocumentService, EquipmentParser, HM } from './utils/index.js';
 /**
  * Hero Mancer Equipment API
  *
@@ -26,7 +26,7 @@ export const API = {
     }
 
     // Ensure documents are loaded
-    await HM.loadAndEnrichDocuments();
+    await DocumentService.loadAndInitializeDocuments();
 
     // Create a parser instance
     const parser = EquipmentParser.getInstance();

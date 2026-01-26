@@ -1,4 +1,4 @@
-import { EquipmentParser, FormValidation, getTextEditor, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
+import { DocumentService, EquipmentParser, FormValidation, getTextEditor, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
 
 /**
  * Centralized DOM event and observer management
@@ -32,6 +32,9 @@ export class DOMManager {
 
   /** @type {Promise|null} */
   static #pendingEquipmentUpdate = null;
+
+  /** @type {number|null} */
+  static #colorSchemeHookId = null;
 
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
@@ -146,13 +149,11 @@ export class DOMManager {
     this.#equipmentUpdateInProgress = false;
     this.#pendingEquipmentUpdate = null;
 
-    // Reset state variables
-    this._isUpdatingEquipment = false;
-    this._abilityUpdatePromise = null;
-    this._pendingAbilityUpdate = false;
-    this._updatingAbilities = false;
-    this.#equipmentUpdateInProgress = false;
-    this.#pendingEquipmentUpdate = null;
+    // Clean up color scheme hook
+    if (this.#colorSchemeHookId) {
+      Hooks.off('colorSchemeChange', this.#colorSchemeHookId);
+      this.#colorSchemeHookId = null;
+    }
 
     // Clean up event listeners
     try {
@@ -401,13 +402,11 @@ export class DOMManager {
       // Change event
       this.on(formElement, 'change', async () => {
         FormValidation.checkMandatoryFields(element);
-        FormValidation.checkMandatoryFields(element);
       });
 
       // Input event for text inputs
       if (formElement.tagName.toLowerCase() === 'input' || formElement.tagName.toLowerCase() === 'textarea') {
         this.on(formElement, 'input', async () => {
-          FormValidation.checkMandatoryFields(element);
           FormValidation.checkMandatoryFields(element);
         });
       }
@@ -525,8 +524,11 @@ export class DOMManager {
       this.on(artInput, 'change', updatePortrait);
       updatePortrait();
 
-      // Listen for color scheme changes
-      Hooks.on('colorSchemeChange', (scheme) => {
+      // Listen for color scheme changes (store hook ID for cleanup)
+      if (this.#colorSchemeHookId) {
+        Hooks.off('colorSchemeChange', this.#colorSchemeHookId);
+      }
+      this.#colorSchemeHookId = Hooks.on('colorSchemeChange', (scheme) => {
         if (portraitImg) {
           const isDefaultImage = portraitImg.src.includes('/abilities/');
           this.applyDarkModeToImage(portraitImg, scheme === 'dark', isDefaultImage);
@@ -564,17 +566,19 @@ export class DOMManager {
       });
     }
 
-    backgroundSelect?.addEventListener('change', (event) => {
-      const backgroundId = event.target.value.split(' (')[0];
+    if (backgroundSelect) {
+      this.on(backgroundSelect, 'change', (event) => {
+        const backgroundId = event.target.value.split(' (')[0];
 
-      // Batch button updates
-      requestAnimationFrame(() => {
-        rollButtons.forEach((button) => (button.disabled = !backgroundId));
+        // Batch button updates
+        requestAnimationFrame(() => {
+          rollButtons.forEach((button) => (button.disabled = !backgroundId));
+        });
       });
-    });
+    }
 
     rollButtons.forEach((button) => {
-      button.addEventListener('click', async (event) => {
+      this.on(button, 'click', async (event) => {
         const tableType = event.currentTarget.dataset.table;
         const textarea = event.currentTarget.closest('.input-with-roll').querySelector('textarea');
         const backgroundId = HM.SELECTED.background.id;
@@ -783,7 +787,7 @@ export class DOMManager {
       }
 
       // Get race document
-      const race = await fromUuidSync(raceUuid);
+      const race = fromUuidSync(raceUuid);
       if (!race) {
         HM.log(2, `Could not find race with UUID: ${raceUuid}`);
         sizeInput.value = '';
@@ -876,7 +880,7 @@ export class DOMManager {
     const uuid = HM.SELECTED.background.uuid;
 
     try {
-      const background = await fromUuidSync(uuid);
+      const background = fromUuidSync(uuid);
       if (background) {
         TableManager.loadRollTablesForBackground(background);
 
@@ -948,7 +952,6 @@ export class DOMManager {
           if (!indicator) {
             operations.push(() => {
               indicator = document.createElement('i');
-              indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
               indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
 
               // Find the icon element to position relative to
@@ -1044,14 +1047,17 @@ export class DOMManager {
         return;
       }
 
+      // Lazy load description data
+      const descData = await DocumentService.getDocumentDescription(doc.uuid);
+
       // Check for journal page - render it if available
-      if (doc.journalPageId) {
-        await this.#renderJournalPage(doc, descriptionEl);
+      if (descData.journalPageId) {
+        await this.#renderJournalPage(doc, descData, descriptionEl);
         return;
       }
 
       // Fall back to regular description
-      this.#renderStandardDescription(doc, descriptionEl);
+      this.#renderStandardDescription(doc, descData, descriptionEl);
     } catch (error) {
       HM.log(1, `Error updating ${type} description: ${error.message}`, error);
       descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
@@ -1502,20 +1508,23 @@ export class DOMManager {
       }
 
       if (doc) {
-        if (doc.journalPageId) {
+        // Lazy load description if not already loaded
+        const descData = await DocumentService.getDocumentDescription(doc.uuid);
+
+        if (descData.journalPageId) {
           // Set the journal ID and initialize the journal embed
-          journalContainer.dataset.journalId = doc.journalPageId;
+          journalContainer.dataset.journalId = descData.journalPageId;
 
           // Get the item name from the dropdown selected text
           const itemName = event.target.options[event.target.selectedIndex].text.split(' (')[0];
 
           // Create and initialize the journal embed with the item name
           const embed = new JournalPageEmbed(journalContainer);
-          await embed.render(doc.journalPageId, itemName);
+          await embed.render(descData.journalPageId, itemName);
         } else {
           // No journal, use fallback description but keep data attribute
           journalContainer.dataset.journalId = `fallback-${doc.id || 'description'}`;
-          journalContainer.innerHTML = doc.enrichedDescription || game.i18n.localize('hm.app.no-description');
+          journalContainer.innerHTML = descData.enrichedDescription || descData.description || game.i18n.localize('hm.app.no-description');
         }
       } else {
         journalContainer.removeAttribute('data-journal-id');
@@ -1527,10 +1536,6 @@ export class DOMManager {
 
     // Update UI based on dropdown type
     await this.#updateUIForDropdownType(element, type);
-
-    if (type === 'race' && uuid) {
-      await this.updateRaceSize(uuid);
-    }
 
     if (type === 'race' && uuid) {
       await this.updateRaceSize(uuid);
@@ -1942,20 +1947,8 @@ export class DOMManager {
       }
       score = parseInt(block.querySelector('.current-score')?.innerHTML) || 0;
     } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
-    } else if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
       const dropdown = block.querySelector('.ability-dropdown');
       if (dropdown) {
-        if (rollMethod === 'standardArray') {
-          const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
-          if (nameMatch && nameMatch[1]) {
-            abilityKey = nameMatch[1].toLowerCase();
-          }
-          score = parseInt(dropdown.value) || 0;
-        } else {
-          // manualFormula
-          abilityKey = dropdown.value?.toLowerCase() || '';
-          score = parseInt(block.querySelector('.ability-score')?.value) || 0;
-        }
         if (rollMethod === 'standardArray') {
           const nameMatch = dropdown.name.match(/abilities\[(\w+)]/);
           if (nameMatch && nameMatch[1]) {
@@ -1997,7 +1990,6 @@ export class DOMManager {
     });
 
     // For all methods, highlight the label and add tooltip
-    // For all methods, highlight the label and add tooltip
     const label = block.querySelector('.ability-label');
     if (label) {
       label.classList.add('primary-ability');
@@ -2006,31 +1998,19 @@ export class DOMManager {
 
     // For standardArray and manualFormula, also highlight the dropdown
     if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
-      // For standardArray and manualFormula, also highlight the dropdown
-      if (rollMethod === 'standardArray' || rollMethod === 'manualFormula') {
-        const dropdown = block.querySelector('.ability-dropdown');
-        if (dropdown) {
-          dropdown.classList.add('primary-ability');
-          dropdown.setAttribute('data-tooltip', tooltipText);
-          dropdown.setAttribute('data-tooltip', tooltipText);
-        }
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown) {
+        dropdown.classList.add('primary-ability');
+        dropdown.setAttribute('data-tooltip', tooltipText);
       }
+    }
 
-      // For pointBuy, highlight score display
-      if (rollMethod === 'pointBuy') {
-        const scoreElement = block.querySelector('.current-score');
-        if (scoreElement) {
-          scoreElement.classList.add('primary-ability');
-          scoreElement.setAttribute('data-tooltip', tooltipText);
-          // For pointBuy, highlight score display
-          if (rollMethod === 'pointBuy') {
-            const scoreElement = block.querySelector('.current-score');
-            if (scoreElement) {
-              scoreElement.classList.add('primary-ability');
-              scoreElement.setAttribute('data-tooltip', tooltipText);
-            }
-          }
-        }
+    // For pointBuy, highlight score display
+    if (rollMethod === 'pointBuy') {
+      const scoreElement = block.querySelector('.current-score');
+      if (scoreElement) {
+        scoreElement.classList.add('primary-ability');
+        scoreElement.setAttribute('data-tooltip', tooltipText);
       }
     }
   }
@@ -2356,14 +2336,15 @@ export class DOMManager {
 
   /**
    * Render a journal page in the description element
-   * @param {Object} doc - Document containing journal page reference
+   * @param {Object} doc - Document object with basic info
+   * @param {Object} descData - Description data from lazy loading
    * @param {HTMLElement} descriptionEl - Description element to update
    * @returns {Promise<void>}
    * @private
    * @static
    */
-  static async #renderJournalPage(doc, descriptionEl) {
-    HM.log(3, `Found journal page ID ${doc.journalPageId} for ${doc.name}`);
+  static async #renderJournalPage(doc, descData, descriptionEl) {
+    HM.log(3, `Found journal page ID ${descData.journalPageId} for ${doc.name}`);
 
     // Create container for journal embed if needed
     const container = descriptionEl.querySelector('.journal-container') || document.createElement('div');
@@ -2382,7 +2363,7 @@ export class DOMManager {
 
     // Attempt to render the journal page with the document name
     try {
-      const result = await embed.render(doc.journalPageId, doc.name);
+      const result = await embed.render(descData.journalPageId, doc.name);
 
       if (result) {
         HM.log(3, `Successfully rendered journal page for ${doc.name}`);
@@ -2392,22 +2373,23 @@ export class DOMManager {
       // If rendering failed, throw error to fall through to regular description
       throw new Error('Failed to render journal page');
     } catch (error) {
-      HM.log(2, `Failed to render journal page ${doc.journalPageId} for ${doc.name}: ${error.message}`);
+      HM.log(2, `Failed to render journal page ${descData.journalPageId} for ${doc.name}: ${error.message}`);
       descriptionEl.innerHTML = '<div class="notification error">Failed to load journal page content</div>';
 
       // Wait a moment, then fall back to regular description
-      setTimeout(() => this.#renderStandardDescription(doc, descriptionEl), 500);
+      setTimeout(() => this.#renderStandardDescription(doc, descData, descriptionEl), 500);
     }
   }
 
   /**
    * Render standard text description
-   * @param {Object} doc - Document to display
+   * @param {Object} doc - Document object with basic info
+   * @param {Object} descData - Description data from lazy loading
    * @param {HTMLElement} descriptionEl - Description element to update
    * @private
    * @static
    */
-  static #renderStandardDescription(doc, descriptionEl) {
+  static #renderStandardDescription(doc, descData, descriptionEl) {
     // Find the journal container - might be the description element itself or a child
     let contentContainer = descriptionEl.classList.contains('journal-container') ? descriptionEl : descriptionEl.querySelector('.journal-container');
 
@@ -2418,11 +2400,11 @@ export class DOMManager {
       descriptionEl.appendChild(contentContainer);
     }
 
-    // Set the description content
-    if (doc.enrichedDescription) {
-      contentContainer.innerHTML = doc.enrichedDescription;
+    // Set the description content using lazy-loaded data
+    if (descData.enrichedDescription) {
+      contentContainer.innerHTML = descData.enrichedDescription;
     } else {
-      contentContainer.innerHTML = doc.description || game.i18n.localize('hm.app.no-description');
+      contentContainer.innerHTML = descData.description || game.i18n.localize('hm.app.no-description');
     }
   }
 
@@ -2468,7 +2450,7 @@ export class DOMManager {
     }
 
     try {
-      const doc = await fromUuidSync(uuid);
+      const doc = fromUuidSync(uuid);
       if (doc) {
         const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
         element.innerHTML = await getTextEditor().enrichHTML(linkHtml);
@@ -2635,7 +2617,7 @@ export class DOMManager {
    */
   static async #extractRaceProficiencies(proficiencyData) {
     try {
-      const race = await fromUuidSync(HM.SELECTED.race.uuid);
+      const race = fromUuidSync(HM.SELECTED.race.uuid);
       if (!race) {
         HM.log(2, 'Race document not found');
         return;
@@ -2687,7 +2669,7 @@ export class DOMManager {
    */
   static async #extractClassProficiencies(proficiencyData) {
     try {
-      const classItem = await fromUuidSync(HM.SELECTED.class.uuid);
+      const classItem = fromUuidSync(HM.SELECTED.class.uuid);
       if (!classItem) {
         HM.log(2, 'Class document not found');
         return;
@@ -2721,7 +2703,7 @@ export class DOMManager {
    */
   static async #extractBackgroundProficiencies(proficiencyData) {
     try {
-      const background = await fromUuidSync(HM.SELECTED.background.uuid);
+      const background = fromUuidSync(HM.SELECTED.background.uuid);
       if (!background) {
         HM.log(2, 'Background document not found');
         return;
@@ -3086,7 +3068,7 @@ export class DOMManager {
     if (!HM.SELECTED.background?.uuid) return '';
 
     try {
-      const background = await fromUuidSync(HM.SELECTED.background.uuid);
+      const background = fromUuidSync(HM.SELECTED.background.uuid);
       return background?.name || '';
     } catch (error) {
       HM.log(2, `Error getting background name: ${error.message}`);
@@ -3104,7 +3086,7 @@ export class DOMManager {
     if (!HM.SELECTED.class?.uuid) return '';
 
     try {
-      const classItem = await fromUuidSync(HM.SELECTED.class.uuid);
+      const classItem = fromUuidSync(HM.SELECTED.class.uuid);
       return classItem?.name || '';
     } catch (error) {
       HM.log(2, `Error getting class name: ${error.message}`);

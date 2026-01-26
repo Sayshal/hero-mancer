@@ -115,7 +115,7 @@ export class OrItemRenderer extends BaseItemRenderer {
 
       if (linkedItem && weaponItem) {
         try {
-          const itemDoc = await fromUuidSync(linkedItem._source?.key);
+          const itemDoc = fromUuidSync(linkedItem._source?.key);
           if (itemDoc) {
             const lookupLabel = this.getLookupKeyLabel(weaponItem.key);
             labelElement.innerHTML = `${itemDoc.name} or any ${lookupLabel}`;
@@ -353,7 +353,7 @@ export class OrItemRenderer extends BaseItemRenderer {
     // Add linked item option
     if (linkedChild) {
       try {
-        const linkedDoc = await fromUuidSync(linkedChild._source?.key);
+        const linkedDoc = fromUuidSync(linkedChild._source?.key);
         if (linkedDoc) {
           options.push({
             value: linkedChild._source.key,
@@ -762,7 +762,7 @@ export class OrItemRenderer extends BaseItemRenderer {
         }
 
         // Handle normal linked items
-        const subChildItem = await fromUuidSync(subChild.key);
+        const subChildItem = fromUuidSync(subChild.key);
         if (!subChildItem) throw new Error(`Item not found for UUID: ${subChild.key}`);
 
         if (combinedLabel) combinedLabel += ', ';

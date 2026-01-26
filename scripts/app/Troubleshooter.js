@@ -125,13 +125,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   static _onExportReport(event) {
     try {
       event.preventDefault();
-      Troubleshooter.exportTextReport()
-        .then((filename) => {
-          ui.notifications.info(game.i18n.format('hm.settings.troubleshooter.export-success', { filename }));
-        })
-        .catch((error) => {
-          HM.log(1, `Error in export report handler: ${error.message}`);
-        });
+      const filename = Troubleshooter.exportTextReport();
+      ui.notifications.info(game.i18n.format('hm.settings.troubleshooter.export-success', { filename }));
     } catch (error) {
       HM.log(1, `Error handling export report event: ${error.message}`);
     }
@@ -145,20 +140,15 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   static _onCopyToClipboard(event) {
     try {
       event.preventDefault();
-      Troubleshooter.generateTextReport()
-        .then((text) => {
-          navigator.clipboard
-            .writeText(text)
-            .then(() => {
-              ui.notifications.info(game.i18n.localize('hm.settings.troubleshooter.copy-success'));
-            })
-            .catch((error) => {
-              HM.log(1, `Error copying to clipboard: ${error.message}`);
-              ui.notifications.error('hm.settings.troubleshooter.copy-error', { localize: true });
-            });
+      const text = Troubleshooter.generateTextReport();
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          ui.notifications.info(game.i18n.localize('hm.settings.troubleshooter.copy-success'));
         })
         .catch((error) => {
-          HM.log(1, `Error generating report for clipboard: ${error.message}`);
+          HM.log(1, `Error copying to clipboard: ${error.message}`);
+          ui.notifications.error('hm.settings.troubleshooter.copy-error', { localize: true });
         });
     } catch (error) {
       HM.log(1, `Error handling copy to clipboard event: ${error.message}`);

@@ -73,7 +73,7 @@ export class BaseItemRenderer {
 
     try {
       // Try sync method first for performance
-      let itemDoc = await fromUuidSync(key);
+      let itemDoc = fromUuidSync(key);
 
       // If sync method fails, try async method
       if (!itemDoc) {

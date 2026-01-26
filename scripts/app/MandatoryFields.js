@@ -246,8 +246,8 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
       const currentMandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
 
-      // Compare current and new values
-      const hasChanged = JSON.stringify(currentMandatoryFields.sort()) !== JSON.stringify(mandatoryFields.sort());
+      // Compare current and new values (use spread to avoid mutating original arrays)
+      const hasChanged = JSON.stringify([...currentMandatoryFields].sort()) !== JSON.stringify([...mandatoryFields].sort());
       const changedSettings = hasChanged ? { mandatoryFields: true } : {};
 
       if (hasChanged) {

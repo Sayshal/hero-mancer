@@ -142,6 +142,10 @@ export class HM {
 
     if (!window.console_logs) window.console_logs = [];
     window.console_logs.push(logEntry);
+    // Limit log storage to prevent memory leaks
+    if (window.console_logs.length > 1000) {
+      window.console_logs = window.console_logs.slice(-500);
+    }
 
     if (this.LOG_LEVEL > 0 && level <= this.LOG_LEVEL) {
       switch (level) {
@@ -193,13 +197,13 @@ export class HM {
 
     // Elkan compatibility
     if (game.modules.get('elkan5e')?.active && game.settings.get(HM.ID, 'elkanCompatibility')) {
-      HM.COMPAT = { ELKAN: true };
+      HM.COMPAT.ELKAN = true;
       HM.log(3, 'Elkan Detected: Compatibility auto-enabled.');
     }
 
     // Cauldron of Plentiful Resources compatibility
     if (game.modules.get('chris-premades')?.active) {
-      HM.COMPAT = { CPR: true };
+      HM.COMPAT.CPR = true;
       HM.log(3, 'CPR Detected: Compatibility auto-enabled.');
     }
 

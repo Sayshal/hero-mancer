@@ -27,6 +27,14 @@ export class CharacterApprovalService {
     CHARACTER_REJECTED: 'characterRejected'
   };
 
+  /**
+   * Socket callback reference for cleanup
+   * @static
+   * @type {Function|null}
+   * @private
+   */
+  static #socketCallback = null;
+
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
   /* -------------------------------------------- */
@@ -37,7 +45,12 @@ export class CharacterApprovalService {
    * @returns {void}
    */
   static registerSocketListeners() {
-    game.socket.on(this.SOCKET_NAME, (data) => {
+    // Clean up existing listener if re-registering
+    if (this.#socketCallback) {
+      game.socket.off(this.SOCKET_NAME, this.#socketCallback);
+    }
+
+    this.#socketCallback = (data) => {
       HM.log(3, 'Socket event received:', data);
       switch (data.type) {
         case this.EVENTS.SUBMIT_CHARACTER:
@@ -50,8 +63,23 @@ export class CharacterApprovalService {
           if (data.userId === game.user.id) this.#handleRejectionNotification(data);
           break;
       }
-    });
+    };
+
+    game.socket.on(this.SOCKET_NAME, this.#socketCallback);
     HM.log(3, 'Character approval socket listeners registered');
+  }
+
+  /**
+   * Unregister socket listeners for cleanup
+   * @static
+   * @returns {void}
+   */
+  static unregisterSocketListeners() {
+    if (this.#socketCallback) {
+      game.socket.off(this.SOCKET_NAME, this.#socketCallback);
+      this.#socketCallback = null;
+      HM.log(3, 'Character approval socket listeners unregistered');
+    }
   }
 
   /**

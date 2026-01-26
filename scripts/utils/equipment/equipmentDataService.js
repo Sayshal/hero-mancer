@@ -141,7 +141,7 @@ export class EquipmentDataService {
       // Try to get by UUID first
       if (uuid) {
         HM.log(3, `Attempting to get document by UUID: ${uuid}`);
-        doc = await fromUuidSync(uuid);
+        doc = fromUuidSync(uuid);
       }
 
       // If UUID fails, try by ID
