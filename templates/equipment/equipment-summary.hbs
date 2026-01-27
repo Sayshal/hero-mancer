@@ -1,0 +1,24 @@
+{{!-- templates/equipment/equipment-summary.hbs --}}
+{{!-- Equipment summary for the finalize/review tab --}}
+
+{{#if hasWealth}}
+  <p class="wealth-selected">{{localize "hm.app.finalize.summary.using-wealth"}}</p>
+{{/if}}
+
+{{#if items.length}}
+  <ul class="equipment-summary-list">
+    {{#each items}}
+      <li class="equipment-summary-item">
+        {{#if img}}
+          <img src="{{img}}" alt="{{name}}" class="item-icon">
+        {{/if}}
+        <span class="item-name">{{name}}</span>
+        {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  {{#unless hasWealth}}
+    <p class="no-equipment">{{localize "hm.app.finalize.summary.equipmentDefault"}}</p>
+  {{/unless}}
+{{/if}}

@@ -1,0 +1,69 @@
+{{!-- templates/equipment/equipment-container.hbs --}}
+{{!-- Main container for equipment selection UI --}}
+
+<div class="equipment-choices">
+  {{!-- Always create both section containers for dynamic updates --}}
+  <div class="class-equipment-section equipment-section">
+    {{#with classSectionData}}
+      {{#if hasData}}
+        <h3>{{label}}</h3>
+        {{#if hasWealth}}
+          <div class="wealth-option">
+            <label class="wealth-checkbox-label">
+              <input type="checkbox" data-wealth-checkbox data-type="class" data-formula="{{wealth}}"
+                id="use-starting-wealth-class">
+              {{localize "hm.app.equipment.use-wealth"}}
+              <span class="wealth-formula">({{wealth}})</span>
+            </label>
+            <p class="hint">{{localize "hm.app.equipment.wealth-hint"}}</p>
+          </div>
+        {{/if}}
+        <div class="class-equipment-entries equipment-entries">
+          {{#if entries.length}}
+            <table class="equipment-table">
+              <tbody>
+                {{#each entries}}
+                  {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+                {{/each}}
+              </tbody>
+            </table>
+          {{else}}
+            <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+          {{/if}}
+        </div>
+      {{/if}}
+    {{/with}}
+  </div>
+
+  <div class="background-equipment-section equipment-section">
+    {{#with backgroundSectionData}}
+      {{#if hasData}}
+        <h3>{{label}}</h3>
+        {{#if hasWealth}}
+          <div class="wealth-option">
+            <label class="wealth-checkbox-label">
+              <input type="checkbox" data-wealth-checkbox data-type="background" data-formula="{{wealth}}"
+                id="use-starting-wealth-background">
+              {{localize "hm.app.equipment.use-wealth"}}
+              <span class="wealth-formula">({{wealth}})</span>
+            </label>
+            <p class="hint">{{localize "hm.app.equipment.wealth-hint"}}</p>
+          </div>
+        {{/if}}
+        <div class="background-equipment-entries equipment-entries">
+          {{#if entries.length}}
+            <table class="equipment-table">
+              <tbody>
+                {{#each entries}}
+                  {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+                {{/each}}
+              </tbody>
+            </table>
+          {{else}}
+            <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+          {{/if}}
+        </div>
+      {{/if}}
+    {{/with}}
+  </div>
+</div>

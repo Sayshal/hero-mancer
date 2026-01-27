@@ -1,5 +1,5 @@
 /* global Actor */
-import { CharacterApprovalService, EquipmentParser, HeroMancer, HM, SavedOptions, SummaryMessage } from './index.js';
+import { CharacterApprovalService, EquipmentCollection, EquipmentManager, HeroMancer, HM, SavedOptions, SummaryMessage } from './index.js';
 
 /**
  * Service class that handles character creation in the Hero Mancer
@@ -411,7 +411,7 @@ export class ActorCreationService {
     const useBackgroundWealth = formData['use-starting-wealth-background'];
     const useStartingWealth = useClassWealth || useBackgroundWealth;
     HM.log(3, 'Starting wealth checks:', { class: useClassWealth, background: useBackgroundWealth });
-    const startingWealth = useStartingWealth ? await EquipmentParser.convertWealthStringToCurrency(formData) : null;
+    const startingWealth = useStartingWealth ? await EquipmentManager.convertWealthToCurrency(formData) : null;
     HM.log(3, 'Starting wealth amount:', startingWealth);
     return { useClassWealth, useBackgroundWealth, startingWealth };
   }
@@ -425,8 +425,8 @@ export class ActorCreationService {
    * @static
    */
   static async #collectEquipment(event, useClassWealth, useBackgroundWealth) {
-    const backgroundEquipment = !useBackgroundWealth ? await EquipmentParser.collectEquipmentSelections(event, { includeClass: false, includeBackground: true }) : [];
-    const classEquipment = !useClassWealth ? await EquipmentParser.collectEquipmentSelections(event, { includeClass: true, includeBackground: false }) : [];
+    const backgroundEquipment = !useBackgroundWealth ? await EquipmentCollection.collectSelections(event, { includeClass: false, includeBackground: true }) : [];
+    const classEquipment = !useClassWealth ? await EquipmentCollection.collectSelections(event, { includeClass: true, includeBackground: false }) : [];
     return [...backgroundEquipment, ...classEquipment];
   }
 

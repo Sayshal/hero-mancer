@@ -1,0 +1,32 @@
+{{!-- templates/equipment/equipment-choice.hbs --}}
+{{!-- Renders equipment choices for a single section (class or background) --}}
+
+<h3>{{label}}</h3>
+
+{{!-- Wealth option if available --}}
+{{#if hasWealth}}
+  <div class="wealth-option">
+    <label class="wealth-checkbox-label">
+      <input type="checkbox" data-wealth-checkbox data-type="{{type}}" data-formula="{{wealth}}"
+        id="use-starting-wealth-{{type}}">
+      {{localize "hm.app.equipment.use-wealth"}}
+      <span class="wealth-formula">({{wealth}})</span>
+    </label>
+    <p class="hint">{{localize "hm.app.equipment.wealth-hint"}}</p>
+  </div>
+{{/if}}
+
+{{!-- Equipment entries --}}
+<div class="{{type}}-equipment-entries equipment-entries">
+  {{#if entries.length}}
+    <table class="equipment-table">
+      <tbody>
+        {{#each entries}}
+          {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+  {{/if}}
+</div>

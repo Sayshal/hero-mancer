@@ -239,15 +239,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   async _onFirstRender(_context, _options) {
-    const equipmentContainer = this.element.querySelector('#equipment-container');
-    if (equipmentContainer && !HM.COMPAT.ELKAN) {
-      ['class', 'background'].forEach((type) => {
-        const section = document.createElement('div');
-        section.className = `${type}-equipment-section`;
-        equipmentContainer.appendChild(section);
-      });
-    }
-
+    await HeroMancerUI.initializeEquipmentContainer(this.element);
     await HeroMancerUI.restoreFormOptions(this.element);
     HeroMancerUI.updateTabIndicators(this.element);
     requestAnimationFrame(() => {

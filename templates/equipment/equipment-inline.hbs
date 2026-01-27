@@ -1,0 +1,60 @@
+{{!-- templates/equipment/equipment-inline.hbs --}}
+{{!-- Inline equipment item display (used within AND groups) --}}
+
+<div class="inline-equipment-item {{type}}" data-entry-id="{{id}}">
+  {{#if isLinked}}
+    {{#if linkedItem}}
+      <span class="linked-item" data-linked-item data-uuid="{{linkedItem.uuid}}" data-count="{{count}}"
+        data-name="{{linkedItem.name}}">
+        {{linkedItem.name}}
+        {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+      </span>
+    {{else}}
+      <span class="unknown-item">{{localize "hm.app.equipment.unknown-item"}}</span>
+    {{/if}}
+
+  {{else if isCategory}}
+    <div class="category-select">
+      <span class="category-label">{{{label}}}</span>
+      {{#if hasOptions}}
+        <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
+          id="{{type}}-{{categoryKey}}-{{id}}-inline">
+          {{#each options}}
+            <option value="{{uuid}}">{{name}}</option>
+          {{/each}}
+        </select>
+      {{else}}
+        <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
+      {{/if}}
+    </div>
+
+  {{else if isOr}}
+    {{!-- Nested OR inside AND - render as select dropdown --}}
+    <div class="inline-or-choice">
+      {{#if hasChildren}}
+        <select data-equipment-select data-type="or" data-count="{{count}}" id="or-{{id}}-inline">
+          {{#each children}}
+            {{#if isLinked}}
+              {{#if linkedItem}}
+                <option value="{{linkedItem.uuid}}">{{linkedItem.name}}</option>
+              {{/if}}
+            {{else if isCategory}}
+              {{!-- Category options are handled separately --}}
+              <option value="" disabled>{{label}}</option>
+            {{else}}
+              <option value="{{id}}">{{label}}</option>
+            {{/if}}
+          {{/each}}
+        </select>
+      {{else}}
+        <span class="inline-or-label">{{{label}}}</span>
+      {{/if}}
+    </div>
+
+  {{else if isCurrency}}
+    <span class="currency-inline">{{{label}}}</span>
+
+  {{else}}
+    <span class="entry-label">{{{label}}}</span>
+  {{/if}}
+</div>

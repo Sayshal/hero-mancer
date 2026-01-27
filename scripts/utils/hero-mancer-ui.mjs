@@ -4,7 +4,7 @@
  * event binding, summary updates, review tab, and form state.
  */
 
-import { DocumentService, EquipmentParser, EventRegistry, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
+import { DocumentService, EquipmentManager, EquipmentUI, EventRegistry, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
 
 /**
  * Centralized UI management for the HeroMancer application.
@@ -56,6 +56,7 @@ export class HeroMancerUI {
       this.#colorSchemeHookId = null;
     }
     EventRegistry.cleanupAll();
+    EquipmentManager.clearCache();
     HM.log(3, 'HeroMancerUI: cleanup complete');
     return true;
   }
@@ -144,16 +145,21 @@ export class HeroMancerUI {
   }
 
   /**
-   * Initialize empty equipment container structure
+   * Initialize equipment container with full equipment UI.
    * @param {HTMLElement} element - Root element
+   * @returns {Promise<void>}
    */
-  static initializeEquipmentContainer(element) {
+  static async initializeEquipmentContainer(element) {
     const equipmentContainer = element.querySelector('#equipment-container');
     if (!equipmentContainer || HM.COMPAT.ELKAN) return;
-    equipmentContainer.innerHTML = '';
-    const choicesContainer = document.createElement('div');
-    choicesContainer.className = 'equipment-choices';
-    equipmentContainer.appendChild(choicesContainer);
+
+    try {
+      await EquipmentUI.render(equipmentContainer);
+      this.attachEquipmentListeners(equipmentContainer);
+    } catch (error) {
+      HM.log(1, 'Failed to initialize equipment container:', error);
+      equipmentContainer.innerHTML = `<p class="error">${game.i18n.localize('hm.errors.equipment-rendering')}</p>`;
+    }
   }
 
   /**
@@ -368,7 +374,7 @@ export class HeroMancerUI {
     try {
       const backgroundData = this.#getBackgroundData();
       const content = game.i18n.format('hm.app.finalize.summary.background', { article: backgroundData.article, background: backgroundData.link });
-      summary.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(content);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } catch (error) {
       HM.log(1, 'Error updating background summary:', error);
       const fallbackContent = game.i18n.format('hm.app.finalize.summary.background', {
@@ -391,14 +397,14 @@ export class HeroMancerUI {
       const raceLink = this.#getSelectionLink('race');
       const classLink = this.#getSelectionLink('class');
       const content = game.i18n.format('hm.app.finalize.summary.classRace', { race: raceLink, class: classLink });
-      summary.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(content);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } catch (error) {
       HM.log(1, 'Error updating class/race summary:', error);
       const fallbackContent = game.i18n.format('hm.app.finalize.summary.classRace', {
         race: game.i18n.format('hm.unknown', { type: 'race' }),
         class: game.i18n.format('hm.unknown', { type: 'class' })
       });
-      summary.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(fallbackContent);
+      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(fallbackContent);
     }
   }
 
@@ -670,14 +676,15 @@ export class HeroMancerUI {
   }
 
   /**
-   * Update equipment UI based on changed selections
+   * Update equipment UI based on changed selections.
    * @param {HTMLElement} element - Application root element
    * @param {string} type - Which selection changed ('class' or 'background')
    * @returns {Promise<void>}
    */
-  static updateEquipment(element, type) {
+  static async updateEquipment(element, type) {
     const equipmentContainer = element.querySelector('#equipment-container');
-    if (!equipmentContainer) return Promise.resolve();
+    if (!equipmentContainer || HM.COMPAT.ELKAN) return;
+
     if (this.#equipmentUpdateInProgress) {
       return new Promise((resolve) => {
         this.#pendingEquipmentUpdate = { element, type, resolve };
@@ -685,38 +692,25 @@ export class HeroMancerUI {
     }
 
     this.#equipmentUpdateInProgress = true;
-    return new Promise((resolve) => {
-      EquipmentParser.renderedItems = new Set();
-      if (EquipmentParser.lookupItems) {
-        Object.values(EquipmentParser.lookupItems).forEach((category) => {
-          if (category.items?.forEach) {
-            category.items.forEach((item) => {
-              delete item.rendered;
-              delete item.isSpecialCase;
-              delete item.specialGrouping;
-            });
-          }
-        });
+
+    try {
+      // Clear cache for the changed type to force refresh
+      EquipmentManager.clearCache();
+
+      // Re-render the specific section
+      await EquipmentUI.renderType(equipmentContainer, type);
+      this.attachEquipmentListeners(equipmentContainer);
+    } catch (error) {
+      HM.log(1, `Error in updateEquipment for ${type}:`, error);
+    } finally {
+      this.#equipmentUpdateInProgress = false;
+
+      if (this.#pendingEquipmentUpdate) {
+        const { element: pendingElement, type: pendingType, resolve: pendingResolve } = this.#pendingEquipmentUpdate;
+        this.#pendingEquipmentUpdate = null;
+        this.updateEquipment(pendingElement, pendingType).then(pendingResolve);
       }
-      const equipment = EquipmentParser.getInstance();
-      equipment
-        .generateEquipmentSelectionUI(type)
-        .then(() => {
-          this.attachEquipmentListeners(equipmentContainer);
-        })
-        .catch((error) => {
-          HM.log(1, `Error in updateEquipment for ${type}:`, error);
-        })
-        .finally(() => {
-          this.#equipmentUpdateInProgress = false;
-          resolve();
-          if (this.#pendingEquipmentUpdate) {
-            const { element, type, resolve: pendingResolve } = this.#pendingEquipmentUpdate;
-            this.#pendingEquipmentUpdate = null;
-            this.updateEquipment(element, type).then(pendingResolve);
-          }
-        });
-    });
+    }
   }
 
   /**
@@ -1053,7 +1047,7 @@ export class HeroMancerUI {
       items:
         formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) + (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') + formattedItems.slice(-1)
     });
-    summary.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(content);
+    summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
   }
 
   /**
@@ -1256,7 +1250,7 @@ export class HeroMancerUI {
     if (!abilitiesSummary) return;
     if (selectedAbilities.length >= 2) {
       const content = game.i18n.format('hm.app.finalize.summary.abilities', { first: `&Reference[${selectedAbilities[0]}]`, second: `&Reference[${selectedAbilities[1]}]` });
-      abilitiesSummary.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(content);
+      abilitiesSummary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
     } else {
       abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
     }
@@ -1366,7 +1360,7 @@ export class HeroMancerUI {
       const doc = fromUuidSync(uuid);
       if (doc) {
         const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
-        element.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(linkHtml);
+        element.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(linkHtml);
       } else {
         element.textContent = game.i18n.localize('hm.unknown');
       }
@@ -1390,7 +1384,7 @@ export class HeroMancerUI {
       const mod = Math.floor((score - 10) / 2);
       return { abbreviation: ability.abbreviation.toUpperCase(), score, mod: Math.abs(mod), modSign: mod >= 0 ? '+' : '-' };
     });
-    container.innerHTML = await renderTemplate('modules/hero-mancer/templates/review/abilities-review.hbs', { abilities });
+    container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/abilities-review.hbs', { abilities });
   }
 
   /**
@@ -1403,8 +1397,8 @@ export class HeroMancerUI {
   static async #updateBiographyReview(container) {
     const bioData = this.#collectBiographyData();
     const mainText = await this.#formatMainBiographyText(bioData);
-    const backstory = bioData.backstory ? await foundry.applications.ux.TextEditor().enrichHTML(bioData.backstory) : '';
-    container.innerHTML = await renderTemplate('modules/hero-mancer/templates/review/biography-review.hbs', {
+    const backstory = bioData.backstory ? await foundry.applications.ux.TextEditor.implementation.enrichHTML(bioData.backstory) : '';
+    container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/biography-review.hbs', {
       mainText,
       personalityTraits: bioData.personalityTraits,
       ideals: bioData.ideals,
@@ -1446,7 +1440,7 @@ export class HeroMancerUI {
           proficiencyData.languages.size > 0
       };
       HM.log(3, 'Final proficiency data collected:', templateData);
-      container.innerHTML = await renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', templateData);
+      container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', templateData);
     } catch (error) {
       HM.log(1, 'Error updating proficiencies review:', error);
       container.innerHTML = `<div class="error-message">${game.i18n.localize('hm.app.finalize.review.proficiencies-error')}</div>`;
@@ -1565,7 +1559,7 @@ export class HeroMancerUI {
    */
   static async #updateEquipmentReview(container) {
     if (HM.COMPAT.ELKAN) {
-      container.innerHTML = await renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', { elkanMode: true });
+      container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', { elkanMode: true });
       return;
     }
     const backgroundItems = this.#getEquipmentByType('background');
@@ -1574,9 +1568,9 @@ export class HeroMancerUI {
     const className = (await this.#getClassName()) || game.i18n.localize('TYPES.Item.class');
     const enrichItems = async (items) => {
       if (!items.length || items[0].isStartingWealth) return items;
-      return Promise.all(items.map(async (item) => ({ ...item, link: await foundry.applications.ux.TextEditor().enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) })));
+      return Promise.all(items.map(async (item) => ({ ...item, link: await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) })));
     };
-    container.innerHTML = await renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', {
+    container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', {
       elkanMode: false,
       backgroundHeader: game.i18n.format('hm.app.equipment.type-equipment', { type: backgroundName }),
       classHeader: game.i18n.format('hm.app.equipment.type-equipment', { type: className }),

@@ -1,0 +1,149 @@
+{{!-- templates/equipment/equipment-entry.hbs --}}
+{{!-- Renders a single equipment entry (recursive for grouped entries) --}}
+
+{{#if isOr}}
+  {{!-- OR choice - radio button group --}}
+  <tr class="equipment-or-group" data-entry-id="{{id}}">
+    <th colspan="2">
+      <h4 class="or-header">{{{label}}}</h4>
+    </th>
+  </tr>
+  {{#each children}}
+    <tr class="equipment-or-option{{#unless @first}} disabled{{/unless}}" data-or-option="{{../id}}"
+      data-option-value="{{id}}">
+      <td class="option-select">
+        <label style="pointer-events: auto;">
+          <input type="radio" name="or-choice-{{../id}}" value="{{id}}" data-or-choice data-or-group="{{../id}}"
+            {{#if @first}}checked{{/if}}>
+          {{#if isLinked}}
+            {{#if linkedItem}}
+              <span class="linked-item-name">{{linkedItem.name}}</span>
+              {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+            {{else}}
+              <span class="unknown-item">{{localize "hm.app.equipment.unknown-item"}}</span>
+            {{/if}}
+          {{else if isCategory}}
+            <span class="category-label">{{{label}}}</span>
+          {{else if isAnd}}
+            <span class="and-label">{{{label}}}</span>
+          {{else if isOr}}
+            <span class="or-label">{{{label}}}</span>
+          {{else}}
+            <span class="entry-label">{{{label}}}</span>
+          {{/if}}
+        </label>
+      </td>
+      <td class="option-content">
+        {{#if isCategory}}
+          {{#if hasOptions}}
+            <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
+              id="{{type}}-{{categoryKey}}-{{id}}" {{#unless @first}}disabled{{/unless}}>
+              {{#each options}}
+                <option value="{{uuid}}">{{name}}</option>
+              {{/each}}
+            </select>
+          {{else}}
+            <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
+          {{/if}}
+        {{else if isLinked}}
+          <input type="hidden" data-linked-item data-uuid="{{linkedItem.uuid}}" data-count="{{count}}"
+            value="{{linkedItem.uuid}}">
+        {{else if isAnd}}
+          {{!-- AND group inside OR - show all children --}}
+          <div class="and-group">
+            {{#each children}}
+              {{> "modules/hero-mancer/templates/equipment/equipment-inline.hbs" }}
+            {{/each}}
+          </div>
+        {{else if isOr}}
+          {{!-- Nested OR - render as select --}}
+          {{#if hasChildren}}
+            <select data-equipment-select data-type="or" data-count="{{count}}" id="or-{{id}}">
+              {{#each children}}
+                {{#if isLinked}}
+                  {{#if linkedItem}}
+                    <option value="{{linkedItem.uuid}}">{{linkedItem.name}}</option>
+                  {{/if}}
+                {{else}}
+                  <option value="{{id}}">{{{label}}}</option>
+                {{/if}}
+              {{/each}}
+            </select>
+          {{else}}
+            <span class="nested-or">{{{label}}}</span>
+          {{/if}}
+        {{/if}}
+      </td>
+    </tr>
+  {{/each}}
+
+{{else if isAnd}}
+  {{!-- AND group - all items included --}}
+  <tr class="equipment-and-group" data-entry-id="{{id}}">
+    <td colspan="2">
+      <div class="and-container">
+        <h4 class="and-header">{{{label}}}</h4>
+        <div class="and-items">
+          {{#each children}}
+            {{> "modules/hero-mancer/templates/equipment/equipment-inline.hbs" }}
+          {{/each}}
+        </div>
+      </div>
+    </td>
+  </tr>
+
+{{else if isLinked}}
+  {{!-- Single linked item --}}
+  <tr class="equipment-linked" data-entry-id="{{id}}">
+    <td class="item-info">
+      {{#if linkedItem}}
+        <span class="linked-item-name" data-linked-item data-uuid="{{linkedItem.uuid}}" data-count="{{count}}">
+          {{linkedItem.name}}
+          {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+        </span>
+      {{else}}
+        <span class="unknown-item">{{localize "hm.app.equipment.unknown-item"}}</span>
+      {{/if}}
+    </td>
+    <td class="favorite-cell">
+      <label class="favorite-label" title="{{localize 'hm.app.equipment.favorite'}}">
+        <input type="checkbox" class="favorite-checkbox">
+        <i class="fa-solid fa-star"></i>
+      </label>
+    </td>
+  </tr>
+
+{{else if isCategory}}
+  {{!-- Category dropdown --}}
+  <tr class="equipment-category" data-entry-id="{{id}}">
+    <td class="category-info">
+      <label for="{{type}}-{{categoryKey}}-{{id}}">
+        {{{label}}}
+        {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+      </label>
+      {{#if hasOptions}}
+        <select data-equipment-select data-type="{{type}}" data-count="{{count}}" id="{{type}}-{{categoryKey}}-{{id}}">
+          {{#each options}}
+            <option value="{{uuid}}">{{name}}</option>
+          {{/each}}
+        </select>
+      {{else}}
+        <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
+      {{/if}}
+    </td>
+    <td class="favorite-cell">
+      <label class="favorite-label" title="{{localize 'hm.app.equipment.favorite'}}">
+        <input type="checkbox" class="favorite-checkbox">
+        <i class="fa-solid fa-star"></i>
+      </label>
+    </td>
+  </tr>
+
+{{else if isCurrency}}
+  {{!-- Currency entry --}}
+  <tr class="equipment-currency" data-entry-id="{{id}}">
+    <td colspan="2">
+      <span class="currency-amount">{{{label}}}</span>
+    </td>
+  </tr>
+{{/if}}
