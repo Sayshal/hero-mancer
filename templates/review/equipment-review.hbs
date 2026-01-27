@@ -1,0 +1,40 @@
+{{!-- templates/review/equipment-review.hbs --}}
+{{!-- Renders equipment selections for the review tab --}}
+{{#if elkanMode}}
+  <p>{{localize "hm.app.finalize.summary.equipmentDefault"}}</p>
+{{else}}
+  <div class="equipment-layout">
+    <div class="background-equipment">
+      <h4>{{backgroundHeader}}</h4>
+      <div class="background-items">
+        {{#if backgroundItems.length}}
+          {{#if backgroundItems.[0].isStartingWealth}}
+            <div class="equipment-wealth">{{backgroundItems.[0].name}}</div>
+          {{else}}
+            {{#each backgroundItems}}
+              <div class="equipment-item">{{{this.link}}}</div>
+            {{/each}}
+          {{/if}}
+        {{else}}
+          <em>{{localize "hm.app.finalize.review.no-equipment"}}</em>
+        {{/if}}
+      </div>
+    </div>
+    <div class="class-equipment">
+      <h4>{{classHeader}}</h4>
+      <div class="class-items">
+        {{#if classItems.length}}
+          {{#if classItems.[0].isStartingWealth}}
+            <div class="equipment-wealth">{{classItems.[0].name}}</div>
+          {{else}}
+            {{#each classItems}}
+              <div class="equipment-item">{{{this.link}}}</div>
+            {{/each}}
+          {{/if}}
+        {{else}}
+          <em>{{localize "hm.app.finalize.review.no-equipment"}}</em>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+{{/if}}

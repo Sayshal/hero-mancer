@@ -1,0 +1,89 @@
+{{!-- templates/review/proficiencies-review.hbs --}}
+{{!-- Renders proficiency list for the review tab --}}
+{{#if hasProficiencies}}
+  {{#if armor.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.TraitArmorProf"}}</h4>
+      <div class="proficiency-items">
+        {{#each armor}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if weapons.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.TraitWeaponProf"}}</h4>
+      <div class="proficiency-items">
+        {{#each weapons}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if tools.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.TraitToolProf"}}</h4>
+      <div class="proficiency-items">
+        {{#each tools}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if savingThrows.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.ClassSaves"}}</h4>
+      <div class="proficiency-items">
+        {{#each savingThrows}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if skills.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.Skills"}}</h4>
+      <div class="proficiency-items">
+        {{#each skills}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if languages.length}}
+    <div class="proficiency-category">
+      <h4 class="proficiency-category-title">{{localize "DND5E.Languages"}}</h4>
+      <div class="proficiency-items">
+        {{#each languages}}
+          <div class="proficiency-item">
+            <span class="proficiency-name">{{this.name}}</span>
+            <span class="proficiency-source">({{this.source}})</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+{{else}}
+  <div class="no-proficiencies">{{localize "hm.app.finalize.review.no-proficiencies"}}</div>
+{{/if}}

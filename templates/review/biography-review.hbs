@@ -1,0 +1,47 @@
+{{!-- templates/review/biography-review.hbs --}}
+{{!-- Renders biography preview for the review tab --}}
+<div class="bio-main">
+  {{{mainText}}}
+</div>
+
+{{#if personalityTraits}}
+  <div class="bio-detail personalityTraits">
+    <h4>{{localize "DND5E.PersonalityTraits"}}</h4>
+    <p>{{personalityTraits}}</p>
+  </div>
+{{/if}}
+
+{{#if ideals}}
+  <div class="bio-detail ideals">
+    <h4>{{localize "DND5E.Ideals"}}</h4>
+    <p>{{ideals}}</p>
+  </div>
+{{/if}}
+
+{{#if bonds}}
+  <div class="bio-detail bonds">
+    <h4>{{localize "DND5E.Bonds"}}</h4>
+    <p>{{bonds}}</p>
+  </div>
+{{/if}}
+
+{{#if flaws}}
+  <div class="bio-detail flaws">
+    <h4>{{localize "DND5E.Flaws"}}</h4>
+    <p>{{flaws}}</p>
+  </div>
+{{/if}}
+
+{{#if physicalDescription}}
+  <div class="bio-detail physical-description">
+    <h4>{{localize "hm.app.finalize.review.physical-description"}}</h4>
+    <p>{{physicalDescription}}</p>
+  </div>
+{{/if}}
+
+{{#if backstory}}
+  <div class="bio-detail backstory">
+    <h4>{{localize "hm.app.finalize.review.backstory"}}</h4>
+    <div class="backstory-text">{{{backstory}}}</div>
+  </div>
+{{/if}}

@@ -1,4 +1,4 @@
-import { getTextEditor, HM, JournalPageFinder } from './index.js';
+import { HM, JournalPageFinder } from './index.js';
 
 /**
  * Service for managing game document preparation and processing
@@ -12,7 +12,7 @@ export class DocumentService {
 
   /**
    * Cache for fully loaded documents (keyed by UUID)
-   * @type {Map<string, Object>}
+   * @type {Map<string, object>}
    * @private
    */
   static #documentCache = new Map();
@@ -31,7 +31,7 @@ export class DocumentService {
   /**
    * Get a fully loaded document by UUID, with caching
    * @param {string} uuid - Document UUID
-   * @returns {Promise<Object|null>} Full document or null
+   * @returns {Promise<object | null>} Full document or null
    * @static
    */
   static async getFullDocument(uuid) {
@@ -180,7 +180,6 @@ export class DocumentService {
       /**
        * A hook event that fires after documents have been fetched and organized.
        * This allows modules to filter or modify the documents that will be displayed.
-       *
        * @event heroMancer.documentsReady
        * @param {string} type - The document type being prepared
        * @param {Array} result - The processed document array
@@ -412,7 +411,7 @@ export class DocumentService {
   /**
    * Process index entries from a single pack (no full document load)
    * @param {CompendiumCollection} pack - The pack being processed
-   * @param {Object[]} entries - Index entries to process
+   * @param {object[]} entries - Index entries to process
    * @returns {Promise<Array>} Processed entries with minimal data
    * @private
    */
@@ -516,7 +515,7 @@ export class DocumentService {
 
   /**
    * Finds and retrieves comprehensive description for a document by generating formatted content
-   * @param {Object} doc - The document to find a description for
+   * @param {object} doc - The document to find a description for
    * @returns {Promise<{description: string, journalPageId?: string}>} Description and optional journal page ID
    * @private
    */
@@ -539,7 +538,7 @@ export class DocumentService {
       const rawDescription = doc.system?.description?.value || game.i18n.localize('hm.app.no-description');
 
       // Enrich the description HTML
-      let enrichedDescription = await getTextEditor().enrichHTML(rawDescription, { async: true });
+      let enrichedDescription = await foundry.applications.ux.TextEditor().enrichHTML(rawDescription, { async: true });
 
       // Apply the h3->h2 transformations
       enrichedDescription = enrichedDescription
@@ -565,7 +564,7 @@ export class DocumentService {
 
   /**
    * Finds a journal page related to the document
-   * @param {Object} doc - The document to find a journal page for
+   * @param {object} doc - The document to find a journal page for
    * @returns {Promise<string|null>} Journal page ID or null if none found
    * @private
    */
@@ -602,7 +601,7 @@ export class DocumentService {
 
   /**
    * Extracts the module ID from a document
-   * @param {Object} doc - The document to extract module ID from
+   * @param {object} doc - The document to extract module ID from
    * @returns {string|null} Module ID or null if can't be determined
    * @private
    */

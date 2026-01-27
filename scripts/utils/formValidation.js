@@ -1,4 +1,4 @@
-import { DOMManager, HM } from './index.js';
+import { HeroMancerUI, HM } from './index.js';
 
 /**
  * Centralized form validation utilities
@@ -15,19 +15,15 @@ export class FormValidation {
    * @returns {boolean} Whether the field has valid content
    */
   static isFieldComplete(element) {
-    // Input validation
     if (!element || !(element instanceof HTMLElement)) {
       HM.log(2, 'FormValidation.isFieldComplete called with invalid element', element);
       return false;
     }
 
     try {
-      // Extract element properties with null/undefined checks
       const type = this.#determineElementType(element);
       const value = element?.value ?? '';
       const checked = element?.checked ?? false;
-
-      // Handle different input types
       switch (type) {
         case 'checkbox':
           return checked;
@@ -56,26 +52,19 @@ export class FormValidation {
    * @returns {boolean} Whether the field is complete
    */
   static isAbilityFieldComplete(element, abilityBlock) {
-    // Input validation
     if (!element || !(element instanceof HTMLElement)) {
       HM.log(2, 'FormValidation.isAbilityFieldComplete called with invalid element', element);
       return false;
     }
-
     if (!abilityBlock || !(abilityBlock instanceof HTMLElement)) {
       HM.log(2, 'FormValidation.isAbilityFieldComplete called with invalid abilityBlock', abilityBlock);
       return false;
     }
 
     try {
-      // Determine scoring method and delegate to appropriate handler
-      if (element.classList.contains('ability-dropdown') && !abilityBlock.classList.contains('point-buy')) {
-        return this.#isStandardArrayComplete(element);
-      } else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) {
-        return this.#isPointBuyComplete(element);
-      } else {
-        return this.#isManualEntryComplete(abilityBlock);
-      }
+      if (element.classList.contains('ability-dropdown') && !abilityBlock.classList.contains('point-buy')) return this.#isStandardArrayComplete(element);
+      else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) return this.#isPointBuyComplete(element);
+      else return this.#isManualEntryComplete(abilityBlock);
     } catch (error) {
       HM.log(1, 'Error in FormValidation.isAbilityFieldComplete:', error);
       return false;
@@ -88,33 +77,22 @@ export class FormValidation {
    * @returns {HTMLElement|null} The associated label element or null if not found
    */
   static findAssociatedLabel(element) {
-    // Input validation
     if (!element || !(element instanceof HTMLElement)) {
       HM.log(2, 'FormValidation.findAssociatedLabel called with invalid element', element);
       return null;
     }
 
     try {
-      // Handle special case for prose-mirror elements
       if (element.localName === 'prose-mirror') {
         const section = element.closest('.notes-section');
         return section ? section.querySelector('h2') : null;
       }
-
-      // Find container and look for label inside
       const container = element.closest(
         '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group, .physical-description-section, .characteristics-section'
       );
 
-      if (!container) {
-        return null;
-      }
-
-      // For section containers with headings, return the heading
-      if (container.classList.contains('physical-description-section') || container.classList.contains('characteristics-section')) {
-        return container.querySelector('h2');
-      }
-
+      if (!container) return null;
+      if (container.classList.contains('physical-description-section') || container.classList.contains('characteristics-section')) return container.querySelector('h2');
       return container.querySelector('label, span.ability-label');
     } catch (error) {
       HM.log(1, 'Error in FormValidation.findAssociatedLabel:', error);
@@ -125,31 +103,23 @@ export class FormValidation {
   /**
    * Adds a visual indicator to show field completion status
    * @param {HTMLElement} labelElement - The label element to modify
-   * @param {boolean} [isComplete=false] - Whether the associated field is complete
+   * @param {boolean} [isComplete] - Whether the associated field is complete
    */
   static addIndicator(labelElement, isComplete = false) {
-    // Input validation
     if (!labelElement || !(labelElement instanceof HTMLElement)) {
       HM.log(2, 'FormValidation.addIndicator called with invalid labelElement', labelElement);
       return;
     }
-
-    // Ensure isComplete is a boolean (using double negation for fast conversion)
     isComplete = !!isComplete;
 
     try {
-      // Remove existing indicator if any
       const existingIcon = labelElement.querySelector('.mandatory-indicator');
       if (existingIcon) {
-        // Only remove if the state changed
         const currentIsComplete = existingIcon.classList.contains('fa-circle-check');
-        if (currentIsComplete === isComplete) {
-          return; // No change needed
-        }
+        if (currentIsComplete === isComplete) return;
         existingIcon.remove();
       }
 
-      // Create new indicator
       const icon = document.createElement('i');
       if (isComplete) {
         icon.className = 'fa-solid fa-circle-check mandatory-indicator complete';
@@ -185,29 +155,19 @@ export class FormValidation {
         mandatoryFields = [];
       }
 
-      // Update tab indicators regardless of submit button
-      DOMManager.updateTabIndicators(form);
-
-      // Early return only if no mandatory fields
+      HeroMancerUI.updateTabIndicators(form);
       if (!mandatoryFields.length) return true;
-
-      // Get all elements and field status in one pass to minimize DOM operations
       const fieldStatus = FormValidation._evaluateFieldStatus(form, mandatoryFields);
-
-      // Update UI based on field status
       await FormValidation._updateFieldIndicators(fieldStatus);
-
-      // Only update submit button if it exists
       const submitButton = form.querySelector('.hm-app-footer-submit');
       if (submitButton) {
         const isValid = fieldStatus.missingFields.length === 0;
         FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
       }
-
       return fieldStatus.missingFields.length === 0;
     } catch (error) {
       HM.log(1, `Error in checkMandatoryFields: ${error.message}`);
-      return true; // Default to allowing submission on error
+      return true;
     }
   }
 
@@ -220,33 +180,22 @@ export class FormValidation {
   static hasIncompleteTabFields(tabId, form) {
     try {
       if (!form || !tabId) return false;
-
-      // Get the tab element
       const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
       if (!tabElement) return false;
-
       const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
       if (!mandatoryFields.length) return false;
-
-      // Check each mandatory field in this tab
       for (const fieldName of mandatoryFields) {
-        // Find element in this tab
         const element = tabElement.querySelector(`[name="${fieldName}"]`);
-        if (!element) continue; // Field not in this tab
-
-        // Check if field is complete
+        if (!element) continue;
         let isComplete = false;
-
         if (fieldName.startsWith('abilities[')) {
           const abilityBlock = element.closest('.ability-block');
           isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
         } else {
           isComplete = FormValidation.isFieldComplete(element);
         }
-
-        if (!isComplete) return true; // Found an incomplete field
+        if (!isComplete) return true;
       }
-
       return false;
     } catch (error) {
       HM.log(1, `Error checking tab mandatory fields: ${error.message}`);
@@ -266,39 +215,18 @@ export class FormValidation {
    * @protected
    */
   static _evaluateFieldStatus(form, mandatoryFields) {
-    // Collect all form elements and their status in one operation
-    const fieldStatus = {
-      fields: [],
-      missingFields: []
-    };
-
-    // Use a Map for quick element lookups when processing
+    const fieldStatus = { fields: [], missingFields: [] };
     const elementMap = new Map();
-
-    // First collect all elements to minimize DOM operations
     mandatoryFields.forEach((field) => {
       const element = form.querySelector(`[name="${field}"]`);
       if (!element) return;
-
-      // Add mandatory class if not already present
-      if (!element.classList.contains('mandatory-field')) {
-        element.classList.add('mandatory-field');
-      }
-
-      elementMap.set(field, {
-        element,
-        field,
-        abilityField: field.startsWith('abilities['),
-        isComplete: false,
-        label: null
-      });
+      if (!element.classList.contains('mandatory-field')) element.classList.add('mandatory-field');
+      elementMap.set(field, { element, field, abilityField: field.startsWith('abilities['), isComplete: false, label: null });
     });
 
-    // Then process all elements efficiently
     elementMap.forEach((data, field) => {
       let isComplete = false;
       let label = null;
-
       if (data.abilityField) {
         const abilityBlock = data.element.closest('.ability-block');
         label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
@@ -308,17 +236,11 @@ export class FormValidation {
         label = FormValidation.findAssociatedLabel(data.element);
       }
 
-      // Update with completion status
       data.isComplete = isComplete;
       data.label = label;
-
       fieldStatus.fields.push(data);
-
-      if (!isComplete) {
-        fieldStatus.missingFields.push(field);
-      }
+      if (!isComplete) fieldStatus.missingFields.push(field);
     });
-
     return fieldStatus;
   }
 
@@ -329,17 +251,11 @@ export class FormValidation {
    * @protected
    */
   static async _updateFieldIndicators(fieldStatus) {
-    // Use requestAnimationFrame to batch DOM updates
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
         fieldStatus.fields.forEach((data) => {
-          // Update element class
           data.element.classList.toggle('complete', data.isComplete);
-
-          // Add indicator to label if present
-          if (data.label) {
-            FormValidation.addIndicator(data.label, data.isComplete);
-          }
+          if (data.label) FormValidation.addIndicator(data.label, data.isComplete);
         });
 
         resolve();
@@ -357,12 +273,7 @@ export class FormValidation {
    */
   static _updateSubmitButton(submitButton, isValid, missingFields) {
     submitButton.disabled = !isValid;
-
-    if (!isValid) {
-      submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', {
-        fields: missingFields.join(', ')
-      });
-    }
+    if (!isValid) submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', { fields: missingFields.join(', ') });
   }
 
   /* -------------------------------------------- */
@@ -377,10 +288,8 @@ export class FormValidation {
    */
   static #determineElementType(element) {
     if (!element) return '';
-
     if (element.localName === 'prose-mirror') return 'prose-mirror';
     if (element.classList.contains('color-picker')) return 'color-picker';
-
     return element?.localName || element?.type || '';
   }
 
@@ -426,7 +335,6 @@ export class FormValidation {
     const emptyStates = ['', '<p></p>', '<p><br></p>', '<p><br class="ProseMirror-trailingBreak"></p>'];
     const proseMirrorValue = value || '';
     const editorContent = element.querySelector('.editor-content.ProseMirror')?.innerHTML || '';
-
     return !emptyStates.includes(proseMirrorValue) && proseMirrorValue.trim() !== '' && !emptyStates.includes(editorContent) && editorContent.trim() !== '';
   }
 
@@ -460,7 +368,6 @@ export class FormValidation {
   static #isManualEntryComplete(abilityBlock) {
     const dropdown = abilityBlock.querySelector('.ability-dropdown');
     const scoreInput = abilityBlock.querySelector('.ability-score');
-
     return dropdown?.value && scoreInput?.value && dropdown.value !== '' && scoreInput.value !== '';
   }
 }

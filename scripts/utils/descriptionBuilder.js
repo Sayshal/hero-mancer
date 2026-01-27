@@ -1,5 +1,3 @@
-import { getTextEditor, HM } from './index.js';
-
 /**
  * Utility class for finding and handling journal pages
  * @class
@@ -7,9 +5,9 @@ import { getTextEditor, HM } from './index.js';
 export class JournalPageFinder {
   /**
    * Finds a journal page related to the document
-   * @param {Object} doc - The document to find a journal page for
+   * @param {object} doc - The document to find a journal page for
    * @returns {Promise<string|null>} Journal page ID or null if none found
-   * @static
+   * @statico
    */
   static async findRelatedJournalPage(doc) {
     if (!doc) return null;
@@ -44,9 +42,9 @@ export class JournalPageFinder {
 
   /**
    * Extracts the module ID from a document
-   * @param {Object} doc - The document to extract module ID from
+   * @param {object} doc - The document to extract module ID from
    * @returns {string|null} Module ID or null if can't be determined
-   * @private
+   * @privateo
    */
   static #extractModuleId(doc) {
     let moduleId = null;
@@ -277,10 +275,10 @@ export class JournalPageEmbed {
   /**
    * @param {HTMLElement} container - The container element where the journal page will be embedded
    * @param {object} options - Configuration options
-   * @param {boolean} [options.editable=false] - Whether the journal page is editable
-   * @param {string|number} [options.height='auto'] - Height of the embedded content
-   * @param {string|number} [options.width='100%'] - Width of the embedded content
-   * @param {boolean} [options.scrollable=true] - Whether the content is scrollable
+   * @param {boolean} [options.editable] - Whether the journal page is editable
+   * @param {string|number} [options.height] - Height of the embedded content
+   * @param {string|number} [options.wi00%'] - Width of the embedded content
+   * @param {boolean} [options.scrollable= Whether the content is scrollable
    */
   constructor(container, options = {}) {
     this.container = container;
@@ -422,7 +420,7 @@ export class JournalPageEmbed {
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('journal-page-content');
-    contentDiv.innerHTML = await getTextEditor().enrichHTML(page.text.content);
+    contentDiv.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(page.text.content);
 
     this.container.appendChild(contentDiv);
     HM.log(3, `Text page ${page.id} rendered directly`);
@@ -497,7 +495,7 @@ export class JournalPageEmbed {
       pageContainer.appendChild(title);
       if (page.text?.content) {
         const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = await getTextEditor().enrichHTML(page.text.content);
+        contentDiv.innerHTML = await foundry.applications.ux.TextEditor().enrichHTML(page.text.content);
         pageContainer.appendChild(contentDiv);
       } else if (page.system) {
         const infoDiv = document.createElement('div');
