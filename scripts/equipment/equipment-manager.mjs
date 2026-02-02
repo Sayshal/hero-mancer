@@ -160,6 +160,7 @@ export class EquipmentManager {
         this.#indexItem(entry, packId);
       }
     }
+    for (const items of this.#itemLookup.values()) items.sort((a, b) => a.name.localeCompare(b.name));
     this.#lookupInitialized = true;
     HM.log(3, 'EquipmentManager: Item lookup initialized');
   }
