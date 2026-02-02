@@ -266,8 +266,8 @@ export class EquipmentManager {
         return this.#matchesWeaponKey(item, key);
       case 'armor':
         if (item.type !== 'equipment') return false;
-        if (!key) return item.system?.armor?.type && item.system.armor.type !== 'shield';
-        return item.system?.armor?.type === key;
+        if (!key) return ['light', 'medium', 'heavy'].includes(item.system?.type?.value);
+        return item.system?.type?.value === key;
       case 'tool':
         if (item.type !== 'tool') return false;
         if (!key) return true;
@@ -330,8 +330,8 @@ export class EquipmentManager {
         if (!this.#itemLookup.has(key)) this.#itemLookup.set(key, []);
         this.#itemLookup.get(key).push(itemData);
       }
-    } else if (entry.type === 'equipment' && entry.system?.armor?.type) {
-      const armorType = entry.system.armor.type;
+    } else if (entry.type === 'equipment' && ['light', 'medium', 'heavy', 'shield'].includes(entry.system?.type?.value)) {
+      const armorType = entry.system.type.value;
       const key = `armor:${armorType}`;
       if (!this.#itemLookup.has(key)) this.#itemLookup.set(key, []);
       this.#itemLookup.get(key).push(itemData);
