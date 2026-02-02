@@ -1,0 +1,42 @@
+{{!-- templates/tabs/selection.hbs --}}
+{{!-- Unified selection tab for race, class, and background --}}
+<div class='tab {{tab.cssClass}}' data-tab='{{tabName}}' data-group='hero-mancer-tabs' role="tabpanel"
+  id="{{tabName}}-panel" aria-labelledby="tab-{{tabName}}">
+  <fieldset>
+    <legend>{{localize tooltipKey}}</legend>
+    <p>{{localize preambleKey}}</p>
+    <hr />
+
+    {{!-- Selection Dropdown --}}
+    <div class="form-row">
+      <label for="{{tabName}}-dropdown">{{localize selectLabelKey}}</label>
+      <select id='{{tabName}}-dropdown' name='{{tabName}}' class="form-select" data-dtype='String'
+        aria-describedby='{{tabName}}-description' aria-label='{{localize selectLabelKey}}' aria-required="true">
+        <option value=''>{{localize selectPlaceholderKey}}</option>
+
+        {{#each docs}}
+          {{#if this.folderName}}
+            <optgroup label='{{this.folderName}}'>
+              {{#each this.docs}}
+                <option value='{{this.id}} ({{this.packId}}) [{{this.uuid}}]'>
+                  {{this.displayName}}
+                </option>
+              {{/each}}
+            </optgroup>
+          {{else}}
+            <option value='{{this.id}} ({{this.packId}}) [{{this.uuid}}]'>
+              {{this.displayName}}
+            </option>
+          {{/if}}
+        {{else}}
+          <option>{{localize noneKey}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    {{!-- Description Display --}}
+    <div id='{{tabName}}-description' class="overflow-vert-only" role='region' aria-live='polite' aria-atomic='true'>
+      <div class="journal-container dnd5e2-journal" data-journal-id="{{journalPageId}}"></div>
+    </div>
+  </fieldset>
+</div>
