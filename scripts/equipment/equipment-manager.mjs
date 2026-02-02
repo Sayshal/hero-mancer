@@ -157,6 +157,7 @@ export class EquipmentManager {
       const index = await pack.getIndex({ fields: ['system.type.value', 'system.type.baseItem', 'system.type.subtype', 'system.armor.type', 'system.properties', 'img'] });
       for (const entry of index) {
         if (this.#isMagicItem(entry)) continue;
+        if (this.#isNaturalWeapon(entry)) continue;
         this.#indexItem(entry, packId);
       }
     }
@@ -245,6 +246,7 @@ export class EquipmentManager {
       const index = await pack.getIndex({ fields: ['system.type.value', 'system.type.baseItem', 'system.type.subtype', 'system.armor.type', 'system.properties', 'img'] });
       for (const entry of index) {
         if (this.#isMagicItem(entry)) continue;
+        if (this.#isNaturalWeapon(entry)) continue;
         if (this.#matchesCategory(entry, type, key)) options.push({ uuid: `Compendium.${packId}.Item.${entry._id}`, name: entry.name, img: entry.img });
       }
     }
@@ -314,6 +316,16 @@ export class EquipmentManager {
     if (properties instanceof Set) return properties.has('mgc');
     if (Array.isArray(properties)) return properties.includes('mgc');
     return false;
+  }
+
+  /**
+   * Check if an item is a natural/non-equippable weapon (e.g. Unarmed Strike).
+   * @param {object} item - Index entry
+   * @returns {boolean} True if item is a natural weapon
+   */
+  static #isNaturalWeapon(item) {
+    if (item.type !== 'weapon') return false;
+    return item.system?.type?.value === 'natural' || !item.system?.type?.baseItem;
   }
 
   /**
