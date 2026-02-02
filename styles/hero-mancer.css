@@ -5,151 +5,34 @@
 /* stylelint-disable comment-empty-line-before */
 
 /* ==========================================================================
-  Base Layer - Core Variables and Foundations
+  Hero Mancer - CSS Custom Properties
  ========================================================================== */
 :root {
-  --border-radius-lg: 0.375rem;
-  --border-radius-md: 0.3125rem;
-  --border-radius-sm: 0.25rem;
-  --border-radius-xl: 0.5rem;
-  --color-error-shadow: rgb(229 57 53 / 30.2%);
-  --color-error: rgb(255 182 117);
-  --color-gold: rgb(255 215 0);
-  --color-journal-border: rgb(230 189 107);
-  --color-journal-heading: rgb(120 46 34);
-  --color-success: rgb(143 214 147);
-  --light-mode-font-color: rgb(41 41 41);
-  --spacing-md: 1rem;
-  --spacing-sm: 0.5rem;
-  --spacing-xs: 0.25rem;
+  /* Border Radius */
+  --hm-radius-sm: 0.25rem;
+  --hm-radius-md: 0.3125rem;
+  --hm-radius-lg: 0.375rem;
+  --hm-radius-xl: 0.5rem;
+
+  /* Colors */
+  --hm-color-error: rgb(255 182 117);
+  --hm-color-error-shadow: rgb(229 57 53 / 30.2%);
+  --hm-color-success: rgb(143 214 147);
+  --hm-color-gold: rgb(255 215 0);
+
+  /* Journal Colors */
+  --hm-journal-border: rgb(230 189 107);
+  --hm-journal-heading: rgb(120 46 34);
+
+  /* Spacing */
+  --hm-spacing-xs: 0.25rem;
+  --hm-spacing-sm: 0.5rem;
+  --hm-spacing-md: 1rem;
 }
 
-/* ==========================================================================
-  Layout Layer - Layout & Utility Classes
- ========================================================================== */
-.flex {
-  display: flex;
-
-  &.flex-col {
-    flex-direction: column;
-  }
-
-  &.flex-row {
-    flex-direction: row;
-  }
-
-  &.flex-wrap {
-    flex-wrap: wrap;
-  }
-
-  &.items-center {
-    align-items: center;
-  }
-
-  &.items-start {
-    align-items: flex-start;
-  }
-
-  &.justify-center {
-    justify-content: center;
-  }
-
-  &.justify-between {
-    justify-content: space-between;
-  }
-}
-
-.flex-grow {
-  flex-grow: 1;
-}
-
-.grid {
-  display: grid;
-
-  &.grid-2-col {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  &.grid-3-col {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  &.grid-4-col {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  &.grid-5-col {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-.gap-xs {
-  gap: var(--spacing-xs);
-}
-
-.gap-sm {
-  gap: var(--spacing-sm);
-}
-
-.gap-md {
-  gap: var(--spacing-md);
-}
-
-.m-0 {
-  margin: 0;
-}
-
-.mb-sm {
-  margin-block-end: var(--spacing-sm);
-}
-
-.mb-md {
-  margin-block-end: var(--spacing-md);
-}
-
-.ml-xs {
-  margin-inline-start: 0.4rem;
-}
-
-.m-lr {
-  margin-inline: 0.25rem;
-  padding-inline: 0.25rem;
-}
-
-.p-sm {
-  padding: var(--spacing-sm);
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-left {
-  text-align: start;
-}
-
-.text-md {
-  font-size: 1rem;
-}
-
-.font-bold {
-  font-weight: bold;
-}
-
-.width-25 {
-  width: 25%;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
-}
-
-.whitespace-nowrap {
-  white-space: nowrap;
+/* Light theme text color */
+.theme-light {
+  --hm-text-primary: rgb(41 41 41);
 }
 
 /* ==========================================================================
@@ -215,7 +98,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--hm-radius-lg);
     overflow: hidden;
     text-align: center;
     background: transparent;
@@ -278,7 +161,7 @@
 
     table {
       max-width: 100%;
-      border-radius: var(--border-radius-xl);
+      border-radius: var(--hm-radius-xl);
 
       > caption {
         font-size: var(--font-size-24);
@@ -444,10 +327,7 @@
     gap: 0.313rem;
     display: flex;
     flex-direction: column;
-
-    &.items-start {
-      align-items: flex-start;
-    }
+    align-items: flex-start;
 
     .hint {
       color: var(--color-text-light-primary);
@@ -476,9 +356,9 @@
         inset-inline-end: 1rem;
         z-index: 1;
         position: absolute;
-        color: var(--color-error);
+        color: var(--hm-color-error);
         font-size: 0.84rem;
-        text-shadow: 0 0 0.2rem var(--color-error-shadow);
+        text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
       }
     }
   }
@@ -535,6 +415,7 @@
 }
 
 .tooltip-icon {
+  margin-inline-start: 0.4rem;
   color: var(--color-text-dark-secondary);
   transition: color 0.5s ease;
 
@@ -557,13 +438,13 @@
   font-size: 1.1rem;
 
   &.complete {
-    color: var(--color-success);
+    color: var(--hm-color-success);
     text-shadow: 0 0 0.2rem rgb(46 125 50 / 30.2%);
   }
 
   &.incomplete {
-    color: var(--color-error);
-    text-shadow: 0 0 0.2rem var(--color-error-shadow);
+    color: var(--hm-color-error);
+    text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
   }
 }
 
@@ -602,7 +483,7 @@
 .hm-app-tab-content {
   .journal-container {
     padding: 0.25rem;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--hm-radius-md);
     overflow: auto hidden;
     color: rgb(25 24 19) !important;
     background-color: rgb(240 240 224) !important;
@@ -634,7 +515,7 @@
     :is(.notification.error, .notification.warning) {
       margin: 0.5rem 0;
       padding: 0.5rem;
-      border-radius: var(--border-radius-sm);
+      border-radius: var(--hm-radius-sm);
     }
 
     .title {
@@ -652,11 +533,11 @@
     }
 
     :is(h1, h2, h3, h4, h5) {
-      border-block-end: 0.125rem solid var(--color-journal-border);
+      border-block-end: 0.125rem solid var(--hm-journal-border);
       margin-block: 0.8rem 0.4rem;
-      border-image: linear-gradient(to right, var(--color-journal-border), transparent 90%);
+      border-image: linear-gradient(to right, var(--hm-journal-border), transparent 90%);
       border-image-slice: 0 0 1 0;
-      color: var(--color-journal-heading) !important;
+      color: var(--hm-journal-heading) !important;
       font-weight: bold;
       font-family: var(--dnd5e-font-modesto) !important;
       text-shadow: unset;
@@ -669,7 +550,7 @@
 
     :is(a, a.content-link) {
       border: none;
-      color: var(--color-journal-heading) !important;
+      color: var(--hm-journal-heading) !important;
       text-decoration: none;
       background: none;
 
@@ -879,7 +760,7 @@
     a.roll-link-group .roll-link > i,
     a.roll-link-group.roll-link > i,
     :is(.roll-link-group, .reference-link) a > i {
-      color: var(--color-journal-heading) !important;
+      color: var(--hm-journal-heading) !important;
       opacity: 0.6 !important;
       filter: brightness(0.7);
     }
@@ -890,16 +771,16 @@
 
       &.features-table {
         background-color: rgb(248 246 240) !important;
-        border: 0.063rem solid var(--color-journal-border);
+        border: 0.063rem solid var(--hm-journal-border);
 
         thead {
           background-color: rgb(235 230 220) !important;
 
           th {
             background-color: rgb(225 220 210) !important;
-            color: var(--color-journal-heading) !important;
+            color: var(--hm-journal-heading) !important;
             font-weight: bold;
-            border-bottom: 0.063rem solid var(--color-journal-border);
+            border-bottom: 0.063rem solid var(--hm-journal-border);
           }
         }
 
@@ -924,7 +805,7 @@
                 text-align: start;
 
                 a.content-link {
-                  color: var(--color-journal-heading) !important;
+                  color: var(--hm-journal-heading) !important;
                   font-weight: 500;
 
                   &:hover {
@@ -1069,7 +950,7 @@
       width: 16%;
       max-width: 16%;
       border: 0.063rem solid rgb(204 204 204);
-      border-radius: var(--border-radius-lg);
+      border-radius: var(--hm-radius-lg);
       text-align: center;
 
       .ability-label {
@@ -1077,7 +958,7 @@
         font-weight: bold;
 
         &.primary-ability {
-          color: var(--color-gold);
+          color: var(--hm-color-gold);
           text-shadow: 0 -0.3rem 1.25rem rgb(255 215 0 / 60%);
           animation: primary-ability-pulse 2s infinite ease-in-out;
         }
@@ -1096,7 +977,7 @@
         align-items: center;
         width: 1.875rem;
         height: 1.875rem;
-        border-radius: var(--border-radius-md);
+        border-radius: var(--hm-radius-md);
         font-size: 1.2rem;
         cursor: pointer;
       }
@@ -1118,7 +999,7 @@
 }
 
 :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
-  color: var(--color-gold);
+  color: var(--hm-color-gold);
   text-shadow: 0 -0.3rem 1.25rem rgb(255 215 0 / 60%);
   animation: primary-ability-pulse 2s infinite ease-in-out;
 }
@@ -1158,8 +1039,30 @@
   margin-inline-start: 0.2rem;
 }
 
+/* Roll method selector in abilities tab */
+.roll-method-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--hm-spacing-sm);
+  margin-block-end: var(--hm-spacing-sm);
+}
+
+/* Ability scores grid in settings */
 .ability-scores-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   width: 60%;
+
+  > label {
+    font-weight: bold;
+    text-align: center;
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   input[type='number'] {
     width: 2.5rem;
@@ -1212,7 +1115,7 @@ table.equipment-item {
 .equipment-container {
   display: flex;
   flex-direction: column;
-  border-radius: var(--border-radius-xl);
+  border-radius: var(--hm-radius-xl);
   background: var(--color-background-alt);
 
   .equipment-choices {
@@ -1286,7 +1189,7 @@ table.equipment-item {
   align-items: flex-start;
   padding: 1rem;
   border: 0.063rem solid rgb(111 111 111);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--hm-radius-lg);
 }
 
 :is(table.equipment-item, table.wealth-option-container) {
@@ -1336,7 +1239,7 @@ table.equipment-item {
 table.wealth-option-container {
   margin: 0.625rem 0 1rem;
   border: 0.063rem solid var(--color-border-light-tertiary);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--hm-radius-sm);
 
   tr:first-child td:first-child {
     gap: 0.5rem;
@@ -1396,7 +1299,7 @@ tr.wealth-roll-container {
   height: 2rem;
   margin: 0;
   padding: 0;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--hm-radius-sm);
 
   i {
     margin: 0;
@@ -1443,7 +1346,7 @@ tr.wealth-roll-container {
     height: 0;
 
     &:checked + .equipment-favorite-star {
-      color: var(--color-gold);
+      color: var(--hm-color-gold);
     }
 
     &:hover + .equipment-favorite-star {
@@ -1476,7 +1379,7 @@ td .equipment-favorite-container {
   margin: 0.625rem 0;
   padding: 0.5rem;
   border: 0.063rem solid var(--color-level-error-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--hm-radius-md);
 }
 
 .equipment-missing-warning {
@@ -1497,6 +1400,30 @@ td .equipment-favorite-container {
 /* ==========================================================================
   Biography Tab
  ========================================================================== */
+/* Biography grid layouts */
+.characteristics-section > div {
+  display: grid;
+  gap: var(--hm-spacing-md);
+  margin-block-end: var(--hm-spacing-md);
+}
+
+.characteristics-section > .grid-5-col {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.personality-section > .grid-2-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--hm-spacing-md);
+}
+
+.personality-group .input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-block-end: var(--hm-spacing-sm);
+}
+
 .hm-app-tab-content {
   .characteristics-section {
     :is(.form-input, .form-select) {
@@ -1506,7 +1433,7 @@ td .equipment-favorite-container {
   }
 
   .personality-trait-group {
-    margin-block-end: var(--spacing-md);
+    margin-block-end: var(--hm-spacing-md);
     display: flex;
     flex-direction: column;
 
@@ -1516,8 +1443,11 @@ td .equipment-favorite-container {
     }
   }
 
-  .physical-description-section textarea {
+  textarea {
     width: 100%;
+  }
+
+  .physical-description-section textarea {
     min-height: 7.5rem;
     resize: none;
   }
@@ -1680,7 +1610,7 @@ td .equipment-favorite-container {
           padding: 0.5rem;
           margin-bottom: 0.75rem;
           background: rgb(255 193 7 / 10%);
-          border-radius: var(--border-radius-sm);
+          border-radius: var(--hm-radius-sm);
           color: rgb(133 100 4);
           font-weight: 500;
 
@@ -1745,7 +1675,7 @@ td .equipment-favorite-container {
                 gap: 0.25rem;
                 padding: 0.25rem 0.5rem;
                 background: rgb(0 0 0 / 5%);
-                border-radius: var(--border-radius-sm);
+                border-radius: var(--hm-radius-sm);
                 font-size: 0.85em;
 
                 .proficiency-name {
@@ -2005,24 +1935,35 @@ td .equipment-favorite-container {
   Customization Settings
  ========================================================================== */
 .customization-application {
+  display: flex;
+  flex-direction: column;
+  margin-inline: 0.25rem;
+  padding-inline: 0.25rem;
+  overflow-y: auto;
+  text-align: start;
+
   .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: unset;
     width: 100%;
 
-    .form-group,
-    .flex.items-center {
+    > div {
+      display: flex;
+      align-items: center;
       gap: unset;
       width: 100%;
+    }
 
-      .form-input {
-        gap: unset;
-        width: 100%;
-        max-width: 100%;
-      }
+    .form-input {
+      gap: unset;
+      width: 100%;
+      max-width: 100%;
     }
   }
 
-  .flex.items-center button.file-picker {
+  button.file-picker {
     aspect-ratio: 1/1;
     margin-inline-start: 0.3rem;
     display: flex;
@@ -2073,6 +2014,15 @@ td .equipment-favorite-container {
 /* ==========================================================================
   Dice Rolling Settings
  ========================================================================== */
+.dice-rolling-application {
+  display: flex;
+  flex-direction: column;
+  margin-inline: 0.25rem;
+  padding-inline: 0.25rem;
+  overflow-y: auto;
+  text-align: start;
+}
+
 .hm-dice-rolling-popup {
   .form-group {
     gap: unset;
@@ -2231,11 +2181,38 @@ td .equipment-favorite-container {
   height: 100%;
   overflow-y: auto;
 
+  > h3 {
+    padding-block-end: var(--hm-spacing-xs);
+    font-weight: bold;
+    text-align: center;
+  }
+
   .field-group {
     margin-block-end: 0.4rem;
+    padding: var(--hm-spacing-sm);
     border: 0.063rem solid var(--color-border-light-tertiary);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--hm-radius-md);
+
+    > h4 {
+      margin-block-end: var(--hm-spacing-xs);
+      font-size: 1rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: var(--hm-spacing-sm);
+      white-space: nowrap;
+    }
   }
+}
+
+.fields-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--hm-spacing-sm);
+  padding-inline-end: var(--hm-spacing-sm);
+  overflow-y: auto;
 }
 
 .hm-mandatory-fields-popup {
@@ -2245,14 +2222,9 @@ td .equipment-favorite-container {
   max-height: 70vh;
   padding: 0.625rem;
 
-  .fields-container {
-    padding-inline-end: 0.625rem;
-    overflow-y: auto;
-  }
-
   .field-group {
     padding: 0.625rem;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--hm-radius-md);
 
     h3 {
       padding-block-end: 0.313rem;
@@ -2527,7 +2499,7 @@ td .equipment-favorite-container {
     gap: 1rem;
     grid-template-columns: 1fr;
 
-    label.font-bold {
+    > label {
       margin-block-end: 0.25rem;
     }
   }
@@ -2781,7 +2753,7 @@ td .equipment-favorite-container {
     }
 
     .form-group .hint {
-      color: var(--light-mode-font-color);
+      color: var(--hm-text-primary);
       text-shadow: none;
     }
   }
@@ -2832,18 +2804,18 @@ td .equipment-favorite-container {
 
   .hm-app-tab-content {
     :is(h2, h3) {
-      color: var(--light-mode-font-color);
+      color: var(--hm-text-primary);
       text-shadow: 0.063rem 0.063rem 0.063rem rgb(0 0 0);
     }
 
     h4 {
-      color: var(--light-mode-font-color);
+      color: var(--hm-text-primary);
       text-shadow: none;
     }
   }
 
   .hm-troubleshooter textarea {
-    color: var(--light-mode-font-color);
+    color: var(--hm-text-primary);
   }
 
   .notes-group prose-mirror .editor-content.ProseMirror {
