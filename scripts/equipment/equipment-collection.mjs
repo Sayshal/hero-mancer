@@ -175,9 +175,6 @@ export class EquipmentCollection {
    * @returns {object} Equipment entry
    */
   static #createEquipmentEntry(item, sourceElement) {
-    const entry = { uuid: item.uuid, name: item.name, img: item.img, type: item.type, system: foundry.utils.deepClone(item.system) };
-    const favoriteCheckbox = sourceElement.closest('tr')?.querySelector('.favorite-checkbox');
-    if (favoriteCheckbox?.checked) entry.favorite = true;
-    return entry;
+    return { uuid: item.uuid, name: item.name, img: item.img, type: item.type, system: foundry.utils.deepClone(item.system) };
   }
 }

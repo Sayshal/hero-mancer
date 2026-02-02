@@ -1106,9 +1106,6 @@ table.equipment-item {
       pointer-events: none;
     }
 
-    .equipment-favorite-container {
-      display: none;
-    }
   }
 }
 
@@ -1316,61 +1313,6 @@ tr.wealth-roll-container {
   }
 }
 
-.equipment-favorite-container {
-  display: block;
-  position: relative;
-  width: 100%;
-  height: 1.2rem;
-  margin: 0;
-  padding: 0;
-  line-height: 1;
-  text-align: end;
-
-  .equipment-favorite-label {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    float: right;
-    height: 100%;
-    cursor: pointer;
-
-    .equipment-favorite-checkbox {
-      position: absolute;
-    }
-  }
-
-  .equipment-favorite-checkbox {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-
-    &:checked + .equipment-favorite-star {
-      color: var(--hm-color-gold);
-    }
-
-    &:hover + .equipment-favorite-star {
-      color: rgb(240 180 0);
-    }
-  }
-
-  .equipment-favorite-star {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 1rem;
-    height: 1rem;
-    color: rgb(170 170 170);
-    font-size: 1.2rem;
-    transition: color 0.2s ease;
-  }
-}
-
-td .equipment-favorite-container {
-  display: block;
-  height: 100%;
-  text-align: end;
-}
 
 .equipment-empty-notice {
   box-sizing: border-box;

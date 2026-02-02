@@ -442,8 +442,7 @@ export class ActorCreationService {
    */
   static async #processEquipmentAndFavorites(actor, equipment, event, startingWealth) {
     try {
-      const createdItems = await this.#createEquipmentItems(actor, equipment);
-      await this.#processFavoriteCheckboxes(actor, event, createdItems);
+      await this.#createEquipmentItems(actor, equipment);
       if (startingWealth) await this.#updateActorCurrency(actor, startingWealth);
     } catch (error) {
       HM.log(1, 'Error processing equipment:', error);
@@ -484,20 +483,6 @@ export class ActorCreationService {
   }
 
   /**
-   * Finds and processes favorite checkboxes from the form
-   * @param {object} actor - The actor to update
-   * @param {Event} event - Form submission event
-   * @param {Array<object>} createdItems - Items created on the actor
-   * @returns {Promise<void>}
-   * @private
-   * @static
-   */
-  static async #processFavoriteCheckboxes(actor, event, createdItems) {
-    const favoriteCheckboxes = event.target.querySelectorAll('.equipment-favorite-checkbox:checked');
-    if (favoriteCheckboxes.length > 0) await this.#processFavorites(actor, favoriteCheckboxes, createdItems);
-  }
-
-  /**
    * Updates actor currency with starting wealth
    * @param {object} actor - The actor to update
    * @param {object} currencyData - Currency data to set
@@ -512,94 +497,6 @@ export class ActorCreationService {
       HM.log(1, 'Failed to update actor currency:', error);
       ui.notifications.warn('hm.warnings.currency-update-failed', { localize: true });
     }
-  }
-
-  /**
-   * Processes equipment favorites from form checkboxes
-   * @param {object} actor - The actor to update
-   * @param {NodeList} favoriteCheckboxes - Favorite checkboxes
-   * @param {Array<object>} createdItems - Items created on the actor
-   * @returns {Promise<void>}
-   * @private
-   * @static
-   */
-  static async #processFavorites(actor, favoriteCheckboxes, createdItems) {
-    try {
-      const currentActorFavorites = actor.system.favorites || [];
-      const newFavorites = await this.#collectNewFavorites(favoriteCheckboxes, createdItems);
-      if (newFavorites.length > 0) await this.#updateActorFavorites(actor, currentActorFavorites, newFavorites);
-    } catch (error) {
-      HM.log(1, 'Error processing favorites:', error);
-      ui.notifications.warn('hm.warnings.favorites-processing-failed', { localize: true });
-    }
-  }
-
-  /**
-   * Collects new favorites from selected checkboxes
-   * @param {NodeList} favoriteCheckboxes - Selected favorite checkboxes
-   * @param {Array<object>} createdItems - Items created on the actor
-   * @returns {Promise<Array<object>>} Favorite data objects
-   * @private
-   * @static
-   */
-  static async #collectNewFavorites(favoriteCheckboxes, createdItems) {
-    const newFavorites = [];
-    const processedUuids = new Set();
-    for (const checkbox of favoriteCheckboxes) {
-      const itemUuids = this.#extractItemUuids(checkbox);
-      if (!itemUuids.length) continue;
-      for (const uuid of itemUuids) {
-        if (processedUuids.has(uuid)) continue;
-        processedUuids.add(uuid);
-        const favoriteItems = await this.#findMatchingCreatedItems(uuid, createdItems);
-        for (const item of favoriteItems) newFavorites.push({ type: 'item', id: `.Item.${item.id}`, sort: 100000 + newFavorites.length });
-      }
-    }
-    return newFavorites;
-  }
-
-  /**
-   * Extracts item UUIDs from a favorite checkbox
-   * @param {HTMLElement} checkbox - Favorite checkbox element
-   * @returns {Array<string>} Extracted UUIDs
-   * @private
-   * @static
-   */
-  static #extractItemUuids(checkbox) {
-    if (checkbox.dataset.itemUuids) return checkbox.dataset.itemUuids.split(',');
-    else if (checkbox.id && checkbox.id.includes(',')) return checkbox.id.split(',');
-    else if (checkbox.dataset.itemId) return [checkbox.dataset.itemId];
-    return [];
-  }
-
-  /**
-   * Finds matching created items from source UUID
-   * @param {string} uuid - Source item UUID
-   * @param {Array<object>} createdItems - Items created on the actor
-   * @returns {Promise<Array<object>>} Matching items
-   * @private
-   * @static
-   */
-  static async #findMatchingCreatedItems(uuid, createdItems) {
-    if (!uuid.startsWith('Compendium.')) return [];
-    const sourceItem = await fromUuid(uuid);
-    if (!sourceItem) return [];
-    return createdItems.filter((item) => item.name === sourceItem.name || (item.flags?.core?.sourceId && item.flags.core.sourceId.includes(sourceItem.id)));
-  }
-
-  /**
-   * Updates actor favorites with new favorites
-   * @param {object} actor - The actor to update
-   * @param {Array<object>} currentFavorites - Current actor favorites
-   * @param {Array<object>} newFavorites - New favorites to add
-   * @returns {Promise<void>}
-   * @private
-   * @static
-   */
-  static async #updateActorFavorites(actor, currentFavorites, newFavorites) {
-    const combinedFavorites = [...currentFavorites];
-    for (const newFav of newFavorites) if (!combinedFavorites.some((fav) => fav.id === newFav.id)) combinedFavorites.push(newFav);
-    await actor.update({ 'system.favorites': combinedFavorites });
   }
 
   /* -------------------------------------------- */

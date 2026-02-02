@@ -95,7 +95,7 @@ export class EquipmentUI {
       if (!value) return;
       const option = select.querySelector(`option[value="${value}"]`);
       const count = parseInt(select.dataset.count) || 1;
-      selections.push({ uuid: value, name: option?.textContent || value, count, type: select.dataset.type, isFavorite: select.closest('tr')?.querySelector('.favorite-checkbox')?.checked || false });
+      selections.push({ uuid: value, name: option?.textContent || value, count, type: select.dataset.type });
     });
     container.querySelectorAll('[data-linked-item]').forEach((element) => {
       const parentOption = element.closest('[data-or-option]');
@@ -107,8 +107,7 @@ export class EquipmentUI {
         uuid,
         name: element.dataset.name || element.textContent?.trim() || uuid,
         count: parseInt(element.dataset.count) || 1,
-        type: 'linked',
-        isFavorite: element.closest('tr')?.querySelector('.favorite-checkbox')?.checked || false
+        type: 'linked'
       });
     });
     container.querySelectorAll('input[data-wealth-checkbox]:checked').forEach((checkbox) => {
