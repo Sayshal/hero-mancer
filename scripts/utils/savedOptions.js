@@ -37,7 +37,7 @@ export class SavedOptions {
       return result;
     } catch (error) {
       HM.log(1, 'Error saving options:', error);
-      ui.notifications?.error('Failed to save character options');
+      ui.notifications?.error('hm.errors.save-options-failed', { localize: true });
       return null;
     }
   }
@@ -101,7 +101,7 @@ export class SavedOptions {
       return true;
     } catch (error) {
       HM.log(1, 'Error resetting options:', error);
-      ui.notifications?.error('Failed to reset character options');
+      ui.notifications?.error('hm.errors.reset-options-failed', { localize: true });
       return false;
     }
   }

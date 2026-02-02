@@ -767,15 +767,15 @@ export class CharacterRandomizer {
   static #randomizeAppearanceTraits(form) {
     const traits = {
       eyes: game.settings
-        .get(HM.ID, 'eye-colors')
+        .get(HM.ID, 'eyeColors')
         .split(',')
         .map((e) => e.trim()),
       hair: game.settings
-        .get(HM.ID, 'hair-colors')
+        .get(HM.ID, 'hairColors')
         .split(',')
         .map((h) => h.trim()),
       skin: game.settings
-        .get(HM.ID, 'skin-tones')
+        .get(HM.ID, 'skinTones')
         .split(',')
         .map((s) => s.trim()),
       gender: game.settings

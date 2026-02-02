@@ -343,48 +343,48 @@ export class ActorCreationService {
     const raceItems = actorItems.filter((item) => item.type === 'race');
     HM.log(3, `Found ${raceItems.length} race items: ${raceItems.map((i) => i.name).join(', ')}`);
     if (raceItems.length === 0) {
-      const error = `Missing Race item: Expected "${expectedItems.race?.name || 'Unknown Race'}" but found none`;
+      const error = game.i18n.format('hm.validation.missing-race', { expected: expectedItems.race?.name ?? '?' });
       HM.log(1, error);
       validation.errors.push(error);
       validation.success = false;
     } else if (raceItems.length > 1) {
-      const warning = `Multiple Race items found: ${raceItems.map((i) => i.name).join(', ')}`;
+      const warning = game.i18n.format('hm.validation.multiple-items', { type: game.i18n.localize('hm.app.tab-names.race'), items: raceItems.map((i) => i.name).join(', ') });
       HM.log(2, warning);
       validation.warnings.push(warning);
     } else if (expectedItems.race && raceItems[0].name !== expectedItems.race.name) {
-      const warning = `Race item name mismatch: Expected "${expectedItems.race.name}" but found "${raceItems[0].name}"`;
+      const warning = game.i18n.format('hm.validation.item-mismatch', { type: game.i18n.localize('hm.app.tab-names.race'), expected: expectedItems.race.name, actual: raceItems[0].name });
       HM.log(2, warning);
       validation.warnings.push(warning);
     }
     const backgroundItems = actorItems.filter((item) => item.type === 'background');
     HM.log(3, `Found ${backgroundItems.length} background items: ${backgroundItems.map((i) => i.name).join(', ')}`);
     if (backgroundItems.length === 0) {
-      const error = `Missing Background item: Expected "${expectedItems.background?.name || 'Unknown Background'}" but found none`;
+      const error = game.i18n.format('hm.validation.missing-background', { expected: expectedItems.background?.name ?? '?' });
       HM.log(1, error);
       validation.errors.push(error);
       validation.success = false;
     } else if (backgroundItems.length > 1) {
-      const warning = `Multiple Background items found: ${backgroundItems.map((i) => i.name).join(', ')}`;
+      const warning = game.i18n.format('hm.validation.multiple-items', { type: game.i18n.localize('hm.app.tab-names.background'), items: backgroundItems.map((i) => i.name).join(', ') });
       HM.log(2, warning);
       validation.warnings.push(warning);
     } else if (expectedItems.background && backgroundItems[0].name !== expectedItems.background.name) {
-      const warning = `Background item name mismatch: Expected "${expectedItems.background.name}" but found "${backgroundItems[0].name}"`;
+      const warning = game.i18n.format('hm.validation.item-mismatch', { type: game.i18n.localize('hm.app.tab-names.background'), expected: expectedItems.background.name, actual: backgroundItems[0].name });
       HM.log(2, warning);
       validation.warnings.push(warning);
     }
     const classItems = actorItems.filter((item) => item.type === 'class');
     HM.log(3, `Found ${classItems.length} class items: ${classItems.map((i) => i.name).join(', ')}`);
     if (classItems.length === 0) {
-      const error = `Missing Class item: Expected "${expectedItems.class?.name || 'Unknown Class'}" but found none`;
+      const error = game.i18n.format('hm.validation.missing-class', { expected: expectedItems.class?.name ?? '?' });
       HM.log(1, error);
       validation.errors.push(error);
       validation.success = false;
     } else if (classItems.length > 1) {
-      const warning = `Multiple Class items found: ${classItems.map((i) => i.name).join(', ')}`;
+      const warning = game.i18n.format('hm.validation.multiple-items', { type: game.i18n.localize('hm.app.tab-names.class'), items: classItems.map((i) => i.name).join(', ') });
       HM.log(2, warning);
       validation.warnings.push(warning);
     } else if (expectedItems.class && classItems[0].name !== expectedItems.class.name) {
-      const warning = `Class item name mismatch: Expected "${expectedItems.class.name}" but found "${classItems[0].name}"`;
+      const warning = game.i18n.format('hm.validation.item-mismatch', { type: game.i18n.localize('hm.app.tab-names.class'), expected: expectedItems.class.name, actual: classItems[0].name });
       HM.log(2, warning);
       validation.warnings.push(warning);
     }
@@ -1001,12 +1001,12 @@ export class ActorCreationService {
       const validation = this.#validateRequiredItems(actor, expectedItems);
       if (!validation.success) {
         validation.errors.forEach((error) => {
-          ui.notifications.error(`Character Validation Error: ${error}`, { permanent: true });
+          ui.notifications.error(error, { permanent: true });
         });
       }
       if (validation.warnings.length > 0) {
         validation.warnings.forEach((warning) => {
-          ui.notifications.warn(`Character Validation Warning: ${warning}`, { permanent: false });
+          ui.notifications.warn(warning, { permanent: false });
         });
       }
     } finally {

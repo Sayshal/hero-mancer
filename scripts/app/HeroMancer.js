@@ -65,9 +65,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     header: { template: 'modules/hero-mancer/templates/app-header.hbs', classes: ['hm-app-header'] },
     tabs: { template: 'modules/hero-mancer/templates/app-nav.hbs', classes: ['hm-app-nav'] },
     start: { template: 'modules/hero-mancer/templates/tab-start.hbs', classes: ['hm-app-tab-content'] },
-    background: { template: 'modules/hero-mancer/templates/tab-background.hbs', classes: ['hm-app-tab-content'] },
-    race: { template: 'modules/hero-mancer/templates/tab-race.hbs', classes: ['hm-app-tab-content'] },
-    class: { template: 'modules/hero-mancer/templates/tab-class.hbs', classes: ['hm-app-tab-content'] },
+    background: { template: 'modules/hero-mancer/templates/tabs/selection.hbs', classes: ['hm-app-tab-content'] },
+    race: { template: 'modules/hero-mancer/templates/tabs/selection.hbs', classes: ['hm-app-tab-content'] },
+    class: { template: 'modules/hero-mancer/templates/tabs/selection.hbs', classes: ['hm-app-tab-content'] },
     abilities: { template: 'modules/hero-mancer/templates/tab-abilities.hbs', classes: ['hm-app-tab-content'] },
     equipment: { template: 'modules/hero-mancer/templates/tab-equipment.hbs', classes: ['hm-app-tab-content'] },
     biography: { template: 'modules/hero-mancer/templates/tab-biography.hbs', classes: ['hm-app-tab-content'] },
@@ -148,6 +148,17 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.tokenCustomizationEnabled = game.settings.get(HM.ID, 'enableTokenCustomization');
           context.token = this.#getTokenConfig();
           context.isGM = game.user.isGM;
+          break;
+        case 'race':
+        case 'class':
+        case 'background':
+          context.tabName = partId;
+          context.docs = context[`${partId}Docs`];
+          context.tooltipKey = `hm.app.${partId}.tooltip`;
+          context.preambleKey = `hm.app.${partId}.preamble`;
+          context.selectLabelKey = `hm.app.${partId}.select-label`;
+          context.selectPlaceholderKey = `hm.app.${partId}.select-placeholder`;
+          context.noneKey = `hm.app.${partId}.none`;
           break;
         case 'abilities':
           abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;

@@ -11,7 +11,7 @@
   "changelog": "https://github.com/Sayshal/hero-mancer/releases",
   "compatibility": {
     "maximum": "13.400",
-    "minimum": "12",
+    "minimum": "13.351",
     "verified": "13.351"
   },
   "description": "The one stop shop for creating your heroes in D&D 5e.",
@@ -60,11 +60,6 @@
       "path": "lang/fr.json"
     },
     {
-      "lang": "fr",
-      "name": "Français",
-      "path": "lang/fr.json"
-    },
-    {
       "lang": "ko",
       "name": "한국어",
       "path": "lang/ko.json"
@@ -94,8 +89,8 @@
     "systems": [
       {
         "compatibility": {
-          "maximum": "5.x.x",
-          "minimum": "3.3.1",
+          "maximum": "5.2.9",
+          "minimum": "5.2.4",
           "verified": "5.2.4"
         },
         "id": "dnd5e",

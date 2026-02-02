@@ -524,14 +524,15 @@ export class HeroMancerUI {
         return CONFIG.DND5E.actorSizes[size]?.label || size;
       });
       HM.log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
+      const or = game.i18n.localize('hm.app.list-or');
       let sizeText = '';
       if (sizeLabels.length === 1) {
         sizeText = sizeLabels[0];
       } else if (sizeLabels.length === 2) {
-        sizeText = `${sizeLabels[0]} or ${sizeLabels[1]}`;
+        sizeText = `${sizeLabels[0]} ${or} ${sizeLabels[1]}`;
       } else if (sizeLabels.length > 2) {
         const lastLabel = sizeLabels.pop();
-        sizeText = `${sizeLabels.join(', ')}, or ${lastLabel}`;
+        sizeText = `${sizeLabels.join(', ')}, ${or} ${lastLabel}`;
       }
       sizeInput.value = sizeText;
       HM.log(3, `Updated size input with value: "${sizeText}"`);

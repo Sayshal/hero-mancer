@@ -1,4 +1,4 @@
-import { registerSettings } from './settings.js';
+import { migrateSettingKeys, registerSettings } from './settings.js';
 import { API, CharacterApprovalService, DocumentService, EquipmentManager, HeroMancer, StatRoller } from './utils/index.js';
 
 /**
@@ -185,6 +185,7 @@ export class HM {
 Hooks.on('init', async () => {
   HM.init();
   await foundry.applications.handlebars.loadTemplates([
+    'modules/hero-mancer/templates/tabs/selection.hbs',
     'modules/hero-mancer/templates/equipment/equipment-container.hbs',
     'modules/hero-mancer/templates/equipment/equipment-choice.hbs',
     'modules/hero-mancer/templates/equipment/equipment-entry.hbs',
@@ -195,6 +196,7 @@ Hooks.on('init', async () => {
 
 Hooks.once('ready', async () => {
   if (!game.settings.get(HM.ID, 'enable')) return;
+  await migrateSettingKeys();
   HM.checkModuleCompatibility();
   CharacterApprovalService.registerSocketListeners();
   await DocumentService.loadAndInitializeDocuments();
