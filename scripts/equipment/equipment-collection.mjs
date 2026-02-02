@@ -102,7 +102,11 @@ export class EquipmentCollection {
       if (select.closest('.disabled')) continue;
       const count = parseInt(select.dataset.count) || 1;
       const item = await this.#resolveItem(value);
-      if (item) for (let i = 0; i < count; i++) equipment.push(this.#createEquipmentEntry(item, select));
+      if (item) {
+        const entry = this.#createEquipmentEntry(item, select);
+        entry.system.quantity = count;
+        equipment.push(entry);
+      }
     }
   }
 
@@ -118,7 +122,11 @@ export class EquipmentCollection {
       const uuid = checkbox.dataset.uuid;
       const count = parseInt(checkbox.dataset.count) || 1;
       const item = await this.#resolveItem(uuid);
-      if (item) for (let i = 0; i < count; i++) equipment.push(this.#createEquipmentEntry(item, checkbox));
+      if (item) {
+        const entry = this.#createEquipmentEntry(item, checkbox);
+        entry.system.quantity = count;
+        equipment.push(entry);
+      }
     }
   }
 
@@ -135,7 +143,11 @@ export class EquipmentCollection {
       const uuid = element.dataset.uuid;
       const count = parseInt(element.dataset.count) || 1;
       const item = await this.#resolveItem(uuid);
-      if (item) for (let i = 0; i < count; i++) equipment.push(this.#createEquipmentEntry(item, element));
+      if (item) {
+        const entry = this.#createEquipmentEntry(item, element);
+        entry.system.quantity = count;
+        equipment.push(entry);
+      }
     }
   }
 
