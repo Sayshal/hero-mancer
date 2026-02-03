@@ -45,14 +45,7 @@
   max-height: calc(100vh - 9.375rem);
 
   :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug, .fa-sort) {
-    color: var(--user-color);
-  }
-
-  .hm-app-tab-content {
-    :is(h1, h2, h3, h4, h5, h6) {
-      max-width: 100%;
-      margin: unset;
-    }
+    color: var(--color-text-light-6);
   }
 
   :is(h2, h3) {
@@ -61,6 +54,10 @@
 
   table {
     margin: 0;
+  }
+
+  .form-group > label {
+    flex: 3;
   }
 
   /* Window content and navigation */
@@ -154,10 +151,13 @@
   .hm-app-tab-content {
     max-height: 70vh;
     overflow-y: auto;
+    scrollbar-gutter: stable;
 
-    p {
-      margin: 0.625rem 0;
+    :is(h1, h2, h3, h4, h5, h6) {
+      max-width: 100%;
+      margin: unset;
     }
+
 
     table {
       max-width: 100%;
@@ -201,6 +201,739 @@
       border-block-end: 0.063rem solid rgb(102 102 102);
       margin-block-end: 0.625rem;
     }
+
+
+    .ring-effects .form-fields {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    /* Journal container */
+    .journal-container {
+      padding: 0.25rem;
+      border-radius: var(--hm-radius-md);
+      overflow: auto hidden;
+      color: rgb(25 24 19) !important;
+      background-color: rgb(240 240 224) !important;
+      transition: opacity 0.3s ease;
+
+      &:empty,
+      &:not([data-journal-id]) {
+        display: none;
+      }
+
+      &.loading {
+        opacity: 0.7;
+      }
+
+      .journal-loading {
+        gap: 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        color: var(--color-text-dark-secondary);
+        font-style: italic;
+
+        i {
+          color: var(--color-text-hyperlink);
+        }
+      }
+
+      :is(.notification.error, .notification.warning) {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        border-radius: var(--hm-radius-sm);
+      }
+
+      .title {
+        color: rgb(75 74 68);
+        font-weight: bold;
+        font-size: 1.3rem;
+      }
+
+      .journal-entry-content {
+        line-height: 1.4;
+      }
+
+      section {
+        margin-block-start: unset;
+      }
+
+      :is(h1, h2, h3, h4, h5) {
+        border-block-end: 0.125rem solid var(--hm-journal-border);
+        margin-block: 0.8rem 0.4rem;
+        border-image: linear-gradient(to right, var(--hm-journal-border), transparent 90%);
+        border-image-slice: 0 0 1 0;
+        color: var(--hm-journal-heading) !important;
+        font-weight: bold;
+        font-family: var(--dnd5e-font-modesto) !important;
+        text-shadow: unset;
+      }
+
+      :is(p, .content-embed p) {
+        font-family: var(--font-primary);
+        text-align: start;
+      }
+
+      :is(a, a.content-link) {
+        border: none;
+        color: var(--hm-journal-heading) !important;
+        text-decoration: none;
+        background: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      img {
+        max-width: 100%;
+        margin: unset;
+      }
+
+      .content-embed {
+        margin: 0.625rem 0;
+        text-align: center;
+
+        &.right {
+          margin-inline-start: 0.3rem;
+          float: right;
+          clear: right;
+        }
+
+        &.left {
+          margin-inline-end: 0.3rem;
+          float: left;
+          clear: left;
+        }
+
+        &.center {
+          margin-inline: auto;
+        }
+
+        &.four,
+        .four {
+          width: 25rem;
+        }
+
+        &.three,
+        .three {
+          width: 18.75rem;
+        }
+
+        &.two,
+        .two {
+          width: 12.5rem;
+        }
+
+        &.one,
+        .one {
+          width: 6.25rem;
+        }
+
+        .statblock.npc {
+          margin-inline: auto 0;
+          text-align: start;
+        }
+
+        figcaption {
+          text-align: end;
+
+          cite {
+            font-style: italic;
+            font-size: 0.7rem;
+          }
+        }
+      }
+
+      figure.content-embed {
+        margin: 0.5rem 0;
+
+        strong.embed-caption {
+          margin-inline-end: 0.3rem;
+        }
+      }
+
+      .clear-both {
+        clear: both;
+      }
+
+      /* Table styling */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+
+        caption {
+          font-weight: bold;
+          text-align: center;
+        }
+
+        :is(th, td) {
+          text-align: center;
+
+          &.spell-slots {
+            text-align: center;
+          }
+
+          &.features {
+            text-align: start;
+            white-space: normal;
+          }
+
+          &.level,
+          &.prof,
+          &.scale {
+            text-align: center;
+            white-space: wrap;
+          }
+        }
+
+        &.features-table {
+          width: 100%;
+          border-collapse: collapse;
+
+          th[scope='col'] {
+            &[rowspan='2'] {
+              width: 4.688rem;
+              max-width: 6.25rem;
+              font-size: var(--font-size-12);
+              white-space: normal;
+
+              &:nth-child(2) {
+                width: 4.688rem;
+              }
+
+              &:nth-child(3) {
+                min-width: 9.375rem;
+              }
+            }
+          }
+        }
+
+        /* Complex table selectors */
+        :is(th[rowspan], th[colspan], td, .journal-page-content table td, p) {
+          padding-inline: unset;
+          text-align: center;
+          vertical-align: middle;
+        }
+
+        p {
+          margin: unset;
+          padding: unset;
+        }
+
+        colgroup {
+          col {
+            &.spellcasting,
+            &[span='9'] {
+              width: fit-content;
+            }
+
+            &[span='6'] {
+              font-size: var(--font-size-11);
+            }
+          }
+        }
+
+        thead tr {
+          th[scope='col'] {
+            width: 2.188rem;
+            padding: unset;
+
+            &[colspan='9'],
+            &[rowspan='2'] {
+              width: fit-content;
+              max-width: 12.188rem;
+              font-size: var(--font-size-13);
+            }
+          }
+
+          &:nth-child(2) th[scope='col'] {
+            width: 2.188rem;
+            padding: unset;
+            font-size: var(--font-size-10);
+          }
+        }
+      }
+    }
+
+    .dnd5e2-journal {
+      padding: 0.5rem;
+
+      .journal-container {
+        --scroll-margin: unset;
+
+        margin-inline: 0.2rem !important;
+        padding-inline: 0.2rem !important;
+        width: 100% !important;
+      }
+    }
+
+    /* V13 journal content-link icon and table fixes */
+    .journal-container,
+    .dnd5e2-journal {
+      :is(a.content-link, .inline-roll) > i,
+      a.roll-link-group .roll-link > i,
+      a.roll-link-group.roll-link > i,
+      :is(.roll-link-group, .reference-link) a > i {
+        color: var(--hm-journal-heading) !important;
+        opacity: 0.6 !important;
+        filter: brightness(0.7);
+      }
+
+      table {
+        background-color: transparent !important;
+
+        &.features-table {
+          background-color: rgb(248 246 240) !important;
+          border: 0.063rem solid var(--hm-journal-border);
+
+          thead {
+            background-color: rgb(235 230 220) !important;
+
+            th {
+              background-color: rgb(225 220 210) !important;
+              color: var(--hm-journal-heading) !important;
+              font-weight: bold;
+              border-bottom: 0.063rem solid var(--hm-journal-border);
+            }
+          }
+
+          tbody {
+            tr {
+              background-color: rgb(248 246 240) !important;
+
+              &:nth-child(even) {
+                background-color: rgb(243 241 235) !important;
+              }
+
+              &:hover {
+                background-color: rgb(238 236 230) !important;
+              }
+
+              td {
+                background-color: transparent !important;
+                color: rgb(25 24 19) !important;
+                border-bottom: 0.063rem solid rgb(220 215 205);
+
+                &.features {
+                  text-align: start;
+
+                  a.content-link {
+                    color: var(--hm-journal-heading) !important;
+                    font-weight: 500;
+
+                    &:hover {
+                      text-decoration: underline;
+                    }
+
+                    i {
+                      margin-right: 0.25em;
+                      opacity: 0.5 !important;
+                    }
+                  }
+                }
+
+                &.level,
+                &.prof,
+                &.scale,
+                &.spell-slots {
+                  text-align: center;
+                  font-weight: 500;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      :is(th, td) {
+        color: rgb(25 24 19) !important;
+
+        &:not(.features) {
+          background-color: transparent !important;
+        }
+      }
+
+      .journal-page-content {
+        background-color: transparent !important;
+
+        section {
+          background-color: transparent !important;
+        }
+      }
+    }
+
+    /* Biography */
+    .characteristics-section {
+      :is(.form-input, .form-select) {
+        flex: 3;
+        min-width: 100%;
+      }
+    }
+
+    .personality-trait-group {
+      margin-block-end: var(--hm-spacing-md);
+      display: flex;
+      flex-direction: column;
+
+      textarea {
+        min-height: 11.25rem;
+        resize: none;
+      }
+    }
+
+    textarea {
+      width: 100%;
+    }
+
+    .physical-description-section textarea {
+      min-height: 7.5rem;
+      resize: none;
+    }
+
+    .biography-tab {
+      h2 {
+        margin-block-end: 0.5rem !important;
+      }
+
+      label {
+        font-size: var(--font-size-16);
+      }
+    }
+
+    .input-with-roll {
+      textarea {
+        flex: 1;
+        min-height: 7.5rem;
+        font-size: var(--font-size-14);
+        font-family: var(--font-h3);
+        resize: none;
+      }
+    }
+
+    .notes-grid {
+      gap: 0.625rem;
+      display: grid;
+    }
+
+    .notes-group prose-mirror {
+      width: 100%;
+      min-height: 16.25rem;
+      background: var(--input-background-color);
+      border: 0.063rem solid var(--input-border-color);
+      border-radius: 0.25rem;
+
+      .editor-content.ProseMirror {
+        --color-text-selection-bg: var(--color-cool-3);
+        --prosemirror-background-color: rgb(48 40 49);
+        --prosemirror-text-color: rgb(247 243 232);
+        --prosemirror-focus-outline-color: rgb(88 74 117);
+
+        min-height: 3.75rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--prosemirror-background-color);
+        border: 0.063rem solid var(--input-border-color);
+        border-radius: 0.25rem;
+        box-shadow: var(--input-box-shadow);
+        font-family: var(--font-monospace);
+        font-size: var(--font-size-14);
+        color: var(--prosemirror-text-color);
+        user-select: text;
+        cursor: var(--cursor-text);
+        resize: vertical;
+
+        &:focus {
+          outline: 0.125rem solid var(--prosemirror-focus-outline-color);
+          outline-offset: -0.125rem;
+        }
+      }
+    }
+
+    .personal-char-section button {
+      gap: 0.094rem;
+      display: flex;
+      align-items: center;
+      align-self: center;
+      width: 3.75rem;
+      height: 1.875rem;
+    }
+
+    /* Review */
+    .review-container {
+      max-width: 100%;
+      padding: 0 0.5rem;
+
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h2 {
+          flex: 1;
+          margin: 0;
+          font-size: 1.5em;
+        }
+
+        .character-portrait {
+          width: 5rem;
+          height: 5rem;
+
+          img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+          }
+        }
+      }
+
+      .character-summary {
+        display: block;
+        line-height: 1.8;
+        text-align: start;
+
+        span {
+          display: inline;
+          line-height: 1.4;
+        }
+      }
+
+      .content-link {
+        border: unset;
+        background: unset;
+      }
+
+      .review-sections {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .review-section-row {
+        gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+        display: grid;
+      }
+
+      .review-section {
+        padding: 0.75rem;
+        border: 0.063rem solid var(--color-border-light-tertiary);
+        border-radius: 0.375rem;
+        background: rgb(0 0 0 / 2%);
+
+        h3 {
+          border-block-end: 0.063rem solid var(--color-border-light-secondary);
+          gap: 0.5rem;
+          margin-block: 0 0.75rem;
+          padding-block-end: 0.5rem;
+          display: flex;
+          align-items: center;
+          font-size: 1.1em;
+
+          i {
+            flex-shrink: 0;
+          }
+        }
+
+        &.proficiencies-notice {
+          margin-bottom: 1rem;
+
+          .proficiencies-warning {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            margin-bottom: 0.75rem;
+            background: rgb(255 193 7 / 10%);
+            border-radius: var(--hm-radius-sm);
+            color: rgb(133 100 4);
+            font-weight: 500;
+
+            i {
+              color: rgb(255 193 7);
+              font-size: 1.2em;
+            }
+          }
+
+          .proficiencies-list {
+            max-height: 18.75rem;
+            overflow-y: auto;
+
+            .loading-spinner {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 2rem;
+              color: var(--color-text-dark-secondary);
+
+              i {
+                margin-bottom: 0.5rem;
+                font-size: 2em;
+              }
+            }
+
+            .error-message {
+              padding: 1rem;
+              color: var(--color-level-error);
+              text-align: center;
+              font-style: italic;
+            }
+
+            .no-proficiencies {
+              padding: 1rem;
+              text-align: center;
+              color: var(--color-text-dark-secondary);
+              font-style: italic;
+            }
+
+            .proficiency-category {
+              margin-bottom: 1rem;
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+
+              .proficiency-category-title {
+                margin: 0 0 0.5rem;
+                padding-bottom: 0.25rem;
+                border-bottom: 0.063rem solid var(--color-border-light-tertiary);
+              }
+
+              .proficiency-items {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+
+                .proficiency-item {
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 0.25rem;
+                  padding: 0.25rem 0.5rem;
+                  background: rgb(0 0 0 / 5%);
+                  border-radius: var(--hm-radius-sm);
+                  font-size: 0.85em;
+
+                  .proficiency-name {
+                    font-weight: 500;
+                  }
+
+                  .proficiency-source {
+                    color: var(--color-text-dark-secondary);
+                    font-size: 0.9em;
+                    font-style: italic;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .review-content {
+        font-size: 0.95em;
+
+        .review-item {
+          padding-block-start: 0.375rem;
+          display: flex;
+          line-height: 1.4;
+
+          .review-label {
+            margin-inline-end: 0.5rem;
+            min-width: 6.25rem;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .abilities-grid {
+        gap: 0.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        display: grid;
+
+        .ability-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.375rem 0.5rem;
+          border-radius: 0.2rem;
+          background: rgb(0 0 0 / 3.1%);
+
+          .ability-label {
+            font-weight: bold;
+          }
+        }
+      }
+
+      .equipment-layout {
+        gap: 0.75rem;
+        grid-template-columns: 1fr 1fr;
+        display: grid;
+
+        :is(.background-equipment, .class-equipment) {
+          padding-block-start: 0.5rem;
+
+          h4 {
+            border-block-end: 0.063rem solid var(--color-border-light-tertiary);
+            padding-block-end: 0.375rem;
+            font-size: var(--font-h5-size);
+            text-align: center;
+          }
+        }
+
+        :is(.background-items, .class-items) {
+          padding-block-start: 0.2rem;
+        }
+
+        .equipment-wealth {
+          font-style: italic;
+        }
+      }
+
+      .bio-preview {
+        gap: 0.75rem;
+        display: flex;
+        flex-direction: column;
+
+        .bio-main {
+          padding: 0.5rem;
+          border-radius: 0.2rem;
+          font-style: italic;
+          line-height: 1.5;
+          background: rgb(0 0 0 / 3.1%);
+        }
+
+        .bio-detail {
+          margin-block-start: 0.375rem;
+
+          h4 {
+            margin-block-end: 0.2rem;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1em;
+
+            &::before {
+              margin-inline-end: 0.375rem;
+              color: var(--color-text-hyperlink);
+              content: '•';
+            }
+          }
+        }
+
+        .backstory-text {
+          max-height: 7.5rem;
+          padding: 0.5rem;
+          border: 0.063rem solid var(--color-border-light-tertiary);
+          border-radius: 0.2rem;
+          overflow-y: auto;
+          line-height: 1.5;
+        }
+      }
+
+      .final-notes {
+        font-style: italic;
+        text-align: center;
+      }
+    }
   }
 
   /* Footer styling */
@@ -233,7 +966,7 @@
       }
 
       .hm-footer-right {
-        justify-content: flex-start;
+        justify-content: flex-end;
       }
     }
 
@@ -298,143 +1031,8 @@
     }
   }
 
-  /* Form elements */
-  fieldset {
-    min-width: 0;
-    min-height: 0;
-    margin: 1rem 0;
-    padding: 1rem 2rem;
-    border: 0.063rem solid var(--user-color);
-    border-radius: 0.375rem;
-
-    > legend {
-      padding-inline: 0.5rem;
-      text-transform: uppercase;
-    }
-
-    > .empty {
-      padding: 0.375rem;
-      color: rgb(240 240 240);
-      font-style: italic;
-      text-align: center;
-    }
-  }
-
-}
-
-/* Navigation tabs specific styling */
-.hero-mancer-tabs.tabs.hm-app-nav {
-  .item {
-    color: rgb(240 240 240);
-
-    i.fa-solid {
-      position: relative;
-      width: 1.5rem;
-      height: 1.5rem;
-
-      i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
-        inset-block-start: -0.3rem;
-        inset-inline-end: 1rem;
-        z-index: 1;
-        position: absolute;
-        color: var(--hm-color-error);
-        font-size: 0.84rem;
-        text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
-      }
-    }
-  }
-}
-
-/* Form rows and inputs */
-:is(.form-row, .art-selection-row, .customization-row) {
-  gap: 0.625rem;
-  margin-block-end: 0.625rem;
-  display: flex;
-  align-items: center;
-}
-
-:is(.form-input, .form-select) {
-  width: 100%;
-  max-width: 15.625rem;
-  margin: 0 0.3rem;
-}
-
-.hm-app-tab-content fieldset {
-  :is(input[type='text'], select) {
-    width: 100%;
-    max-width: 15.625rem;
-    margin: 0 0.3rem;
-  }
-}
-
-.label-15 {
-  margin-inline-end: 0.3rem;
-  flex: 0 0 20%;
-  white-space: nowrap;
-}
-
-.label-43 {
-  gap: 0.313rem;
-  display: flex;
-  flex: 0 0 43%;
-  flex-shrink: 0;
-  align-items: center;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-.checkbox-label {
-  margin-inline-start: 0.313rem;
-  flex: 1;
-}
-
-.button-7 {
-  flex: 0 0 auto;
-  width: auto;
-  height: 2rem;
-  white-space: nowrap;
-}
-
-.tooltip-icon {
-  margin-inline-start: 0.4rem;
-  color: var(--color-text-dark-secondary);
-  transition: color 0.5s ease;
-
-  &:hover {
-    color: var(--user-color);
-  }
-}
-
-.heading-tooltip {
-  font-size: var(--font-size-14);
-  vertical-align: middle;
-}
-
-.mandatory-indicator {
-  margin-inline-end: 0.25rem;
-  display: inline-flex;
-  flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.1rem;
-
-  &.complete {
-    color: var(--hm-color-success);
-    text-shadow: 0 0 0.2rem rgb(46 125 50 / 30.2%);
-  }
-
-  &.incomplete {
-    color: var(--hm-color-error);
-    text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
-  }
-}
-
-/* Label styling with mandatory indicators */
-.application.hm-app {
+  /* Label styling with mandatory indicators */
   :is(
-    .form-row > label,
-    .art-selection-row > label,
-    .customization-row > label,
     .ability-block > span.ability-label,
     .ability-block > label,
     .trait-group > label,
@@ -448,445 +1046,8 @@
     position: relative;
     align-items: center;
   }
-}
 
-.notes-section:has(prose-mirror.mandatory-field) > h3 {
-  gap: 0.5rem;
-  display: flex;
-  position: relative;
-  align-items: center;
-}
-
-/* ==========================================================================
-  Journal Container
- ========================================================================== */
-.hm-app-tab-content {
-  .journal-container {
-    padding: 0.25rem;
-    border-radius: var(--hm-radius-md);
-    overflow: auto hidden;
-    color: rgb(25 24 19) !important;
-    background-color: rgb(240 240 224) !important;
-    transition: opacity 0.3s ease;
-
-    &:empty,
-    &:not([data-journal-id]) {
-      display: none;
-    }
-
-    &.loading {
-      opacity: 0.7;
-    }
-
-    .journal-loading {
-      gap: 0.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-      color: var(--color-text-dark-secondary);
-      font-style: italic;
-
-      i {
-        color: var(--color-text-hyperlink);
-      }
-    }
-
-    :is(.notification.error, .notification.warning) {
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      border-radius: var(--hm-radius-sm);
-    }
-
-    .title {
-      color: rgb(75 74 68);
-      font-weight: bold;
-      font-size: 1.3rem;
-    }
-
-    .journal-entry-content {
-      line-height: 1.4;
-    }
-
-    section {
-      margin-block-start: unset;
-    }
-
-    :is(h1, h2, h3, h4, h5) {
-      border-block-end: 0.125rem solid var(--hm-journal-border);
-      margin-block: 0.8rem 0.4rem;
-      border-image: linear-gradient(to right, var(--hm-journal-border), transparent 90%);
-      border-image-slice: 0 0 1 0;
-      color: var(--hm-journal-heading) !important;
-      font-weight: bold;
-      font-family: var(--dnd5e-font-modesto) !important;
-      text-shadow: unset;
-    }
-
-    :is(p, .content-embed p) {
-      font-family: var(--font-primary);
-      text-align: start;
-    }
-
-    :is(a, a.content-link) {
-      border: none;
-      color: var(--hm-journal-heading) !important;
-      text-decoration: none;
-      background: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-
-    img {
-      max-width: 100%;
-      margin: unset;
-    }
-
-    .content-embed {
-      margin: 0.625rem 0;
-      text-align: center;
-
-      &.right {
-        margin-inline-start: 0.3rem;
-        float: right;
-        clear: right;
-      }
-
-      &.left {
-        margin-inline-end: 0.3rem;
-        float: left;
-        clear: left;
-      }
-
-      &.center {
-        margin-inline: auto;
-      }
-
-      &.four,
-      .four {
-        width: 25rem;
-      }
-
-      &.three,
-      .three {
-        width: 18.75rem;
-      }
-
-      &.two,
-      .two {
-        width: 12.5rem;
-      }
-
-      &.one,
-      .one {
-        width: 6.25rem;
-      }
-
-      .statblock.npc {
-        margin-inline: auto 0;
-        text-align: start;
-      }
-
-      figcaption {
-        text-align: end;
-
-        cite {
-          font-style: italic;
-          font-size: 0.7rem;
-        }
-      }
-    }
-
-    figure.content-embed {
-      margin: 0.5rem 0;
-
-      strong.embed-caption {
-        margin-inline-end: 0.3rem;
-      }
-    }
-
-    .clear-both {
-      clear: both;
-    }
-
-    /* Table styling */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-
-      caption {
-        font-weight: bold;
-        text-align: center;
-      }
-
-      :is(th, td) {
-        text-align: center;
-
-        &.spell-slots {
-          text-align: center;
-        }
-
-        &.features {
-          text-align: start;
-          white-space: normal;
-        }
-
-        &.level,
-        &.prof,
-        &.scale {
-          text-align: center;
-          white-space: wrap;
-        }
-      }
-
-      &.features-table {
-        width: 100%;
-        border-collapse: collapse;
-
-        th[scope='col'] {
-          &[rowspan='2'] {
-            width: 4.688rem;
-            max-width: 6.25rem;
-            font-size: var(--font-size-12);
-            white-space: normal;
-
-            &:nth-child(2) {
-              width: 4.688rem;
-            }
-
-            &:nth-child(3) {
-              min-width: 9.375rem;
-            }
-          }
-        }
-      }
-
-      /* Complex table selectors */
-      :is(th[rowspan], th[colspan], td, .journal-page-content table td, p) {
-        padding-inline: unset;
-        text-align: center;
-        vertical-align: middle;
-      }
-
-      p {
-        margin: unset;
-        padding: unset;
-      }
-
-      colgroup {
-        col {
-          &.spellcasting,
-          &[span='9'] {
-            width: fit-content;
-          }
-
-          &[span='6'] {
-            font-size: var(--font-size-11);
-          }
-        }
-      }
-
-      thead tr {
-        th[scope='col'] {
-          width: 2.188rem;
-          padding: unset;
-
-          &[colspan='9'],
-          &[rowspan='2'] {
-            width: fit-content;
-            max-width: 12.188rem;
-            font-size: var(--font-size-13);
-          }
-        }
-
-        &:nth-child(2) th[scope='col'] {
-          width: 2.188rem;
-          padding: unset;
-          font-size: var(--font-size-10);
-        }
-      }
-    }
-  }
-
-  .dnd5e2-journal {
-    padding: 0.5rem;
-
-    .journal-container {
-      --scroll-margin: unset;
-
-      margin-inline: 0.2rem !important;
-      padding-inline: 0.2rem !important;
-      width: 100% !important;
-    }
-  }
-}
-
-.journal-page-content {
-  opacity: 0;
-  animation: fade-in 0.3s ease forwards;
-}
-
-/* ==========================================================================
-  V13 Journal Content-Link Icon and Table Fixes
- ========================================================================== */
-
-.hm-app-tab-content {
-  .journal-container,
-  .dnd5e2-journal {
-    /* Override dnd5e system styling for content-link icons to make them more readable */
-    :is(a.content-link, .inline-roll) > i,
-    a.roll-link-group .roll-link > i,
-    a.roll-link-group.roll-link > i,
-    :is(.roll-link-group, .reference-link) a > i {
-      color: var(--hm-journal-heading) !important;
-      opacity: 0.6 !important;
-      filter: brightness(0.7);
-    }
-
-    /* Make tables more readable by removing grey backgrounds and improving contrast */
-    table {
-      background-color: transparent !important;
-
-      &.features-table {
-        background-color: rgb(248 246 240) !important;
-        border: 0.063rem solid var(--hm-journal-border);
-
-        thead {
-          background-color: rgb(235 230 220) !important;
-
-          th {
-            background-color: rgb(225 220 210) !important;
-            color: var(--hm-journal-heading) !important;
-            font-weight: bold;
-            border-bottom: 0.063rem solid var(--hm-journal-border);
-          }
-        }
-
-        tbody {
-          tr {
-            background-color: rgb(248 246 240) !important;
-
-            &:nth-child(even) {
-              background-color: rgb(243 241 235) !important;
-            }
-
-            &:hover {
-              background-color: rgb(238 236 230) !important;
-            }
-
-            td {
-              background-color: transparent !important;
-              color: rgb(25 24 19) !important;
-              border-bottom: 0.063rem solid rgb(220 215 205);
-
-              &.features {
-                text-align: start;
-
-                a.content-link {
-                  color: var(--hm-journal-heading) !important;
-                  font-weight: 500;
-
-                  &:hover {
-                    text-decoration: underline;
-                  }
-
-                  i {
-                    margin-right: 0.25em;
-                    opacity: 0.5 !important;
-                  }
-                }
-              }
-
-              &.level,
-              &.prof,
-              &.scale,
-              &.spell-slots {
-                text-align: center;
-                font-weight: 500;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    /* Ensure general table styling is readable */
-    :is(th, td) {
-      color: rgb(25 24 19) !important;
-
-      &:not(.features) {
-        background-color: transparent !important;
-      }
-    }
-
-    /* Fix any other grey backgrounds from dnd5e system */
-    .journal-page-content {
-      background-color: transparent !important;
-
-      section {
-        background-color: transparent !important;
-      }
-    }
-  }
-}
-
-/* Light theme specific adjustments */
-.theme-light {
-  .hm-app-tab-content {
-    .journal-container,
-    .dnd5e2-journal {
-      /* Adjust content-link icons for light theme */
-      :is(a.content-link, .inline-roll) > i,
-      a.roll-link-group .roll-link > i,
-      a.roll-link-group.roll-link > i,
-      :is(.roll-link-group, .reference-link) a > i {
-        filter: brightness(0.5) !important;
-      }
-
-      /* Light theme table adjustments */
-      table.features-table {
-        background-color: rgb(255 255 255) !important;
-        border: 0.063rem solid rgb(200 200 200);
-
-        thead th {
-          background-color: rgb(245 245 245) !important;
-          color: rgb(41 41 41) !important;
-          border-bottom: 0.063rem solid rgb(200 200 200);
-        }
-
-        tbody {
-          tr {
-            background-color: rgb(255 255 255) !important;
-
-            &:nth-child(even) {
-              background-color: rgb(250 250 250) !important;
-            }
-
-            &:hover {
-              background-color: rgb(240 240 240) !important;
-            }
-
-            td {
-              color: rgb(41 41 41) !important;
-              border-bottom: 0.063rem solid rgb(220 220 220);
-
-              &.features a.content-link {
-                color: rgb(41 41 41) !important;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-/* ==========================================================================
-  Abilities Tab
- ========================================================================== */
-.hm-app {
+  /* Abilities Tab */
   .ability-container {
     display: flex;
     justify-content: space-between;
@@ -978,6 +1139,126 @@
   }
 }
 
+/* Navigation tabs specific styling */
+.hero-mancer-tabs.tabs.hm-app-nav {
+  .item {
+    color: rgb(240 240 240);
+
+    i.fa-solid {
+      position: relative;
+      width: 1.5rem;
+      height: 1.5rem;
+
+      i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
+        inset-block-start: -0.3rem;
+        inset-inline-end: 1rem;
+        z-index: 1;
+        position: absolute;
+        color: var(--hm-color-error);
+        font-size: 0.84rem;
+        text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
+      }
+    }
+  }
+}
+
+.tooltip-icon {
+  margin-inline-start: 0.4rem;
+  color: var(--color-text-dark-secondary);
+  transition: color 0.5s ease;
+
+  &:hover {
+    color: var(--color-text-hyperlink);
+  }
+}
+
+.heading-tooltip {
+  font-size: var(--font-size-14);
+  vertical-align: middle;
+}
+
+.mandatory-indicator {
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+
+  &.complete {
+    color: var(--hm-color-success);
+    text-shadow: 0 0 0.2rem rgb(46 125 50 / 30.2%);
+  }
+
+  &.incomplete {
+    color: var(--hm-color-error);
+    text-shadow: 0 0 0.2rem var(--hm-color-error-shadow);
+  }
+}
+
+.notes-section:has(prose-mirror.mandatory-field) > h3 {
+  gap: 0.5rem;
+  display: flex;
+  position: relative;
+  align-items: center;
+}
+
+.journal-page-content {
+  opacity: 0;
+  animation: fade-in 0.3s ease forwards;
+}
+
+/* Light theme specific adjustments */
+.theme-light {
+  .hm-app-tab-content {
+    .journal-container,
+    .dnd5e2-journal {
+      /* Adjust content-link icons for light theme */
+      :is(a.content-link, .inline-roll) > i,
+      a.roll-link-group .roll-link > i,
+      a.roll-link-group.roll-link > i,
+      :is(.roll-link-group, .reference-link) a > i {
+        filter: brightness(0.5) !important;
+      }
+
+      /* Light theme table adjustments */
+      table.features-table {
+        background-color: rgb(255 255 255) !important;
+        border: 0.063rem solid rgb(200 200 200);
+
+        thead th {
+          background-color: rgb(245 245 245) !important;
+          color: rgb(41 41 41) !important;
+          border-bottom: 0.063rem solid rgb(200 200 200);
+        }
+
+        tbody {
+          tr {
+            background-color: rgb(255 255 255) !important;
+
+            &:nth-child(even) {
+              background-color: rgb(250 250 250) !important;
+            }
+
+            &:hover {
+              background-color: rgb(240 240 240) !important;
+            }
+
+            td {
+              color: rgb(41 41 41) !important;
+              border-bottom: 0.063rem solid rgb(220 220 220);
+
+              &.features a.content-link {
+                color: rgb(41 41 41) !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
 :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
   color: var(--hm-color-gold);
   text-shadow: 0 -0.3rem 1.25rem rgb(255 215 0 / 60%);
@@ -990,7 +1271,7 @@
   }
 
   option.hm-used-elsewhere {
-    background-color: var(--user-color);
+    background-color: var(--color-cool-5);
   }
 }
 
@@ -1180,383 +1461,6 @@
   margin-block-end: var(--hm-spacing-sm);
 }
 
-.hm-app-tab-content {
-  .characteristics-section {
-    :is(.form-input, .form-select) {
-      flex: 3;
-      min-width: 100%;
-    }
-  }
-
-  .personality-trait-group {
-    margin-block-end: var(--hm-spacing-md);
-    display: flex;
-    flex-direction: column;
-
-    textarea {
-      min-height: 11.25rem;
-      resize: none;
-    }
-  }
-
-  textarea {
-    width: 100%;
-  }
-
-  .physical-description-section textarea {
-    min-height: 7.5rem;
-    resize: none;
-  }
-
-  .biography-tab {
-    h2 {
-      margin-block-end: 0.5rem !important;
-    }
-
-    label {
-      font-size: var(--font-size-16);
-    }
-  }
-
-  .input-with-roll {
-    textarea {
-      flex: 1;
-      min-height: 7.5rem;
-      font-size: var(--font-size-14);
-      font-family: var(--font-h3);
-      resize: none;
-    }
-  }
-
-  .notes-grid {
-    gap: 0.625rem;
-    display: grid;
-  }
-
-  .notes-group prose-mirror {
-    width: 100%;
-    min-height: 16.25rem;
-    background: var(--input-background-color);
-    border: 0.063rem solid var(--input-border-color);
-    border-radius: 0.25rem;
-
-    .editor-content.ProseMirror {
-      --color-text-selection-bg: var(--color-cool-3);
-      --prosemirror-background-color: rgb(48 40 49);
-      --prosemirror-text-color: rgb(247 243 232);
-      --prosemirror-focus-outline-color: rgb(88 74 117);
-
-      min-height: 3.75rem;
-      padding: 0.25rem 0.5rem;
-      background: var(--prosemirror-background-color);
-      border: 0.063rem solid var(--input-border-color);
-      border-radius: 0.25rem;
-      box-shadow: var(--input-box-shadow);
-      font-family: var(--font-monospace);
-      font-size: var(--font-size-14);
-      color: var(--prosemirror-text-color);
-      user-select: text;
-      cursor: var(--cursor-text);
-      resize: vertical;
-
-      &:focus {
-        outline: 0.125rem solid var(--prosemirror-focus-outline-color);
-        outline-offset: -0.125rem;
-      }
-    }
-  }
-
-  .personal-char-section button {
-    gap: 0.094rem;
-    display: flex;
-    align-items: center;
-    align-self: center;
-    width: 3.75rem;
-    height: 1.875rem;
-  }
-}
-
-/* ==========================================================================
-  Review Tab
- ========================================================================== */
-.hm-app-tab-content {
-  .review-container {
-    max-width: 100%;
-    padding: 0 0.5rem;
-
-    .review-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      h2 {
-        flex: 1;
-        margin: 0;
-        font-size: 1.5em;
-      }
-
-      .character-portrait {
-        width: 5rem;
-        height: 5rem;
-
-        img {
-          object-fit: cover;
-          width: 100%;
-          height: 100%;
-        }
-      }
-    }
-
-    .character-summary {
-      display: block;
-      line-height: 1.8;
-      text-align: start;
-
-      span {
-        display: inline;
-        line-height: 1.4;
-      }
-    }
-
-    .content-link {
-      border: unset;
-      background: unset;
-    }
-
-    .review-sections {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .review-section-row {
-      gap: 1rem;
-      grid-template-columns: 1fr 1fr;
-      display: grid;
-    }
-
-    .review-section {
-      padding: 0.75rem;
-      border: 0.063rem solid var(--color-border-light-tertiary);
-      border-radius: 0.375rem;
-      background: rgb(0 0 0 / 2%);
-
-      h3 {
-        border-block-end: 0.063rem solid var(--color-border-light-secondary);
-        gap: 0.5rem;
-        margin-block: 0 0.75rem;
-        padding-block-end: 0.5rem;
-        display: flex;
-        align-items: center;
-        font-size: 1.1em;
-
-        i {
-          flex-shrink: 0;
-          color: var(--user-color);
-        }
-      }
-
-      /* Proficiencies notice specific styling */
-      &.proficiencies-notice {
-        margin-bottom: 1rem;
-
-        .proficiencies-warning {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem;
-          margin-bottom: 0.75rem;
-          background: rgb(255 193 7 / 10%);
-          border-radius: var(--hm-radius-sm);
-          color: rgb(133 100 4);
-          font-weight: 500;
-
-          i {
-            color: rgb(255 193 7);
-            font-size: 1.2em;
-          }
-        }
-
-        .proficiencies-list {
-          max-height: 18.75rem;
-          overflow-y: auto;
-
-          .loading-spinner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            color: var(--color-text-dark-secondary);
-
-            i {
-              margin-bottom: 0.5rem;
-              font-size: 2em;
-            }
-          }
-
-          .error-message {
-            padding: 1rem;
-            color: var(--color-level-error);
-            text-align: center;
-            font-style: italic;
-          }
-
-          .no-proficiencies {
-            padding: 1rem;
-            text-align: center;
-            color: var(--color-text-dark-secondary);
-            font-style: italic;
-          }
-
-          .proficiency-category {
-            margin-bottom: 1rem;
-
-            &:last-child {
-              margin-bottom: 0;
-            }
-
-            .proficiency-category-title {
-              margin: 0 0 0.5rem;
-              padding-bottom: 0.25rem;
-              border-bottom: 0.063rem solid var(--color-border-light-tertiary);
-            }
-
-            .proficiency-items {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 0.5rem;
-
-              .proficiency-item {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.25rem;
-                padding: 0.25rem 0.5rem;
-                background: rgb(0 0 0 / 5%);
-                border-radius: var(--hm-radius-sm);
-                font-size: 0.85em;
-
-                .proficiency-name {
-                  font-weight: 500;
-                }
-
-                .proficiency-source {
-                  color: var(--color-text-dark-secondary);
-                  font-size: 0.9em;
-                  font-style: italic;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .review-content {
-      font-size: 0.95em;
-
-      .review-item {
-        padding-block-start: 0.375rem;
-        display: flex;
-        line-height: 1.4;
-
-        .review-label {
-          margin-inline-end: 0.5rem;
-          min-width: 6.25rem;
-          font-weight: bold;
-        }
-      }
-    }
-
-    .abilities-grid {
-      gap: 0.5rem;
-      grid-template-columns: repeat(3, 1fr);
-      display: grid;
-
-      .ability-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.375rem 0.5rem;
-        border-radius: 0.2rem;
-        background: rgb(0 0 0 / 3.1%);
-
-        .ability-label {
-          font-weight: bold;
-        }
-      }
-    }
-
-    .equipment-layout {
-      gap: 0.75rem;
-      grid-template-columns: 1fr 1fr;
-      display: grid;
-
-      :is(.background-equipment, .class-equipment) {
-        padding-block-start: 0.5rem;
-
-        h4 {
-          border-block-end: 0.063rem solid var(--color-border-light-tertiary);
-          padding-block-end: 0.375rem;
-          font-size: var(--font-h5-size);
-          text-align: center;
-        }
-      }
-
-      :is(.background-items, .class-items) {
-        padding-block-start: 0.2rem;
-      }
-
-      .equipment-wealth {
-        font-style: italic;
-      }
-    }
-
-    .bio-preview {
-      gap: 0.75rem;
-      display: flex;
-      flex-direction: column;
-
-      .bio-main {
-        padding: 0.5rem;
-        border-radius: 0.2rem;
-        font-style: italic;
-        line-height: 1.5;
-        background: rgb(0 0 0 / 3.1%);
-      }
-
-      .bio-detail {
-        margin-block-start: 0.375rem;
-
-        h4 {
-          margin-block-end: 0.2rem;
-          display: flex;
-          align-items: center;
-          font-weight: bold;
-          font-size: 1em;
-
-          &::before {
-            margin-inline-end: 0.375rem;
-            color: var(--color-text-hyperlink);
-            content: '•';
-          }
-        }
-      }
-
-      .backstory-text {
-        max-height: 7.5rem;
-        padding: 0.5rem;
-        border: 0.063rem solid var(--color-border-light-tertiary);
-        border-radius: 0.2rem;
-        overflow-y: auto;
-        line-height: 1.5;
-      }
-    }
-
-    .final-notes {
-      font-style: italic;
-      text-align: center;
-    }
-  }
-}
-
 /* ==========================================================================
   Custom Compendiums Settings & Dialogs
  ========================================================================== */
@@ -1709,39 +1613,6 @@
 
     i {
       margin: 0;
-    }
-  }
-}
-
-.hm-app .hm-app-tab-content {
-  :is(.input-35, color-picker) {
-    display: flex;
-    flex: 1;
-    max-width: 35%;
-  }
-
-  color-picker {
-    input[type='text'] {
-      flex: 1;
-      width: 100%;
-      max-width: 100%;
-    }
-
-    input[type='color'] {
-      width: 1.875rem;
-      min-width: 1.875rem;
-      max-width: 35%;
-    }
-  }
-
-  .ring-effects {
-    display: flex;
-    flex-wrap: wrap;
-
-    .checkbox-label {
-      margin-inline-start: 0;
-      padding-inline-start: 0.313rem;
-      width: calc(100% - 7.5rem);
     }
   }
 }
@@ -1994,7 +1865,7 @@
 .hm-troubleshooter,
 .hm-compendiums-popup-dialog .fa-solid {
   .fa-bug {
-    color: var(--user-color);
+    color: var(--color-text-light-6);
   }
 }
 

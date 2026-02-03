@@ -242,7 +242,7 @@ export class HeroMancerUI {
     if (!ringEnabled) return;
     const ringEnabledElement = element.querySelector('input[name="ring.enabled"]');
     const ringOptions = element.querySelectorAll(
-      ['.customization-row:has(color-picker[name="ring.color"])', '.customization-row:has(color-picker[name="backgroundColor"])', '.customization-row.ring-effects'].join(', ')
+      ['.form-group:has(color-picker[name="ring.color"])', '.form-group:has(color-picker[name="backgroundColor"])', '.form-group.ring-effects'].join(', ')
     );
 
     if (!ringEnabledElement || !ringOptions.length) return;

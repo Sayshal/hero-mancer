@@ -220,9 +220,9 @@ Hooks.on('renderActorDirectory', (_app, html) => {
   button.classList.add('hm-actortab-button');
   button.setAttribute('data-tooltip', game.i18n.localize('hm.actortab-button.hint'));
   const compact = game.settings.get(HM.ID, 'compactButton');
-  if (compact) button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i>`;
+  if (compact) button.innerHTML = `<i class="fa-solid fa-egg"></i>`;
   else {
-    button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
+    button.innerHTML = `<i class="fa-solid fa-egg"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
     button.style.flexBasis = '100%';
   }
   button.addEventListener('click', () => {
