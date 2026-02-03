@@ -37,6 +37,15 @@ function registerCoreSettings() {
     requiresReload: true
   });
 
+  game.settings.register(HM.ID, 'compactButton', {
+    name: 'hm.settings.compact-button.name',
+    hint: 'hm.settings.compact-button.hint',
+    type: new BooleanField({ initial: true }),
+    scope: 'client',
+    config: true,
+    requiresReload: true
+  });
+
   game.settings.register(HM.ID, 'enableNavigationButtons', {
     name: 'hm.settings.nav-buttons.name',
     hint: 'hm.settings.nav-buttons.hint',

@@ -218,8 +218,13 @@ Hooks.on('renderActorDirectory', (_app, html) => {
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.add('hm-actortab-button');
-  button.setAttribute('title', game.i18n.localize('hm.actortab-button.hint'));
-  button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
+  button.setAttribute('data-tooltip', game.i18n.localize('hm.actortab-button.hint'));
+  const compact = game.settings.get(HM.ID, 'compactButton');
+  if (compact) button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i>`;
+  else {
+    button.innerHTML = `<i class="fa-solid fa-egg" style="color: var(--user-color)"></i> ${game.i18n.localize('hm.actortab-button.name')}`;
+    button.style.flexBasis = '100%';
+  }
   button.addEventListener('click', () => {
     if (HM.heroMancer) {
       HM.heroMancer.close();
@@ -228,6 +233,5 @@ Hooks.on('renderActorDirectory', (_app, html) => {
     HM.heroMancer = new HeroMancer();
     HM.heroMancer.render(true);
   });
-  const createFolderButton = headerActions.querySelector('.create-folder');
-  headerActions.insertBefore(button, createFolderButton);
+  headerActions.appendChild(button);
 });

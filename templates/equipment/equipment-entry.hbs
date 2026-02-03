@@ -3,11 +3,6 @@
 
 {{#if isOr}}
   {{!-- OR choice - radio button group --}}
-  <tr class="equipment-or-group" data-entry-id="{{id}}">
-    <th colspan="2">
-      <h4 class="or-header">{{{label}}}</h4>
-    </th>
-  </tr>
   {{#each children}}
     <tr class="equipment-or-option{{#unless @first}} disabled{{/unless}}" data-or-option="{{../id}}"
       data-option-value="{{id}}">
@@ -82,7 +77,6 @@
   <tr class="equipment-and-group" data-entry-id="{{id}}">
     <td colspan="2">
       <div class="and-container">
-        <h4 class="and-header">{{{label}}}</h4>
         <div class="and-items">
           {{#each children}}
             {{> "modules/hero-mancer/templates/equipment/equipment-inline.hbs" }}

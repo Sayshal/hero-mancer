@@ -32,6 +32,7 @@
     {{!-- Nested OR inside AND - render as select dropdown --}}
     <div class="inline-or-choice">
       {{#if hasChildren}}
+        <span class="inline-or-label">{{{label}}}</span>
         <select data-equipment-select data-type="or" data-count="{{count}}" id="or-{{id}}-inline">
           {{#each children}}
             {{#if isLinked}}

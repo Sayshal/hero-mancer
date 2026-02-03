@@ -362,6 +362,8 @@
   "hm.settings.dice-rolling.menu.name": "Ability Score Generation",
   "hm.settings.dice-rolling.need-roll-method": "At least one ability score generation method must be enabled, changes rejected.",
   "hm.settings.dice-rolling.saved": "Dice rolling settings have been saved.",
+  "hm.settings.compact-button.hint": "Show only the egg icon in the Actors tab instead of the full button with text.",
+  "hm.settings.compact-button.name": "Compact Button",
   "hm.settings.dicesonice.hint": "Show 3D dice animations for ability score rolls using Dice So Nice module",
   "hm.settings.dicesonice.name": "Enable 3D Dice for Ability Rolls",
   "hm.settings.elkan.hint": "Enabling this setting will ensure compatibility with Elkan5e. Please note this disabled the Equipment tab of Hero Mancer.",
