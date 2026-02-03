@@ -478,7 +478,7 @@ export class StatRoller {
     const index = parseInt(element.getAttribute('data-ability-index'), 10);
     if (isNaN(index)) return;
     const adjustment = parseInt(element.getAttribute('data-adjust'), 10) || 0;
-    this.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
+    StatRoller.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
   }
 
   /**
