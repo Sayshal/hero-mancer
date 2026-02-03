@@ -31,12 +31,23 @@
       <td class="option-content">
         {{#if isCategory}}
           {{#if hasOptions}}
-            <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
-              id="{{type}}-{{categoryKey}}-{{id}}" {{#unless @first}}disabled{{/unless}}>
-              {{#each options}}
-                <option value="{{uuid}}">{{name}}</option>
+            {{#if multiSelect}}
+              {{#each selectInstances}}
+                <select data-equipment-select data-type="{{../type}}" data-count="1"
+                  id="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
+                  {{#each ../options}}
+                    <option value="{{uuid}}">{{name}}</option>
+                  {{/each}}
+                </select>
               {{/each}}
-            </select>
+            {{else}}
+              <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
+                id="{{type}}-{{categoryKey}}-{{id}}">
+                {{#each options}}
+                  <option value="{{uuid}}">{{name}}</option>
+                {{/each}}
+              </select>
+            {{/if}}
           {{else}}
             <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
           {{/if}}
@@ -110,11 +121,22 @@
         {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
       </label>
       {{#if hasOptions}}
-        <select data-equipment-select data-type="{{type}}" data-count="{{count}}" id="{{type}}-{{categoryKey}}-{{id}}">
-          {{#each options}}
-            <option value="{{uuid}}">{{name}}</option>
+        {{#if multiSelect}}
+          {{#each selectInstances}}
+            <select data-equipment-select data-type="{{../type}}" data-count="1"
+              id="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
+              {{#each ../options}}
+                <option value="{{uuid}}">{{name}}</option>
+              {{/each}}
+            </select>
           {{/each}}
-        </select>
+        {{else}}
+          <select data-equipment-select data-type="{{type}}" data-count="{{count}}" id="{{type}}-{{categoryKey}}-{{id}}">
+            {{#each options}}
+              <option value="{{uuid}}">{{name}}</option>
+            {{/each}}
+          </select>
+        {{/if}}
       {{else}}
         <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
       {{/if}}

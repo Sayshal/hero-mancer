@@ -185,6 +185,10 @@ export class EquipmentUI {
           return this.#checkProficiency(opt, entry.type);
         });
       }
+      if (base.count > 1) {
+        base.multiSelect = true;
+        base.selectInstances = Array.from({ length: base.count }, (_, i) => ({ index: i + 1 }));
+      }
     }
     return base;
   }
@@ -256,6 +260,17 @@ export class EquipmentUI {
         if (hiddenInput) hiddenInput.value = event.target.value;
       });
     });
+
+    // Initialize OR group disabled states for all child inputs
+    const processedGroups = new Set();
+    container.querySelectorAll('[data-or-choice]').forEach((radio) => {
+      const groupId = radio.dataset.orGroup;
+      if (processedGroups.has(groupId)) return;
+      processedGroups.add(groupId);
+      const checkedRadio = container.querySelector(`[data-or-choice][data-or-group="${groupId}"]:checked`);
+      if (checkedRadio) checkedRadio.dispatchEvent(new Event('change'));
+    });
+
     HM.log(3, 'EquipmentUI: Event listeners attached');
   }
 }

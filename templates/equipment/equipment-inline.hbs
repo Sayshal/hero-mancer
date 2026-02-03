@@ -17,12 +17,23 @@
     <div class="category-select">
       <span class="category-label">{{{label}}}</span>
       {{#if hasOptions}}
-        <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
-          id="{{type}}-{{categoryKey}}-{{id}}-inline">
-          {{#each options}}
-            <option value="{{uuid}}">{{name}}</option>
+        {{#if multiSelect}}
+          {{#each selectInstances}}
+            <select data-equipment-select data-type="{{../type}}" data-count="1"
+              id="{{../type}}-{{../categoryKey}}-{{../id}}-inline-{{index}}">
+              {{#each ../options}}
+                <option value="{{uuid}}">{{name}}</option>
+              {{/each}}
+            </select>
           {{/each}}
-        </select>
+        {{else}}
+          <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
+            id="{{type}}-{{categoryKey}}-{{id}}-inline">
+            {{#each options}}
+              <option value="{{uuid}}">{{name}}</option>
+            {{/each}}
+          </select>
+        {{/if}}
       {{else}}
         <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
       {{/if}}
