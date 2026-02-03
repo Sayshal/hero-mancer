@@ -107,6 +107,18 @@ export class EquipmentManager {
   }
 
   /**
+   * Check if a source type uses modern (2024) rules.
+   * @param {string} type - Source type (class or background)
+   * @returns {boolean} True if the document uses 2024 rules
+   */
+  static isModernRules(type) {
+    const uuid = HM.SELECTED[type]?.uuid;
+    if (!uuid) return false;
+    const doc = fromUuidSync(uuid);
+    return doc?.system?.source?.rules === '2024';
+  }
+
+  /**
    * Convert wealth formulas from form data to currency.
    * @param {object} formData - Form data containing wealth checkbox states
    * @returns {Promise<object>} Currency object with gp, sp, cp values

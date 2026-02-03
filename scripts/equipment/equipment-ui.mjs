@@ -62,7 +62,8 @@ export class EquipmentUI {
     const equipmentData = await EquipmentManager.fetchEquipmentData();
     const entries = equipmentData[type] || [];
     const wealth = EquipmentManager.getWealthFormula(type);
-    const sectionContext = { type, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth };
+    const isModernRules = EquipmentManager.isModernRules(type);
+    const sectionContext = { type, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth, isModernRules };
     const html = await foundry.applications.handlebars.renderTemplate(this.CHOICE_TEMPLATE, sectionContext);
     section.innerHTML = html;
     this.#attachListeners(section);
@@ -127,7 +128,8 @@ export class EquipmentUI {
       const wealth = EquipmentManager.getWealthFormula(type);
       const processedEntries = await this.#processEntriesForTemplate(entries);
       const hasData = processedEntries.length > 0 || !!wealth;
-      return { hasData, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: processedEntries, wealth, hasWealth: !!wealth };
+      const isModernRules = EquipmentManager.isModernRules(type);
+      return { hasData, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: processedEntries, wealth, hasWealth: !!wealth, isModernRules };
     };
     const classSectionData = await buildSectionData('class');
     const backgroundSectionData = await buildSectionData('background');
@@ -228,17 +230,64 @@ export class EquipmentUI {
    * @param {HTMLElement} container - Container element
    */
   static #attachListeners(container) {
-    container.querySelectorAll('[data-wealth-checkbox]').forEach((checkbox) => {
-      EventRegistry.on(checkbox, 'change', (event) => {
-        const type = event.target.dataset.type;
-        const section = container.querySelector(`.${type}-equipment-entries`);
-        if (section) {
-          section.classList.toggle('disabled', event.target.checked);
-          section.querySelectorAll('select, input').forEach((input) => {
-            if (input !== event.target) input.disabled = event.target.checked;
-          });
+    // Wealth checkbox — use delegation on container to survive DOM replacement
+    container.addEventListener('change', (event) => {
+      const checkbox = event.target.closest('[data-wealth-checkbox]');
+      if (!checkbox) return;
+      const type = checkbox.dataset.type;
+      const isChecked = checkbox.checked;
+      const isModern = checkbox.dataset.modern === 'true';
+      const formula = checkbox.dataset.formula;
+      const section = container.querySelector(`.${type}-equipment-entries`);
+      const rollRow = checkbox.closest('.wealth-option-container')?.querySelector('.wealth-roll-container') || container.querySelector('.wealth-roll-container');
+      const wealthInput = container.querySelector(`#starting-wealth-amount-${type}`);
+      if (section) {
+        section.classList.toggle('disabled', isChecked);
+        section.querySelectorAll('select, input').forEach((input) => {
+          if (input !== checkbox) input.disabled = isChecked;
+        });
+      }
+
+      if (rollRow) {
+        if (isChecked) {
+          rollRow.style.display = 'table-row';
+          rollRow.removeAttribute('hidden');
+        } else {
+          rollRow.style.display = 'none';
+          rollRow.setAttribute('hidden', 'true');
         }
-      });
+      }
+
+      if (wealthInput) {
+        if (isChecked && isModern) {
+          wealthInput.value = `${formula} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
+        } else if (!isChecked) {
+          wealthInput.value = '';
+        }
+      }
+    });
+
+    // Wealth roll button — use delegation on container
+    container.addEventListener('click', async (event) => {
+      const button = event.target.closest('.wealth-roll-button');
+      if (!button) return;
+      const formula = button.dataset.formula;
+      const type = button.dataset.type;
+      const wealthInput = container.querySelector(`#starting-wealth-amount-${type}`);
+      if (!formula || !wealthInput) return;
+
+      const roll = new Roll(formula);
+      await roll.evaluate();
+      wealthInput.value = `${roll.total} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
+
+      if (game.settings.get(HM.ID, 'publishWealthRolls')) {
+        const characterName = document.getElementById('character-name')?.value || game.user.name;
+        const typeLabel = game.i18n.localize(`TYPES.Item.${type}`);
+        await roll.toMessage({
+          flavor: game.i18n.format('hm.app.equipment.wealth-roll-message', { name: characterName, type: typeLabel, result: roll.total }),
+          speaker: ChatMessage.getSpeaker()
+        });
+      }
     });
 
     container.querySelectorAll('[data-or-choice]').forEach((radio) => {

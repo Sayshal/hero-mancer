@@ -5,15 +5,30 @@
 
 {{!-- Wealth option if available --}}
 {{#if hasWealth}}
-  <div class="wealth-option">
-    <label class="wealth-checkbox-label">
-      <input type="checkbox" data-wealth-checkbox data-type="{{type}}" data-formula="{{wealth}}"
-        id="use-starting-wealth-{{type}}">
-      {{localize "hm.app.equipment.use-wealth"}}
-      <span class="wealth-formula">({{wealth}})</span>
-    </label>
-    <p class="hint">{{localize "hm.app.equipment.wealth-hint"}}</p>
-  </div>
+  <table class="wealth-option-container">
+    <tr>
+      <td>
+        <label>
+          <input type="checkbox" data-wealth-checkbox data-type="{{type}}" data-formula="{{wealth}}"
+            data-modern="{{isModernRules}}" id="use-starting-wealth-{{type}}">
+          {{localize "hm.app.equipment.use-wealth"}}
+          <span class="wealth-formula">({{wealth}})</span>
+        </label>
+      </td>
+    </tr>
+    <tr class="wealth-roll-container" hidden style="display: none">
+      <td>
+        <input type="text" id="starting-wealth-amount-{{type}}" name="starting-wealth-amount-{{type}}"
+          placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
+        {{#unless isModernRules}}
+          <button type="button" class="wealth-roll-button" data-type="{{type}}" data-formula="{{wealth}}"
+            title="{{localize "hm.app.equipment.roll-wealth"}}">
+            <i class="fa-solid fa-dice"></i>
+          </button>
+        {{/unless}}
+      </td>
+    </tr>
+  </table>
 {{/if}}
 
 {{!-- Equipment entries --}}
