@@ -145,6 +145,7 @@ export class EquipmentUI {
       const templateEntry = await this.#processEntryForTemplate(entry);
       if (templateEntry) processed.push(templateEntry);
     }
+    if (processed.length === 1 && processed[0].isAnd && processed[0].children?.length) return processed[0].children;
     return processed;
   }
 
