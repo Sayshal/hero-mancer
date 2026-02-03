@@ -159,9 +159,7 @@ export class EquipmentCollection {
   static async #resolveItem(uuid) {
     if (!uuid) return null;
     try {
-      let item = fromUuidSync(uuid);
-      if (!item) item = await fromUuid(uuid);
-      return item;
+      return await fromUuid(uuid);
     } catch (error) {
       HM.log(2, `EquipmentCollection: Failed to resolve ${uuid} - ${error.message}`);
       return null;

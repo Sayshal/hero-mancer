@@ -12,8 +12,8 @@
             <span class="wealth-formula">({{wealth}})</span>
           </label>
           <div class="form-fields">
-            <input type="checkbox" data-wealth-checkbox data-type="class" data-formula="{{wealth}}"
-              data-modern="{{isModernRules}}" id="use-starting-wealth-class">
+            <input type="checkbox" name="use-starting-wealth-class" data-wealth-checkbox data-type="class"
+              data-formula="{{wealth}}" data-modern="{{isModernRules}}" id="use-starting-wealth-class">
           </div>
         </div>
         <div class="form-group wealth-roll-container" hidden>
@@ -21,6 +21,7 @@
             {{localize "hm.app.equipment.wealth-placeholder"}}
           </label>
           <div class="form-fields">
+            <input type="hidden" name="starting-wealth-rolled-class" value="">
             <input type="text" id="starting-wealth-amount-class" name="starting-wealth-amount-class"
               placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
             {{#unless isModernRules}}
@@ -55,8 +56,8 @@
             <span class="wealth-formula">({{wealth}})</span>
           </label>
           <div class="form-fields">
-            <input type="checkbox" data-wealth-checkbox data-type="background" data-formula="{{wealth}}"
-              data-modern="{{isModernRules}}" id="use-starting-wealth-background">
+            <input type="checkbox" name="use-starting-wealth-background" data-wealth-checkbox data-type="background"
+              data-formula="{{wealth}}" data-modern="{{isModernRules}}" id="use-starting-wealth-background">
           </div>
         </div>
         <div class="form-group wealth-roll-container" hidden>
@@ -64,6 +65,7 @@
             {{localize "hm.app.equipment.wealth-placeholder"}}
           </label>
           <div class="form-fields">
+            <input type="hidden" name="starting-wealth-rolled-background" value="">
             <input type="text" id="starting-wealth-amount-background" name="starting-wealth-amount-background"
               placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
             {{#unless isModernRules}}

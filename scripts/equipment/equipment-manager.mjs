@@ -127,6 +127,11 @@ export class EquipmentManager {
     const currency = { gp: 0, sp: 0, cp: 0 };
     for (const type of ['class', 'background']) {
       if (!formData[`use-starting-wealth-${type}`]) continue;
+      const preRolled = parseInt(formData[`starting-wealth-rolled-${type}`]);
+      if (!isNaN(preRolled) && preRolled > 0) {
+        currency.gp += preRolled;
+        continue;
+      }
       const formula = this.getWealthFormula(type);
       if (!formula) continue;
       const roll = await new Roll(formula).evaluate();

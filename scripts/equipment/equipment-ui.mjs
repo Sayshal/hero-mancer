@@ -66,7 +66,6 @@ export class EquipmentUI {
     const sectionContext = { type, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth, isModernRules };
     const html = await foundry.applications.handlebars.renderTemplate(this.CHOICE_TEMPLATE, sectionContext);
     section.innerHTML = html;
-    this.#attachListeners(section);
     return container;
   }
 
@@ -274,6 +273,8 @@ export class EquipmentUI {
       const roll = new Roll(formula);
       await roll.evaluate();
       wealthInput.value = `${roll.total} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
+      const hiddenInput = container.querySelector(`[name="starting-wealth-rolled-${type}"]`);
+      if (hiddenInput) hiddenInput.value = roll.total;
 
       if (game.settings.get(HM.ID, 'publishWealthRolls')) {
         const characterName = document.getElementById('character-name')?.value || game.user.name;
