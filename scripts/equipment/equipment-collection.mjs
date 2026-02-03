@@ -136,10 +136,10 @@ export class EquipmentCollection {
    * @param {object[]} equipment - Array to add items to
    */
   static async #processLinkedItems(section, equipment) {
-    const linkedItems = section.querySelectorAll('[data-linked-item]:not(.disabled)');
+    const linkedItems = section.querySelectorAll('[data-linked-item]:not(:disabled)');
     for (const element of linkedItems) {
-      const orOption = element.closest('[data-or-option]');
-      if (orOption && orOption.classList.contains('disabled')) continue;
+      if (element.closest('[hidden]')) continue;
+      if (element.closest('.disabled')) continue;
       const uuid = element.dataset.uuid;
       const count = parseInt(element.dataset.count) || 1;
       const item = await this.#resolveItem(uuid);

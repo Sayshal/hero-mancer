@@ -99,9 +99,9 @@ export class EquipmentUI {
       selections.push({ uuid: value, name: option?.textContent || value, count, type: select.dataset.type });
     });
     container.querySelectorAll('[data-linked-item]').forEach((element) => {
-      const parentOption = element.closest('[data-or-option]');
-      if (parentOption?.classList.contains('disabled')) return;
       if (element.disabled) return;
+      if (element.closest('[hidden]')) return;
+      if (element.closest('.disabled')) return;
       const uuid = element.dataset.uuid;
       if (!uuid) return;
       selections.push({
@@ -230,8 +230,10 @@ export class EquipmentUI {
    * @param {HTMLElement} container - Container element
    */
   static #attachListeners(container) {
+    EventRegistry.cleanup(container);
+
     // Wealth checkbox — use delegation on container to survive DOM replacement
-    container.addEventListener('change', (event) => {
+    EventRegistry.on(container, 'change', (event) => {
       const checkbox = event.target.closest('[data-wealth-checkbox]');
       if (!checkbox) return;
       const type = checkbox.dataset.type;
@@ -239,7 +241,8 @@ export class EquipmentUI {
       const isModern = checkbox.dataset.modern === 'true';
       const formula = checkbox.dataset.formula;
       const section = container.querySelector(`.${type}-equipment-entries`);
-      const rollRow = checkbox.closest('.wealth-option-container')?.querySelector('.wealth-roll-container') || container.querySelector('.wealth-roll-container');
+      const equipmentSection = checkbox.closest('.equipment-section') || container;
+      const rollRow = equipmentSection.querySelector('.wealth-roll-container');
       const wealthInput = container.querySelector(`#starting-wealth-amount-${type}`);
       if (section) {
         section.classList.toggle('disabled', isChecked);
@@ -248,15 +251,7 @@ export class EquipmentUI {
         });
       }
 
-      if (rollRow) {
-        if (isChecked) {
-          rollRow.style.display = 'table-row';
-          rollRow.removeAttribute('hidden');
-        } else {
-          rollRow.style.display = 'none';
-          rollRow.setAttribute('hidden', 'true');
-        }
-      }
+      if (rollRow) rollRow.hidden = !isChecked;
 
       if (wealthInput) {
         if (isChecked && isModern) {
@@ -268,7 +263,7 @@ export class EquipmentUI {
     });
 
     // Wealth roll button — use delegation on container
-    container.addEventListener('click', async (event) => {
+    EventRegistry.on(container, 'click', async (event) => {
       const button = event.target.closest('.wealth-roll-button');
       if (!button) return;
       const formula = button.dataset.formula;
@@ -290,35 +285,23 @@ export class EquipmentUI {
       }
     });
 
-    container.querySelectorAll('[data-or-choice]').forEach((radio) => {
-      EventRegistry.on(radio, 'change', (event) => {
-        const groupId = event.target.dataset.orGroup;
-        const selectedValue = event.target.value;
-        container.querySelectorAll(`[data-or-option="${groupId}"]`).forEach((option) => {
-          const isSelected = option.dataset.optionValue === selectedValue;
-          option.classList.toggle('disabled', !isSelected);
-          option.querySelectorAll('select, input:not([data-or-choice])').forEach((input) => {
+    // OR select — toggle child controls based on selection
+    EventRegistry.on(container, 'change', (event) => {
+      const select = event.target.closest('[data-or-select]');
+      if (!select) return;
+      const groupId = select.dataset.orGroup;
+      const selectedChildId = select.value;
+      container.querySelectorAll(`[data-or-child][data-or-parent="${groupId}"]`).forEach((child) => {
+        const isSelected = child.dataset.orChild === selectedChildId;
+        if (child.tagName === 'INPUT') {
+          child.disabled = !isSelected;
+        } else {
+          child.hidden = !isSelected;
+          child.querySelectorAll('select, input').forEach((input) => {
             input.disabled = !isSelected;
           });
-        });
+        }
       });
-    });
-
-    container.querySelectorAll('select[data-equipment-select]').forEach((select) => {
-      EventRegistry.on(select, 'change', (event) => {
-        const hiddenInput = container.querySelector(`#${event.target.id}-default`);
-        if (hiddenInput) hiddenInput.value = event.target.value;
-      });
-    });
-
-    // Initialize OR group disabled states for all child inputs
-    const processedGroups = new Set();
-    container.querySelectorAll('[data-or-choice]').forEach((radio) => {
-      const groupId = radio.dataset.orGroup;
-      if (processedGroups.has(groupId)) return;
-      processedGroups.add(groupId);
-      const checkedRadio = container.querySelector(`[data-or-choice][data-or-group="${groupId}"]:checked`);
-      if (checkedRadio) checkedRadio.dispatchEvent(new Event('change'));
     });
 
     HM.log(3, 'EquipmentUI: Event listeners attached');

@@ -1,99 +1,88 @@
 {{!-- templates/equipment/equipment-container.hbs --}}
 {{!-- Main container for equipment selection UI --}}
 
-<div class="equipment-choices">
-  {{!-- Always create both section containers for dynamic updates --}}
-  <div class="class-equipment-section equipment-section">
-    {{#with classSectionData}}
-      {{#if hasData}}
-        <h3>{{label}}</h3>
-        {{#if hasWealth}}
-          <table class="wealth-option-container">
-            <tr>
-              <td>
-                <label>
-                  <input type="checkbox" data-wealth-checkbox data-type="class" data-formula="{{wealth}}"
-                    data-modern="{{isModernRules}}" id="use-starting-wealth-class">
-                  {{localize "hm.app.equipment.use-wealth"}}
-                  <span class="wealth-formula">({{wealth}})</span>
-                </label>
-              </td>
-            </tr>
-            <tr class="wealth-roll-container" hidden style="display: none">
-              <td>
-                <input type="text" id="starting-wealth-amount-class" name="starting-wealth-amount-class"
-                  placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
-                {{#unless isModernRules}}
-                  <button type="button" class="wealth-roll-button" data-type="class" data-formula="{{wealth}}"
-                    title="{{localize "hm.app.equipment.roll-wealth"}}">
-                    <i class="fa-solid fa-dice"></i>
-                  </button>
-                {{/unless}}
-              </td>
-            </tr>
-          </table>
-        {{/if}}
-        <div class="class-equipment-entries equipment-entries">
-          {{#if entries.length}}
-            <table class="equipment-table">
-              <tbody>
-                {{#each entries}}
-                  {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
-                {{/each}}
-              </tbody>
-            </table>
-          {{else}}
-            <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
-          {{/if}}
+<div class="class-equipment-section equipment-section">
+  {{#with classSectionData}}
+    {{#if hasData}}
+      <h3>{{label}}</h3>
+      {{#if hasWealth}}
+        <div class="form-group">
+          <label for="use-starting-wealth-class">
+            {{localize "hm.app.equipment.use-wealth"}}
+            <span class="wealth-formula">({{wealth}})</span>
+          </label>
+          <div class="form-fields">
+            <input type="checkbox" data-wealth-checkbox data-type="class" data-formula="{{wealth}}"
+              data-modern="{{isModernRules}}" id="use-starting-wealth-class">
+          </div>
+        </div>
+        <div class="form-group wealth-roll-container" hidden>
+          <label for="starting-wealth-amount-class">
+            {{localize "hm.app.equipment.wealth-placeholder"}}
+          </label>
+          <div class="form-fields">
+            <input type="text" id="starting-wealth-amount-class" name="starting-wealth-amount-class"
+              placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
+            {{#unless isModernRules}}
+              <button type="button" class="wealth-roll-button" data-type="class" data-formula="{{wealth}}"
+                title="{{localize "hm.app.equipment.roll-wealth"}}">
+                <i class="fa-solid fa-dice"></i>
+              </button>
+            {{/unless}}
+          </div>
         </div>
       {{/if}}
-    {{/with}}
-  </div>
+      <div class="class-equipment-entries equipment-entries">
+        {{#each entries}}
+          {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+        {{/each}}
+        {{#unless entries.length}}
+          <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+        {{/unless}}
+      </div>
+    {{/if}}
+  {{/with}}
+</div>
 
-  <div class="background-equipment-section equipment-section">
-    {{#with backgroundSectionData}}
-      {{#if hasData}}
-        <h3>{{label}}</h3>
-        {{#if hasWealth}}
-          <table class="wealth-option-container">
-            <tr>
-              <td>
-                <label>
-                  <input type="checkbox" data-wealth-checkbox data-type="background" data-formula="{{wealth}}"
-                    data-modern="{{isModernRules}}" id="use-starting-wealth-background">
-                  {{localize "hm.app.equipment.use-wealth"}}
-                  <span class="wealth-formula">({{wealth}})</span>
-                </label>
-              </td>
-            </tr>
-            <tr class="wealth-roll-container" hidden style="display: none">
-              <td>
-                <input type="text" id="starting-wealth-amount-background" name="starting-wealth-amount-background"
-                  placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
-                {{#unless isModernRules}}
-                  <button type="button" class="wealth-roll-button" data-type="background" data-formula="{{wealth}}"
-                    title="{{localize "hm.app.equipment.roll-wealth"}}">
-                    <i class="fa-solid fa-dice"></i>
-                  </button>
-                {{/unless}}
-              </td>
-            </tr>
-          </table>
-        {{/if}}
-        <div class="background-equipment-entries equipment-entries">
-          {{#if entries.length}}
-            <table class="equipment-table">
-              <tbody>
-                {{#each entries}}
-                  {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
-                {{/each}}
-              </tbody>
-            </table>
-          {{else}}
-            <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
-          {{/if}}
+<div class="background-equipment-section equipment-section">
+  {{#with backgroundSectionData}}
+    {{#if hasData}}
+      <h3>{{label}}</h3>
+      {{#if hasWealth}}
+        <div class="form-group">
+          <label for="use-starting-wealth-background">
+            {{localize "hm.app.equipment.use-wealth"}}
+            <span class="wealth-formula">({{wealth}})</span>
+          </label>
+          <div class="form-fields">
+            <input type="checkbox" data-wealth-checkbox data-type="background" data-formula="{{wealth}}"
+              data-modern="{{isModernRules}}" id="use-starting-wealth-background">
+          </div>
+        </div>
+        <div class="form-group wealth-roll-container" hidden>
+          <label for="starting-wealth-amount-background">
+            {{localize "hm.app.equipment.wealth-placeholder"}}
+          </label>
+          <div class="form-fields">
+            <input type="text" id="starting-wealth-amount-background" name="starting-wealth-amount-background"
+              placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
+            {{#unless isModernRules}}
+              <button type="button" class="wealth-roll-button" data-type="background" data-formula="{{wealth}}"
+                title="{{localize "hm.app.equipment.roll-wealth"}}">
+                <i class="fa-solid fa-dice"></i>
+              </button>
+            {{/unless}}
+          </div>
         </div>
       {{/if}}
-    {{/with}}
-  </div>
+      <div class="background-equipment-entries equipment-entries">
+        {{#each entries}}
+          {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+        {{/each}}
+        {{#unless entries.length}}
+          <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+        {{/unless}}
+      </div>
+    {{/if}}
+  {{/with}}
 </div>

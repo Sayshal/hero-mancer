@@ -184,7 +184,7 @@
       font-size: 2.5rem;
     }
 
-    .equipment-choices h3 {
+    .equipment-section h3 {
       font-size: 1.64rem;
       font-family: 'modesto condensed', serif;
     }
@@ -302,13 +302,10 @@
   fieldset {
     min-width: 0;
     min-height: 0;
-    max-height: 100%;
     margin: 1rem 0;
     padding: 1rem 2rem;
     border: 0.063rem solid var(--user-color);
     border-radius: 0.375rem;
-    overflow: auto;
-    overflow-x: hidden;
 
     > legend {
       padding-inline: 0.5rem;
@@ -323,22 +320,6 @@
     }
   }
 
-  .form-group {
-    gap: 0.313rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-
-    .hint {
-      color: var(--color-text-light-primary);
-    }
-
-    select {
-      width: fit-content;
-      min-width: 7.5rem;
-      max-width: 12.5rem;
-    }
-  }
 }
 
 /* Navigation tabs specific styling */
@@ -456,7 +437,6 @@
     .customization-row > label,
     .ability-block > span.ability-label,
     .ability-block > label,
-    .form-group > label,
     .trait-group > label,
     .personality-trait-group > label,
     .description-group > label,
@@ -1073,225 +1053,66 @@
 /* ==========================================================================
   Equipment Tab
  ========================================================================== */
-table.equipment-item {
-  border-block-end: 0.063rem solid var(--color-border-dark-secondary);
-  width: 100%;
-  table-layout: fixed;
-
-  th {
-    overflow-wrap: break-word;
-    max-width: 100%;
-    padding: 0.25rem;
-    text-align: start;
-    hyphens: auto;
-    word-break: break-all;
-    word-wrap: break-word;
-  }
-
-  td {
-    padding: 0.25rem;
-
-    &:first-child {
-      width: 75%;
-    }
-
-    &:last-child {
-      width: 25%;
-      text-align: end;
-    }
-  }
-
-  &.disabled {
-    :is(select, input[type='checkbox'], label) {
-      pointer-events: none;
-    }
-
-  }
-}
-
 .equipment-container {
+  gap: 1rem;
   display: flex;
   flex-direction: column;
   border-radius: var(--hm-radius-xl);
   background: var(--color-background-alt);
 
-  .equipment-choices {
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
-    display: grid;
+  a.content-link {
+    overflow-wrap: break-word;
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    margin: 0 0 0 0.2rem;
+    padding: 0;
+    border: none;
+    background: none;
+    white-space: normal;
+    word-break: break-all;
 
-    a.content-link {
-      overflow-wrap: break-word;
-      display: inline-flex;
-      align-items: center;
-      max-width: 100%;
-      margin: 0 0 0 0.2rem;
-      padding: 0;
-      border: none;
-      white-space: normal;
-      word-break: break-all;
-
-      i {
-        margin: 0 0.2rem 0 0;
-        font-size: inherit;
-      }
+    i {
+      margin: 0 0.2rem 0 0;
+      font-size: inherit;
     }
+  }
 
-    :is(select, select option) {
-      overflow-wrap: break-word;
-      width: 100%;
-      white-space: normal;
-    }
-
-    select {
-      display: block;
-      width: auto;
-      min-width: 8.75rem;
-      max-width: 100%;
-      margin: 0.25rem 0 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-
-      &:disabled {
-        opacity: 0.5;
-        color: rgb(135 135 135);
-        cursor: not-allowed;
-      }
-    }
-
-    input[type='checkbox'] {
-      flex-shrink: 0;
-      margin: 0 0.5rem 0.2rem 0;
-
-      &:disabled {
-        opacity: 0.5;
-        color: rgb(135 135 135);
-        cursor: not-allowed;
-      }
-    }
-
-    :is(label.disabled, h4:disabled) {
-      opacity: 0.5;
-      color: rgb(135 135 135);
-      cursor: not-allowed;
-    }
+  select {
+    min-width: 8.75rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
-:is(.class-equipment-section, .background-equipment-section) {
-  margin-block-start: 0.25rem;
-  flex: 1;
+.equipment-section {
+  gap: 0.75rem;
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
   padding: 1rem;
   border: 0.063rem solid rgb(111 111 111);
   border-radius: var(--hm-radius-lg);
-}
 
-:is(table.equipment-item, table.wealth-option-container) {
-  margin-block-end: 0.5rem;
-  display: table;
-  width: 100%;
-  border-collapse: collapse;
-
-  tr {
-    display: table-row;
-    background: transparent;
-
-    + tr {
-      margin-block-start: 0;
-      width: 100%;
-    }
-  }
-
-  th,
-  td {
-    display: table-cell;
-    vertical-align: middle;
-    background: transparent;
-  }
-}
-
-.hm-app-tab-content {
-  :is(.class-equipment-section h3, .background-equipment-section h3) {
+  h3 {
     margin-block-end: unset;
     width: 100%;
     text-align: center;
   }
-
-  :is(.class-equipment-section h4, .background-equipment-section h4) {
-    font-size: var(--font-size-15);
-    font-family: signika, sans-serif;
-  }
 }
 
-:is(.equipment-item label, .equipment-item input, .equipment-item select) {
-  margin-block-start: 0.2rem;
-  margin-inline-end: auto;
-  width: fit-content;
-  vertical-align: middle;
+.equipment-entries {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
-table.wealth-option-container {
-  margin: 0.625rem 0 1rem;
-  border: 0.063rem solid var(--color-border-light-tertiary);
-  border-radius: var(--hm-radius-sm);
-
-  tr:first-child td:first-child {
-    gap: 0.5rem;
-    display: flex;
-    align-items: center;
-  }
-
-  td {
-    padding: 0.5rem 0.625rem;
-    vertical-align: middle;
-  }
-
-  label {
-    padding-block-start: 0.0625rem;
-    margin: 0;
-    font-weight: 500;
-  }
-
-  input[type='checkbox'] {
-    margin: 0;
-  }
-}
-
-tr.wealth-roll-container {
-  td {
-    gap: 0.5rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0.5rem 0.625rem;
-  }
-
-  input[type='text'] {
-    flex: 1;
-    min-width: 5rem;
-    max-width: 7.5rem;
-    margin: 0;
-  }
-
-  &[hidden],
-  &[style*='display: none'] {
-    display: none;
-  }
-
-  &:not([hidden]),
-  &[style*='display: table-row'] {
-    display: table-row;
-  }
+[data-or-child][hidden],
+.wealth-roll-container[hidden] {
+  display: none;
 }
 
 .wealth-roll-button {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: center;
-  align-items: center;
   width: 2rem;
   height: 2rem;
   margin: 0;
@@ -1303,16 +1124,9 @@ tr.wealth-roll-container {
   }
 }
 
-.application.hm-app .hm-app-tab-content .equipment-container .equipment-choices {
-  .wealth-roll-container input[type='text'] {
-    padding-inline-end: 0.625rem;
-    width: fit-content;
-    min-width: 0.001rem;
-    max-width: 4.688rem;
-    text-align: center;
-  }
+.equipment-container .wealth-roll-container input[type='text'] {
+  text-align: center;
 }
-
 
 .equipment-empty-notice {
   box-sizing: border-box;
@@ -1884,27 +1698,6 @@ tr.wealth-roll-container {
   overflow-y: auto;
   text-align: start;
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: unset;
-    width: 100%;
-
-    > div {
-      display: flex;
-      align-items: center;
-      gap: unset;
-      width: 100%;
-    }
-
-    .form-input {
-      gap: unset;
-      width: 100%;
-      max-width: 100%;
-    }
-  }
-
   button.file-picker {
     aspect-ratio: 1/1;
     margin-inline-start: 0.3rem;
@@ -1966,10 +1759,6 @@ tr.wealth-roll-container {
 }
 
 .hm-dice-rolling-popup {
-  .form-group {
-    gap: unset;
-  }
-
   .dice-method-options {
     gap: 1rem;
     margin-block-end: 0.5rem;
@@ -2179,15 +1968,7 @@ tr.wealth-roll-container {
     }
   }
 
-  .form-group {
-    gap: unset;
-    padding-inline-start: 0.625rem;
-    margin: 0.3rem 0;
 
-    label {
-      line-height: unset;
-    }
-  }
 
   label {
     gap: 0.5rem;
@@ -2431,10 +2212,6 @@ tr.wealth-roll-container {
         margin: 0;
       }
     }
-  }
-
-  .equipment-choices {
-    grid-template-columns: 1fr;
   }
 
   .ability-scores-container {
@@ -2694,10 +2471,6 @@ tr.wealth-roll-container {
       color: rgb(41 41 41);
     }
 
-    .form-group .hint {
-      color: var(--hm-text-primary);
-      text-shadow: none;
-    }
   }
 
   .hm-compendiums-popup-dialog hr {
