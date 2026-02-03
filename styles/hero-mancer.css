@@ -941,7 +941,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.625rem;
+    padding: 0.625rem 0.625rem 0.625rem 0;
 
     .hm-footer-container {
       display: flex;
@@ -2045,13 +2045,6 @@
       }
     }
 
-    .hm-app-tab-content fieldset {
-      :is(input[type='text'], select) {
-        width: 80%;
-        margin: 0;
-      }
-    }
-
     .hm-app-footer-actions {
       gap: 0.313rem;
       width: 100%;
@@ -2075,14 +2068,6 @@
       font-size: var(--font-size-13);
     }
 
-    .hm-app-tab-content fieldset {
-      padding: 0.313rem;
-
-      :is(input[type='text'], select) {
-        width: 100%;
-        margin: 0;
-      }
-    }
   }
 
   .ability-scores-container {

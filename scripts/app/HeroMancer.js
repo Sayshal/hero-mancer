@@ -154,8 +154,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         case 'background':
           context.tabName = partId;
           context.docs = context[`${partId}Docs`];
-          context.tooltipKey = `hm.app.${partId}.tooltip`;
-          context.preambleKey = `hm.app.${partId}.preamble`;
           context.selectLabelKey = `hm.app.${partId}.select-label`;
           context.selectPlaceholderKey = `hm.app.${partId}.select-placeholder`;
           context.noneKey = `hm.app.${partId}.none`;
