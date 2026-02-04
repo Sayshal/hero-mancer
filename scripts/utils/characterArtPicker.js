@@ -76,12 +76,6 @@ export class CharacterArtPicker {
             inputField.value = path;
             inputField.dispatchEvent(new Event('change', { bubbles: true }));
 
-            // Update portrait preview
-            const portraitImg = document.querySelector('.character-portrait img');
-            if (portraitImg) {
-              portraitImg.src = path;
-            }
-
             // Update token art if linked
             if (document.getElementById('link-token-art')?.checked) {
               const tokenInput = document.getElementById('token-art-path');
@@ -240,12 +234,6 @@ export class CharacterArtPicker {
             // Update character art
             inputField.value = response.avatarFilename;
             inputField.dispatchEvent(new Event('change', { bubbles: true }));
-
-            // Update portrait preview
-            const portraitImg = document.querySelector('.character-portrait img');
-            if (portraitImg) {
-              portraitImg.src = response.avatarFilename;
-            }
 
             // Update token if linked or if tokenFilename was returned
             if ((document.getElementById('link-token-art')?.checked || type === 'token') && response.tokenFilename) {

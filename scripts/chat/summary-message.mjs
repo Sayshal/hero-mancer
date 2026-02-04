@@ -16,56 +16,17 @@ export class SummaryMessage {
    */
   static generate(actor) {
     try {
-      const characterName = this.#getCharacterName();
-      const summaries = this.#collectSummaryContent();
-      return this.#buildMessageHTML(characterName, summaries, actor);
+      const characterName = document.querySelector('#character-name')?.value || game.user.name;
+      let message = `<div class="character-summary"><h2>${characterName}</h2>`;
+      message += this.#buildAbilityScoresTable(actor);
+      message += this.#buildInventoryList(actor);
+      message += '</div>';
+      return message;
     } catch (error) {
       HM.log(1, 'Error generating character summary message:', error);
       const fallbackName = document.querySelector('#character-name')?.value || game.user.name;
       return `<div class="character-summary"><h2>${fallbackName}</h2><p>${game.i18n.localize('hm.app.character-created')}</p></div>`;
     }
-  }
-
-  /**
-   * Get character name from form input.
-   * @returns {string} Character name or user name as fallback
-   */
-  static #getCharacterName() {
-    const nameInput = document.querySelector('#character-name');
-    return nameInput?.value || game.user.name;
-  }
-
-  /**
-   * Collect summary content from DOM elements.
-   * @returns {object} Summary content by section
-   */
-  static #collectSummaryContent() {
-    return {
-      classRace: document.querySelector('.class-race-summary')?.innerHTML || '',
-      background: document.querySelector('.background-summary')?.innerHTML || '',
-      abilities: document.querySelector('.abilities-summary')?.innerHTML || '',
-      equipment: document.querySelector('.equipment-summary')?.innerHTML || ''
-    };
-  }
-
-  /**
-   * Build formatted HTML for the summary message.
-   * @param {string} characterName - Character name
-   * @param {object} summaries - Summary content by section
-   * @param {object} actor - The newly created actor
-   * @returns {string} Formatted HTML
-   */
-  static #buildMessageHTML(characterName, summaries, actor) {
-    let message = `<div class="character-summary"><h2>${characterName}</h2><div class="summaries">`;
-    if (summaries.background) message += `<span class="summary-section background">${summaries.background}</span> `;
-    if (summaries.classRace) message += `<span class="summary-section class-race">${summaries.classRace}</span> `;
-    if (summaries.abilities) message += `<span class="summary-section abilities">${summaries.abilities}</span> `;
-    if (summaries.equipment) message += `<span class="summary-section equipment">${summaries.equipment}</span>`;
-    message += '</div>';
-    message += this.#buildAbilityScoresTable(actor);
-    message += this.#buildInventoryList(actor);
-    message += '</div>';
-    return message;
   }
 
   /**

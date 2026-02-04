@@ -16,25 +16,10 @@ export class HeroMancerUI {
   /* -------------------------------------------- */
 
   /** @type {boolean} */
-  static _isUpdatingEquipment = false;
-
-  /** @type {Promise|null} */
-  static _abilityUpdatePromise = null;
-
-  /** @type {boolean} */
-  static _pendingAbilityUpdate = false;
-
-  /** @type {boolean} */
-  static _updatingAbilities = false;
-
-  /** @type {boolean} */
   static #equipmentUpdateInProgress = false;
 
   /** @type {Promise|null} */
   static #pendingEquipmentUpdate = null;
-
-  /** @type {number|null} */
-  static #colorSchemeHookId = null;
 
   /* -------------------------------------------- */
   /*  Static Public Methods                       */
@@ -45,16 +30,8 @@ export class HeroMancerUI {
    * @returns {boolean} True if cleanup was successful
    */
   static cleanup() {
-    this._isUpdatingEquipment = false;
-    this._abilityUpdatePromise = null;
-    this._pendingAbilityUpdate = false;
-    this._updatingAbilities = false;
     this.#equipmentUpdateInProgress = false;
     this.#pendingEquipmentUpdate = null;
-    if (this.#colorSchemeHookId) {
-      Hooks.off('colorSchemeChange', this.#colorSchemeHookId);
-      this.#colorSchemeHookId = null;
-    }
     EventRegistry.cleanupAll();
     EquipmentManager.clearCache();
     HM.log(3, 'HeroMancerUI: cleanup complete');
@@ -75,12 +52,10 @@ export class HeroMancerUI {
       this.initializeEquipmentContainer(element);
       this.initializeDropdowns(element);
       this.initializeAbilities(element);
-      this.initializeEquipment(element);
       this.initializeCharacterDetails(element);
       this.initializeFormValidation(element);
       this.initializeTokenCustomization(element);
       await this.initializeRollButtons(element);
-      this.initializePortrait();
     } catch (error) {
       HM.log(1, 'Error during HeroMancerUI initialization:', error);
       return false;
@@ -115,30 +90,6 @@ export class HeroMancerUI {
   }
 
   /**
-   * Initialize equipment-related handlers
-   * @param {HTMLElement} element - Application root element
-   */
-  static initializeEquipment(element) {
-    const equipmentContainer = element.querySelector('#equipment-container');
-    if (!equipmentContainer || HM.COMPAT.ELKAN) return;
-    EventRegistry.observe(equipmentContainer, 'equipment-container', { childList: true, subtree: true, attributes: true }, (mutations) => {
-      let needsUpdate = false;
-      for (const mutation of mutations) {
-        if (mutation.type === 'childList' && mutation.addedNodes.length) {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) needsUpdate = true;
-            }
-          });
-        }
-        if (mutation.type === 'attributes' && mutation.attributeName === 'checked') needsUpdate = true;
-      }
-      if (needsUpdate) this.updateEquipmentSummary();
-    });
-    this.attachEquipmentListeners(equipmentContainer);
-  }
-
-  /**
    * Initialize equipment container with full equipment UI.
    * @param {HTMLElement} element - Root element
    * @returns {Promise<void>}
@@ -149,27 +100,10 @@ export class HeroMancerUI {
 
     try {
       await EquipmentUI.render(equipmentContainer);
-      this.attachEquipmentListeners(equipmentContainer);
     } catch (error) {
       HM.log(1, 'Failed to initialize equipment container:', error);
       equipmentContainer.innerHTML = `<p class="error">${game.i18n.localize('hm.errors.equipment-rendering')}</p>`;
     }
-  }
-
-  /**
-   * Attach listeners to equipment elements
-   * @param {HTMLElement} container - Equipment container
-   */
-  static attachEquipmentListeners(container) {
-    if (!container) return;
-    const selects = container.querySelectorAll('select');
-    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-    selects.forEach((select) => {
-      EventRegistry.on(select, 'change', () => this.updateEquipmentSummary());
-    });
-    checkboxes.forEach((checkbox) => {
-      EventRegistry.on(checkbox, 'change', () => this.updateEquipmentSummary());
-    });
   }
 
   /**
@@ -261,64 +195,6 @@ export class HeroMancerUI {
   }
 
   /**
-   * Initialize character portrait with default image
-   * @static
-   */
-  static initializePortrait() {
-    const portraitContainer = document.querySelector('.character-portrait');
-    if (portraitContainer) {
-      const abilities = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
-      const randomAbility = abilities[Math.floor(Math.random() * 6)];
-      const defaultImage = `systems/dnd5e/icons/svg/abilities/${randomAbility}.svg`;
-      const portraitImg = portraitContainer.querySelector('img');
-      if (portraitImg) {
-        portraitImg.src = defaultImage;
-        let versionCheck = foundry.utils.isNewerVersion(game.version, '12.343');
-        let isDarkMode;
-        if (versionCheck) isDarkMode = game.settings?.get('core', 'uiConfig').colorScheme.applications;
-        else isDarkMode = game.settings?.get('core', 'colorScheme') === 'dark';
-        this.applyDarkModeToImage(portraitImg, isDarkMode, true);
-      }
-
-      const nameInput = document.querySelector('#character-name');
-      const artInput = document.querySelector('#character-art-path');
-      const portraitName = document.querySelector('.header-section h2');
-      const updatePortrait = () => {
-        if (portraitName) portraitName.innerHTML = nameInput?.value || game.user.name;
-        if (portraitImg && artInput) {
-          portraitImg.src = artInput.value || defaultImage;
-          const isDarkMode = game.settings.get('core', 'uiConfig').colorScheme.applications;
-          const isStillDefaultImage = !artInput.value || artInput.value.includes('/abilities/');
-          this.applyDarkModeToImage(portraitImg, isDarkMode, isStillDefaultImage);
-        }
-      };
-
-      EventRegistry.on(nameInput, 'change', updatePortrait);
-      EventRegistry.on(artInput, 'change', updatePortrait);
-      updatePortrait();
-      if (this.#colorSchemeHookId) Hooks.off('colorSchemeChange', this.#colorSchemeHookId);
-
-      this.#colorSchemeHookId = Hooks.on('colorSchemeChange', (scheme) => {
-        if (portraitImg) {
-          const isDefaultImage = portraitImg.src.includes('/abilities/');
-          this.applyDarkModeToImage(portraitImg, scheme === 'dark', isDefaultImage);
-        }
-      });
-    }
-  }
-
-  /**
-   * Helper method to apply or remove dark mode treatment to images
-   * @param {HTMLImageElement} imgElement - The image element
-   * @param {boolean} isDarkMode - Whether dark mode is active
-   * @param {boolean} isDefaultImage - Whether the image is a default ability icon
-   */
-  static applyDarkModeToImage(imgElement, isDarkMode, isDefaultImage) {
-    if (isDarkMode && isDefaultImage) imgElement.style.filter = 'invert(1)';
-    else imgElement.style.filter = 'none';
-  }
-
-  /**
    * Initialize roll buttons for background characteristics
    */
   static async initializeRollButtons() {
@@ -358,115 +234,11 @@ export class HeroMancerUI {
   }
 
   /**
-   * Updates the background summary text and formatting
-   * @returns {Promise<void>}
+   * Updates ability highlights based on class primary abilities
    * @static
    */
-  static async updateBackgroundSummary() {
-    const summary = document.querySelector('.background-summary');
-    if (!summary) return;
-    try {
-      const backgroundData = this.#getBackgroundData();
-      const content = game.i18n.format('hm.app.finalize.summary.background', { article: backgroundData.article, background: backgroundData.link });
-      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
-    } catch (error) {
-      HM.log(1, 'Error updating background summary:', error);
-      const fallbackContent = game.i18n.format('hm.app.finalize.summary.background', {
-        article: game.i18n.localize('hm.app.equipment.article-plural'),
-        background: game.i18n.localize('hm.app.background.adventurer')
-      });
-      summary.innerHTML = fallbackContent;
-    }
-  }
-
-  /**
-   * Updates the class and race summary text
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async updateClassRaceSummary() {
-    const summary = document.querySelector('.class-race-summary');
-    if (!summary) return;
-    try {
-      const raceLink = this.#getSelectionLink('race');
-      const classLink = this.#getSelectionLink('class');
-      const content = game.i18n.format('hm.app.finalize.summary.classRace', { race: raceLink, class: classLink });
-      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
-    } catch (error) {
-      HM.log(1, 'Error updating class/race summary:', error);
-      const fallbackContent = game.i18n.format('hm.app.finalize.summary.classRace', {
-        race: game.i18n.format('hm.unknown', { type: 'race' }),
-        class: game.i18n.format('hm.unknown', { type: 'class' })
-      });
-      summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(fallbackContent);
-    }
-  }
-
-  /**
-   * Updates the equipment summary with selected items
-   * @returns {void}
-   * @static
-   */
-  static updateEquipmentSummary() {
-    if (this._isUpdatingEquipment) return;
-    this._isUpdatingEquipment = true;
-    try {
-      const summary = document.querySelector('.equipment-summary');
-      if (!summary) return;
-      const equipmentContainer = document.querySelector('#equipment-container');
-      if (!equipmentContainer || HM.COMPAT.ELKAN) {
-        summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-        return;
-      }
-      const selectedEquipment = this.#collectEquipmentItems();
-      if (!selectedEquipment.length) {
-        summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-        return;
-      }
-      this.#formatAndDisplayEquipmentSummary(summary, selectedEquipment);
-    } catch (error) {
-      HM.log(1, 'Error updating equipment summary:', error);
-      const summary = document.querySelector('.equipment-summary');
-      if (summary) summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-    } finally {
-      this._isUpdatingEquipment = false;
-    }
-  }
-
-  /**
-   * Updates the abilities summary based on class preferences and highest scores
-   * @returns {Promise<void>}
-   * @static
-   */
-  static async updateAbilitiesSummary() {
-    const currentClassUUID = HM.SELECTED.class?.uuid;
-    if (this._abilityUpdatePromise) {
-      this._pendingAbilityUpdate = true;
-      return;
-    }
-    try {
-      this._abilityUpdatePromise = (async () => {
-        new Promise((resolve) => setTimeout(resolve, 10));
-        if (currentClassUUID !== HM.SELECTED.class?.uuid) return;
-        if (this._updatingAbilities) return;
-        this._updatingAbilities = true;
-        try {
-          this.#processAbilityHighlights();
-          this.#updateAbilitySummaryContent();
-        } catch (error) {
-          HM.log(1, 'Error updating abilities summary:', error);
-        } finally {
-          setTimeout(() => (this._updatingAbilities = false), 50);
-        }
-      })();
-      await this._abilityUpdatePromise;
-    } finally {
-      this._abilityUpdatePromise = null;
-      if (this._pendingAbilityUpdate) {
-        this._pendingAbilityUpdate = false;
-        requestAnimationFrame(() => this.updateAbilitiesSummary());
-      }
-    }
+  static updateAbilityHighlights() {
+    this.#processAbilityHighlights();
   }
 
   /**
@@ -622,7 +394,6 @@ export class HeroMancerUI {
       } else if (elem.tagName === 'SELECT') {
         elem.value = value;
         elem.dispatchEvent(new Event('change'));
-        this.updateClassRaceSummary();
       } else {
         elem.value = value;
       }
@@ -694,7 +465,6 @@ export class HeroMancerUI {
 
       // Re-render the specific section
       await EquipmentUI.renderType(equipmentContainer, type);
-      this.attachEquipmentListeners(equipmentContainer);
     } catch (error) {
       HM.log(1, `Error in updateEquipment for ${type}:`, error);
     } finally {
@@ -878,14 +648,8 @@ export class HeroMancerUI {
    * @private
    */
   static async #updateUIForDropdownType(element, type) {
-    if (type === 'race' || type === 'class') {
-      this.updateClassRaceSummary();
-      if (type === 'class') this.updateAbilitiesSummary();
-    }
-    if (type === 'background') {
-      this.updateBackgroundSummary();
-      await this.processBackgroundSelectionChange(HM.SELECTED.background);
-    }
+    if (type === 'class') this.updateAbilityHighlights();
+    if (type === 'background') await this.processBackgroundSelectionChange(HM.SELECTED.background);
     if (!HM.COMPAT.ELKAN && (type === 'class' || type === 'background')) this.updateEquipment(element, type);
     this.updateTitle(element);
   }
@@ -933,7 +697,7 @@ export class HeroMancerUI {
       EventRegistry.on(dropdown, 'change', (event) => {
         const diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
         StatRoller.handleAbilityDropdownChange(event, diceRollingMethod);
-        this.updateAbilitiesSummary();
+        this.updateAbilityHighlights();
       });
     });
   }
@@ -946,97 +710,10 @@ export class HeroMancerUI {
   static #initializeAbilityScoreInputs(element) {
     const abilityScores = element.querySelectorAll('.ability-score');
     abilityScores.forEach((input) => {
-      const update = foundry.utils.debounce(() => this.updateAbilitiesSummary(), 100);
+      const update = foundry.utils.debounce(() => this.updateAbilityHighlights(), 100);
       EventRegistry.on(input, 'change', update);
       EventRegistry.on(input, 'input', update);
     });
-  }
-
-  /**
-   * Get formatted UUID link for a selection type
-   * @param {'race'|'class'|'background'} type - The selection type
-   * @returns {string} Formatted UUID link or placeholder
-   * @private
-   */
-  static #getSelectionLink(type) {
-    const selected = HM.SELECTED[type];
-    if (!selected?.uuid) return game.i18n.format('hm.unknown', { type });
-    return `@UUID[${selected.uuid}]`;
-  }
-
-  /**
-   * Get background data for summary
-   * @returns {object} Background data including article and link
-   * @private
-   */
-  static #getBackgroundData() {
-    const backgroundSelect = document.querySelector('#background-dropdown');
-    const selectedOption = backgroundSelect?.selectedIndex > 0 ? backgroundSelect.options[backgroundSelect.selectedIndex] : null;
-    if (!selectedOption?.value || !HM.SELECTED.background?.uuid) return { article: game.i18n.localize('hm.app.equipment.article-plural'), link: game.i18n.localize('hm.app.background.adventurer') };
-    const backgroundName = selectedOption.text;
-    const article = /^[aeiou]/i.test(backgroundName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
-    return { article: article, link: `@UUID[${HM.SELECTED.background.uuid}]` };
-  }
-
-  /**
-   * Collect equipment items from the UI
-   * @returns {Array} Array of selected equipment items
-   * @private
-   */
-  static #collectEquipmentItems() {
-    const selectedEquipment = Array.from(document.querySelectorAll('#equipment-container select, #equipment-container input[type="checkbox"]:checked'))
-      .map((el) => this.#extractEquipmentItemData(el))
-      .filter(Boolean);
-    const priorityTypes = ['weapon', 'armor', 'shield'];
-    selectedEquipment.sort((a, b) => {
-      const aIndex = priorityTypes.indexOf(a.type);
-      const bIndex = priorityTypes.indexOf(b.type);
-      return (bIndex === -1 ? -999 : bIndex) - (aIndex === -1 ? -999 : aIndex);
-    });
-    return selectedEquipment.slice(0, 3);
-  }
-
-  /**
-   * Extract equipment item data from a DOM element
-   * @param {HTMLElement} el - DOM element (select or checkbox)
-   * @returns {object | null} Equipment item data or null if invalid
-   * @private
-   */
-  static #extractEquipmentItemData(el) {
-    if (el.tagName === 'SELECT') {
-      const selectedOption = el.options[el.selectedIndex];
-      if (!selectedOption || !selectedOption.value || !selectedOption.value.includes('Compendium')) return null;
-      return { type: selectedOption.dataset.tooltip?.toLowerCase() || '', uuid: selectedOption.value, text: selectedOption.textContent?.trim() };
-    } else {
-      const link = el.parentElement?.querySelector('.content-link');
-      const uuid = link?.dataset?.uuid;
-      if (!link || !uuid || uuid.includes(',') || !uuid.includes('Compendium')) return null;
-      return { type: link.dataset.tooltip?.toLowerCase() || '', uuid: uuid, text: link.textContent?.trim() };
-    }
-  }
-
-  /**
-   * Format and display equipment summary
-   * @param {HTMLElement} summary - Summary element to update
-   * @param {Array} displayEquipment - Equipment items to display
-   * @returns {Promise<void>}
-   * @private
-   */
-  static async #formatAndDisplayEquipmentSummary(summary, displayEquipment) {
-    if (!displayEquipment.length) {
-      summary.innerHTML = game.i18n.localize('hm.app.finalize.summary.equipmentDefault');
-      return;
-    }
-    const formattedItems = displayEquipment.map((item) => {
-      const itemName = item.text;
-      const article = /^[aeiou]/i.test(itemName) ? game.i18n.localize('hm.app.equipment.article-plural') : game.i18n.localize('hm.app.equipment.article');
-      return `${article} @UUID[${item.uuid}]{${item.text}}`;
-    });
-    const content = game.i18n.format('hm.app.finalize.summary.equipment', {
-      items:
-        formattedItems.slice(0, -1).join(game.i18n.localize('hm.app.equipment.separator')) + (formattedItems.length > 1 ? game.i18n.localize('hm.app.equipment.and') : '') + formattedItems.slice(-1)
-    });
-    summary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
   }
 
   /**
@@ -1151,18 +828,6 @@ export class HeroMancerUI {
   }
 
   /**
-   * Update the ability summary content in the UI
-   * @private
-   */
-  static #updateAbilitySummaryContent() {
-    const abilityScores = this.#collectAbilityScores();
-    if (Object.keys(abilityScores).length === 0) return;
-    const primaryAbilities = this.#getPrimaryAbilitiesForClass();
-    const selectedAbilities = this.#selectTopAbilities(abilityScores, primaryAbilities);
-    this.#updateSummaryHTML(selectedAbilities);
-  }
-
-  /**
    * Collect ability scores from UI
    * @returns {object} Map of ability scores
    * @private
@@ -1201,48 +866,6 @@ export class HeroMancerUI {
     });
 
     return abilityScores;
-  }
-
-  /**
-   * Select top abilities for summary
-   * @param {object} abilityScores - Map of ability scores
-   * @param {Set<string>} primaryAbilities - Set of primary abilities
-   * @returns {string[]} Selected ability keys
-   * @private
-   */
-  static #selectTopAbilities(abilityScores, primaryAbilities) {
-    const sortedAbilities = Object.entries(abilityScores)
-      .sort(([abilityA, scoreA], [abilityB, scoreB]) => {
-        const preferredA = primaryAbilities.has(abilityA);
-        const preferredB = primaryAbilities.has(abilityB);
-        if (preferredA && !preferredB) return -1;
-        if (!preferredA && preferredB) return 1;
-        return scoreB - scoreA;
-      })
-      .map(([ability]) => ability.toLowerCase());
-    const selectedAbilities = [];
-    for (const ability of sortedAbilities) if (selectedAbilities.length < 2 && !selectedAbilities.includes(ability)) selectedAbilities.push(ability);
-    if (selectedAbilities.length < 2) {
-      for (const [ability] of Object.entries(abilityScores).sort(([, a], [, b]) => b - a)) if (!selectedAbilities.includes(ability) && selectedAbilities.length < 2) selectedAbilities.push(ability);
-    }
-    return selectedAbilities;
-  }
-
-  /**
-   * Update the summary HTML
-   * @param {string[]} selectedAbilities - Selected ability keys
-   * @returns {Promise<void>}
-   * @private
-   */
-  static async #updateSummaryHTML(selectedAbilities) {
-    const abilitiesSummary = document.querySelector('.abilities-summary');
-    if (!abilitiesSummary) return;
-    if (selectedAbilities.length >= 2) {
-      const content = game.i18n.format('hm.app.finalize.summary.abilities', { first: `&Reference[${selectedAbilities[0]}]`, second: `&Reference[${selectedAbilities[1]}]` });
-      abilitiesSummary.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content);
-    } else {
-      abilitiesSummary.innerHTML = game.i18n.localize('hm.app.finalize.summary.abilitiesDefault');
-    }
   }
 
   /**
@@ -1321,9 +944,6 @@ export class HeroMancerUI {
    * @static
    */
   static async #updateBasicInfoReview(container) {
-    const characterName = document.querySelector('#character-name')?.value || game.user.name;
-    const nameDisplay = document.querySelector('.character-name-display');
-    if (nameDisplay) nameDisplay.textContent = characterName;
     await this.#updateReviewValueWithLink(container, '.race-value', HM.SELECTED.race?.uuid);
     await this.#updateReviewValueWithLink(container, '.class-value', HM.SELECTED.class?.uuid);
     await this.#updateReviewValueWithLink(container, '.background-value', HM.SELECTED.background?.uuid);
@@ -1413,23 +1033,30 @@ export class HeroMancerUI {
       await this.#extractProficiencies('race', proficiencyData);
       await this.#extractProficiencies('class', proficiencyData);
       await this.#extractProficiencies('background', proficiencyData);
-      const templateData = {
-        armor: Array.from(proficiencyData.armor),
-        weapons: Array.from(proficiencyData.weapons),
-        tools: Array.from(proficiencyData.tools),
-        savingThrows: Array.from(proficiencyData.savingThrows),
-        skills: Array.from(proficiencyData.skills),
-        languages: Array.from(proficiencyData.languages),
-        hasProficiencies:
-          proficiencyData.armor.size > 0 ||
-          proficiencyData.weapons.size > 0 ||
-          proficiencyData.tools.size > 0 ||
-          proficiencyData.savingThrows.size > 0 ||
-          proficiencyData.skills.size > 0 ||
-          proficiencyData.languages.size > 0
+
+      // Deduplicate entries by name, merge sources into a tooltip string
+      const dedup = (set) => {
+        const map = new Map();
+        for (const { name, source } of set) {
+          if (!map.has(name)) map.set(name, new Set());
+          map.get(name).add(source);
+        }
+        return Array.from(map.entries()).map(([name, sources]) => ({ name, tooltip: Array.from(sources).join(', ') }));
       };
-      HM.log(3, 'Final proficiency data collected:', templateData);
-      container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', templateData);
+
+      const categories = [];
+      const addCategory = (set, labelKey, icon) => {
+        if (set.size > 0) categories.push({ label: game.i18n.localize(labelKey), icon, items: dedup(set) });
+      };
+      addCategory(proficiencyData.armor, 'DND5E.TraitArmorProf', 'fa-solid fa-shield-halved');
+      addCategory(proficiencyData.weapons, 'DND5E.TraitWeaponProf', 'fa-solid fa-hand-fist');
+      addCategory(proficiencyData.tools, 'DND5E.TraitToolProf', 'fa-solid fa-screwdriver-wrench');
+      addCategory(proficiencyData.savingThrows, 'DND5E.ClassSaves', 'fa-solid fa-dice-d20');
+      addCategory(proficiencyData.skills, 'DND5E.Skills', 'fa-solid fa-star');
+      addCategory(proficiencyData.languages, 'DND5E.Languages', 'fa-solid fa-language');
+
+      HM.log(3, 'Final proficiency data collected:', categories);
+      container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', { categories });
     } catch (error) {
       HM.log(1, 'Error updating proficiencies review:', error);
       container.innerHTML = `<div class="error-message">${game.i18n.localize('hm.app.finalize.review.proficiencies-error')}</div>`;
@@ -1525,17 +1152,67 @@ export class HeroMancerUI {
     const section = document.querySelector(`.${type}-equipment-section`);
     if (!section) return [];
     const items = [];
-    for (const select of section.querySelectorAll('select:not([disabled])')) {
-      if (!select.value) continue;
-      const itemName = select.options[select.selectedIndex]?.textContent || select.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
-      items.push({ uuid: select.value, name: itemName, source: type });
+
+    // Checked linked-item checkboxes — UUID from data-uuid, name from the label's content-link
+    for (const checkbox of section.querySelectorAll('input[type="checkbox"][data-linked-item]:checked')) {
+      if (checkbox.closest('[hidden]')) continue;
+      const uuid = checkbox.dataset.uuid;
+      if (!uuid?.includes('Compendium')) continue;
+      const label = section.querySelector(`label[for="${checkbox.id}"]`);
+      const link = label?.querySelector('.content-link');
+      const name = link?.textContent?.trim() || 'Unknown Item';
+      const count = parseInt(checkbox.dataset.count) || 1;
+      items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
     }
-    for (const checkbox of section.querySelectorAll('input[type="checkbox"]:not([disabled]):checked')) {
-      if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
-      const itemLink = checkbox.closest('label')?.querySelector('.content-link');
-      const itemName = itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
-      items.push({ uuid: checkbox.value, name: itemName, source: type });
+
+    // Category selects (data-equipment-select) — skip selects inside hidden OR containers
+    for (const select of section.querySelectorAll('select[data-equipment-select]')) {
+      if (select.closest('[hidden]')) continue;
+      const uuid = select.value;
+      if (!uuid?.includes('Compendium')) continue;
+      const name = select.options[select.selectedIndex]?.textContent?.trim() || 'Unknown Item';
+      const count = parseInt(select.dataset.count) || 1;
+      items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
     }
+
+    // OR selects (data-or-select) — resolve selected child to items
+    for (const select of section.querySelectorAll('select[data-or-select]')) {
+      const selectedValue = select.value;
+      const group = select.dataset.orGroup;
+
+      // Pattern A: single hidden input with data-or-child (e.g. Chain Mail, Dungeoneer's Pack)
+      const hiddenInput = section.querySelector(`input[data-or-child="${selectedValue}"][data-or-parent="${group}"]:not([disabled])`);
+      if (hiddenInput) {
+        const uuid = hiddenInput.value || hiddenInput.dataset.uuid;
+        if (uuid?.includes('Compendium')) {
+          const count = parseInt(hiddenInput.dataset.count) || 1;
+          const name = select.options[select.selectedIndex]?.textContent?.trim() || 'Unknown Item';
+          items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
+        }
+        continue;
+      }
+
+      // Pattern B: container div with data-or-child holding multiple linked items
+      const container = section.querySelector(`div[data-or-child="${selectedValue}"][data-or-parent="${group}"]:not([hidden])`);
+      if (!container) continue;
+      for (const input of container.querySelectorAll('input[type="hidden"][data-linked-item]')) {
+        const uuid = input.value || input.dataset.uuid;
+        if (!uuid?.includes('Compendium')) continue;
+        const count = parseInt(input.dataset.count) || 1;
+        const item = fromUuidSync(uuid);
+        const name = item?.name || 'Unknown Item';
+        items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
+      }
+      // Category selects inside visible containers are handled by the loop above
+    }
+
+    // Currency labels (bare labels without a for attribute inside equipment-entries)
+    for (const label of section.querySelectorAll('.equipment-entries > label')) {
+      if (label.closest('[hidden]')) continue;
+      const text = label.textContent?.trim();
+      if (text) items.push({ uuid: null, name: text, source: type, isCurrency: true });
+    }
+
     return items;
   }
 
@@ -1557,7 +1234,10 @@ export class HeroMancerUI {
     const className = (await this.#getClassName()) || game.i18n.localize('TYPES.Item.class');
     const enrichItems = async (items) => {
       if (!items.length || items[0].isStartingWealth) return items;
-      return Promise.all(items.map(async (item) => ({ ...item, link: await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) })));
+      return Promise.all(items.map(async (item) => {
+        if (item.isCurrency || !item.uuid) return { ...item, link: item.name };
+        return { ...item, link: await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) };
+      }));
     };
     container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', {
       elkanMode: false,

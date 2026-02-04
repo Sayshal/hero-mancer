@@ -252,10 +252,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     await HeroMancerUI.restoreFormOptions(this.element);
     HeroMancerUI.updateTabIndicators(this.element);
     requestAnimationFrame(() => {
-      if (HM.SELECTED.race?.uuid || HM.SELECTED.class?.uuid) HeroMancerUI.updateClassRaceSummary();
-      if (HM.SELECTED.background?.uuid) HeroMancerUI.updateBackgroundSummary();
-      HeroMancerUI.updateAbilitiesSummary();
-      HeroMancerUI.updateEquipmentSummary();
+      HeroMancerUI.updateAbilityHighlights();
     });
   }
 
@@ -438,7 +435,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       const form = target.ownerDocument.getElementById('hero-mancer-app');
       const success = await SavedOptions.resetOptions(form);
       if (success) {
-        HeroMancerUI.updateClassRaceSummary();
         const app = HM.heroMancer;
         if (app) {
           await app.render(true);

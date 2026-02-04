@@ -227,7 +227,7 @@ export class StatRoller {
     }
     try {
       await this.#rollAbilitiesSequentially(blocks, rollFormula);
-      HeroMancerUI.updateAbilitiesSummary();
+      HeroMancerUI.updateAbilityHighlights();
       return true;
     } catch (error) {
       HM.log(1, 'Error in chain rolling:', error);
