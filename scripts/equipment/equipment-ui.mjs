@@ -54,18 +54,26 @@ export class EquipmentUI {
    */
   static async renderType(container, type) {
     HM.log(3, `EquipmentUI: Rendering ${type} equipment`);
-    const section = container.querySelector(`.${type}-equipment-section`);
-    if (!section) {
-      HM.log(2, `EquipmentUI: Section not found for ${type}`);
-      return container;
-    }
     const equipmentData = await EquipmentManager.fetchEquipmentData();
     const entries = equipmentData[type] || [];
     const wealth = EquipmentManager.getWealthFormula(type);
     const isModernRules = EquipmentManager.isModernRules(type);
-    const sectionContext = { type, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth, isModernRules };
+    const hasData = entries.length > 0 || !!wealth;
+    let section = container.querySelector(`.${type}-equipment-section`);
+    if (!hasData) {
+      if (section) section.remove();
+      return container;
+    }
+    if (!section) {
+      section = document.createElement('fieldset');
+      section.classList.add(`${type}-equipment-section`, 'equipment-section');
+      container.appendChild(section);
+    }
+    const typeName = fromUuidSync(HM.SELECTED[type]?.uuid)?.name || type;
+    const sectionContext = { type, label: game.i18n.format('hm.app.equipment.type-equipment', { type: typeName }), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth, isModernRules };
     const html = await foundry.applications.handlebars.renderTemplate(this.CHOICE_TEMPLATE, sectionContext);
     section.innerHTML = html;
+    this.#attachListeners(container);
     return container;
   }
 
@@ -128,7 +136,8 @@ export class EquipmentUI {
       const processedEntries = await this.#processEntriesForTemplate(entries);
       const hasData = processedEntries.length > 0 || !!wealth;
       const isModernRules = EquipmentManager.isModernRules(type);
-      return { hasData, label: game.i18n.localize(`hm.app.equipment.${type}-equipment`), entries: processedEntries, wealth, hasWealth: !!wealth, isModernRules };
+      const typeName = fromUuidSync(HM.SELECTED[type]?.uuid)?.name || type;
+      return { hasData, label: game.i18n.format('hm.app.equipment.type-equipment', { type: typeName }), entries: processedEntries, wealth, hasWealth: !!wealth, isModernRules };
     };
     const classSectionData = await buildSectionData('class');
     const backgroundSectionData = await buildSectionData('background');
@@ -162,6 +171,7 @@ export class EquipmentUI {
       id: entry.id,
       type: entry.type,
       label: entry.label,
+      textLabel: entry.label?.replace(/<[^>]*>/g, '') || '',
       count: entry.count,
       isOr: typeUpper === 'OR',
       isAnd: typeUpper === 'AND',
@@ -305,6 +315,73 @@ export class EquipmentUI {
       });
     });
 
+    // Inject content link icons after labels in form-groups with selects
+    container.querySelectorAll('[data-equipment-select], [data-or-select]').forEach((select) => {
+      const formGroup = select.closest('.form-group');
+      if (!formGroup || formGroup.querySelector(':scope > .content-link.item-icon')) return;
+      const uuid = this.#resolveSelectUuid(select, container);
+      if (!uuid) return;
+      const label = formGroup.querySelector(':scope > label');
+      if (!label) return;
+      label.after(this.#createItemLink(uuid));
+    });
+
+    // Update content link icon when any select changes
+    EventRegistry.on(container, 'change', (event) => {
+      const select = event.target.closest('[data-equipment-select], [data-or-select]');
+      if (!select) return;
+      const formGroup = select.closest('.form-group');
+      const anchor = formGroup?.querySelector(':scope > .content-link.item-icon');
+      if (!anchor) return;
+      const uuid = this.#resolveSelectUuid(select, container);
+      if (uuid) {
+        anchor.dataset.uuid = uuid;
+        anchor.hidden = false;
+      } else {
+        anchor.hidden = true;
+      }
+    });
+
     HM.log(3, 'EquipmentUI: Event listeners attached');
+  }
+
+  /**
+   * Resolve the UUID for the currently selected option of a select.
+   * Category selects have UUIDs as option values directly.
+   * OR selects have entry IDs — look up UUID from associated hidden inputs.
+   * @param {HTMLSelectElement} select - Select element
+   * @param {HTMLElement} container - Equipment container
+   * @returns {string|null} UUID or null
+   */
+  static #resolveSelectUuid(select, container) {
+    if (select.dataset.equipmentSelect !== undefined) return select.value || null;
+    if (select.dataset.orSelect !== undefined) {
+      const childId = select.value;
+      const input = container.querySelector(`input[data-linked-item][data-or-child="${childId}"]`);
+      if (input) return input.dataset.uuid;
+      const childDiv = container.querySelector(`div[data-or-child="${childId}"]`);
+      const firstLinked = childDiv?.querySelector('input[data-linked-item]');
+      if (firstLinked) return firstLinked.dataset.uuid;
+    }
+    return null;
+  }
+
+  /**
+   * Create a content link icon element for an item UUID.
+   * @param {string} uuid - Item UUID
+   * @returns {HTMLAnchorElement} Content link anchor
+   */
+  static #createItemLink(uuid) {
+    const anchor = document.createElement('a');
+    anchor.classList.add('content-link', 'item-icon');
+    anchor.draggable = true;
+    anchor.dataset.link = '';
+    anchor.dataset.uuid = uuid;
+    anchor.dataset.tooltip = 'Item';
+    const icon = document.createElement('i');
+    icon.classList.add('fa-solid', 'fa-suitcase');
+    icon.inert = true;
+    anchor.appendChild(icon);
+    return anchor;
   }
 }

@@ -11,37 +11,52 @@
   {{#if hasOptions}}
     {{#if multiSelect}}
       {{#each selectInstances}}
-        <select data-equipment-select data-type="{{../type}}" data-count="1"
-          id="{{../type}}-{{../categoryKey}}-{{../id}}-inline-{{index}}">
-          {{#each ../options}}
-            <option value="{{uuid}}">{{name}}</option>
-          {{/each}}
-        </select>
+        <div class="form-group">
+          <label for="{{../type}}-{{../categoryKey}}-{{../id}}-inline-{{index}}">{{../textLabel}}</label>
+          <div class="form-fields">
+            <select data-equipment-select data-type="{{../type}}" data-count="1"
+              id="{{../type}}-{{../categoryKey}}-{{../id}}-inline-{{index}}">
+              {{#each ../options}}
+                <option value="{{uuid}}">{{name}}</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
       {{/each}}
     {{else}}
-      <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
-        id="{{type}}-{{categoryKey}}-{{id}}-inline">
-        {{#each options}}
-          <option value="{{uuid}}">{{name}}</option>
-        {{/each}}
-      </select>
+      <div class="form-group">
+        <label for="{{type}}-{{categoryKey}}-{{id}}-inline">{{textLabel}}</label>
+        <div class="form-fields">
+          <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
+            id="{{type}}-{{categoryKey}}-{{id}}-inline">
+            {{#each options}}
+              <option value="{{uuid}}">{{name}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
     {{/if}}
   {{/if}}
 
 {{else if isOr}}
   {{#if hasChildren}}
-    <select data-equipment-select data-type="or" data-count="{{count}}" id="or-{{id}}-inline">
-      {{#each children}}
-        {{#if isLinked}}
-          {{#if linkedItem}}
-            <option value="{{linkedItem.uuid}}">{{linkedItem.name}}</option>
-          {{/if}}
-        {{else if isCategory}}
-          <option value="" disabled>{{label}}</option>
-        {{else}}
-          <option value="{{id}}">{{label}}</option>
-        {{/if}}
-      {{/each}}
-    </select>
+    <div class="form-group">
+      <label for="or-{{id}}-inline">{{textLabel}}</label>
+      <div class="form-fields">
+        <select data-equipment-select data-type="or" data-count="{{count}}" id="or-{{id}}-inline">
+          {{#each children}}
+            {{#if isLinked}}
+              {{#if linkedItem}}
+                <option value="{{linkedItem.uuid}}">{{linkedItem.name}}</option>
+              {{/if}}
+            {{else if isCategory}}
+              <option value="" disabled>{{textLabel}}</option>
+            {{else}}
+              <option value="{{id}}">{{textLabel}}</option>
+            {{/if}}
+          {{/each}}
+        </select>
+      </div>
+    </div>
   {{/if}}
 {{/if}}

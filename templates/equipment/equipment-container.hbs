@@ -1,15 +1,14 @@
 {{!-- templates/equipment/equipment-container.hbs --}}
 {{!-- Main container for equipment selection UI --}}
 
-<div class="class-equipment-section equipment-section">
-  {{#with classSectionData}}
-    {{#if hasData}}
-      <h3>{{label}}</h3>
+{{#with classSectionData}}
+  {{#if hasData}}
+    <fieldset class="class-equipment-section equipment-section">
+      <legend>{{label}}</legend>
       {{#if hasWealth}}
         <div class="form-group">
           <label for="use-starting-wealth-class">
             {{localize "hm.app.equipment.use-wealth"}}
-            <span class="wealth-formula">({{wealth}})</span>
           </label>
           <div class="form-fields">
             <input type="checkbox" name="use-starting-wealth-class" data-wealth-checkbox data-type="class"
@@ -18,7 +17,7 @@
         </div>
         <div class="form-group wealth-roll-container" hidden>
           <label for="starting-wealth-amount-class">
-            {{localize "hm.app.equipment.wealth-placeholder"}}
+            {{wealth}} gp
           </label>
           <div class="form-fields">
             <input type="hidden" name="starting-wealth-rolled-class" value="">
@@ -41,19 +40,18 @@
           <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
         {{/unless}}
       </div>
-    {{/if}}
-  {{/with}}
-</div>
+    </fieldset>
+  {{/if}}
+{{/with}}
 
-<div class="background-equipment-section equipment-section">
-  {{#with backgroundSectionData}}
-    {{#if hasData}}
-      <h3>{{label}}</h3>
+{{#with backgroundSectionData}}
+  {{#if hasData}}
+    <fieldset class="background-equipment-section equipment-section">
+      <legend>{{label}}</legend>
       {{#if hasWealth}}
         <div class="form-group">
           <label for="use-starting-wealth-background">
             {{localize "hm.app.equipment.use-wealth"}}
-            <span class="wealth-formula">({{wealth}})</span>
           </label>
           <div class="form-fields">
             <input type="checkbox" name="use-starting-wealth-background" data-wealth-checkbox data-type="background"
@@ -62,7 +60,7 @@
         </div>
         <div class="form-group wealth-roll-container" hidden>
           <label for="starting-wealth-amount-background">
-            {{localize "hm.app.equipment.wealth-placeholder"}}
+            {{wealth}} gp
           </label>
           <div class="form-fields">
             <input type="hidden" name="starting-wealth-rolled-background" value="">
@@ -85,6 +83,6 @@
           <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
         {{/unless}}
       </div>
-    {{/if}}
-  {{/with}}
-</div>
+    </fieldset>
+  {{/if}}
+{{/with}}

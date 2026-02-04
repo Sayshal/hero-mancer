@@ -138,6 +138,7 @@ export class EquipmentCollection {
   static async #processLinkedItems(section, equipment) {
     const linkedItems = section.querySelectorAll('[data-linked-item]:not(:disabled)');
     for (const element of linkedItems) {
+      if (element.type === 'checkbox' && !element.checked) continue;
       if (element.closest('[hidden]')) continue;
       if (element.closest('.disabled')) continue;
       const uuid = element.dataset.uuid;

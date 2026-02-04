@@ -17,7 +17,7 @@
                 {{~localize "hm.app.equipment.unknown-item"~}}
               {{~/if~}}
             {{~else~}}
-              {{~{label}~}}
+              {{~textLabel~}}
             {{~/if~}}
           </option>
         {{/each}}
@@ -34,32 +34,40 @@
       {{/if}}
     {{else if isCategory}}
       {{#if hasOptions}}
-        <div class="form-group" data-or-child="{{id}}" data-or-parent="{{../id}}"
-          {{#unless @first}}hidden{{/unless}}>
-          <label for="{{type}}-{{categoryKey}}-{{id}}">{{{label}}}</label>
-          <div class="form-fields">
-            {{#if multiSelect}}
-              {{#each selectInstances}}
-                <select data-equipment-select data-type="{{../type}}" data-count="1"
-                  id="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
-                  {{#each ../options}}
-                    <option value="{{uuid}}">{{name}}</option>
-                  {{/each}}
-                </select>
-              {{/each}}
-            {{else}}
+        {{#if multiSelect}}
+          <div class="equipment-entries" data-or-child="{{id}}" data-or-parent="{{../id}}"
+            {{#unless @first}}hidden{{/unless}}>
+            {{#each selectInstances}}
+              <div class="form-group">
+                <label for="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">{{{../label}}}</label>
+                <div class="form-fields">
+                  <select data-equipment-select data-type="{{../type}}" data-count="1"
+                    id="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
+                    {{#each ../options}}
+                      <option value="{{uuid}}">{{name}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <div class="form-group" data-or-child="{{id}}" data-or-parent="{{../id}}"
+            {{#unless @first}}hidden{{/unless}}>
+            <label for="{{type}}-{{categoryKey}}-{{id}}">{{{label}}}</label>
+            <div class="form-fields">
               <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
                 id="{{type}}-{{categoryKey}}-{{id}}">
                 {{#each options}}
                   <option value="{{uuid}}">{{name}}</option>
                 {{/each}}
               </select>
-            {{/if}}
+            </div>
           </div>
-        </div>
+        {{/if}}
       {{/if}}
     {{else if isAnd}}
-      <div data-or-child="{{id}}" data-or-parent="{{../id}}" {{#unless @first}}hidden{{/unless}}>
+      <div class="equipment-entries" data-or-child="{{id}}" data-or-parent="{{../id}}" {{#unless @first}}hidden{{/unless}}>
         {{#each children}}
           {{> "modules/hero-mancer/templates/equipment/equipment-inline.hbs" }}
         {{/each}}
@@ -74,44 +82,61 @@
 
 {{else if isLinked}}
   {{#if linkedItem}}
-    <label data-linked-item data-uuid="{{linkedItem.uuid}}" data-count="{{count}}">
-      {{linkedItem.name}}
-      {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
-    </label>
+    <div class="form-group">
+      <label for="linked-{{id}}">
+        {{{linkedItem.link}}}
+        {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
+      </label>
+      <div class="form-fields">
+        <input type="checkbox" id="linked-{{id}}" data-linked-item data-uuid="{{linkedItem.uuid}}"
+          data-count="{{count}}" checked>
+      </div>
+    </div>
   {{else}}
     <label>{{localize "hm.app.equipment.unknown-item"}}</label>
   {{/if}}
 
 {{else if isCategory}}
-  <div class="form-group">
-    <label for="{{type}}-{{categoryKey}}-{{id}}">
-      {{{label}}}
-      {{#if count}}{{#if (gt count 1)}}<span class="item-count">&times;{{count}}</span>{{/if}}{{/if}}
-    </label>
-    <div class="form-fields">
-      {{#if hasOptions}}
-        {{#if multiSelect}}
-          {{#each selectInstances}}
+  {{#if hasOptions}}
+    {{#if multiSelect}}
+      {{#each selectInstances}}
+        <div class="form-group">
+          <label for="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
+            {{{../label}}}
+          </label>
+          <div class="form-fields">
             <select data-equipment-select data-type="{{../type}}" data-count="1"
               id="{{../type}}-{{../categoryKey}}-{{../id}}-{{index}}">
               {{#each ../options}}
                 <option value="{{uuid}}">{{name}}</option>
               {{/each}}
             </select>
-          {{/each}}
-        {{else}}
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+      <div class="form-group">
+        <label for="{{type}}-{{categoryKey}}-{{id}}">
+          {{{label}}}
+        </label>
+        <div class="form-fields">
           <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
             id="{{type}}-{{categoryKey}}-{{id}}">
             {{#each options}}
               <option value="{{uuid}}">{{name}}</option>
             {{/each}}
           </select>
-        {{/if}}
-      {{else}}
+        </div>
+      </div>
+    {{/if}}
+  {{else}}
+    <div class="form-group">
+      <label for="{{type}}-{{categoryKey}}-{{id}}">{{{label}}}</label>
+      <div class="form-fields">
         <span class="no-options">{{localize "hm.app.equipment.no-options"}}</span>
-      {{/if}}
+      </div>
     </div>
-  </div>
+  {{/if}}
 
 {{else if isCurrency}}
   <label>{{{label}}}</label>

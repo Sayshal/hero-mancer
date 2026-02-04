@@ -1350,6 +1350,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .form-group > .content-link.item-icon {
+    flex: none;
+    margin-inline-start: -1.5rem;
+  }
+
+  .form-group > .form-fields {
+    flex: 2;
+  }
 }
 
 .equipment-section {
@@ -1359,12 +1368,6 @@
   padding: 1rem;
   border: 0.063rem solid rgb(111 111 111);
   border-radius: var(--hm-radius-lg);
-
-  h3 {
-    margin-block-end: unset;
-    width: 100%;
-    text-align: center;
-  }
 }
 
 .equipment-entries {
@@ -1375,6 +1378,10 @@
 
 [data-or-child][hidden],
 .wealth-roll-container[hidden] {
+  display: none;
+}
+
+[data-or-child]:not([hidden]):not(:has(> :not(input[type="hidden"]))) {
   display: none;
 }
 

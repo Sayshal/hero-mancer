@@ -243,7 +243,9 @@ export class EquipmentManager {
 
     if (entry.type === 'linked') {
       const linkedDoc = fromUuidSync(entry.key);
-      processed.linkedItem = linkedDoc ? { uuid: entry.key, name: linkedDoc.name, img: linkedDoc.img } : null;
+      processed.linkedItem = linkedDoc
+        ? { uuid: entry.key, name: linkedDoc.name, img: linkedDoc.img, link: `<a class="content-link" draggable="true" data-link data-uuid="${entry.key}" data-tooltip="${linkedDoc.type ?? 'Item'}"><i class="fa-solid fa-suitcase" inert></i>${linkedDoc.name}</a>` }
+        : null;
     }
     return processed;
   }
