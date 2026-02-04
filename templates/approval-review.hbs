@@ -15,46 +15,46 @@
 
   <div class="hm-approval-abilities">
     {{#each abilities}}
-    <div class="hm-approval-ability">
-      <div class="abbr">{{@key}}</div>
-      <div class="score">{{this.score}}</div>
-      <div class="mod">{{this.mod}}</div>
-    </div>
+      <div class="hm-approval-ability">
+        <div class="abbr">{{@key}}</div>
+        <div class="score">{{this.score}}</div>
+        <div class="mod">{{this.mod}}</div>
+      </div>
     {{/each}}
   </div>
 
   {{#if hasPhysical}}
-  <div class="hm-approval-section">
-    <h3><i class="fa-solid fa-id-card"></i> {{localize 'hm.app.finalize.review.physical-description'}}</h3>
-    <div class="hm-approval-grid">
-      {{#each physical}}
-      <div class="hm-approval-item">
-        <span class="label">{{this.label}}</span>
-        <span class="value">{{this.value}}</span>
+    <div class="hm-approval-section">
+      <h3><i class="fa-solid fa-id-card"></i> {{localize 'hm.app.finalize.review.physical-description'}}</h3>
+      <div class="hm-approval-grid">
+        {{#each physical}}
+          <div class="hm-approval-item">
+            <span class="label">{{this.label}}</span>
+            <span class="value">{{this.value}}</span>
+          </div>
+        {{/each}}
       </div>
-      {{/each}}
     </div>
-  </div>
   {{/if}}
 
   {{#if hasPersonality}}
-  <div class="hm-approval-section">
-    <h3><i class="fa-solid fa-heart"></i> {{localize 'hm.app.biography.personality-traits'}}</h3>
-    <div class="hm-approval-grid two-col">
-      {{#each personality}}
-      <div class="hm-approval-item">
-        <span class="label">{{this.label}}</span>
-        <div class="hm-approval-text">{{{this.value}}}</div>
+    <div class="hm-approval-section">
+      <h3><i class="fa-solid fa-heart"></i> {{localize 'hm.app.biography.personality-traits'}}</h3>
+      <div class="hm-approval-grid two-col">
+        {{#each personality}}
+          <div class="hm-approval-item">
+            <span class="label">{{this.label}}</span>
+            <div class="hm-approval-text">{{{this.value}}}</div>
+          </div>
+        {{/each}}
       </div>
-      {{/each}}
     </div>
-  </div>
   {{/if}}
 
   {{#if backstory}}
-  <div class="hm-approval-section">
-    <h3><i class="fa-solid fa-book"></i> {{localize 'hm.app.biography.backstory'}}</h3>
-    <div class="hm-approval-text">{{{backstory}}}</div>
-  </div>
+    <div class="hm-approval-section">
+      <h3><i class="fa-solid fa-book"></i> {{localize 'hm.app.biography.backstory'}}</h3>
+      <div class="hm-approval-text">{{{backstory}}}</div>
+    </div>
   {{/if}}
 </div>

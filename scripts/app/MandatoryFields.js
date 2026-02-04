@@ -3,6 +3,7 @@ import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/** Mandatory fields settings application. */
 export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
   /*  Static Properties                           */
@@ -42,6 +43,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
+  /** @returns {string} Window title */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
   }
@@ -86,7 +88,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       };
     } catch (error) {
       log(1, `Error preparing context: ${error.message}`);
-      ui.notifications.error('hm.settings.mandatory-fields.error-context', { localize: true });
+      ui.notifications.warn('hm.settings.mandatory-fields.error-context', { localize: true });
       return { ...context, fields: {}, playerCustomizationEnabled: false, tokenCustomizationEnabled: false };
     }
   }
@@ -161,7 +163,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * Processes form submission for mandatory field settings
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} form - The form element
-   * @param {FormDataExtended} _formData - The processed form data
+   * @param {object} _formData - The processed form data
    * @returns {Promise<boolean>} Returns false if errors occur
    * @static
    */

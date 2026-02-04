@@ -4,7 +4,8 @@
   {{#each categories}}
     <div class="proficiency-category">
       <span class="proficiency-category-label"><i class="{{this.icon}}"></i> {{this.label}}:</span>
-      {{#each this.items}}<span class="proficiency-item" data-tooltip="{{this.tooltip}}">{{this.name}}</span>{{#unless @last}}, {{/unless}}{{/each}}
+      {{#each this.items}}<span class="proficiency-item"
+          data-tooltip="{{this.tooltip}}">{{this.name}}</span>{{#unless @last}}, {{/unless}}{{/each}}
     </div>
   {{/each}}
 {{else}}

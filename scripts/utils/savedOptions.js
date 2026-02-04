@@ -20,22 +20,10 @@ export class SavedOptions {
    */
   static async saveOptions(formData) {
     try {
-      if (!game.user) {
-        log(1, 'Cannot save options: No active user');
-        return null;
-      }
-
-      if (!formData) {
-        log(2, 'No form data provided to save');
-        return null;
-      }
-
-      log(3, 'Saving form data:', formData);
+      if (!game.user || !formData) return null;
       const data = { ...formData };
-
-      const result = await game.user.setFlag(MODULE.ID, this.FLAG, data);
-      log(3, 'Options saved successfully');
-      return result;
+      log(3, `Saving ${Object.keys(data).length} form options`);
+      return await game.user.setFlag(MODULE.ID, this.FLAG, data);
     } catch (error) {
       log(1, 'Error saving options:', error);
       ui.notifications?.error('hm.errors.save-options-failed', { localize: true });
@@ -50,23 +38,12 @@ export class SavedOptions {
    */
   static async loadOptions() {
     try {
-      if (!game.user) {
-        log(1, 'Cannot load options: No active user');
-        return {};
-      }
-
+      if (!game.user) return {};
       const data = await game.user.getFlag(MODULE.ID, this.FLAG);
-
-      if (data) {
-        log(3, `Loaded saved data for ${game.user.name}:`, data);
-      } else {
-        log(3, 'No saved options found for current user');
-      }
-
+      log(3, `Loaded ${data ? Object.keys(data).length : 0} saved options`);
       return data || {};
     } catch (error) {
       log(1, 'Error loading options:', error);
-      // Return empty object on error to avoid breaking callers
       return {};
     }
   }
@@ -79,25 +56,10 @@ export class SavedOptions {
    */
   static async resetOptions(formElement = null) {
     try {
-      // Verify user exists
-      if (!game.user) {
-        log(1, 'Cannot reset options: No active user');
-        return false;
-      }
-
-      // Clear saved flags
+      if (!game.user) return false;
       await game.user.setFlag(MODULE.ID, this.FLAG, null);
-      log(3, 'Cleared saved options flags');
-
-      // If no form element provided, just clear flags
       if (!formElement) return true;
-
-      // Validate form element
-      if (!(formElement instanceof HTMLElement)) {
-        log(2, 'Invalid form element provided to resetOptions');
-        return false;
-      }
-
+      if (!(formElement instanceof HTMLElement)) return false;
       this.#resetFormElements(formElement);
       return true;
     } catch (error) {
@@ -114,23 +76,10 @@ export class SavedOptions {
    * @static
    */
   static #resetFormElements(formElement) {
-    try {
-      // Reset all form elements
-      const formElements = formElement.querySelectorAll('select, input, color-picker');
-      log(3, `Resetting ${formElements.length} form elements`);
-
-      formElements.forEach((elem) => {
-        try {
-          this.#resetSingleElement(elem);
-        } catch (elemError) {
-          // Continue resetting other elements if one fails
-          log(2, `Error resetting element ${elem.name || elem.id || 'unnamed'}:`, elemError);
-        }
-      });
-    } catch (error) {
-      log(1, 'Error in resetFormElements:', error);
-      throw error; // Re-throw to be caught by resetOptions
-    }
+    const formElements = formElement.querySelectorAll('select, input, color-picker');
+    formElements.forEach((elem) => {
+      this.#resetSingleElement(elem);
+    });
   }
 
   /**
@@ -143,13 +92,10 @@ export class SavedOptions {
     if (elem.type === 'checkbox') {
       elem.checked = false;
     } else if (elem.tagName.toLowerCase() === 'color-picker' || elem.type === 'color') {
-      // Set color-picker element to a valid default color
-      elem.value = '#000000'; // Black
+      elem.value = '#000000';
     } else {
       elem.value = '';
     }
-
-    // Dispatch change event
     elem.dispatchEvent(new Event('change', { bubbles: true }));
   }
 }

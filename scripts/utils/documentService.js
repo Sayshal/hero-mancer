@@ -7,18 +7,7 @@ import { log } from './logger.mjs';
  * @class
  */
 export class DocumentService {
-  /**
-   * Cache for fully loaded documents (keyed by UUID)
-   * @type {Map<string, object>}
-   * @private
-   */
   static #documentCache = new Map();
-
-  /**
-   * Cache for enriched descriptions (keyed by UUID)
-   * @type {Map<string, {description: string, enrichedDescription: string, journalPageId: string}>}
-   * @private
-   */
   static #descriptionCache = new Map();
 
   /**
@@ -68,7 +57,6 @@ export class DocumentService {
   static clearCaches() {
     this.#documentCache.clear();
     this.#descriptionCache.clear();
-    log(3, 'DocumentService caches cleared');
   }
 
   /**
@@ -78,8 +66,7 @@ export class DocumentService {
    */
   static async loadAndInitializeDocuments() {
     try {
-      log(3, 'Starting document initialization');
-      const startTime = performance.now();
+      log(3, 'Loading documents from compendiums');
       if (!HM.documents) HM.documents = {};
       const [raceResults, classResults, backgroundResults] = await Promise.allSettled([
         this.#fetchTypeDocumentsFromCompendiums('race'),
@@ -88,27 +75,24 @@ export class DocumentService {
       ]);
       if (raceResults.status === 'fulfilled') {
         HM.documents.race = this.#organizeDocumentsByTopLevelFolder(raceResults.value.documents, 'race');
-        log(3, `Loaded ${HM.documents.race.reduce((total, group) => total + group.docs.length, 0)} race documents in ${HM.documents.race.length} groups`);
       } else {
         log(1, 'Failed to load race documents:', raceResults.reason);
         HM.documents.race = [];
       }
       if (classResults.status === 'fulfilled') {
         HM.documents.class = this.#organizeDocumentsByTopLevelFolder(classResults.value.documents, 'class');
-        log(3, `Loaded ${HM.documents.class.reduce((total, group) => total + group.docs.length, 0)} class documents in ${HM.documents.class.length} groups`);
       } else {
         log(1, 'Failed to load class documents:', classResults.reason);
         HM.documents.class = [];
       }
       if (backgroundResults.status === 'fulfilled') {
         HM.documents.background = this.#organizeDocumentsByTopLevelFolder(backgroundResults.value.documents, 'background');
-        log(3, `Loaded ${HM.documents.background.reduce((total, group) => total + group.docs.length, 0)} background documents in ${HM.documents.background.length} groups`);
       } else {
         log(1, 'Failed to load background documents:', backgroundResults.reason);
         HM.documents.background = [];
       }
-      const totalTime = Math.round(performance.now() - startTime);
-      log(3, `Document initialization completed in ${totalTime}ms`);
+      const counts = { race: HM.documents.race?.length || 0, class: HM.documents.class?.length || 0, background: HM.documents.background?.length || 0 };
+      log(3, `Loaded ${counts.race} race groups, ${counts.class} class groups, ${counts.background} background groups`);
     } catch (error) {
       log(1, 'Critical error during document initialization:', error);
       ui.notifications.error('hm.errors.document-loading-failed', { localize: true });
@@ -122,17 +106,13 @@ export class DocumentService {
    * @static
    */
   static async prepareDocumentsByType(type) {
+    if (!type || !['race', 'class', 'background', 'species'].includes(type)) {
+      ui.notifications.error('hm.errors.invalid-document-type', { localize: true });
+      return { types: [], dropdownHtml: '' };
+    }
     try {
-      if (!type || !['race', 'class', 'background', 'species'].includes(type)) {
-        log(2, `Invalid document type: ${type}`);
-        ui.notifications.error('hm.errors.invalid-document-type', { localize: true });
-        return { types: [], dropdownHtml: '' };
-      }
       const data = await this.#fetchTypeDocumentsFromCompendiums(type);
-      if (!data.documents || !Array.isArray(data.documents)) {
-        log(2, 'No documents found or invalid document data');
-        return { types: [], dropdownHtml: '' };
-      }
+      if (!data.documents || !Array.isArray(data.documents)) return { types: [], dropdownHtml: '' };
       const result = type === 'race' || type === 'species' ? this.#organizeRacesByFolderName(data.documents) : this.#getFlatDocuments(data.documents);
       const promises = [];
       Hooks.callAll('heroMancer.documentsReady', type, result, promises);
@@ -157,27 +137,19 @@ export class DocumentService {
    */
   static #getFlatDocuments(documents) {
     if (!documents?.length) return [];
-    try {
-      return documents
-        .map((doc) => {
-          const displayName = doc.name;
-          return {
-            id: doc.id,
-            name: displayName,
-            sortName: doc.name,
-            description: doc.description,
-            enrichedDescription: doc.enrichedDescription,
-            journalPageId: doc.journalPageId,
-            packName: doc.packName,
-            packId: doc.packId,
-            uuid: doc.uuid
-          };
-        })
-        .sort((a, b) => a.sortName.localeCompare(b.sortName));
-    } catch (error) {
-      log(1, 'Error processing flat documents:', error);
-      return [];
-    }
+    return documents
+      .map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        sortName: doc.name,
+        description: doc.description,
+        enrichedDescription: doc.enrichedDescription,
+        journalPageId: doc.journalPageId,
+        packName: doc.packName,
+        packId: doc.packId,
+        uuid: doc.uuid
+      }))
+      .sort((a, b) => a.sortName.localeCompare(b.sortName));
   }
 
   /**
@@ -200,8 +172,8 @@ export class DocumentService {
     if (!['race', 'class', 'background', 'species'].includes(type)) throw new Error(`Invalid document type: ${type}`);
     const selectedPacks = game.settings.get(MODULE.ID, `${type}Packs`) || [];
     let packs = this.#getValidPacks(selectedPacks, type);
+    log(3, `Fetching ${type} documents from ${packs.length} packs`);
     if (!packs.length) {
-      log(2, `No valid packs found for type ${type}`);
       ui.notifications.warn(game.i18n.format('hm.warnings.no-packs-found', { type: type }));
       return { documents: [] };
     }
@@ -217,36 +189,29 @@ export class DocumentService {
    * @private
    */
   static #getValidPacks(selectedPacks, type) {
-    try {
-      if (selectedPacks.length > 0) {
-        const validPacks = [];
-        const invalidPackIds = [];
-        for (const packId of selectedPacks) {
-          const pack = game.packs.get(packId);
-          if (pack && pack.metadata.type === 'Item') {
-            validPacks.push(pack);
-          } else {
-            invalidPackIds.push(packId);
-            log(2, `Pack ${packId} is either missing or not an Item pack. It will be skipped.`);
-          }
+    if (selectedPacks.length > 0) {
+      const validPacks = [];
+      const invalidPackIds = [];
+      for (const packId of selectedPacks) {
+        const pack = game.packs.get(packId);
+        if (pack && pack.metadata.type === 'Item') {
+          validPacks.push(pack);
+        } else {
+          invalidPackIds.push(packId);
         }
-        if (invalidPackIds.length > 0) {
-          const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
-          log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
-          try {
-            game.settings.set(MODULE.ID, `${type}Packs`, updatedPacks);
-          } catch (e) {
-            log(1, `Failed to update ${type}Packs setting: ${e.message}`);
-          }
-        }
-        if (validPacks.length > 0) return validPacks;
-        log(2, `No valid packs found in ${type}Packs settings. Falling back to all available Item packs.`);
       }
-      return game.packs.filter((pack) => pack.metadata.type === 'Item');
-    } catch (error) {
-      log(1, `Error filtering packs for type ${type}:`, error);
-      return [];
+      if (invalidPackIds.length > 0) {
+        const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
+        log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
+        try {
+          game.settings.set(MODULE.ID, `${type}Packs`, updatedPacks);
+        } catch (e) {
+          log(1, `Failed to update ${type}Packs setting: ${e.message}`);
+        }
+      }
+      if (validPacks.length > 0) return validPacks;
     }
+    return game.packs.filter((pack) => pack.metadata.type === 'Item');
   }
 
   /**
@@ -261,23 +226,13 @@ export class DocumentService {
     const failedPacks = [];
     const processingErrors = [];
     for (const pack of packs) {
-      if (!pack?.metadata) {
-        log(2, 'Invalid pack encountered during processing');
-        continue;
-      }
+      if (!pack?.metadata) continue;
       try {
-        const startTime = performance.now();
         const index = await pack.getIndex({ fields: ['system.properties', 'folder'] });
-        const endTime = performance.now();
-        if (endTime - startTime > 500) log(2, `Pack index slow for ${pack.metadata.label}: ${Math.round(endTime - startTime)}ms`);
         const typeEntries = index.filter((entry) => entry.type === type);
-        if (!typeEntries.length) {
-          log(3, `No documents of type ${type} found in ${pack.metadata.label}`);
-          continue;
-        }
+        if (!typeEntries.length) continue;
         const packDocuments = await this.#processPackIndexEntries(pack, typeEntries);
         validPacks.push(...packDocuments.filter(Boolean));
-        log(3, `Indexed ${typeEntries.length} ${type} entries from ${pack.metadata.label}`);
       } catch (error) {
         log(1, `Failed to retrieve index from pack ${pack.metadata.label}:`, error);
         processingErrors.push(error.message);
@@ -344,34 +299,29 @@ export class DocumentService {
    */
   static #sortDocumentsByNameAndPack(documents) {
     if (!documents?.length) return [];
-    try {
-      return documents
-        .map((entry) => ({
-          doc: entry.doc,
-          id: entry.id,
-          name: entry.name,
-          img: entry.img,
-          description: entry.description,
-          enrichedDescription: entry.enrichedDescription,
-          journalPageId: entry.journalPageId,
-          folderName: entry.folderName,
-          packName: entry.packName,
-          packId: entry.packId,
-          uuid: entry.uuid,
-          system: entry.system
-        }))
-        .sort((a, b) => {
-          const nameCompare = a.name.localeCompare(b.name);
-          return nameCompare || (a.packName || '').localeCompare(b.packName || '');
-        });
-    } catch (error) {
-      log(1, 'Error sorting documents:', error);
-      return documents;
-    }
+    return documents
+      .map((entry) => ({
+        doc: entry.doc,
+        id: entry.id,
+        name: entry.name,
+        img: entry.img,
+        description: entry.description,
+        enrichedDescription: entry.enrichedDescription,
+        journalPageId: entry.journalPageId,
+        folderName: entry.folderName,
+        packName: entry.packName,
+        packId: entry.packId,
+        uuid: entry.uuid,
+        system: entry.system
+      }))
+      .sort((a, b) => {
+        const nameCompare = a.name.localeCompare(b.name);
+        return nameCompare || (a.packName || '').localeCompare(b.packName || '');
+      });
   }
 
   /**
-   * Finds and retrieves comprehensive description for a document by generating formatted content
+   * Finds and retrieves comprehensive description for a document
    * @param {object} doc - The document to find a description for
    * @returns {Promise<object>} Description and optional journal page ID
    * @private
@@ -403,19 +353,14 @@ export class DocumentService {
    */
   static #getPackTopLevelFolderName(pack) {
     if (!pack || !pack.folder) return null;
-    try {
-      let topLevelFolder;
-      if (pack.folder.depth !== 1) {
-        const parentFolders = pack.folder.getParentFolders();
-        topLevelFolder = parentFolders.at(-1)?.name;
-      } else {
-        topLevelFolder = pack.folder.name;
-      }
-      return topLevelFolder || null;
-    } catch (error) {
-      log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
-      return null;
+    let topLevelFolder;
+    if (pack.folder.depth !== 1) {
+      const parentFolders = pack.folder.getParentFolders();
+      topLevelFolder = parentFolders.at(-1)?.name;
+    } else {
+      topLevelFolder = pack.folder.name;
     }
+    return topLevelFolder || null;
   }
 
   /**
@@ -426,20 +371,9 @@ export class DocumentService {
    * @private
    */
   static #determineOrganizationName(docData, pack) {
-    try {
-      const packTopLevelFolder = this.#getPackTopLevelFolderName(pack);
-      if (packTopLevelFolder) {
-        const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
-        log(3, `Using pack top-level folder "${translatedName}" for ${docData.name}`);
-        return translatedName;
-      }
-      const translatedPackName = this.#translateSystemFolderName(docData.packName, pack.metadata.id);
-      log(3, `Using translated pack name "${translatedPackName}" for ${docData.name}`);
-      return translatedPackName;
-    } catch (error) {
-      log(1, `Error determining organization name for ${docData.name || 'unknown document'}:`, error);
-      return docData.packName || 'Unknown Source';
-    }
+    const packTopLevelFolder = this.#getPackTopLevelFolderName(pack);
+    if (packTopLevelFolder) return this.#translateSystemFolderName(packTopLevelFolder);
+    return this.#translateSystemFolderName(docData.packName, pack.metadata.id);
   }
 
   /**
@@ -486,47 +420,30 @@ export class DocumentService {
    * @private
    */
   static #organizeDocumentsByTopLevelFolder(documents, documentType) {
-    if (!documents?.length) {
-      log(2, `Invalid or empty documents array for ${documentType} organization`);
-      return [];
+    if (!documents?.length) return [];
+    const organizationGroups = new Map();
+    for (const docData of documents) {
+      if (!docData || !docData.uuid || !docData.name) continue;
+      const pack = game.packs.get(docData.packId);
+      if (!pack) continue;
+      const organizationName = this.#determineOrganizationName(docData, pack);
+      if (!organizationGroups.has(organizationName)) organizationGroups.set(organizationName, { folderName: organizationName, docs: [] });
+      organizationGroups.get(organizationName).docs.push({
+        id: docData.id,
+        name: docData.name,
+        displayName: docData.name,
+        img: docData.img,
+        packName: docData.packName,
+        packId: docData.packId,
+        journalPageId: docData.journalPageId,
+        uuid: docData.uuid,
+        description: docData.description,
+        enrichedDescription: docData.enrichedDescription,
+        folderName: docData.folderName,
+        packTopLevelFolder: this.#getPackTopLevelFolderName(pack)
+      });
     }
-    try {
-      log(3, `Organizing ${documents.length} ${documentType} documents by pack top-level folder`);
-      const organizationGroups = new Map();
-      for (const docData of documents) {
-        if (!docData || !docData.uuid || !docData.name) {
-          log(2, `Skipping invalid document data in ${documentType} organization - missing uuid or name`);
-          continue;
-        }
-        const pack = game.packs.get(docData.packId);
-        if (!pack) {
-          log(2, `Could not find pack ${docData.packId} for document ${docData.name}`);
-          continue;
-        }
-        const organizationName = this.#determineOrganizationName(docData, pack);
-        if (!organizationGroups.has(organizationName)) organizationGroups.set(organizationName, { folderName: organizationName, docs: [] });
-        organizationGroups.get(organizationName).docs.push({
-          id: docData.id,
-          name: docData.name,
-          displayName: docData.name,
-          img: docData.img,
-          packName: docData.packName,
-          packId: docData.packId,
-          journalPageId: docData.journalPageId,
-          uuid: docData.uuid,
-          description: docData.description,
-          enrichedDescription: docData.enrichedDescription,
-          folderName: docData.folderName,
-          packTopLevelFolder: this.#getPackTopLevelFolderName(pack)
-        });
-      }
-      for (const group of organizationGroups.values()) group.docs.sort((a, b) => a.name.localeCompare(b.name));
-      const result = Array.from(organizationGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
-      log(3, `Organized ${documentType} into ${result.length} groups: ${result.map((g) => `${g.folderName} (${g.docs.length})`).join(', ')}`);
-      return result;
-    } catch (error) {
-      log(1, `Error organizing ${documentType} by pack top-level folder:`, error);
-      return [];
-    }
+    for (const group of organizationGroups.values()) group.docs.sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(organizationGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
   }
 }

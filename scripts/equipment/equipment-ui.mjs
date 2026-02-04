@@ -13,16 +13,7 @@ import { EquipmentManager } from './equipment-manager.mjs';
  * Renders equipment selection UI using Handlebars templates.
  */
 export class EquipmentUI {
-  /**
-   * Template path for equipment container.
-   * @type {string}
-   */
   static CONTAINER_TEMPLATE = 'modules/hero-mancer/templates/equipment/equipment-container.hbs';
-
-  /**
-   * Template path for individual equipment choice.
-   * @type {string}
-   */
   static CHOICE_TEMPLATE = 'modules/hero-mancer/templates/equipment/equipment-choice.hbs';
 
   /**
@@ -31,15 +22,14 @@ export class EquipmentUI {
    * @returns {Promise<HTMLElement>} Rendered container
    */
   static async render(container) {
-    log(3, 'EquipmentUI: Rendering equipment selection');
     try {
+      log(3, 'Rendering equipment selection UI');
       await EquipmentManager.initializeLookup();
       const equipmentData = await EquipmentManager.fetchEquipmentData();
       const context = await this.#buildContext(equipmentData);
       const html = await foundry.applications.handlebars.renderTemplate(this.CONTAINER_TEMPLATE, context);
       container.innerHTML = html;
       this.#attachListeners(container);
-      log(3, 'EquipmentUI: Rendering complete');
       return container;
     } catch (error) {
       log(1, `EquipmentUI: Render failed - ${error.message}`);
@@ -55,7 +45,6 @@ export class EquipmentUI {
    * @returns {Promise<HTMLElement>} Updated container
    */
   static async renderType(container, type) {
-    log(3, `EquipmentUI: Rendering ${type} equipment`);
     const equipmentData = await EquipmentManager.fetchEquipmentData();
     const entries = equipmentData[type] || [];
     const wealth = EquipmentManager.getWealthFormula(type);
@@ -195,8 +184,8 @@ export class EquipmentUI {
       base.hasOptions = base.options.length > 0;
       base.categoryKey = entry.key;
       if (entry.requiresProficiency) {
-        base.options = base.options.filter((opt) => {
-          return this.#checkProficiency(opt, entry.type);
+        base.options = base.options.filter(() => {
+          return this.#checkProficiency();
         });
       }
       if (base.count > 1) {
@@ -225,12 +214,10 @@ export class EquipmentUI {
 
   /**
    * Check if user has proficiency for an item.
-   * @param {object} _item - Item option
-   * @param {string} _type - Category type
    * @returns {boolean} True if user has proficiency
    * @todo REVISIT THIS
    */
-  static #checkProficiency(_item, _type) {
+  static #checkProficiency() {
     // For now, return true - full proficiency checking requires more context
     // This can be enhanced later
     return true;
@@ -344,7 +331,6 @@ export class EquipmentUI {
       }
     });
 
-    log(3, 'EquipmentUI: Event listeners attached');
   }
 
   /**

@@ -1,8 +1,8 @@
 import { MODULE } from '../utils/index.js';
-import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/** Troubleshooter settings application. */
 export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
   /*  Static Properties                           */
@@ -37,6 +37,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
+  /** @returns {string} Window title */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.troubleshooter.title')}`;
   }
@@ -54,16 +55,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    try {
-      return {
-        ...context,
-        output: Troubleshooter.generateTextReport()
-      };
-    } catch (error) {
-      log(1, `Error preparing troubleshooter context: ${error.message}`);
-      ui.notifications.error('hm.settings.troubleshooter.error-context', { localize: true });
-      return { ...context, output: game.i18n.localize('hm.settings.troubleshooter.error-report') };
-    }
+    return { ...context, output: Troubleshooter.generateTextReport() };
   }
 
   /* -------------------------------------------- */
@@ -76,26 +68,21 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static generateTextReport() {
-    try {
-      const reportLines = [];
-      const addLine = (text) => reportLines.push(text);
-      const addHeader = (text) => {
-        addLine('');
-        addLine(`/////////////// ${text} ///////////////`);
-        addLine('');
-      };
+    const reportLines = [];
+    const addLine = (text) => reportLines.push(text);
+    const addHeader = (text) => {
+      addLine('');
+      addLine(`/////////////// ${text} ///////////////`);
+      addLine('');
+    };
 
-      this._addGameInformation(addLine, addHeader);
-      this._addModuleInformation(addLine, addHeader);
-      this._addHeroMancerSettings(addLine, addHeader);
-      this._addCompendiumConfiguration(addLine, addHeader);
-      this._addMancerFormData(addLine, addHeader);
+    this._addGameInformation(addLine, addHeader);
+    this._addModuleInformation(addLine, addHeader);
+    this._addHeroMancerSettings(addLine, addHeader);
+    this._addCompendiumConfiguration(addLine, addHeader);
+    this._addMancerFormData(addLine, addHeader);
 
-      return reportLines.join('\n');
-    } catch (error) {
-      log(1, `Error generating text report: ${error.message}`);
-      throw error;
-    }
+    return reportLines.join('\n');
   }
 
   /**
@@ -104,19 +91,12 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static exportTextReport() {
-    try {
-      const output = this.generateTextReport();
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-      const filename = `hero-mancer-troubleshooter-${timestamp}.txt`;
-
-      const blob = new Blob([output], { type: 'text/plain' });
-      saveDataToFile(blob, { type: 'text/plain' }, filename);
-      return filename;
-    } catch (error) {
-      log(1, `Error exporting text report: ${error.message}`);
-      ui.notifications.error('hm.settings.troubleshooter.export-error', { localize: true });
-      throw error;
-    }
+    const output = this.generateTextReport();
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const filename = `hero-mancer-troubleshooter-${timestamp}.txt`;
+    const blob = new Blob([output], { type: 'text/plain' });
+    foundry.utils.saveDataToFile(blob, 'text/plain', filename);
+    return filename;
   }
 
   /**
@@ -125,13 +105,9 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static _onExportReport(event) {
-    try {
-      event.preventDefault();
-      const filename = Troubleshooter.exportTextReport();
-      ui.notifications.info(game.i18n.format('hm.settings.troubleshooter.export-success', { filename }));
-    } catch (error) {
-      log(1, `Error handling export report event: ${error.message}`);
-    }
+    event.preventDefault();
+    const filename = Troubleshooter.exportTextReport();
+    ui.notifications.info(game.i18n.format('hm.settings.troubleshooter.export-success', { filename }));
   }
 
   /**
@@ -140,21 +116,12 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static _onCopyToClipboard(event) {
-    try {
-      event.preventDefault();
-      const text = Troubleshooter.generateTextReport();
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          ui.notifications.info(game.i18n.localize('hm.settings.troubleshooter.copy-success'));
-        })
-        .catch((error) => {
-          log(1, `Error copying to clipboard: ${error.message}`);
-          ui.notifications.error('hm.settings.troubleshooter.copy-error', { localize: true });
-        });
-    } catch (error) {
-      log(1, `Error handling copy to clipboard event: ${error.message}`);
-    }
+    event.preventDefault();
+    const text = Troubleshooter.generateTextReport();
+    navigator.clipboard
+      .writeText(text)
+      .then(() => ui.notifications.info('hm.settings.troubleshooter.copy-success', { localize: true }))
+      .catch(() => ui.notifications.error('hm.settings.troubleshooter.copy-error', { localize: true }));
   }
 
   /**
@@ -163,13 +130,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static _onOpenDiscord(event) {
-    try {
-      event.preventDefault();
-      window.open('https://discord.gg/7HSEEyjMR4');
-    } catch (error) {
-      log(1, `Error opening Discord link: ${error.message}`);
-      ui.notifications.error('hm.settings.troubleshooter.link-error', { localize: true });
-    }
+    event.preventDefault();
+    window.open('https://discord.gg/7HSEEyjMR4');
   }
 
   /**
@@ -178,13 +140,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static _onOpenGithub(event) {
-    try {
-      event.preventDefault();
-      window.open('https://github.com/Sayshal/hero-mancer/issues');
-    } catch (error) {
-      log(1, `Error opening GitHub link: ${error.message}`);
-      ui.notifications.error('hm.settings.troubleshooter.link-error', { localize: true });
-    }
+    event.preventDefault();
+    window.open('https://github.com/Sayshal/hero-mancer/issues');
   }
 
   /* -------------------------------------------- */
@@ -195,46 +152,33 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * Adds game information to the report
    * @param {Function} addLine - Function to add a line to the report
    * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
    * @static
    * @private
    */
   static _addGameInformation(addLine, addHeader) {
-    try {
-      addHeader('Game Information');
-      addLine(`Foundry: ${game.version}`);
-      addLine(`System: ${game.system.id} v${game.system.version}`);
-      addLine(`Language: ${game.settings.get('core', 'language')}`);
-      addLine(`Hero Mancer Version: ${game.modules.get(MODULE.ID)?.version || 'unknown'}`);
-    } catch (error) {
-      log(1, `Error adding game information: ${error.message}`);
-      addLine('[Error retrieving game information]');
-    }
+    addHeader('Game Information');
+    addLine(`Foundry: ${game.version}`);
+    addLine(`System: ${game.system.id} v${game.system.version}`);
+    addLine(`Language: ${game.settings.get('core', 'language')}`);
+    addLine(`Hero Mancer Version: ${game.modules.get(MODULE.ID)?.version || 'unknown'}`);
   }
 
   /**
    * Adds module information to the report
    * @param {Function} addLine - Function to add a line to the report
    * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
    * @static
    * @private
    */
   static _addModuleInformation(addLine, addHeader) {
-    try {
-      addHeader('Active Modules');
-      const enabledModules = this.getEnabledModules()
-        .map((module) => `${module.title}: ${module.version}`)
-        .sort();
-
-      if (enabledModules.length) {
-        enabledModules.forEach((text) => addLine(text));
-      } else {
-        addLine('No active modules found');
-      }
-    } catch (error) {
-      log(1, `Error adding module information: ${error.message}`);
-      addLine('[Error retrieving module information]');
+    addHeader('Active Modules');
+    const enabledModules = this.getEnabledModules()
+      .map((module) => `${module.title}: ${module.version}`)
+      .sort();
+    if (enabledModules.length) {
+      enabledModules.forEach((text) => addLine(text));
+    } else {
+      addLine('No active modules found');
     }
   }
 
@@ -242,26 +186,19 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * Adds Hero Mancer settings to the report
    * @param {Function} addLine - Function to add a line to the report
    * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
    * @static
    * @private
    */
   static _addHeroMancerSettings(addLine, addHeader) {
-    try {
-      addHeader('Hero Mancer Settings');
-      const settings = this.collectSettings();
-
-      if (Object.keys(settings).length) {
-        for (const [key, value] of Object.entries(settings)) {
-          const valueDisplay = typeof value === 'object' ? JSON.stringify(value) : value;
-          addLine(`${key}: ${valueDisplay}`);
-        }
-      } else {
-        addLine('No settings found');
+    addHeader('Hero Mancer Settings');
+    const settings = this.collectSettings();
+    if (Object.keys(settings).length) {
+      for (const [key, value] of Object.entries(settings)) {
+        const valueDisplay = typeof value === 'object' ? JSON.stringify(value) : value;
+        addLine(`${key}: ${valueDisplay}`);
       }
-    } catch (error) {
-      log(1, `Error adding Hero Mancer settings: ${error.message}`);
-      addLine('[Error retrieving Hero Mancer settings]');
+    } else {
+      addLine('No settings found');
     }
   }
 
@@ -269,34 +206,22 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * Adds compendium configuration to the report
    * @param {Function} addLine - Function to add a line to the report
    * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
    * @static
    * @private
    */
   static _addCompendiumConfiguration(addLine, addHeader) {
-    try {
-      addHeader('Compendium Configuration');
-      const compendiums = this.getCompendiumInfo();
-
-      for (const [type, packs] of Object.entries(compendiums)) {
-        const typeName = type.charAt(0).toUpperCase() + type.slice(1);
-
-        if (packs.length) {
-          addLine(`${typeName} Packs:`);
-          packs.forEach((pack) => {
-            if (!pack.error) {
-              addLine(` - ${pack.name} (${pack.id})`);
-            } else {
-              addLine(` - [Missing Pack] ${pack.id}`);
-            }
-          });
-        } else {
-          addLine(`${typeName} Packs: None configured`);
-        }
+    addHeader('Compendium Configuration');
+    const compendiums = this.getCompendiumInfo();
+    for (const [type, packs] of Object.entries(compendiums)) {
+      const typeName = type.charAt(0).toUpperCase() + type.slice(1);
+      if (packs.length) {
+        addLine(`${typeName} Packs:`);
+        packs.forEach((pack) => {
+          addLine(pack.error ? ` - [Missing Pack] ${pack.id}` : ` - ${pack.name} (${pack.id})`);
+        });
+      } else {
+        addLine(`${typeName} Packs: None configured`);
       }
-    } catch (error) {
-      log(1, `Error adding compendium configuration: ${error.message}`);
-      addLine('[Error retrieving compendium configuration]');
     }
   }
 
@@ -304,38 +229,27 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * Adds Mancer form data to the report
    * @param {Function} addLine - Function to add a line to the report
    * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
    * @static
    * @private
    */
   static _addMancerFormData(addLine, addHeader) {
-    try {
-      const mancerData = this.collectMancerFormData();
-      if (mancerData && Object.keys(mancerData).length) {
-        addHeader('Hero Mancer Form Data');
+    const mancerData = this.collectMancerFormData();
+    if (!mancerData || !Object.keys(mancerData).length) return;
 
-        const formatMancerData = (data, prefix = '') => {
-          for (const [key, value] of Object.entries(data)) {
-            const fullKey = prefix ? `${prefix}.${key}` : key;
-
-            if (typeof value === 'object' && value !== null) {
-              formatMancerData(value, fullKey);
-            } else {
-              let valueDisplay = String(value);
-              if (valueDisplay.length > 100) {
-                valueDisplay = `${valueDisplay.substring(0, 97)}...`;
-              }
-              addLine(`${fullKey}: ${valueDisplay}`);
-            }
-          }
-        };
-
-        formatMancerData(mancerData);
+    addHeader('Hero Mancer Form Data');
+    const formatMancerData = (data, prefix = '') => {
+      for (const [key, value] of Object.entries(data)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === 'object' && value !== null) {
+          formatMancerData(value, fullKey);
+        } else {
+          let valueDisplay = String(value);
+          if (valueDisplay.length > 100) valueDisplay = `${valueDisplay.substring(0, 97)}...`;
+          addLine(`${fullKey}: ${valueDisplay}`);
+        }
       }
-    } catch (error) {
-      log(1, `Error adding Mancer form data: ${error.message}`);
-      addLine('[Error retrieving Mancer form data]');
-    }
+    };
+    formatMancerData(mancerData);
   }
 
   /* -------------------------------------------- */
@@ -348,22 +262,11 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static getEnabledModules() {
-    try {
-      const enabledModules = [];
-      game.modules.forEach((module, id) => {
-        if (module.active) {
-          enabledModules.push({
-            id,
-            title: module.title,
-            version: module.version
-          });
-        }
-      });
-      return enabledModules;
-    } catch (error) {
-      log(1, `Error getting enabled modules: ${error.message}`);
-      return [];
-    }
+    const enabledModules = [];
+    game.modules.forEach((module, id) => {
+      if (module.active) enabledModules.push({ id, title: module.title, version: module.version });
+    });
+    return enabledModules;
   }
 
   /**
@@ -372,22 +275,17 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static collectSettings() {
-    try {
-      const settings = {};
-      for (const [key, setting] of game.settings.settings.entries()) {
-        if (setting.namespace === MODULE.ID) {
-          try {
-            settings[setting.key] = game.settings.get(MODULE.ID, setting.key);
-          } catch (error) {
-            settings[setting.key] = `[Error: ${error.message}]`;
-          }
+    const settings = {};
+    for (const [, setting] of game.settings.settings.entries()) {
+      if (setting.namespace === MODULE.ID) {
+        try {
+          settings[setting.key] = game.settings.get(MODULE.ID, setting.key);
+        } catch (error) {
+          settings[setting.key] = `[Error: ${error.message}]`;
         }
       }
-      return settings;
-    } catch (error) {
-      log(1, `Error collecting settings: ${error.message}`);
-      return {};
     }
+    return settings;
   }
 
   /**
@@ -396,67 +294,49 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static collectMancerFormData() {
-    try {
-      const mancerApp = document.getElementById('hero-mancer-app');
-      if (!mancerApp) return null;
+    const mancerApp = document.getElementById('hero-mancer-app');
+    if (!mancerApp) return null;
 
-      const formElements = mancerApp.querySelectorAll('[name]');
-      if (!formElements.length) return null;
+    const formElements = mancerApp.querySelectorAll('[name]');
+    if (!formElements.length) return null;
 
-      const formData = {};
+    const formData = {};
+    const processName = (name, value) => {
+      const match = name.match(/^([^[]+)\[([^\]]+)]$/);
+      if (match) {
+        const [, arrayName, key] = match;
+        if (!formData[arrayName]) formData[arrayName] = {};
+        formData[arrayName][key] = value;
+      } else {
+        formData[name] = value;
+      }
+    };
 
-      // Helper to process array notation names (e.g., "abilities[str]")
-      const processName = (name, value) => {
-        const match = name.match(/^([^[]+)\[([^\]]+)]$/);
-        if (match) {
-          const [_, arrayName, key] = match;
-          if (!formData[arrayName]) formData[arrayName] = {};
-          formData[arrayName][key] = value;
-        } else {
-          formData[name] = value;
-        }
-      };
+    formElements.forEach((element) => {
+      const name = element.getAttribute('name');
+      if (!name) return;
 
-      formElements.forEach((element) => {
-        const name = element.getAttribute('name');
-        if (!name) return;
+      let value;
+      if (element.type === 'checkbox') {
+        value = element.checked;
+      } else if (element.type === 'radio') {
+        if (!element.checked) return;
+        value = element.value;
+      } else if (element.tagName === 'SELECT') {
+        value = element.value;
+        const selectedOption = element.options[element.selectedIndex];
+        if (selectedOption?.text) value = `${value} (${selectedOption.text})`;
+      } else if (element.tagName === 'PROSE-MIRROR') {
+        const content = element.querySelector('.editor-content');
+        value = content ? content.textContent : '[Complex Content]';
+      } else {
+        value = element.value;
+      }
 
-        let value;
+      processName(name, value);
+    });
 
-        if (element.type === 'checkbox') {
-          value = element.checked;
-        } else if (element.type === 'radio') {
-          if (!element.checked) return;
-          value = element.value;
-        } else if (element.tagName === 'SELECT') {
-          value = element.value;
-          try {
-            const selectedOption = element.options[element.selectedIndex];
-            if (selectedOption && selectedOption.text) {
-              value = `${value} (${selectedOption.text})`;
-            }
-          } catch (e) {
-            /* Ignore errors */
-          }
-        } else if (element.tagName === 'PROSE-MIRROR') {
-          try {
-            const content = element.querySelector('.editor-content');
-            value = content ? content.textContent : '[Complex Content]';
-          } catch (e) {
-            value = '[Complex Content]';
-          }
-        } else {
-          value = element.value;
-        }
-
-        processName(name, value);
-      });
-
-      return formData;
-    } catch (error) {
-      log(1, `Error collecting mancer form data: ${error.message}`);
-      return null;
-    }
+    return formData;
   }
 
   /**
@@ -465,34 +345,16 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static getCompendiumInfo() {
-    try {
-      const compendiums = {};
-      for (const type of ['class', 'race', 'background', 'item']) {
-        try {
-          const packSetting = `${type}Packs`;
-          const packs = game.settings.get(MODULE.ID, packSetting) || [];
-
-          compendiums[type] = packs.map((packId) => {
-            const pack = game.packs.get(packId);
-            return pack
-              ? {
-                  id: packId,
-                  name: pack.metadata.label,
-                  system: pack.metadata.system,
-                  packageName: pack.metadata.packageName
-                }
-              : { id: packId, error: 'Pack not found' };
-          });
-        } catch (error) {
-          log(1, `Error getting compendium info for ${type}: ${error.message}`);
-          compendiums[type] = [];
-        }
-      }
-      return compendiums;
-    } catch (error) {
-      log(1, `Error getting compendium info: ${error.message}`);
-      return {};
+    const compendiums = {};
+    for (const type of ['class', 'race', 'background', 'item']) {
+      const packs = game.settings.get(MODULE.ID, `${type}Packs`) || [];
+      compendiums[type] = packs.map((packId) => {
+        const pack = game.packs.get(packId);
+        return pack
+          ? { id: packId, name: pack.metadata.label, system: pack.metadata.system, packageName: pack.metadata.packageName }
+          : { id: packId, error: 'Pack not found' };
+      });
     }
+    return compendiums;
   }
-
 }

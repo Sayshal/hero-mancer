@@ -33,16 +33,11 @@ export class ProgressBar {
   /**
    * Calculates completion percentage from form data
    * @param {HTMLFormElement} form - The form data
-   * @returns {Object} Progress calculation data
+   * @returns {object} Progress calculation data
    */
   static calculateProgress(form) {
     const [filledCount, totalFields, unfilledFields, filledFields] = this.#calculateCompletionFromForm(form);
     const percentage = totalFields ? (filledCount / totalFields) * 100 : 0;
-
-    log(3, `Progress Update: ${filledCount}/${totalFields} fields filled (${percentage.toFixed(2)}%)`, {
-      Filled: filledFields,
-      Empty: unfilledFields
-    });
 
     return {
       filledCount,
@@ -83,7 +78,7 @@ export class ProgressBar {
   /**
    * Processes form data to determine completion
    * @param {HTMLElement} form - The form element
-   * @returns {[number, number, Array, Array]} - Array containing [filledFields, totalFields, unfilledFields, filledFields]
+   * @returns {Array} Array containing [filledFields, totalFields, unfilledFields, filledFields]
    * @private
    * @static
    */
@@ -104,7 +99,7 @@ export class ProgressBar {
   /**
    * Process named form elements for progress calculation
    * @param {HTMLElement} form - The form element
-   * @param {Object} results - The results object to update
+   * @param {object} results - The results object to update
    * @private
    * @static
    */
@@ -124,7 +119,7 @@ export class ProgressBar {
   /**
    * Process equipment inputs for progress calculation
    * @param {HTMLElement} form - The form element
-   * @param {Object} results - The results object to update
+   * @param {object} results - The results object to update
    * @private
    * @static
    */
@@ -144,14 +139,6 @@ export class ProgressBar {
     });
   }
 
-  /**
-   * Checks if an input should be skipped in progress calculation
-   * @param {HTMLElement} input - The input element
-   * @returns {boolean} Whether to skip this input
-   * @private
-   * @static
-   */
-  /** @type {Set<string>} Field names to exclude from progress calculation */
   static #IGNORED_FIELDS = new Set([
     'ring.effects',
     'ring.enabled',
@@ -164,6 +151,13 @@ export class ProgressBar {
     'starting-wealth-amount-background'
   ]);
 
+  /**
+   * Checks if an input should be skipped during progress calculation.
+   * @param {HTMLElement} input - The input element to check
+   * @returns {boolean} Whether to skip this input
+   * @private
+   * @static
+   */
   static #shouldSkipInput(input) {
     return (
       input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || this.#IGNORED_FIELDS.has(input.name)
@@ -190,7 +184,7 @@ export class ProgressBar {
    * Updates results object with field status
    * @param {HTMLElement} input - The input element
    * @param {boolean} isFilled - Whether the field is filled
-   * @param {Object} results - The results object to update
+   * @param {object} results - The results object to update
    * @private
    * @static
    */
@@ -281,17 +275,14 @@ export class ProgressBar {
 
   /**
    * Checks if point buy ability scores are complete
-   * @param {HTMLElement} form - The form element
-   * @returns {boolean} - Whether point buy is complete
+   * @returns {boolean} Whether point buy is complete
    * @private
    * @static
    */
   static #isPointBuyComplete() {
     const total = StatRoller.getTotalPoints();
     const spent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
-    const isComplete = spent >= total;
-    log(3, `Point Buy ability check - spent: ${spent}/${total}, filled: ${isComplete}`);
-    return isComplete;
+    return spent >= total;
   }
 
   /**
@@ -306,11 +297,6 @@ export class ProgressBar {
 
     // Check if it's just commas or whitespace
     const stringValue = String(value);
-    const isOnlyCommas = stringValue.replace(/,/g, '').trim() === '';
-
-    const isFilled = !isOnlyCommas;
-    log(3, `Standard ability check - value: ${value}, only commas: ${isOnlyCommas}, filled: ${isFilled}`);
-
-    return isFilled;
+    return stringValue.replace(/,/g, '').trim() !== '';
   }
 }

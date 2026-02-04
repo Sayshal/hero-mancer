@@ -1,5 +1,4 @@
 import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, FormValidation, HeroMancerUI, HM, MODULE, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
-import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -79,11 +78,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /*  Instance Properties                         */
   /* -------------------------------------------- */
 
-  /**
-   * Flag to prevent rendering conflicts when updates are in progress
-   * @private
-   * @type {boolean}
-   */
   #isRendering;
 
   /**
@@ -107,26 +101,20 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    try {
-      if (!HM.documents.race || !HM.documents.class || !HM.documents.background) ui.notifications.info('hm.actortab-button.loading', { localize: true });
-      game.users.forEach((user) => {
-        HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
-      });
+    game.users.forEach((user) => {
+      HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
+    });
 
-      if (HM.COMPAT?.ELKAN) options.parts = options.parts.filter((part) => part !== 'equipment');
+    if (HM.COMPAT?.ELKAN) options.parts = options.parts.filter((part) => part !== 'equipment');
 
-      return {
-        ...context,
-        raceDocs: HM.documents.race || [],
-        classDocs: HM.documents.class || [],
-        backgroundDocs: HM.documents.background || [],
-        tabs: this._getTabs(HeroMancer.getTabOrder()),
-        players: game.users.map((user) => ({ id: user.id, name: user.name, color: user.color.css }))
-      };
-    } catch (error) {
-      log(1, 'Error preparing context:', error);
-      return { ...context, raceDocs: [], classDocs: [], backgroundDocs: [], tabs: {}, players: [] };
-    }
+    return {
+      ...context,
+      raceDocs: HM.documents.race || [],
+      classDocs: HM.documents.class || [],
+      backgroundDocs: HM.documents.background || [],
+      tabs: this._getTabs(HeroMancer.getTabOrder()),
+      players: game.users.map((user) => ({ id: user.id, name: user.name, color: user.color.css }))
+    };
   }
 
   /**
@@ -139,71 +127,66 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _preparePartContext(partId, context) {
-    let abilitiesCount, diceRollMethod;
-    try {
-      if (context.tabs?.[partId]) context.tab = context.tabs[partId];
-      const tabOrder = HeroMancer.getTabOrder();
-      const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
-      switch (partId) {
-        case 'start':
-          context.playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
-          context.tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
-          context.token = this.#getTokenConfig();
-          context.isGM = game.user.isGM;
-          break;
-        case 'race':
-        case 'class':
-        case 'background':
-          context.tabName = partId;
-          context.docs = context[`${partId}Docs`];
-          context.selectLabelKey = `hm.app.${partId}.select-label`;
-          context.selectPlaceholderKey = `hm.app.${partId}.select-placeholder`;
-          context.noneKey = `hm.app.${partId}.none`;
-          break;
-        case 'abilities':
-          abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
-          diceRollMethod = StatRoller.getDiceRollingMethod();
-          HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
-          context.abilities = StatRoller.buildAbilitiesContext();
-          context.rollStat = this.rollStat;
-          context.rollMethods = StatRoller.rollMethods;
-          context.diceRollMethod = diceRollMethod;
-          context.allowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
-          context.standardArray = StatRoller.getStandardArrayValues(diceRollMethod);
-          context.selectedAbilities = HeroMancer.selectedAbilities;
-          context.totalPoints = StatRoller.getTotalPoints();
-          context.pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
-          context.remainingPoints = context.totalPoints - context.pointsSpent;
-          context.chainedRolls = game.settings.get(MODULE.ID, 'chainedRolls');
-          break;
-        case 'biography':
-          context.alignments =
-            game.settings
-              .get(MODULE.ID, 'alignments')
-              .split(',')
-              .map((d) => d.trim()) || [];
-          context.deities =
-            game.settings
-              .get(MODULE.ID, 'deities')
-              .split(',')
-              .map((d) => d.trim()) || [];
-          context.enableAlignmentFaithInputs = game.settings.get(MODULE.ID, 'enableAlignmentFaithInputs');
-          break;
-        case 'footer':
-          context.randomizeButton = game.settings.get(MODULE.ID, 'enableRandomize');
-          context.navigationButtons = game.settings.get(MODULE.ID, 'enableNavigationButtons');
-          context.isFirstTab = currentTabIndex === 0;
-          context.isLastTab = currentTabIndex === tabOrder.length - 1;
-          context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
-          context.nextTabName = currentTabIndex < tabOrder.length - 1 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`) : '';
-          context.canCreateActor = game.user.can('ACTOR_CREATE') || game.user.isGM;
-          break;
+    if (context.tabs?.[partId]) context.tab = context.tabs[partId];
+    const tabOrder = HeroMancer.getTabOrder();
+    const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
+    switch (partId) {
+      case 'start':
+        context.playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
+        context.tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
+        context.token = this.#getTokenConfig();
+        context.isGM = game.user.isGM;
+        break;
+      case 'race':
+      case 'class':
+      case 'background':
+        context.tabName = partId;
+        context.docs = context[`${partId}Docs`];
+        context.selectLabelKey = `hm.app.${partId}.select-label`;
+        context.selectPlaceholderKey = `hm.app.${partId}.select-placeholder`;
+        context.noneKey = `hm.app.${partId}.none`;
+        break;
+      case 'abilities': {
+        const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
+        const diceRollMethod = StatRoller.getDiceRollingMethod();
+        HeroMancer.selectedAbilities = Array(abilitiesCount).fill(HM.ABILITY_SCORES.DEFAULT);
+        context.abilities = StatRoller.buildAbilitiesContext();
+        context.rollStat = this.rollStat;
+        context.rollMethods = StatRoller.rollMethods;
+        context.diceRollMethod = diceRollMethod;
+        context.allowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
+        context.standardArray = StatRoller.getStandardArrayValues(diceRollMethod);
+        context.selectedAbilities = HeroMancer.selectedAbilities;
+        context.totalPoints = StatRoller.getTotalPoints();
+        context.pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+        context.remainingPoints = context.totalPoints - context.pointsSpent;
+        context.chainedRolls = game.settings.get(MODULE.ID, 'chainedRolls');
+        break;
       }
-      return context;
-    } catch (error) {
-      log(1, `Error preparing context for part ${partId}:`, error);
-      return context;
+      case 'biography':
+        context.alignments =
+          game.settings
+            .get(MODULE.ID, 'alignments')
+            .split(',')
+            .map((d) => d.trim()) || [];
+        context.deities =
+          game.settings
+            .get(MODULE.ID, 'deities')
+            .split(',')
+            .map((d) => d.trim()) || [];
+        context.enableAlignmentFaithInputs = game.settings.get(MODULE.ID, 'enableAlignmentFaithInputs');
+        break;
+      case 'footer':
+        context.randomizeButton = game.settings.get(MODULE.ID, 'enableRandomize');
+        context.navigationButtons = game.settings.get(MODULE.ID, 'enableNavigationButtons');
+        context.isFirstTab = currentTabIndex === 0;
+        context.isLastTab = currentTabIndex === tabOrder.length - 1;
+        context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
+        context.nextTabName = currentTabIndex < tabOrder.length - 1 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex + 1]}`) : '';
+        context.canCreateActor = game.user.can('ACTOR_CREATE') || game.user.isGM;
+        break;
     }
+    return context;
   }
 
   /**
@@ -214,32 +197,27 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @override
    */
   _getTabs(parts) {
-    try {
-      const tabGroup = 'hero-mancer-tabs';
-      if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'start';
-      const tabConfigs = {
-        start: { icon: 'fa-solid fa-play-circle' },
-        background: { icon: 'fa-solid fa-scroll' },
-        race: { icon: 'fa-solid fa-feather-alt' },
-        class: { icon: 'fa-solid fa-chess-rook' },
-        abilities: { icon: 'fa-solid fa-fist-raised' },
-        equipment: { icon: 'fa-solid fa-shield-halved', skipIf: () => HM.COMPAT?.ELKAN },
-        biography: { icon: 'fa-solid fa-book-open' },
-        finalize: { icon: 'fa-solid fa-flag-checkered' }
-      };
+    const tabGroup = 'hero-mancer-tabs';
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'start';
+    const tabConfigs = {
+      start: { icon: 'fa-solid fa-play-circle' },
+      background: { icon: 'fa-solid fa-scroll' },
+      race: { icon: 'fa-solid fa-feather-alt' },
+      class: { icon: 'fa-solid fa-chess-rook' },
+      abilities: { icon: 'fa-solid fa-fist-raised' },
+      equipment: { icon: 'fa-solid fa-shield-halved', skipIf: () => HM.COMPAT?.ELKAN },
+      biography: { icon: 'fa-solid fa-book-open' },
+      finalize: { icon: 'fa-solid fa-flag-checkered' }
+    };
 
-      const nonTabs = ['header', 'tabs', 'footer'];
-      return parts.reduce((tabs, partId) => {
-        if (nonTabs.includes(partId) || !tabConfigs[partId]) return tabs;
-        const config = tabConfigs[partId];
-        if (config.skipIf && config.skipIf()) return tabs;
-        tabs[partId] = { id: partId, label: game.i18n.localize(`hm.app.tab-names.${partId}`), group: tabGroup, cssClass: this.tabGroups[tabGroup] === partId ? 'active' : '', icon: config.icon };
-        return tabs;
-      }, {});
-    } catch (error) {
-      log(1, 'Error generating tabs:', error);
-      return { start: { id: 'start', label: game.i18n.localize('hm.app.tab-names.start'), group: 'hero-mancer-tabs', cssClass: 'active', icon: 'fa-solid fa-play-circle' } };
-    }
+    const nonTabs = ['header', 'tabs', 'footer'];
+    return parts.reduce((tabs, partId) => {
+      if (nonTabs.includes(partId) || !tabConfigs[partId]) return tabs;
+      const config = tabConfigs[partId];
+      if (config.skipIf && config.skipIf()) return tabs;
+      tabs[partId] = { id: partId, label: game.i18n.localize(`hm.app.tab-names.${partId}`), group: tabGroup, cssClass: this.tabGroups[tabGroup] === partId ? 'active' : '', icon: config.icon };
+      return tabs;
+    }, {});
   }
 
   /**
@@ -324,16 +302,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   async _preClose() {
     await super._preClose();
-    log(3, 'Preparing to close application');
     const embedContainers = this.element.querySelectorAll('.journal-container, .journal-embed-container');
     for (const container of embedContainers) {
-      try {
-        const embedInstanceId = container.dataset.embedId;
-        if (embedInstanceId && this[embedInstanceId]) this[embedInstanceId].close();
-        container.innerHTML = '';
-      } catch (error) {
-        log(2, `Error closing journal embed: ${error.message}`);
-      }
+      const embedInstanceId = container.dataset.embedId;
+      if (embedInstanceId && this[embedInstanceId]) this[embedInstanceId].close();
+      container.innerHTML = '';
     }
 
     HeroMancerUI.cleanup();
@@ -364,17 +337,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @throws {Error} If token configuration cannot be retrieved
    */
   #getTokenConfig() {
-    try {
-      const trackedAttrs = foundry.documents.TokenDocument.implementation._getConfiguredTrackedAttributes('character');
-      if (!trackedAttrs) throw new Error('Could not retrieve tracked attributes from TokenDocument');
-      const displayModes = this.#createDisplayModes();
-      const barAttributes = this.#createBarAttributesMapping(trackedAttrs);
-      const ringEffects = this.#createRingEffectsMapping();
-      return { displayModes, barModes: displayModes, barAttributes, ring: { effects: ringEffects } };
-    } catch (error) {
-      log(1, 'Error generating token config:', error);
-      return { displayModes: {}, barModes: {}, barAttributes: {}, ring: { effects: {} } };
-    }
+    const trackedAttrs = foundry.documents.TokenDocument.implementation._getConfiguredTrackedAttributes('character');
+    if (!trackedAttrs) return { displayModes: {}, barModes: {}, barAttributes: {}, ring: { effects: {} } };
+    const displayModes = this.#createDisplayModes();
+    const barAttributes = this.#createBarAttributesMapping(trackedAttrs);
+    const ringEffects = this.#createRingEffectsMapping();
+    return { displayModes, barModes: displayModes, barAttributes, ring: { effects: ringEffects } };
   }
 
   /**
@@ -448,34 +416,26 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async resetOptions(_event, target) {
-    try {
-      const form = target.ownerDocument.getElementById('hero-mancer-app');
-      const success = await SavedOptions.resetOptions(form);
-      if (success) {
-        const app = HM.heroMancer;
-        if (app) {
-          await app.render(true);
-          requestAnimationFrame(async () => {
-            await HeroMancerUI.initialize(app.element);
-            ['class', 'race', 'background'].forEach((type) => {
-              const dropdown = app.element.querySelector(`#${type}-dropdown`);
-              if (dropdown && dropdown.value) {
-                const id = dropdown.value.split(' ')[0];
-                HeroMancerUI.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
-              }
-            });
+    const form = target.ownerDocument.getElementById('hero-mancer-app');
+    const success = await SavedOptions.resetOptions(form);
+    if (success) {
+      const app = HM.heroMancer;
+      if (app) {
+        await app.render(true);
+        requestAnimationFrame(async () => {
+          await HeroMancerUI.initialize(app.element);
+          ['class', 'race', 'background'].forEach((type) => {
+            const dropdown = app.element.querySelector(`#${type}-dropdown`);
+            if (dropdown && dropdown.value) {
+              const id = dropdown.value.split(' ')[0];
+              HeroMancerUI.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
+            }
           });
-        }
-
-        ui.notifications.info('hm.app.optionsReset', { localize: true });
+        });
       }
-
-      return success;
-    } catch (error) {
-      log(1, 'Error resetting options:', error);
-      ui.notifications.error('hm.errors.reset-options-failed', { localize: true });
-      return false;
+      ui.notifications.info('hm.app.optionsReset', { localize: true });
     }
+    return success;
   }
 
   /**
@@ -487,13 +447,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async rollStat(_event, form) {
-    try {
-      return await StatRoller.rollAbilityScore(form);
-    } catch (error) {
-      log(1, 'Error rolling ability score:', error);
-      ui.notifications.error('hm.errors.ability-roll-failed', { localize: true });
-      return null;
-    }
+    return await StatRoller.rollAbilityScore(form);
   }
 
   /**
@@ -506,18 +460,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async noSubmit(event, options = {}) {
-    try {
-      for (const [userId, originalColor] of HeroMancer.ORIGINAL_PLAYER_COLORS.entries()) {
-        const user = game.users.get(userId);
-        if (user) await user.update({ color: originalColor });
-      }
-      HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
-      if (event.target.className === 'hm-app-footer-cancel') {
-        log(3, 'Closing HeroMancer application via noSubmit.');
-        await HM.heroMancer.close(options);
-      }
-    } catch (error) {
-      log(1, 'Error during form cancellation:', error);
+    for (const [userId, originalColor] of HeroMancer.ORIGINAL_PLAYER_COLORS.entries()) {
+      const user = game.users.get(userId);
+      if (user) await user.update({ color: originalColor });
+    }
+    HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
+    if (event.target.className === 'hm-app-footer-cancel') {
+      await HM.heroMancer.close(options);
     }
   }
 
@@ -528,23 +477,14 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static randomizeCharacterName(event) {
-    try {
-      event.preventDefault();
-      const nameInput = document.getElementById('character-name');
-      if (!nameInput) {
-        log(2, 'Could not find character name input element');
-        return null;
-      }
+    event.preventDefault();
+    const nameInput = document.getElementById('character-name');
+    if (!nameInput) return null;
 
-      const randomName = CharacterRandomizer.generateRandomName();
-      nameInput.value = randomName;
-      nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      log(3, `Generated random name: ${randomName}`);
-      return randomName;
-    } catch (error) {
-      log(1, 'Error generating random character name:', error);
-      return null;
-    }
+    const randomName = CharacterRandomizer.generateRandomName();
+    nameInput.value = randomName;
+    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    return randomName;
   }
 
   /**
@@ -555,21 +495,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async randomize(event) {
-    try {
-      event.preventDefault();
-      await HM.heroMancer.render(true);
-      const form = document.getElementById('hero-mancer-app');
-      if (!form) {
-        log(2, 'Could not find form element when randomizing character');
-        return false;
-      }
-
-      return await CharacterRandomizer.randomizeAll(form);
-    } catch (error) {
-      log(1, 'Error randomizing character:', error);
-      ui.notifications.error('hm.errors.randomize-failed', { localize: true });
-      return false;
-    }
+    event.preventDefault();
+    await HM.heroMancer.render(true);
+    const form = document.getElementById('hero-mancer-app');
+    if (!form) return false;
+    return await CharacterRandomizer.randomizeAll(form);
   }
 
   /**
@@ -580,27 +510,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static openMenu(event, menuKey) {
-    try {
-      event.preventDefault();
-      if (!menuKey) {
-        log(1, 'No menu key provided');
-        return false;
-      }
-
-      const menuId = `${MODULE.ID}.${menuKey}`;
-      const menuConfig = game.settings.menus.get(menuId);
-      if (menuConfig) {
-        const MenuClass = menuConfig.type;
-        new MenuClass().render(true);
-        return true;
-      } else {
-        log(1, `Menu '${menuId}' not found`);
-        return false;
-      }
-    } catch (error) {
-      log(1, `Error opening menu ${menuKey}:`, error);
-      return false;
-    }
+    event.preventDefault();
+    if (!menuKey) return false;
+    const menuId = `${MODULE.ID}.${menuKey}`;
+    const menuConfig = game.settings.menus.get(menuId);
+    if (!menuConfig) return false;
+    new menuConfig.type().render(true);
+    return true;
   }
 
   /**
@@ -652,25 +568,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async formHandler(event, _form, formData) {
+    ui.notifications.clear();
     if (event.submitter?.dataset.action === 'saveOptions') {
-      try {
-        await HeroMancer.noSubmit(event);
-        await SavedOptions.saveOptions(formData.object);
-        ui.notifications.info('hm.app.optionsSaved', { localize: true });
-      } catch (error) {
-        log(1, 'Error saving options:', error);
-        ui.notifications.error('hm.errors.save-options-failed', { localize: true });
-        throw new Error(`Failed to save options: ${error.message}`);
-      }
+      await HeroMancer.noSubmit(event);
+      await SavedOptions.saveOptions(formData.object);
+      ui.notifications.info('hm.app.optionsSaved', { localize: true });
       return null;
     }
-
-    try {
-      return await ActorCreationService.createCharacter(event, formData);
-    } catch (error) {
-      log(1, 'Character creation failed:', error);
-      ui.notifications.error('hm.errors.character-creation-failed', { localize: true });
-      return null;
-    }
+    return await ActorCreationService.createCharacter(event, formData);
   }
 }

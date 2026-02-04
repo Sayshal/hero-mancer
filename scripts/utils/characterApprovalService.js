@@ -10,30 +10,14 @@ export class CharacterApprovalService {
   /*  Static Properties                           */
   /* -------------------------------------------- */
 
-  /**
-   * Socket event namespace
-   * @static
-   * @type {string}
-   */
   static SOCKET_NAME = `module.${MODULE.ID}`;
 
-  /**
-   * Socket event types
-   * @static
-   * @type {object}
-   */
   static EVENTS = {
     SUBMIT_CHARACTER: 'submitCharacter',
     CHARACTER_APPROVED: 'characterApproved',
     CHARACTER_REJECTED: 'characterRejected'
   };
 
-  /**
-   * Socket callback reference for cleanup
-   * @static
-   * @type {Function|null}
-   * @private
-   */
   static #socketCallback = null;
 
   /* -------------------------------------------- */
@@ -52,7 +36,6 @@ export class CharacterApprovalService {
     }
 
     this.#socketCallback = (data) => {
-      log(3, 'Socket event received:', data);
       switch (data.type) {
         case this.EVENTS.SUBMIT_CHARACTER:
           if (game.user.isGM) this.#handleCharacterSubmission(data);
@@ -67,7 +50,6 @@ export class CharacterApprovalService {
     };
 
     game.socket.on(this.SOCKET_NAME, this.#socketCallback);
-    log(3, 'Character approval socket listeners registered');
   }
 
   /**
@@ -79,25 +61,23 @@ export class CharacterApprovalService {
     if (this.#socketCallback) {
       game.socket.off(this.SOCKET_NAME, this.#socketCallback);
       this.#socketCallback = null;
-      log(3, 'Character approval socket listeners unregistered');
     }
   }
 
   /**
    * Submit character data for GM approval
    * @param {object} characterData - The character data to submit
-   * @param {User} user - The user submitting the character
+   * @param {object} user - The user submitting the character
    * @returns {Promise<void>}
    * @static
    */
   static async submitForApproval(characterData, user) {
-    log(3, 'Submitting character for GM approval:', { characterData, userId: user.id });
-
-    // Store the pending submission in user flags
     await user.setFlag(MODULE.ID, 'pendingCharacterSubmission', {
       characterData,
       timestamp: Date.now()
     });
+
+    log(3, `Submitting character for approval from ${user.name}`);
 
     // Emit socket event to notify GMs
     game.socket.emit(this.SOCKET_NAME, {
@@ -107,15 +87,14 @@ export class CharacterApprovalService {
       characterData
     });
 
-    ui.notifications.info(game.i18n.localize('hm.approval.submitted'));
-    log(3, 'Character submission sent to GMs');
+    ui.notifications.info('hm.approval.submitted', { localize: true });
   }
 
   /**
    * Create actor for a player (GM only)
    * @param {object} characterData - The character data
    * @param {string} targetUserId - The ID of the user to create the actor for
-   * @returns {Promise<Actor|null>} The created actor or null on failure
+   * @returns {Promise<object|null>} The created actor or null on failure
    * @static
    */
   static async createActorForPlayer(characterData, targetUserId) {
@@ -131,7 +110,6 @@ export class CharacterApprovalService {
     }
 
     try {
-      log(3, 'GM creating actor for player:', { targetUserId, characterData });
       const actor = await ActorCreationService.createCharacterForPlayer(characterData, targetUser);
       return actor;
     } catch (error) {
@@ -151,9 +129,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #handleCharacterSubmission(data) {
-    log(3, 'GM received character submission:', data);
-
-    // Show notification to GM
+    log(3, `Received character submission from ${data.userName}`);
     ui.notifications.info(game.i18n.format('hm.approval.gm-received', { name: data.userName }));
 
     // Show review dialog
@@ -192,7 +168,7 @@ export class CharacterApprovalService {
     };
 
     // Render template
-    const content = await renderTemplate('modules/hero-mancer/templates/approval-review.hbs', context);
+    const content = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/approval-review.hbs', context);
 
     const result = await foundry.applications.api.DialogV2.wait({
       window: {
@@ -227,7 +203,7 @@ export class CharacterApprovalService {
   /**
    * Get item info from a selection string by looking up the UUID
    * @param {string} selectionString - Selection string like "id [uuid] (packId)"
-   * @returns {Promise<{name: string, uuid: string}>}
+   * @returns {Promise<{name: string, uuid: string}>} The item info
    * @private
    * @static
    */
@@ -332,8 +308,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #approveCharacter(userId, characterData) {
-    log(3, 'Approving character for user:', userId);
-
+    log(3, `Approving character for user ${userId}`);
     try {
       // Create the actor (without advancements - those will be processed on player's client)
       const actor = await this.createActorForPlayer(characterData, userId);
@@ -358,7 +333,7 @@ export class CharacterApprovalService {
       }
     } catch (error) {
       log(1, 'Error approving character:', error);
-      ui.notifications.error(game.i18n.localize('hm.approval.error'));
+      ui.notifications.error('hm.approval.error', { localize: true, permanent: true });
     }
   }
 
@@ -370,9 +345,6 @@ export class CharacterApprovalService {
    * @static
    */
   static async #rejectCharacter(userId, userName) {
-    log(3, 'Rejecting character for user:', userId);
-
-    // Clear the pending submission flag
     const targetUser = game.users.get(userId);
     if (targetUser) {
       await targetUser.unsetFlag(MODULE.ID, 'pendingCharacterSubmission');
@@ -394,7 +366,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #handleApprovalNotification(data) {
-    log(3, 'Character approved, continuing creation:', data);
+    ui.notifications.clear();
     ui.notifications.info(game.i18n.format('hm.approval.player-approved', { name: data.actorName }));
 
     // Continue character creation with advancements on player's client
@@ -418,9 +390,8 @@ export class CharacterApprovalService {
    * @private
    * @static
    */
-  static async #handleRejectionNotification(data) {
-    log(3, 'Character rejected, reopening Hero Mancer:', data);
-    ui.notifications.warn(game.i18n.localize('hm.approval.player-rejected-resume'));
+  static async #handleRejectionNotification() {
+    ui.notifications.warn('hm.approval.player-rejected-resume', { localize: true });
 
     // Reopen Hero Mancer so player can make changes
     const { HeroMancer } = await import('../app/HeroMancer.js');

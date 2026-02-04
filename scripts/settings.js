@@ -1,39 +1,17 @@
 import { MODULE } from './constants.mjs';
 import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
-import { log } from './utils/logger.mjs';
 
 const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foundry.data.fields;
 
 /**
- * Main registration function that initializes all module settings.
- * Calls specialized registration functions for different setting categories.
+ * Registers all module settings, menus, and compatibility options.
  */
 export function registerSettings() {
-  log(3, 'Registering module settings.');
-
-  // Register core settings
-  registerCoreSettings();
-
-  // Register menus and their related settings
-  registerCompendiumSettings();
-  registerCustomizationSettings();
-  registerDiceRollingSettings();
-  registerMandatoryFieldsSettings();
-  registerTroubleshootingSettings();
-
-  // Register compatibility settings
-  registerCompatibilitySettings();
-}
-
-/**
- * Registers core settings that control basic module functionality.
- */
-function registerCoreSettings() {
   game.settings.register(MODULE.ID, 'enable', {
     name: 'hm.settings.enable.name',
     hint: 'hm.settings.enable.hint',
     type: new BooleanField({ initial: true }),
-    scope: 'client',
+    scope: 'world',
     config: true,
     requiresReload: true
   });
@@ -42,7 +20,7 @@ function registerCoreSettings() {
     name: 'hm.settings.compact-button.name',
     hint: 'hm.settings.compact-button.hint',
     type: new BooleanField({ initial: true }),
-    scope: 'client',
+    scope: 'world',
     config: true,
     requiresReload: true
   });
@@ -71,9 +49,6 @@ function registerCoreSettings() {
     }),
     onChange: (value) => {
       MODULE.LOG_LEVEL = parseInt(value);
-      if (value !== '0') {
-        log(3, `hm.settings.logger.level.${value}`);
-      }
     }
   });
 
@@ -91,13 +66,6 @@ function registerCoreSettings() {
     type: new StringField({ initial: 'standardArray' })
   });
 
-  log(3, 'Core settings registered.');
-}
-
-/**
- * Registers custom compendium settings and related configuration.
- */
-function registerCompendiumSettings() {
   game.settings.registerMenu(MODULE.ID, 'customCompendiumMenu', {
     name: 'hm.settings.custom-compendiums.menu.name',
     hint: 'hm.settings.custom-compendiums.menu.hint',
@@ -136,13 +104,6 @@ function registerCompendiumSettings() {
     type: new ArrayField(new StringField())
   });
 
-  log(3, 'Compendium settings registered.');
-}
-
-/**
- * Registers customization settings for appearance and character options.
- */
-function registerCustomizationSettings() {
   game.settings.registerMenu(MODULE.ID, 'customizationMenu', {
     name: 'hm.settings.customization.menu.name',
     hint: 'hm.settings.customization.menu.hint',
@@ -265,13 +226,6 @@ function registerCustomizationSettings() {
     ]
   });
 
-  log(3, 'Customization settings registered.');
-}
-
-/**
- * Registers dice rolling settings for ability score generation.
- */
-function registerDiceRollingSettings() {
   game.settings.registerMenu(MODULE.ID, 'diceRollingMenu', {
     name: 'hm.settings.dice-rolling.menu.name',
     hint: 'hm.settings.dice-rolling.menu.hint',
@@ -284,13 +238,7 @@ function registerDiceRollingSettings() {
   game.settings.register(MODULE.ID, 'allowedMethods', {
     scope: 'world',
     config: false,
-    type: new ObjectField({
-      initial: {
-        standardArray: true,
-        pointBuy: true,
-        manual: true
-      }
-    })
+    type: new ObjectField({ initial: { standardArray: true, pointBuy: true, manual: true } })
   });
 
   game.settings.register(MODULE.ID, 'customRollFormula', {
@@ -323,12 +271,7 @@ function registerDiceRollingSettings() {
     hint: 'hm.settings.roll-delay.hint',
     scope: 'world',
     config: false,
-    type: new NumberField({ initial: 500, min: 100, max: 2000, step: 100, integer: true }),
-    range: {
-      min: 100,
-      max: 2000,
-      step: 100
-    }
+    type: new NumberField({ initial: 500, min: 100, max: 2000, step: 100, integer: true })
   });
 
   game.settings.register(MODULE.ID, 'customStandardArray', {
@@ -346,12 +289,7 @@ function registerDiceRollingSettings() {
     hint: 'hm.settings.ability-scores.default.hint',
     scope: 'world',
     config: false,
-    type: new NumberField({ initial: 8, min: 3, max: 20, step: 1, integer: true }),
-    range: {
-      min: 3,
-      max: 20,
-      step: 1
-    }
+    type: new NumberField({ initial: 8, min: 3, max: 20, step: 1, integer: true })
   });
 
   game.settings.register(MODULE.ID, 'abilityScoreMin', {
@@ -359,12 +297,7 @@ function registerDiceRollingSettings() {
     hint: 'hm.settings.ability-scores.min.hint',
     scope: 'world',
     config: false,
-    type: new NumberField({ initial: 8, min: 3, max: 18, step: 1, integer: true }),
-    range: {
-      min: 3,
-      max: 18,
-      step: 1
-    }
+    type: new NumberField({ initial: 8, min: 3, max: 18, step: 1, integer: true })
   });
 
   game.settings.register(MODULE.ID, 'abilityScoreMax', {
@@ -372,12 +305,7 @@ function registerDiceRollingSettings() {
     hint: 'hm.settings.ability-scores.max.hint',
     scope: 'world',
     config: false,
-    type: new NumberField({ initial: 15, min: 10, max: 20, step: 1, integer: true }),
-    range: {
-      min: 10,
-      max: 20,
-      step: 1
-    }
+    type: new NumberField({ initial: 15, min: 10, max: 20, step: 1, integer: true })
   });
 
   game.settings.register(MODULE.ID, 'statGenerationSwapMode', {
@@ -388,13 +316,6 @@ function registerDiceRollingSettings() {
     type: new BooleanField({ initial: false })
   });
 
-  log(3, 'Dice Rolling settings registered.');
-}
-
-/**
- * Registers mandatory fields settings.
- */
-function registerMandatoryFieldsSettings() {
   game.settings.registerMenu(MODULE.ID, 'mandatoryFieldsMenu', {
     name: 'hm.settings.mandatory-fields.menu.name',
     hint: 'hm.settings.mandatory-fields.menu.hint',
@@ -405,19 +326,11 @@ function registerMandatoryFieldsSettings() {
   });
 
   game.settings.register(MODULE.ID, 'mandatoryFields', {
-    name: 'hm.settings.mandatory-fields.name',
     scope: 'world',
     config: false,
     type: new ArrayField(new StringField())
   });
 
-  log(3, 'Mandatory Field settings registered.');
-}
-
-/**
- * Registers troubleshooting settings.
- */
-function registerTroubleshootingSettings() {
   game.settings.registerMenu(MODULE.ID, 'troubleshootingMenu', {
     name: 'hm.settings.troubleshooter.menu.name',
     hint: 'hm.settings.troubleshooter.menu.hint',
@@ -427,13 +340,6 @@ function registerTroubleshootingSettings() {
     restricted: false
   });
 
-  log(3, 'Troubleshooter settings registered.');
-}
-
-/**
- * Registers compatibility settings for other modules.
- */
-function registerCompatibilitySettings() {
   if (game.modules.get('elkan5e')?.active) {
     game.settings.register(MODULE.ID, 'elkanCompatibility', {
       name: 'hm.settings.elkan.name',
@@ -465,7 +371,6 @@ function registerCompatibilitySettings() {
     });
   }
 
-  log(3, 'Compatibility settings registered.');
 }
 
 export const RELOAD = new Set(['enable', 'classPacks', 'racePacks', 'backgroundPacks', 'itemPacks', 'elkanCompatibility', 'tokenizerCompatibility']);
@@ -499,7 +404,6 @@ export const RERENDER = new Set([
  */
 export function needsReload(changedSettings) {
   if (!changedSettings || typeof changedSettings !== 'object') return false;
-
   return Object.keys(changedSettings).some((key) => RELOAD.has(key));
 }
 
@@ -510,7 +414,6 @@ export function needsReload(changedSettings) {
  */
 export function needsRerender(changedSettings) {
   if (!changedSettings || typeof changedSettings !== 'object') return false;
-
   return Object.keys(changedSettings).some((key) => RERENDER.has(key));
 }
 
@@ -524,15 +427,7 @@ export async function rerenderHM() {
   await app.close();
 }
 
-/**
- * Mapping of old hyphenated setting keys to new camelCase keys.
- * @type {Object<string, string>}
- */
-const SETTING_KEY_MIGRATIONS = {
-  'eye-colors': 'eyeColors',
-  'hair-colors': 'hairColors',
-  'skin-tones': 'skinTones'
-};
+const SETTING_KEY_MIGRATIONS = { 'eye-colors': 'eyeColors', 'hair-colors': 'hairColors', 'skin-tones': 'skinTones' };
 
 /**
  * Migrates old hyphenated setting keys to camelCase equivalents.
@@ -549,6 +444,5 @@ export async function migrateSettingKeys() {
     const value = JSON.parse(oldEntry.value);
     await game.settings.set(MODULE.ID, newKey, value);
     await oldEntry.delete();
-    log(3, `Migrated setting '${oldKey}' → '${newKey}'`);
   }
 }

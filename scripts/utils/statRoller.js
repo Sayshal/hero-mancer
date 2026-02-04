@@ -50,14 +50,12 @@ export class StatRoller {
    * @static
    */
   static async rollAbilityScore(form) {
-    if (this.isRolling) {
-      log(2, 'Rolling already in progress, please wait');
-      return;
-    }
+    if (this.isRolling) return;
 
     try {
       const rollData = this.#prepareRollData(form);
       if (!rollData) return;
+      log(3, `Rolling ability score — formula: ${rollData.rollFormula}, chain: ${rollData.chainedRolls}, index: ${rollData.index}`);
       if (rollData.hasExistingValue) await this.#handleExistingValue(rollData);
       else if (rollData.chainedRolls) await this.rollAllStats(rollData.rollFormula);
       else await this.rollSingleAbilityScore(rollData.rollFormula, rollData.index, rollData.input);
@@ -105,7 +103,6 @@ export class StatRoller {
     if (!formula?.trim()) {
       formula = '4d6kh3';
       game.settings.set(MODULE.ID, 'customRollFormula', formula);
-      log(2, 'Roll formula was empty. Resetting to default:', formula);
     }
     return formula;
   }
@@ -117,11 +114,7 @@ export class StatRoller {
    * @static
    */
   static getAbilityInput(index) {
-    if (!index) {
-      log(2, 'Invalid ability index provided to getAbilityInput');
-      return null;
-    }
-
+    if (!index) return null;
     const block = document.getElementById(`ability-block-${index}`);
     return block?.querySelector('.ability-score');
   }
@@ -135,25 +128,18 @@ export class StatRoller {
    * @static
    */
   static async rollSingleAbilityScore(rollFormula, index, input) {
-    if (!rollFormula) {
-      log(2, 'No roll formula provided for ability score roll');
-      return false;
-    }
+    if (!rollFormula) return false;
     this.#updateRollingStatus(index, true);
     this.isRolling = true;
     try {
       await new Promise((resolve) => setTimeout(resolve, 100));
       const rollResult = await this.#performRoll(rollFormula);
       if (!rollResult) return false;
-      if (input) {
-        input.value = rollResult;
-        input.focus();
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        return true;
-      } else {
-        log(2, `No input field found for ability index ${index}.`);
-        return false;
-      }
+      if (!input) return false;
+      input.value = rollResult;
+      input.focus();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
     } catch (error) {
       log(1, `Failed to roll ${rollFormula}:`, error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
@@ -198,10 +184,7 @@ export class StatRoller {
       await roll.evaluate();
       if (game.dice3d && game.settings.get(MODULE.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
-      const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
-      if (roll.total !== constrainedResult) log(3, `Roll result: ${roll.total} (constrained to ${constrainedResult})`);
-      else log(3, 'Roll result:', roll.total);
-      return constrainedResult;
+      return Math.max(MIN, Math.min(MAX, roll.total));
     } catch (error) {
       log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
       return null;
@@ -215,14 +198,10 @@ export class StatRoller {
    * @static
    */
   static async rollAllStats(rollFormula) {
-    if (!rollFormula) {
-      log(2, 'No roll formula provided for ability score roll');
-      return false;
-    }
+    if (!rollFormula) return false;
     this.isRolling = true;
     const blocks = this.#getAbilityBlocks();
     if (!blocks.length) {
-      log(2, 'No ability blocks found for rolling');
       this.isRolling = false;
       return false;
     }
@@ -300,10 +279,7 @@ export class StatRoller {
    * @static
    */
   static validateAndSetCustomStandardArray(value) {
-    if (!value) {
-      log(2, 'Empty value provided for standard array');
-      return false;
-    }
+    if (!value) return false;
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
     if (!/^(\d+,)*\d+$/.test(value)) {
       ui.notifications.warn('hm.settings.custom-standard-array.invalid-format', { localize: true });
@@ -314,7 +290,6 @@ export class StatRoller {
       return isNaN(parsed) ? 0 : parsed;
     });
     if (scores.length < abilitiesCount) {
-      log(2, `Standard array too short: ${scores.length} values for ${abilitiesCount} abilities`);
       scores = this.getStandardArrayDefault().split(',').map(Number);
       ui.notifications.info('hm.settings.custom-standard-array.reset-default', { localize: true });
     }
@@ -368,10 +343,7 @@ export class StatRoller {
    */
   static getPointBuyCostForScore(score) {
     const validScore = parseInt(score);
-    if (isNaN(validScore)) {
-      log(2, `Invalid ability score provided: ${score}`);
-      return 0;
-    }
+    if (isNaN(validScore)) return 0;
     const costs = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
     const { MIN, MAX } = HM.ABILITY_SCORES;
     if (validScore < 8 && validScore >= MIN) return -1 * (8 - validScore);
@@ -386,10 +358,7 @@ export class StatRoller {
    * @static
    */
   static calculateTotalPointsSpent(scores) {
-    if (!Array.isArray(scores)) {
-      log(2, 'Invalid scores array provided to calculateTotalPointsSpent');
-      return 0;
-    }
+    if (!Array.isArray(scores)) return 0;
     const { MIN } = HM.ABILITY_SCORES;
     let total = 0;
     scores.forEach((score) => {
@@ -442,8 +411,8 @@ export class StatRoller {
     if (!diceRollingMethod || !validMethods.includes(diceRollingMethod)) {
       diceRollingMethod = validMethods[0];
       game.settings.set(MODULE.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => log(1, 'Failed to update diceRollingMethod setting:', err));
-      log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
     }
+    log(3, `Active roll method is "${diceRollingMethod}" (allowed: ${validMethods.join(', ')})`);
     return diceRollingMethod;
   }
 
@@ -516,7 +485,7 @@ export class StatRoller {
     } else if (diceRollingMethod === 'standardArray') {
       this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(MODULE.ID, 'statGenerationSwapMode'), originalValue);
     } else if (diceRollingMethod === 'pointBuy') {
-      this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, this.getTotalPoints());
+      this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues);
     }
     this.#abilityDropdownValues.set(index, newValue);
   }
@@ -613,13 +582,12 @@ export class StatRoller {
    * @param {number} index - The dropdown index
    * @param {NodeList} abilityDropdowns - All ability dropdowns
    * @param {Array} selectedValues - Currently selected values
-   * @param {number} totalPoints - Total points available
    * @private
    * @static
    */
-  static #handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, totalPoints) {
+  static #handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues) {
     selectedValues[index] = dropdown.value || '';
-    this.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
+    this.refreshAbilityDropdownsState(abilityDropdowns, selectedValues);
   }
 
   /* -------------------------------------------- */
@@ -708,6 +676,11 @@ export class StatRoller {
         label: game.i18n.localize('hm.dialogs.reroll.confirm'),
         icon: 'fas fa-check',
         default: true,
+        /**
+         * @param {Event} _event - The triggering event
+         * @param {HTMLElement} button - The clicked button
+         * @param {object} dialog - The dialog instance
+         */
         async callback(_event, button, dialog) {
           await StatRoller.#handleRerollConfirmation(button, dialog, rollFormula, chainedRolls, index, input);
         }
@@ -774,10 +747,7 @@ export class StatRoller {
     const newScore = Math.min(MAX, Math.max(MIN, currentScore + change));
     const totalPoints = this.getTotalPoints();
     const pointsSpent = this.calculateTotalPointsSpent(selectedAbilities);
-    if (change > 0 && pointsSpent + this.getPointBuyCostForScore(newScore) - this.getPointBuyCostForScore(currentScore) > totalPoints) {
-      log(2, 'Not enough points remaining to increase this score.');
-      return;
-    }
+    if (change > 0 && pointsSpent + this.getPointBuyCostForScore(newScore) - this.getPointBuyCostForScore(currentScore) > totalPoints) return;
     if (newScore !== currentScore) {
       abilityScoreElement.innerHTML = newScore;
       selectedAbilities[index] = newScore;
@@ -868,11 +838,9 @@ export class StatRoller {
    * Refreshes the ability dropdown state for point buy method
    * @param {NodeList} abilityDropdowns - Ability dropdown elements
    * @param {string[]} selectedValues - Currently selected values
-   * @param {number} _totalPoints - Total points available (unused)
-   * @param {string} _method - Current roll method (unused)
    * @static
    */
-  static refreshAbilityDropdownsState(abilityDropdowns, selectedValues, _totalPoints, _method) {
+  static refreshAbilityDropdownsState(abilityDropdowns, selectedValues) {
     this.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 

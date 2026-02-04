@@ -1,71 +1,71 @@
 {{!-- Mandatory Fields Configuration --}}
 <div>
 
-{{!-- Player Settings --}}
-<fieldset>
-	<legend>{{localize "hm.settings.mandatory-fields.groups.player"}}</legend>
-	{{#each fields.player}}
-	<div class="form-group">
-		<label for="{{this.key}}">{{this.label}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
-		</div>
-	</div>
-	{{/each}}
-</fieldset>
+	{{!-- Player Settings --}}
+	<fieldset>
+		<legend>{{localize "hm.settings.mandatory-fields.groups.player"}}</legend>
+		{{#each fields.player}}
+			<div class="form-group">
+				<label for="{{this.key}}">{{this.label}}</label>
+				<div class="form-fields">
+					<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
+				</div>
+			</div>
+		{{/each}}
+	</fieldset>
 
-{{!-- Token Settings --}}
-{{#if tokenCustomizationEnabled}}
-<fieldset>
-	<legend>{{localize "hm.settings.mandatory-fields.groups.token"}}</legend>
-	{{#each fields.token}}
-	<div class="form-group">
-		<label for="{{this.key}}">{{this.label}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
-		</div>
-	</div>
-	{{/each}}
-</fieldset>
-{{/if}}
+	{{!-- Token Settings --}}
+	{{#if tokenCustomizationEnabled}}
+		<fieldset>
+			<legend>{{localize "hm.settings.mandatory-fields.groups.token"}}</legend>
+			{{#each fields.token}}
+				<div class="form-group">
+					<label for="{{this.key}}">{{this.label}}</label>
+					<div class="form-fields">
+						<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
+					</div>
+				</div>
+			{{/each}}
+		</fieldset>
+	{{/if}}
 
-{{!-- Abilities --}}
-<fieldset>
-	<legend>{{localize "hm.settings.mandatory-fields.groups.abilities"}}</legend>
-	{{#each fields.abilities}}
-	<div class="form-group">
-		<label for="{{this.key}}">{{this.label}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
-		</div>
-	</div>
-	{{/each}}
-</fieldset>
+	{{!-- Abilities --}}
+	<fieldset>
+		<legend>{{localize "hm.settings.mandatory-fields.groups.abilities"}}</legend>
+		{{#each fields.abilities}}
+			<div class="form-group">
+				<label for="{{this.key}}">{{this.label}}</label>
+				<div class="form-fields">
+					<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
+				</div>
+			</div>
+		{{/each}}
+	</fieldset>
 
-{{!-- Characteristics --}}
-<fieldset>
-	<legend>{{localize "hm.settings.mandatory-fields.groups.characteristics"}}</legend>
-	{{#each fields.characteristics}}
-	<div class="form-group">
-		<label for="{{this.key}}">{{this.label}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
-		</div>
-	</div>
-	{{/each}}
-</fieldset>
+	{{!-- Characteristics --}}
+	<fieldset>
+		<legend>{{localize "hm.settings.mandatory-fields.groups.characteristics"}}</legend>
+		{{#each fields.characteristics}}
+			<div class="form-group">
+				<label for="{{this.key}}">{{this.label}}</label>
+				<div class="form-fields">
+					<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
+				</div>
+			</div>
+		{{/each}}
+	</fieldset>
 
-{{!-- Identity --}}
-<fieldset>
-	<legend>{{localize "hm.settings.mandatory-fields.groups.identity"}}</legend>
-	{{#each fields.identity}}
-	<div class="form-group">
-		<label for="{{this.key}}">{{this.label}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
-		</div>
-	</div>
-	{{/each}}
-</fieldset>
+	{{!-- Identity --}}
+	<fieldset>
+		<legend>{{localize "hm.settings.mandatory-fields.groups.identity"}}</legend>
+		{{#each fields.identity}}
+			<div class="form-group">
+				<label for="{{this.key}}">{{this.label}}</label>
+				<div class="form-fields">
+					<input type="checkbox" id="{{this.key}}" name="{{this.key}}" {{#if this.mandatory}}checked{{/if}} />
+				</div>
+			</div>
+		{{/each}}
+	</fieldset>
 
 </div>

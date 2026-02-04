@@ -3,11 +3,8 @@ import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/** Compendium selection settings application. */
 export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2) {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static EXCLUDED_TYPES = ['class', 'race', 'background', 'npc', 'character', 'subclass', 'rolltable', 'journal'];
 
   static DEFAULT_OPTIONS = {
@@ -19,34 +16,19 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       closeOnSubmit: true,
       submitOnChange: false
     },
-    position: {
-      height: 'auto',
-      width: 'auto'
-    },
-    window: {
-      icon: 'fa-solid fa-atlas',
-      resizable: false
-    }
+    position: { height: 'auto', width: 'auto' },
+    window: { icon: 'fa-solid fa-atlas', resizable: false }
   };
 
   static PARTS = {
-    form: {
-      template: 'modules/hero-mancer/templates/settings/custom-compendiums.hbs',
-      id: 'body',
-      classes: ['hm-compendiums-popup']
-    },
-    footer: {
-      template: 'modules/hero-mancer/templates/settings/settings-footer.hbs',
-      id: 'footer',
-      classes: ['hm-compendiums-footer']
-    }
+    form: { template: 'modules/hero-mancer/templates/settings/custom-compendiums.hbs', id: 'body', classes: ['hm-compendiums-popup'] },
+    footer: { template: 'modules/hero-mancer/templates/settings/settings-footer.hbs', id: 'footer', classes: ['hm-compendiums-footer'] }
   };
 
   static #validPacksCache = new Map();
 
   static PACKS = { class: [], background: [], race: [], item: [] };
 
-  /** @type {Array<{type: string, label: string, icon: string, settingKey: string}>} */
   static TYPES = [
     { type: 'class', label: 'hm.settings.custom-compendiums.class', icon: 'fa-solid fa-chess-rook', settingKey: 'classPacks' },
     { type: 'race', label: 'hm.settings.custom-compendiums.race', icon: 'fa-solid fa-feather-alt', settingKey: 'racePacks' },
@@ -54,69 +36,58 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     { type: 'item', label: 'hm.settings.custom-compendiums.item', icon: 'fa-solid fa-shield-halved', settingKey: 'itemPacks' }
   ];
 
+  /** @returns {string} Window title */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.custom-compendiums.menu.name')}`;
   }
 
-  /* -------------------------------------------- */
-  /*  Lifecycle                                   */
-  /* -------------------------------------------- */
-
+  /** Load saved pack selections on first render. */
   _onFirstRender() {
     for (const { type, settingKey } of CustomCompendiums.TYPES) {
       CustomCompendiums.PACKS[type] = game.settings.get(MODULE.ID, settingKey);
     }
   }
 
-  /** Prepare context data for the inline compendium grid. */
+  /**
+   * Prepare context data for the inline compendium grid.
+   * @returns {Promise<object>} Template context data
+   */
   async _prepareContext() {
     const columns = [];
-
     for (const { type, label, icon, settingKey } of CustomCompendiums.TYPES) {
       const validPacks = await CustomCompendiums.#collectValidPacks(type);
       const selectedPacks = game.settings.get(MODULE.ID, settingKey) || [];
       const dialogData = CustomCompendiums.#prepareCompendiumDialogData(validPacks, selectedPacks);
-
-      columns.push({
-        type,
-        label: game.i18n.localize(label),
-        icon,
-        sourceGroups: dialogData.sourceGroups
-      });
+      columns.push({ type, label: game.i18n.localize(label), icon, sourceGroups: dialogData.sourceGroups });
     }
-
     return { columns };
   }
 
-  /** Set up select-all checkbox listeners after render. */
+  /**
+   * Set up select-all checkbox listeners after render.
+   * @param {object} context - The render context
+   * @param {object} options - The render options
+   */
   _onRender(context, options) {
     super._onRender(context, options);
     this.#setupCheckboxListeners(this.element);
   }
 
-  /* -------------------------------------------- */
-  /*  Form Handler                                */
-  /* -------------------------------------------- */
-
   /**
    * Form submission handler for compendium configuration.
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} form - The form element
-   * @param {FormDataExtended} _formData - The processed form data
-   * @returns {Promise<boolean>}
+   * @param {object} _formData - The processed form data
+   * @returns {Promise<boolean>} Whether the form was submitted successfully
    */
   static async formHandler(_event, form, _formData) {
     const changedSettings = {};
     let successCount = 0;
-
     try {
       for (const { type, settingKey } of CustomCompendiums.TYPES) {
         const checked = Array.from(form.querySelectorAll(`input[name="${settingKey}"]:checked`)).map((el) => el.value);
         const original = CustomCompendiums.PACKS[type];
-
-        // If nothing selected, select all
         const selectedPacks = checked.length > 0 ? checked : Array.from(form.querySelectorAll(`input[name="${settingKey}"]`)).map((el) => el.value);
-
         if (JSON.stringify(original) !== JSON.stringify(selectedPacks)) {
           game.settings.set(MODULE.ID, settingKey, selectedPacks);
           changedSettings[settingKey] = true;
@@ -125,11 +96,8 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       }
 
       if (successCount > 0) {
-        if (needsReload(changedSettings)) {
-          HM.reloadConfirm({ world: true });
-        } else if (needsRerender(changedSettings)) {
-          rerenderHM();
-        }
+        if (needsReload(changedSettings)) HM.reloadConfirm({ world: true });
+        else if (needsRerender(changedSettings)) rerenderHM();
         ui.notifications.info('hm.settings.custom-compendiums.form-saved', { localize: true });
         return true;
       }
@@ -144,14 +112,12 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
     }
   }
 
-  /* -------------------------------------------- */
-  /*  Private Methods                             */
-  /* -------------------------------------------- */
-
-  /** Set up select-all checkbox listeners on the form element. */
+  /**
+   * Set up select-all checkbox listeners on the form element.
+   * @param {HTMLElement} element - The form element
+   */
   #setupCheckboxListeners(element) {
     const groupSelectAlls = element.querySelectorAll('.hm-select-all');
-
     groupSelectAlls.forEach((checkbox) => {
       checkbox.addEventListener('change', (event) => {
         const { type, source } = event.target.dataset;
@@ -161,77 +127,46 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       });
     });
 
-    // Update group select-all when individual checkboxes change
     const allItemCheckboxes = element.querySelectorAll('input[name$="Packs"]');
     allItemCheckboxes.forEach((checkbox) => {
       checkbox.addEventListener('change', (event) => {
         const { type, source } = event.target.dataset;
         const sourceCheckboxes = element.querySelectorAll(`input[data-type="${type}"][data-source="${source}"][name]`);
         const selectAll = element.querySelector(`.hm-select-all[data-type="${type}"][data-source="${source}"]`);
-        if (selectAll) {
-          selectAll.checked = Array.from(sourceCheckboxes).every((input) => input.checked);
-        }
+        if (selectAll) selectAll.checked = Array.from(sourceCheckboxes).every((input) => input.checked);
       });
     });
   }
 
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
-
   /**
    * Collects valid packs of a specified type from available compendiums.
    * @param {string} type - The type of documents to collect
-   * @param {boolean} [useCache=true] - Whether to use cached results
+   * @param {boolean} [useCache] - Whether to use cached results
    * @returns {Promise<Set>} A set of valid pack objects
    */
   static async #collectValidPacks(type, useCache = true) {
-    if (!type || !['class', 'race', 'background', 'item'].includes(type)) {
-      throw new Error(`Invalid document type: ${type}`);
-    }
-
-    if (useCache && this.#validPacksCache.has(type)) {
-      return this.#validPacksCache.get(type);
-    }
-
+    if (!type || !['class', 'race', 'background', 'item'].includes(type)) throw new Error(`Invalid document type: ${type}`);
+    if (useCache && this.#validPacksCache.has(type)) return this.#validPacksCache.get(type);
     const validPacks = new Set();
-
-    log(3, `Collecting valid ${type} packs from available compendiums`);
-
     for (const pack of game.packs) {
       if (pack.metadata.type !== 'Item') continue;
-
       if (HM.COMPAT.CPR) {
-        if (pack.metadata.id.includes('chris-premades') || pack.metadata.packageName === 'chris-premades') {
-          log(3, `Skipping CPR pack: ${pack.metadata.label}`);
-          continue;
-        }
+        if (pack.metadata.id.includes('chris-premades') || pack.metadata.packageName === 'chris-premades') continue;
       }
 
       try {
         const index = await pack.getIndex();
         let hasValidDocs = false;
-
-        if (type === 'item') {
-          hasValidDocs = index.some((doc) => !this.EXCLUDED_TYPES.includes(doc.type));
-        } else {
-          hasValidDocs = index.some((doc) => doc.type === type);
-        }
-
+        if (type === 'item') hasValidDocs = index.some((doc) => !this.EXCLUDED_TYPES.includes(doc.type));
+        else hasValidDocs = index.some((doc) => doc.type === type);
         if (hasValidDocs) {
-          validPacks.add({
-            packName: pack.metadata.label,
-            packId: pack.metadata.id,
-            type: pack.metadata.type
-          });
-          log(3, `Found valid ${type} pack: ${pack.metadata.label}`);
+          validPacks.add({ packName: pack.metadata.label, packId: pack.metadata.id, type: pack.metadata.type });
         }
       } catch (error) {
         log(1, `Failed to retrieve index from pack ${pack.metadata.label}: ${error.message}`, error);
       }
     }
 
-    log(3, `Found ${validPacks.size} valid ${type} packs`);
     this.#validPacksCache.set(type, validPacks);
     return validPacks;
   }
@@ -240,57 +175,39 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
    * Prepares data for the compendium selection template.
    * @param {Set} validPacks - Set of valid pack objects
    * @param {Array<string>} selectedPacks - Array of currently selected pack IDs
-   * @returns {Object} Data object for the template
+   * @returns {object} Data object for the template
    */
   static #prepareCompendiumDialogData(validPacks, selectedPacks) {
     const validPacksArray = Array.from(validPacks);
     const selectedPacksSet = new Set(selectedPacks);
-
     const sourceGroups = new Map();
     validPacksArray.forEach((pack) => {
       const source = this.#determinePackOrganizationName(pack);
       const isSelected = selectedPacksSet.has(pack.packId);
-
-      if (!sourceGroups.has(source)) {
-        sourceGroups.set(source, {
-          name: source,
-          packs: [],
-          allSelected: true
-        });
-      }
-
+      if (!sourceGroups.has(source)) sourceGroups.set(source, { name: source, packs: [], allSelected: true });
       const group = sourceGroups.get(source);
       group.packs.push({ value: pack.packId, label: pack.packName, selected: isSelected });
-
       if (!isSelected) group.allSelected = false;
     });
 
-    return {
-      sourceGroups: Object.fromEntries(sourceGroups)
-    };
+    return { sourceGroups: Object.fromEntries(sourceGroups) };
   }
 
   /**
    * Gets the top-level folder name from a pack's folder hierarchy.
-   * @param {CompendiumCollection} pack - Pack to analyze
+   * @param {object} pack - Pack to analyze
    * @returns {string|null} Top-level folder name or null
    */
   static #getPackTopLevelFolderName(pack) {
     if (!pack?.folder) return null;
-
-    try {
-      let topLevelFolder;
-      if (pack.folder.depth !== 1) {
-        const parentFolders = pack.folder.getParentFolders();
-        topLevelFolder = parentFolders.at(-1)?.name;
-      } else {
-        topLevelFolder = pack.folder.name;
-      }
-      return topLevelFolder || null;
-    } catch (error) {
-      log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
-      return null;
+    let topLevelFolder;
+    if (pack.folder.depth !== 1) {
+      const parentFolders = pack.folder.getParentFolders();
+      topLevelFolder = parentFolders.at(-1)?.name;
+    } else {
+      topLevelFolder = pack.folder.name;
     }
+    return topLevelFolder || null;
   }
 
   /**
@@ -322,48 +239,28 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
     for (const [key, value] of Object.entries(nameTranslations)) {
       if (['D&D Legacy Content', 'D&D Modern Content'].includes(key)) continue;
-
       const matchesName = name.includes(key);
       const matchesId = key === 'Forge' && id?.includes(key);
-
       if (matchesName || matchesId) {
         const result = typeof value === 'function' ? value() : value;
         if (result) return result;
       }
     }
 
-    if (/[./_-]home[\s_-]?brew[./_-]/i.test(name)) {
-      return game.i18n.localize('hm.app.document-service.common-labels.homebrew');
-    }
-
+    if (/[./_-]home[\s_-]?brew[./_-]/i.test(name)) return game.i18n.localize('hm.app.document-service.common-labels.homebrew');
     return name;
   }
 
   /**
    * Determines the organization name for a pack.
-   * @param {Object} pack - Pack object with packId and packName
+   * @param {object} pack - Pack object with packId and packName
    * @returns {string} Organization name
    */
   static #determinePackOrganizationName(pack) {
-    try {
-      const actualPack = game.packs.get(pack.packId);
-      if (!actualPack) {
-        return this.#translateSystemFolderName(pack.packName);
-      }
-
-      const packTopLevelFolder = this.#getPackTopLevelFolderName(actualPack);
-      if (packTopLevelFolder) {
-        const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
-        log(3, `Using pack top-level folder "${translatedName}" for ${pack.packName}`);
-        return translatedName;
-      }
-
-      const translatedPackName = this.#translateSystemFolderName(pack.packName, pack.packId);
-      log(3, `Using translated pack name "${translatedPackName}" for ${pack.packName}`);
-      return translatedPackName;
-    } catch (error) {
-      log(1, `Error determining organization name for ${pack.packName || 'unknown pack'}:`, error);
-      return pack.packName || 'Unknown Source';
-    }
+    const actualPack = game.packs.get(pack.packId);
+    if (!actualPack) return this.#translateSystemFolderName(pack.packName);
+    const packTopLevelFolder = this.#getPackTopLevelFolderName(actualPack);
+    if (packTopLevelFolder) return this.#translateSystemFolderName(packTopLevelFolder);
+    return this.#translateSystemFolderName(pack.packName, pack.packId);
   }
 }

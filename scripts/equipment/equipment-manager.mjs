@@ -12,28 +12,9 @@ import { log } from '../utils/logger.mjs';
  * Leverages DnD5e's EquipmentEntryData for parsing and label generation.
  */
 export class EquipmentManager {
-  /**
-   * Cached equipment data by source type.
-   * @type {Map<string, object[]>}
-   */
   static #cache = new Map();
-
-  /**
-   * Item lookup cache for dropdown options.
-   * @type {Map<string, object[]>}
-   */
   static #itemLookup = new Map();
-
-  /**
-   * Whether the lookup has been initialized.
-   * @type {boolean}
-   */
   static #lookupInitialized = false;
-
-  /**
-   * Character proficiencies for filtering options.
-   * @type {Set<string>}
-   */
   static proficiencies = new Set();
 
   /**
@@ -41,8 +22,8 @@ export class EquipmentManager {
    * @returns {Promise<{class: object[], background: object[]}>} Equipment data by type
    */
   static async fetchEquipmentData() {
-    log(3, 'EquipmentManager: Fetching equipment data');
     const [classEquipment, backgroundEquipment] = await Promise.all([this.#getEquipmentForType('class'), this.#getEquipmentForType('background')]);
+    log(3, `Fetched ${classEquipment.length} class entries, ${backgroundEquipment.length} background entries`);
     return { class: classEquipment, background: backgroundEquipment };
   }
 
@@ -145,6 +126,7 @@ export class EquipmentManager {
         });
       }
     }
+    log(3, `Wealth converted to ${currency.gp} gp, ${currency.sp} sp, ${currency.cp} cp`);
     return currency;
   }
 
@@ -159,7 +141,6 @@ export class EquipmentManager {
       this.#itemLookup.clear();
       this.#lookupInitialized = false;
     }
-    log(3, 'EquipmentManager: Cache cleared');
   }
 
   /**
@@ -168,8 +149,8 @@ export class EquipmentManager {
    */
   static async initializeLookup() {
     if (this.#lookupInitialized) return;
-    log(3, 'EquipmentManager: Initializing item lookup');
     const itemPacks = game.settings.get(MODULE.ID, 'itemPacks') || [];
+    log(3, `Initializing item lookup from ${itemPacks.length} packs`);
     for (const packId of itemPacks) {
       const pack = game.packs.get(packId);
       if (!pack || pack.documentName !== 'Item') continue;
@@ -182,7 +163,7 @@ export class EquipmentManager {
     }
     for (const items of this.#itemLookup.values()) items.sort((a, b) => a.name.localeCompare(b.name));
     this.#lookupInitialized = true;
-    log(3, 'EquipmentManager: Item lookup initialized');
+    log(3, `Item lookup initialized with ${this.#itemLookup.size} categories`);
   }
 
   /**
@@ -192,21 +173,17 @@ export class EquipmentManager {
    */
   static async #getEquipmentForType(type) {
     const storedData = HM.SELECTED[type];
-    if (!storedData?.uuid) {
-      log(3, `EquipmentManager: No ${type} selected`);
-      return [];
+    if (!storedData?.uuid) return [];
+    if (this.#cache.has(storedData.uuid)) {
+      log(3, `Cache hit for ${type} equipment (${storedData.uuid})`);
+      return this.#cache.get(storedData.uuid);
     }
-    if (this.#cache.has(storedData.uuid)) return this.#cache.get(storedData.uuid);
     const doc = fromUuidSync(storedData.uuid);
-    if (!doc) {
-      log(2, `EquipmentManager: Could not load ${type} document`);
-      return [];
-    }
+    if (!doc) return [];
     this.#extractProficiencies(doc.system?.advancement || []);
     const equipmentEntries = doc.system?.startingEquipment || [];
     const processed = await this.parseEquipmentEntries(equipmentEntries);
     this.#cache.set(storedData.uuid, processed);
-    log(3, `EquipmentManager: Processed ${processed.length} entries for ${type}`);
     return processed;
   }
 
@@ -395,6 +372,5 @@ export class EquipmentManager {
       const grants = advancement.configuration?.grants;
       if (grants) for (const grant of grants) this.proficiencies.add(grant);
     }
-    log(3, `EquipmentManager: Extracted ${this.proficiencies.size} proficiencies`);
   }
 }

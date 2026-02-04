@@ -18,7 +18,6 @@ export class EquipmentCollection {
    * @returns {Promise<object[]>} Array of equipment items to add to actor
    */
   static async collectSelections(event, options = { includeClass: true, includeBackground: true }) {
-    log(3, 'EquipmentCollection: Collecting selections');
     const container = event.target?.querySelector('#equipment-container');
     if (!container) return [];
     const equipment = [];
@@ -28,13 +27,10 @@ export class EquipmentCollection {
       const section = container.querySelector(`.${type}-equipment-section`);
       if (!section) continue;
       const wealthCheckbox = section.querySelector(`[data-wealth-checkbox][data-type="${type}"]`);
-      if (wealthCheckbox?.checked) {
-        log(3, `EquipmentCollection: ${type} using wealth, skipping equipment`);
-        continue;
-      }
-      await this.#processSection(section, equipment, type);
+      if (wealthCheckbox?.checked) continue;
+      await this.#processSection(section, equipment);
     }
-    log(3, `EquipmentCollection: Collected ${equipment.length} items`);
+    log(3, `Collected ${equipment.length} equipment selections`);
     return equipment;
   }
 
@@ -44,7 +40,6 @@ export class EquipmentCollection {
    * @returns {Promise<object[]>} Currency items to add
    */
   static async processWealth(event) {
-    log(3, 'EquipmentCollection: Processing wealth');
     const container = event.target?.querySelector('#equipment-container');
     if (!container) return [];
     const wealthItems = [];
@@ -54,9 +49,7 @@ export class EquipmentCollection {
       if (!formula) continue;
       try {
         const roll = await new Roll(formula).evaluate();
-        const goldAmount = roll.total;
-        log(3, `EquipmentCollection: Rolled ${formula} = ${goldAmount} GP for ${type}`);
-        wealthItems.push({ type: 'currency', source: type, currency: 'gp', amount: goldAmount, formula, rollTotal: roll.total });
+        wealthItems.push({ type: 'currency', source: type, currency: 'gp', amount: roll.total, formula, rollTotal: roll.total });
       } catch (error) {
         log(1, `EquipmentCollection: Failed to roll wealth - ${error.message}`);
       }
@@ -82,8 +75,7 @@ export class EquipmentCollection {
    * @param {object[]} equipment - Array to add items to
    * @param {string} type - Section type
    */
-  static async #processSection(section, equipment, type) {
-    log(3, `EquipmentCollection: Processing ${type} section`);
+  static async #processSection(section, equipment) {
     await this.#processSelects(section, equipment);
     await this.#processCheckboxes(section, equipment);
     await this.#processLinkedItems(section, equipment);
@@ -103,7 +95,7 @@ export class EquipmentCollection {
       const count = parseInt(select.dataset.count) || 1;
       const item = await this.#resolveItem(value);
       if (item) {
-        const entry = this.#createEquipmentEntry(item, select);
+        const entry = this.#createEquipmentEntry(item);
         entry.system.quantity = count;
         equipment.push(entry);
       }
@@ -123,7 +115,7 @@ export class EquipmentCollection {
       const count = parseInt(checkbox.dataset.count) || 1;
       const item = await this.#resolveItem(uuid);
       if (item) {
-        const entry = this.#createEquipmentEntry(item, checkbox);
+        const entry = this.#createEquipmentEntry(item);
         entry.system.quantity = count;
         equipment.push(entry);
       }
@@ -145,7 +137,7 @@ export class EquipmentCollection {
       const count = parseInt(element.dataset.count) || 1;
       const item = await this.#resolveItem(uuid);
       if (item) {
-        const entry = this.#createEquipmentEntry(item, element);
+        const entry = this.#createEquipmentEntry(item);
         entry.system.quantity = count;
         equipment.push(entry);
       }
@@ -170,10 +162,9 @@ export class EquipmentCollection {
   /**
    * Create an equipment entry for actor creation.
    * @param {object} item - Item document
-   * @param {HTMLElement} sourceElement - Source form element
    * @returns {object} Equipment entry
    */
-  static #createEquipmentEntry(item, sourceElement) {
+  static #createEquipmentEntry(item) {
     return { uuid: item.uuid, name: item.name, img: item.img, type: item.type, system: foundry.utils.deepClone(item.system) };
   }
 }

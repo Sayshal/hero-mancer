@@ -1,59 +1,17 @@
 import { MODULE } from './constants.mjs';
 import { migrateSettingKeys, registerSettings } from './settings.js';
 import { API, CharacterApprovalService, DocumentService, EquipmentManager, HeroMancer, StatRoller } from './utils/index.js';
-import { initializeLogger, log } from './utils/logger.mjs';
+import { initializeLogger } from './utils/logger.mjs';
 
 /**
  * Runtime state container for Hero Mancer.
  * @class
  */
 export class HM {
-  /**
-   * Compatibility flags for other modules
-   * @static
-   * @type {object}
-   */
   static COMPAT = {};
-
-  /**
-   * Configuration for ability score limits
-   * @static
-   * @type {object}
-   * @property {number} DEFAULT - Default ability score value
-   * @property {number} MIN - Minimum allowed ability score
-   * @property {number} MAX - Maximum allowed ability score
-   */
   static ABILITY_SCORES = {};
-
-  /**
-   * Stores the currently selected character options
-   * @static
-   * @type {object}
-   * @property {object} class - Selected class
-   * @property {string} class.value - Default value of selected class
-   * @property {string} class.id - ID of selected class
-   * @property {string} class.uuid - UUID of class document
-   * @property {object} race - Selected race
-   * @property {string} race.value - Default value of selected race
-   * @property {string} race.id - ID of selected race
-   * @property {string} race.uuid - UUID of race document
-   * @property {object} background - Selected background
-   * @property {string} background.value - Default value of selected background
-   * @property {string} background.id - ID of selected background
-   * @property {string} background.uuid - UUID of background document
-   */
   static SELECTED = { class: { value: '', id: '', uuid: '' }, race: { value: '', id: '', uuid: '' }, background: { value: '', id: '', uuid: '' } };
-
-  /**
-   * Public API for equipment selection functionality
-   * @static
-   * @type {object}
-   */
   static API = API;
-
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
 
   /**
    * Shows a confirmation dialog for reloading the world/application
@@ -87,7 +45,6 @@ Hooks.on('init', async () => {
     MIN: game.settings.get(MODULE.ID, 'abilityScoreMin') || 8,
     MAX: game.settings.get(MODULE.ID, 'abilityScoreMax') || 15
   };
-  log(3, `Ability score configuration: Default=${HM.ABILITY_SCORES.DEFAULT}, Min=${HM.ABILITY_SCORES.MIN}, Max=${HM.ABILITY_SCORES.MAX}`);
   await foundry.applications.handlebars.loadTemplates([
     'modules/hero-mancer/templates/tabs/selection.hbs',
     'modules/hero-mancer/templates/equipment/equipment-container.hbs',
@@ -101,29 +58,16 @@ Hooks.on('init', async () => {
 Hooks.once('ready', async () => {
   if (!game.settings.get(MODULE.ID, 'enable')) return;
   await migrateSettingKeys();
-
-  // Check module compatibility
   HM.COMPAT = {};
-  if (game.modules.get('elkan5e')?.active && game.settings.get(MODULE.ID, 'elkanCompatibility')) {
-    HM.COMPAT.ELKAN = true;
-    log(3, 'Elkan Detected: Compatibility auto-enabled.');
-  }
-  if (game.modules.get('chris-premades')?.active) {
-    HM.COMPAT.CPR = true;
-    log(3, 'CPR Detected: Compatibility auto-enabled.');
-  }
-  if (game.modules.get('vtta-tokenizer')?.active) {
-    HM.COMPAT.TOKENIZER = true;
-    log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
-  }
-
+  if (game.modules.get('elkan5e')?.active && game.settings.get(MODULE.ID, 'elkanCompatibility')) HM.COMPAT.ELKAN = true;
+  if (game.modules.get('chris-premades')?.active) HM.COMPAT.CPR = true;
+  if (game.modules.get('vtta-tokenizer')?.active) HM.COMPAT.TOKENIZER = true;
   CharacterApprovalService.registerSocketListeners();
   await DocumentService.loadAndInitializeDocuments();
   if (!HM.COMPAT.ELKAN) await EquipmentManager.initializeLookup();
   const customArraySetting = game.settings.get(MODULE.ID, 'customStandardArray') || StatRoller.getStandardArrayDefault();
   if (!customArraySetting || customArraySetting.trim() === '') {
     game.settings.set(MODULE.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
-    log(3, 'Custom Standard Array was reset to default values due to invalid length.');
   }
   globalThis.heroMancer = HM.API;
   Hooks.callAll('heroMancer.Ready', this);

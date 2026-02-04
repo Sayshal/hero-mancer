@@ -3,20 +3,13 @@
  * @description Centralized event listener and mutation observer management with automatic cleanup via WeakMap.
  */
 
-import { log } from './logger.mjs';
-
 /**
  * Centralized registry for DOM event listeners and mutation observers.
  * Uses WeakMap for automatic garbage collection when elements are removed.
  */
 export class EventRegistry {
-  /** @type {WeakMap<HTMLElement, Map<string, Set<Function>>>} */
   static #listeners = new WeakMap();
-
-  /** @type {WeakMap<HTMLElement, Map<string, MutationObserver>>} */
   static #observers = new WeakMap();
-
-  /** @type {Set<HTMLElement>} - Track elements for explicit cleanup */
   static #trackedElements = new Set();
 
   /**
@@ -27,18 +20,9 @@ export class EventRegistry {
    * @returns {Function} The callback for chaining
    */
   static on(element, eventType, callback) {
-    if (!element || !(element instanceof Element)) {
-      log(2, 'EventRegistry.on: Invalid element provided');
-      return callback;
-    }
-    if (!eventType || typeof eventType !== 'string') {
-      log(2, `EventRegistry.on: Invalid event type "${eventType}"`);
-      return callback;
-    }
-    if (typeof callback !== 'function') {
-      log(2, 'EventRegistry.on: Callback must be a function');
-      return callback;
-    }
+    if (!element || !(element instanceof Element)) return callback;
+    if (!eventType || typeof eventType !== 'string') return callback;
+    if (typeof callback !== 'function') return callback;
 
     if (!this.#listeners.has(element)) this.#listeners.set(element, new Map());
     const elementEvents = this.#listeners.get(element);
@@ -80,18 +64,9 @@ export class EventRegistry {
    * @returns {MutationObserver|null} The created observer or null if failed
    */
   static observe(element, id, options, callback) {
-    if (!element || !(element instanceof Element)) {
-      log(2, `EventRegistry.observe: Invalid element for observer "${id}"`);
-      return null;
-    }
-    if (!id || typeof id !== 'string') {
-      log(2, 'EventRegistry.observe: Observer ID must be a non-empty string');
-      return null;
-    }
-    if (typeof callback !== 'function') {
-      log(2, `EventRegistry.observe: Callback must be a function for observer "${id}"`);
-      return null;
-    }
+    if (!element || !(element instanceof Element)) return null;
+    if (!id || typeof id !== 'string') return null;
+    if (typeof callback !== 'function') return null;
 
     if (!this.#observers.has(element)) this.#observers.set(element, new Map());
     const elementObservers = this.#observers.get(element);

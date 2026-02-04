@@ -17,10 +17,7 @@ export class JournalPageFinder {
       const docType = doc.type;
       const docName = doc.name;
       const docUuid = doc.uuid;
-      if (!docType || !docName) {
-        log(2, 'Insufficient data to find journal page for document: missing type or name');
-        return null;
-      }
+      if (!docType || !docName) return null;
       const moduleId = this.#extractModuleId(doc);
       if (moduleId === 'dnd5e' && ['background', 'race', 'species'].includes(docType)) return null;
       const journalPacks = game.packs.filter((p) => p.metadata.type === 'JournalEntry');
@@ -59,42 +56,27 @@ export class JournalPageFinder {
    * @private
    */
   static async #searchCompendiumsForPage(packs, itemName, itemType, itemUuid) {
-    if (!packs?.length || !itemName) {
-      log(3, 'Invalid search parameters for journal page');
-      return null;
-    }
+    if (!packs?.length || !itemName) return null;
     const normalizedItemName = itemName.toLowerCase();
     const baseRaceName = this._getBaseRaceName(itemName);
     const modulePrefix = this.#extractModulePrefixFromUuid(itemUuid);
     const prioritizedPacks = this.#prioritizeJournalPacks(packs, modulePrefix);
     const startTime = performance.now();
-    try {
-      const packsToSearch = modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
-      if (modulePrefix && packsToSearch.length === 0) {
-        log(3, `No matching journal packs found for module prefix: ${modulePrefix}`);
-        return null;
-      }
-      for (const pack of packsToSearch) {
-        const result = await this.#searchSingleCompendium(pack, normalizedItemName, baseRaceName);
-        if (result) {
-          const searchTime = Math.round(performance.now() - startTime);
-          if (searchTime > 3500) log(2, `Journal search for "${itemName}" took ${searchTime}ms`);
-          if (modulePrefix) {
-            const resultModulePrefix = this.#extractModulePrefixFromUuid(result);
-            if (resultModulePrefix !== modulePrefix) {
-              log(3, `Found journal page in wrong module: ${resultModulePrefix} vs expected ${modulePrefix}`);
-              continue;
-            }
-          }
-          return result;
+    const packsToSearch = modulePrefix ? prioritizedPacks.filter((pack) => pack.collection.startsWith(modulePrefix)) : prioritizedPacks;
+    if (modulePrefix && packsToSearch.length === 0) return null;
+    for (const pack of packsToSearch) {
+      const result = await this.#searchSingleCompendium(pack, normalizedItemName, baseRaceName);
+      if (result) {
+        const searchTime = Math.round(performance.now() - startTime);
+        if (searchTime > 3500) log(2, `Journal search for "${itemName}" took ${searchTime}ms`);
+        if (modulePrefix) {
+          const resultModulePrefix = this.#extractModulePrefixFromUuid(result);
+          if (resultModulePrefix !== modulePrefix) continue;
         }
+        return result;
       }
-      log(3, `No matching journal page found for ${itemType} "${itemName}" after searching ${packsToSearch.length} packs`);
-      return null;
-    } catch (error) {
-      log(2, `Error during journal page search for ${itemName}:`, error);
-      return null;
     }
+    return null;
   }
 
   /**
@@ -147,16 +129,10 @@ export class JournalPageFinder {
         if (this.#isArtHandout(entry.name)) continue;
         if (!entry.pages?.length) continue;
         const exactMatch = entry.pages.find((p) => p.name.toLowerCase() === normalizedItemName);
-        if (exactMatch) {
-          log(3, `Found exact match page "${exactMatch.name}" in journal "${entry.name}"`);
-          return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${exactMatch._id}`;
-        }
+        if (exactMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${exactMatch._id}`;
         if (baseRaceName) {
           const baseMatch = entry.pages.find((p) => p.name.toLowerCase() === baseRaceName.toLowerCase());
-          if (baseMatch) {
-            log(3, `Found base race match page "${baseMatch.name}" in journal "${entry.name}"`);
-            return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${baseMatch._id}`;
-          }
+          if (baseMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${baseMatch._id}`;
         }
       }
       return null;
@@ -222,12 +198,10 @@ export class JournalPageEmbed {
    */
   async render(pageId, itemName = null) {
     this.pageId = pageId;
-    log(3, `Attempting to render journal page ${pageId}${itemName ? ` for ${itemName}` : ''}`);
     this.#showLoadingIndicator();
     try {
       const journalData = await this.#loadJournalDocument(pageId, itemName);
       if (!journalData.page) {
-        log(2, `Journal page ${pageId} not found`);
         this.#showErrorMessage('Journal page not found');
         return null;
       }
@@ -274,16 +248,11 @@ export class JournalPageEmbed {
     let journalDoc = null;
     let page = null;
     if (pageId.includes('.')) {
-      try {
-        const uuidToLoad = pageId.startsWith('Compendium.') ? pageId : `Compendium.${pageId}`;
-        journalDoc = await fromUuid(uuidToLoad);
-        if (journalDoc?.documentName === 'JournalEntry') {
-          if (journalDoc.pages.size > 0) page = (await this.#findMatchingPage(journalDoc.pages, itemName)) || journalDoc.pages.contents[0];
-        } else if (journalDoc?.documentName === 'JournalEntryPage') page = journalDoc;
-      } catch (err) {
-        log(2, `Error loading compendium page: ${err.message}`);
-        throw new Error(`Failed to load journal page: ${err.message}`);
-      }
+      const uuidToLoad = pageId.startsWith('Compendium.') ? pageId : `Compendium.${pageId}`;
+      journalDoc = await fromUuid(uuidToLoad);
+      if (journalDoc?.documentName === 'JournalEntry') {
+        if (journalDoc.pages.size > 0) page = (await this.#findMatchingPage(journalDoc.pages, itemName)) || journalDoc.pages.contents[0];
+      } else if (journalDoc?.documentName === 'JournalEntryPage') page = journalDoc;
     }
     return { journalDoc, page };
   }
@@ -314,7 +283,6 @@ export class JournalPageEmbed {
     contentDiv.classList.add('journal-page-content');
     contentDiv.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(page.text.content);
     this.container.appendChild(contentDiv);
-    log(3, `Text page ${page.id} rendered directly`);
   }
 
   /**

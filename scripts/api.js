@@ -1,9 +1,5 @@
 import { DocumentService, EquipmentCollection, EquipmentManager, EquipmentUI, HM } from './utils/index.js';
 
-/**
- * Public API for equipment selection functionality
- * @type {object}
- */
 export const API = {
   /**
    * Initialize equipment selection for a specific actor.

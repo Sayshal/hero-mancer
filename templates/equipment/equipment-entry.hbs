@@ -13,12 +13,12 @@
               {{~#if linkedItem~}}
                 {{~linkedItem.name~}}
                 {{~#if count}}{{#if (gt count 1)}} &times;{{count}}{{/if}}{{/if~}}
-              {{~else~}}
-                {{~localize "hm.app.equipment.unknown-item"~}}
-              {{~/if~}}
-            {{~else~}}
-              {{~textLabel~}}
-            {{~/if~}}
+                  {{~else~}}
+                  {{~localize "hm.app.equipment.unknown-item"~}}
+                  {{~/if~}}
+                  {{~else~}}
+                  {{~textLabel~}}
+                  {{~/if~}}
           </option>
         {{/each}}
       </select>
@@ -52,8 +52,7 @@
             {{/each}}
           </div>
         {{else}}
-          <div class="form-group" data-or-child="{{id}}" data-or-parent="{{../id}}"
-            {{#unless @first}}hidden{{/unless}}>
+          <div class="form-group" data-or-child="{{id}}" data-or-parent="{{../id}}" {{#unless @first}}hidden{{/unless}}>
             <label for="{{type}}-{{categoryKey}}-{{id}}">{{{label}}}</label>
             <div class="form-fields">
               <select data-equipment-select data-type="{{type}}" data-count="{{count}}"
@@ -67,7 +66,8 @@
         {{/if}}
       {{/if}}
     {{else if isAnd}}
-      <div class="equipment-entries" data-or-child="{{id}}" data-or-parent="{{../id}}" {{#unless @first}}hidden{{/unless}}>
+      <div class="equipment-entries" data-or-child="{{id}}" data-or-parent="{{../id}}"
+        {{#unless @first}}hidden{{/unless}}>
         {{#each children}}
           {{> "modules/hero-mancer/templates/equipment/equipment-inline.hbs" }}
         {{/each}}

@@ -18,8 +18,7 @@
               {{#each group.packs as |pack|}}
                 <label class="checkbox hm-compendium-item">
                   <input type="checkbox" name="{{../../col.type}}Packs" value="{{pack.value}}"
-                    data-type="{{../../col.type}}" data-source="{{../source}}"
-                    {{#if pack.selected}}checked{{/if}}>
+                    data-type="{{../../col.type}}" data-source="{{../source}}" {{#if pack.selected}}checked{{/if}}>
                   <span>{{pack.label}}</span>
                 </label>
               {{/each}}

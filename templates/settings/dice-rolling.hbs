@@ -1,133 +1,131 @@
 {{!-- Dice Rolling Configuration Settings --}}
 <div>
 
-{{!-- Ability Score Limits & General --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.dice-rolling.general.header'}}</legend>
+	{{!-- Ability Score Limits & General --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.dice-rolling.general.header'}}</legend>
 
-	<div class="form-group">
-		<label for="abilityScoreMin">{{localize 'hm.settings.ability-scores.min.name'}}</label>
-		<div class="form-fields">
-			<input type="number" id="abilityScoreMin" name="abilityScoreMin" value="{{abilityScoreMin}}"
-				min="3" max="18" step="1" aria-describedby="ability-score-min-hint" />
+		<div class="form-group">
+			<label for="abilityScoreMin">{{localize 'hm.settings.ability-scores.min.name'}}</label>
+			<div class="form-fields">
+				<input type="number" id="abilityScoreMin" name="abilityScoreMin" value="{{abilityScoreMin}}" min="3" max="18"
+					step="1" aria-describedby="ability-score-min-hint" />
+			</div>
+			<p class="hint" id="ability-score-min-hint">{{localize 'hm.settings.ability-scores.min.hint'}}</p>
 		</div>
-		<p class="hint" id="ability-score-min-hint">{{localize 'hm.settings.ability-scores.min.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="abilityScoreDefault">{{localize 'hm.settings.ability-scores.default.name'}}</label>
-		<div class="form-fields">
-			<input type="number" id="abilityScoreDefault" name="abilityScoreDefault"
-				value="{{abilityScoreDefault}}" min="3" max="20" step="1" aria-describedby="ability-score-default-hint" />
+		<div class="form-group">
+			<label for="abilityScoreDefault">{{localize 'hm.settings.ability-scores.default.name'}}</label>
+			<div class="form-fields">
+				<input type="number" id="abilityScoreDefault" name="abilityScoreDefault" value="{{abilityScoreDefault}}" min="3"
+					max="20" step="1" aria-describedby="ability-score-default-hint" />
+			</div>
+			<p class="hint" id="ability-score-default-hint">{{localize 'hm.settings.ability-scores.default.hint'}}</p>
 		</div>
-		<p class="hint" id="ability-score-default-hint">{{localize 'hm.settings.ability-scores.default.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="abilityScoreMax">{{localize 'hm.settings.ability-scores.max.name'}}</label>
-		<div class="form-fields">
-			<input type="number" id="abilityScoreMax" name="abilityScoreMax" value="{{abilityScoreMax}}"
-				min="10" max="20" step="1" aria-describedby="ability-score-max-hint" />
+		<div class="form-group">
+			<label for="abilityScoreMax">{{localize 'hm.settings.ability-scores.max.name'}}</label>
+			<div class="form-fields">
+				<input type="number" id="abilityScoreMax" name="abilityScoreMax" value="{{abilityScoreMax}}" min="10" max="20"
+					step="1" aria-describedby="ability-score-max-hint" />
+			</div>
+			<p class="hint" id="ability-score-max-hint">{{localize 'hm.settings.ability-scores.max.hint'}}</p>
 		</div>
-		<p class="hint" id="ability-score-max-hint">{{localize 'hm.settings.ability-scores.max.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="statGenerationSwapMode">{{localize 'hm.settings.stat-generation-swap-mode.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" name="statGenerationSwapMode" id="statGenerationSwapMode"
-				{{checked statGenerationSwapMode}} />
+		<div class="form-group">
+			<label for="statGenerationSwapMode">{{localize 'hm.settings.stat-generation-swap-mode.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" name="statGenerationSwapMode" id="statGenerationSwapMode"
+					{{checked statGenerationSwapMode}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.stat-generation-swap-mode.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.stat-generation-swap-mode.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Standard Array --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.dice-rolling-method.standard-array.name'}}</legend>
+	{{!-- Standard Array --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.dice-rolling-method.standard-array.name'}}</legend>
 
-	<div class="form-group">
-		<label for="standardArray">{{localize 'hm.settings.dice-rolling-method.standard-array.enable'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="standardArray" name="standardArray"
-				{{#if allowedMethods.standardArray}}checked{{/if}} />
+		<div class="form-group">
+			<label for="standardArray">{{localize 'hm.settings.dice-rolling-method.standard-array.enable'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="standardArray" name="standardArray"
+					{{#if allowedMethods.standardArray}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.dice-rolling-method.standard-array.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.dice-rolling-method.standard-array.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="customStandardArray">{{localize 'hm.settings.custom-standard-array.name'}}</label>
-		<div class="form-fields">
-			<input type="text" id="customStandardArray" name="customStandardArray"
-				value="{{customStandardArray}}" aria-describedby="custom-standard-array-hint" />
+		<div class="form-group">
+			<label for="customStandardArray">{{localize 'hm.settings.custom-standard-array.name'}}</label>
+			<div class="form-fields">
+				<input type="text" id="customStandardArray" name="customStandardArray" value="{{customStandardArray}}"
+					aria-describedby="custom-standard-array-hint" />
+			</div>
+			<p class="hint" id="custom-standard-array-hint">{{localize 'hm.settings.custom-standard-array.hint'}}</p>
 		</div>
-		<p class="hint" id="custom-standard-array-hint">{{localize 'hm.settings.custom-standard-array.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Manual Roll --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.dice-rolling-method.manual.name'}}</legend>
+	{{!-- Manual Roll --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.dice-rolling-method.manual.name'}}</legend>
 
-	<div class="form-group">
-		<label for="manual">{{localize 'hm.settings.dice-rolling-method.manual.enable'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="manual" name="manual"
-				{{#if allowedMethods.manual}}checked{{/if}} />
+		<div class="form-group">
+			<label for="manual">{{localize 'hm.settings.dice-rolling-method.manual.enable'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="manual" name="manual" {{#if allowedMethods.manual}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.dice-rolling-method.manual.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.dice-rolling-method.manual.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="customRollFormula">{{localize 'hm.settings.custom-roll-formula.name'}}</label>
-		<div class="form-fields">
-			<input type="text" id="customRollFormula" name="customRollFormula"
-				value="{{customRollFormula}}" aria-describedby="custom-roll-formula-hint" />
+		<div class="form-group">
+			<label for="customRollFormula">{{localize 'hm.settings.custom-roll-formula.name'}}</label>
+			<div class="form-fields">
+				<input type="text" id="customRollFormula" name="customRollFormula" value="{{customRollFormula}}"
+					aria-describedby="custom-roll-formula-hint" />
+			</div>
+			<p class="hint" id="custom-roll-formula-hint">{{localize 'hm.settings.custom-roll-formula.hint'}}</p>
 		</div>
-		<p class="hint" id="custom-roll-formula-hint">{{localize 'hm.settings.custom-roll-formula.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="chainedRolls">{{localize 'hm.settings.chained-rolls.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="chainedRolls" name="chainedRolls" {{#if chainedRolls}}checked{{/if}} />
+		<div class="form-group">
+			<label for="chainedRolls">{{localize 'hm.settings.chained-rolls.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="chainedRolls" name="chainedRolls" {{#if chainedRolls}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.chained-rolls.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.chained-rolls.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="rollDelay">{{localize 'hm.settings.roll-delay.name'}}</label>
-		<div class="form-fields delay-control">
-			<input type="range" id="rollDelay" name="rollDelay" value="{{rollDelay}}" min="100" max="2000" step="100"
-				aria-valuemin="100" aria-valuemax="2000" aria-valuenow="{{rollDelay}}" aria-describedby="roll-delay-hint"
-				aria-labelledby="delay-value" />
-			<span id="delay-value" class="delay-value">{{rollDelay}}ms</span>
+		<div class="form-group">
+			<label for="rollDelay">{{localize 'hm.settings.roll-delay.name'}}</label>
+			<div class="form-fields delay-control">
+				<input type="range" id="rollDelay" name="rollDelay" value="{{rollDelay}}" min="100" max="2000" step="100"
+					aria-valuemin="100" aria-valuemax="2000" aria-valuenow="{{rollDelay}}" aria-describedby="roll-delay-hint"
+					aria-labelledby="delay-value" />
+				<span id="delay-value" class="delay-value">{{rollDelay}}ms</span>
+			</div>
+			<p class="hint" id="roll-delay-hint">{{localize 'hm.settings.roll-delay.hint'}}</p>
 		</div>
-		<p class="hint" id="roll-delay-hint">{{localize 'hm.settings.roll-delay.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Point Buy --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.dice-rolling-method.point-buy.name'}}</legend>
+	{{!-- Point Buy --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.dice-rolling-method.point-buy.name'}}</legend>
 
-	<div class="form-group">
-		<label for="pointBuy">{{localize 'hm.settings.dice-rolling-method.point-buy.enable'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="pointBuy" name="pointBuy"
-				{{#if allowedMethods.pointBuy}}checked{{/if}} />
+		<div class="form-group">
+			<label for="pointBuy">{{localize 'hm.settings.dice-rolling-method.point-buy.enable'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="pointBuy" name="pointBuy" {{#if allowedMethods.pointBuy}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.dice-rolling-method.point-buy.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.dice-rolling-method.point-buy.hint'}}</p>
-	</div>
 
-	<div class="form-group">
-		<label for="customPointBuyTotal">{{localize "hm.settings.custom-point-buy-total.name"}}</label>
-		<div class="form-fields">
-			<input type="number" id="customPointBuyTotal" name="customPointBuyTotal"
-				value="{{customPointBuyTotal}}" aria-describedby="custom-point-buy-total-hint" />
+		<div class="form-group">
+			<label for="customPointBuyTotal">{{localize "hm.settings.custom-point-buy-total.name"}}</label>
+			<div class="form-fields">
+				<input type="number" id="customPointBuyTotal" name="customPointBuyTotal" value="{{customPointBuyTotal}}"
+					aria-describedby="custom-point-buy-total-hint" />
+			</div>
+			<p class="hint" id="custom-point-buy-total-hint">{{localize "hm.settings.custom-point-buy-total.hint"}}</p>
 		</div>
-		<p class="hint" id="custom-point-buy-total-hint">{{localize "hm.settings.custom-point-buy-total.hint"}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
 </div>

@@ -3,6 +3,7 @@ import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/** Dice rolling settings application. */
 export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
   /*  Static Properties                           */
@@ -42,6 +43,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
+  /** @returns {string} Window title */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.dice-rolling.menu.name')}`;
   }
@@ -74,10 +76,8 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
       for (const setting of settingsToFetch) {
         try {
-          let value = game.settings.get(MODULE.ID, setting.key);
-          context[setting.key] = value || setting.defaultValue;
-        } catch (settingError) {
-          log(2, `Error fetching setting "${setting.key}": ${settingError.message}`);
+          context[setting.key] = game.settings.get(MODULE.ID, setting.key) || setting.defaultValue;
+        } catch {
           context[setting.key] = setting.defaultValue;
         }
       }
@@ -85,7 +85,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       return context;
     } catch (error) {
       log(1, `Error preparing dice rolling context: ${error.message}`);
-      ui.notifications.error('hm.settings.dice-rolling.error-context', { localize: true });
+      ui.notifications.warn('hm.settings.dice-rolling.error-context', { localize: true });
       return { ...context, ...this._getDefaultContext() };
     }
   }
@@ -121,11 +121,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   _onRender(context, options) {
     super._onRender(context, options);
-    try {
-      this._setupDelaySlider();
-    } catch (error) {
-      log(1, `Error in _onRender: ${error.message}`);
-    }
+    this._setupDelaySlider();
   }
 
   /**
@@ -140,10 +136,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     const slider = html.querySelector('input[type="range"]');
     const output = html.querySelector('.delay-value');
 
-    if (!slider || !output) {
-      log(2, 'Could not find slider or output elements');
-      return;
-    }
+    if (!slider || !output) return;
 
     // Remove any existing listeners to prevent duplicates
     const newSlider = slider.cloneNode(true);
@@ -164,7 +157,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    * Validates and saves settings for ability score generation methods
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} form - The form element
-   * @param {FormDataExtended} formData - The processed form data
+   * @param {object} formData - The processed form data
    * @returns {Promise<boolean|void>} Returns false if validation fails
    * @static
    * @async
@@ -272,7 +265,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static _validateAllowedMethods(allowedMethods) {
     if (!Object.values(allowedMethods).some((value) => value)) {
-      ui.notifications.error('hm.settings.dice-rolling.need-roll-method', { localize: true });
+      ui.notifications.error('hm.settings.dice-rolling.need-roll-method', { localize: true, permanent: true });
       return false;
     }
     return true;
@@ -280,7 +273,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Prepares ability score settings with defaults
-   * @param {FormDataExtended} formData - The processed form data
+   * @param {object} formData - The processed form data
    * @returns {object} Object containing min, max, and default ability score values
    * @static
    * @private
@@ -308,7 +301,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static _validateAbilityScoreSettings(settings) {
     if (settings.min > settings.default || settings.default > settings.max || settings.min > settings.max) {
-      ui.notifications.error('hm.settings.ability-scores.invalid-range', { localize: true });
+      ui.notifications.error('hm.settings.ability-scores.invalid-range', { localize: true, permanent: true });
       return false;
     }
     return true;
@@ -379,7 +372,8 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
         game.i18n.format('hm.settings.ability-scores.invalid-point-buy', {
           min: min,
           totalNeeded: minTotalCost
-        })
+        }),
+        { permanent: true }
       );
       return false;
     }

@@ -16,10 +16,7 @@ export class HeroMancerUI {
   /*  Static Properties                           */
   /* -------------------------------------------- */
 
-  /** @type {boolean} */
   static #equipmentUpdateInProgress = false;
-
-  /** @type {Promise|null} */
   static #pendingEquipmentUpdate = null;
 
   /* -------------------------------------------- */
@@ -35,7 +32,6 @@ export class HeroMancerUI {
     this.#pendingEquipmentUpdate = null;
     EventRegistry.cleanupAll();
     EquipmentManager.clearCache();
-    log(3, 'HeroMancerUI: cleanup complete');
     return true;
   }
 
@@ -45,22 +41,15 @@ export class HeroMancerUI {
    * @returns {Promise<boolean>} Success status
    */
   static async initialize(element) {
-    if (!element) {
-      log(1, 'Cannot initialize HeroMancerUI: No element provided');
-      return false;
-    }
-    try {
-      this.initializeEquipmentContainer(element);
-      this.initializeDropdowns(element);
-      this.initializeAbilities(element);
-      this.initializeCharacterDetails(element);
-      this.initializeFormValidation(element);
-      this.initializeTokenCustomization(element);
-      await this.initializeRollButtons(element);
-    } catch (error) {
-      log(1, 'Error during HeroMancerUI initialization:', error);
-      return false;
-    }
+    if (!element) return false;
+    log(3, 'Initializing UI handlers');
+    this.initializeEquipmentContainer(element);
+    this.initializeDropdowns(element);
+    this.initializeAbilities(element);
+    this.initializeCharacterDetails(element);
+    this.initializeFormValidation(element);
+    this.initializeTokenCustomization(element);
+    await this.initializeRollButtons(element);
   }
 
   /**
@@ -220,11 +209,10 @@ export class HeroMancerUI {
         const textarea = event.currentTarget.closest('.personality-group').querySelector('textarea');
         const backgroundId = HM.SELECTED.background.id;
         if (!backgroundId) {
-          ui.notifications.warn(game.i18n.localize('hm.warnings.select-background'));
+          ui.notifications.warn('hm.warnings.select-background', { localize: true });
           return;
         }
         const result = await TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
-        log(3, 'Roll result:', result);
         if (result) {
           textarea.value = textarea.value ? `${textarea.value} ${result}` : result;
           textarea.dispatchEvent(new Event('change', { bubbles: true }));
@@ -248,73 +236,46 @@ export class HeroMancerUI {
    * @static
    */
   static async updateRaceSize(raceUuid) {
-    try {
-      if (!raceUuid) {
-        log(3, 'No race UUID provided for size update');
-        return;
-      }
-      const sizeInput = document.getElementById('size');
-      if (!sizeInput) {
-        log(2, 'Could not find size input element');
-        return;
-      }
-      const race = fromUuidSync(raceUuid);
-      if (!race) {
-        log(2, `Could not find race with UUID: ${raceUuid}`);
-        sizeInput.value = '';
-        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
-        return;
-      }
-      log(3, `Processing race: ${race.name}`, race);
-      let sizesArray = [];
-      let hint = '';
-      if (race.advancement?.byType?.Size?.length) {
-        const sizeAdvancement = race.advancement.byType.Size[0];
-        log(3, 'Found Size advancement:', sizeAdvancement);
-        if (sizeAdvancement.configuration?.sizes) {
-          if (sizeAdvancement.configuration.sizes instanceof Set) {
-            sizesArray = Array.from(sizeAdvancement.configuration.sizes);
-            log(3, `Converted sizes Set to Array: ${sizesArray.join(', ')}`);
-          } else if (Array.isArray(sizeAdvancement.configuration.sizes)) {
-            sizesArray = sizeAdvancement.configuration.sizes;
-          }
-          hint = sizeAdvancement.hint || '';
+    if (!raceUuid) return;
+    const sizeInput = document.getElementById('size');
+    if (!sizeInput) return;
+    const race = fromUuidSync(raceUuid);
+    if (!race) {
+      sizeInput.value = '';
+      sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+      return;
+    }
+    let sizesArray = [];
+    let hint = '';
+    if (race.advancement?.byType?.Size?.length) {
+      const sizeAdvancement = race.advancement.byType.Size[0];
+      if (sizeAdvancement.configuration?.sizes) {
+        if (sizeAdvancement.configuration.sizes instanceof Set) {
+          sizesArray = Array.from(sizeAdvancement.configuration.sizes);
+        } else if (Array.isArray(sizeAdvancement.configuration.sizes)) {
+          sizesArray = sizeAdvancement.configuration.sizes;
         }
-      }
-      if (!sizesArray.length) {
-        log(2, `No size advancement found for race: ${race.name}`, { advancement: race.advancement });
-        sizeInput.value = '';
-        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
-        return;
-      }
-      const sizeLabels = sizesArray.map((size) => {
-        return CONFIG.DND5E.actorSizes[size]?.label || size;
-      });
-      log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
-      const or = game.i18n.localize('hm.app.list-or');
-      let sizeText = '';
-      if (sizeLabels.length === 1) {
-        sizeText = sizeLabels[0];
-      } else if (sizeLabels.length === 2) {
-        sizeText = `${sizeLabels[0]} ${or} ${sizeLabels[1]}`;
-      } else if (sizeLabels.length > 2) {
-        const lastLabel = sizeLabels.pop();
-        sizeText = `${sizeLabels.join(', ')}, ${or} ${lastLabel}`;
-      }
-      sizeInput.value = sizeText;
-      log(3, `Updated size input with value: "${sizeText}"`);
-      if (hint) {
-        sizeInput.title = hint;
-        log(3, `Added size hint from race: "${hint}"`);
-      }
-    } catch (error) {
-      log(1, `Error updating race size: ${error.message}`, error);
-      const sizeInput = document.getElementById('size');
-      if (sizeInput) {
-        sizeInput.value = '';
-        sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+        hint = sizeAdvancement.hint || '';
       }
     }
+    if (!sizesArray.length) {
+      sizeInput.value = '';
+      sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
+      return;
+    }
+    const sizeLabels = sizesArray.map((size) => CONFIG.DND5E.actorSizes[size]?.label || size);
+    const or = game.i18n.localize('hm.app.list-or');
+    let sizeText = '';
+    if (sizeLabels.length === 1) {
+      sizeText = sizeLabels[0];
+    } else if (sizeLabels.length === 2) {
+      sizeText = `${sizeLabels[0]} ${or} ${sizeLabels[1]}`;
+    } else if (sizeLabels.length > 2) {
+      const lastLabel = sizeLabels.pop();
+      sizeText = `${sizeLabels.join(', ')}, ${or} ${lastLabel}`;
+    }
+    sizeInput.value = sizeText;
+    if (hint) sizeInput.title = hint;
   }
 
   /**
@@ -340,43 +301,39 @@ export class HeroMancerUI {
    * @static
    */
   static updateTabIndicators(form) {
-    try {
-      if (!form) return;
-      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-      if (!mandatoryFields.length) return;
-      const tabs = form.querySelectorAll('.hero-mancer-tabs a.item');
-      if (!tabs.length) return;
-      const operations = [];
-      for (const tab of tabs) {
-        const tabId = tab.dataset.tab;
-        if (!tabId) continue;
-        const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
-        let indicator = tab.querySelector('.tab-mandatory-indicator');
-        if (hasIncompleteFields) {
-          if (!indicator) {
-            operations.push(() => {
-              indicator = document.createElement('i');
-              indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
-              const iconElement = tab.querySelector('i:not(.tab-mandatory-indicator)');
-              if (iconElement) {
-                if (!iconElement.querySelector('.tab-mandatory-indicator')) {
-                  iconElement.style.position = 'relative';
-                  iconElement.appendChild(indicator);
-                }
-              } else if (!tab.querySelector('.tab-mandatory-indicator')) {
-                tab.appendChild(indicator);
+    if (!form) return;
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
+    if (!mandatoryFields.length) return;
+    const tabs = form.querySelectorAll('.hero-mancer-tabs a.item');
+    if (!tabs.length) return;
+    const operations = [];
+    for (const tab of tabs) {
+      const tabId = tab.dataset.tab;
+      if (!tabId) continue;
+      const hasIncompleteFields = FormValidation.hasIncompleteTabFields(tabId, form);
+      let indicator = tab.querySelector('.tab-mandatory-indicator');
+      if (hasIncompleteFields) {
+        if (!indicator) {
+          operations.push(() => {
+            indicator = document.createElement('i');
+            indicator.className = 'fa-solid fa-triangle-exclamation tab-mandatory-indicator';
+            const iconElement = tab.querySelector('i:not(.tab-mandatory-indicator)');
+            if (iconElement) {
+              if (!iconElement.querySelector('.tab-mandatory-indicator')) {
+                iconElement.style.position = 'relative';
+                iconElement.appendChild(indicator);
               }
-            });
-          }
-        } else if (indicator) {
-          operations.push(() => indicator.remove());
+            } else if (!tab.querySelector('.tab-mandatory-indicator')) {
+              tab.appendChild(indicator);
+            }
+          });
         }
+      } else if (indicator) {
+        operations.push(() => indicator.remove());
       }
-
-      if (operations.length > 0) requestAnimationFrame(() => operations.forEach((op) => op()));
-    } catch (error) {
-      log(1, `Error updating tab indicators: ${error.message}`);
     }
+
+    if (operations.length > 0) requestAnimationFrame(() => operations.forEach((op) => op()));
   }
 
   /**
@@ -414,12 +371,7 @@ export class HeroMancerUI {
    * @static
    */
   static async updateDescription(type, id, descriptionEl) {
-    if (!descriptionEl) {
-      log(2, `Cannot update ${type} description: No description element provided`);
-      return;
-    }
-
-    log(3, `Updating ${type} description for ID: ${id}`);
+    if (!descriptionEl) return;
     try {
       if (!id) {
         descriptionEl.innerHTML = '';
@@ -435,7 +387,7 @@ export class HeroMancerUI {
         await this.#renderJournalPage(doc, descData, descriptionEl);
         return;
       }
-      this.#renderStandardDescription(doc, descData, descriptionEl);
+      this.#renderStandardDescription(descData, descriptionEl);
     } catch (error) {
       log(1, `Error updating ${type} description: ${error.message}`, error);
       descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
@@ -451,6 +403,7 @@ export class HeroMancerUI {
   static async updateEquipment(element, type) {
     const equipmentContainer = element.querySelector('#equipment-container');
     if (!equipmentContainer || HM.COMPAT.ELKAN) return;
+    log(3, `Equipment update triggered for ${type}`);
 
     if (this.#equipmentUpdateInProgress) {
       return new Promise((resolve) => {
@@ -487,27 +440,12 @@ export class HeroMancerUI {
     if (!HM.heroMancer) return;
     const characterNameInput = element.querySelector('#character-name');
     const characterName = characterNameInput?.value?.trim() || game.user.name;
-    let race = '';
-    let background = '';
-    let charClass = '';
-    try {
-      if (HM.SELECTED.race?.uuid) {
-        const raceDoc = fromUuidSync(HM.SELECTED.race.uuid);
-        race = raceDoc?.name || '';
-      }
-
-      if (HM.SELECTED.class?.uuid) {
-        const classDoc = fromUuidSync(HM.SELECTED.class.uuid);
-        charClass = classDoc?.name || '';
-      }
-
-      if (HM.SELECTED.background?.uuid) {
-        const backgroundDoc = fromUuidSync(HM.SELECTED.background.uuid);
-        background = backgroundDoc?.name || '';
-      }
-    } catch (error) {
-      log(2, `Error getting document: ${error}`);
-    }
+    const raceDoc = HM.SELECTED.race?.uuid ? fromUuidSync(HM.SELECTED.race.uuid) : null;
+    const classDoc = HM.SELECTED.class?.uuid ? fromUuidSync(HM.SELECTED.class.uuid) : null;
+    const backgroundDoc = HM.SELECTED.background?.uuid ? fromUuidSync(HM.SELECTED.background.uuid) : null;
+    const race = raceDoc?.name || '';
+    const charClass = classDoc?.name || '';
+    const background = backgroundDoc?.name || '';
     let characterDescription = characterName;
     const components = [race, background, charClass].filter((c) => c);
     if (components.length > 0) {
@@ -530,27 +468,20 @@ export class HeroMancerUI {
    * @static
    */
   static async updateReviewTab() {
-    try {
-      const finalizeTab = document.querySelector('.tab[data-tab="finalize"]');
-      if (!finalizeTab) {
-        log(2, 'Finalize tab not found');
-        return;
-      }
+    const finalizeTab = document.querySelector('.tab[data-tab="finalize"]');
+    if (!finalizeTab) return;
 
-      const basicInfoSection = finalizeTab.querySelector('.review-section[aria-labelledby="basic-info-heading"] .review-content');
-      const abilitiesSection = finalizeTab.querySelector('.review-section[aria-labelledby="abilities-heading"] .abilities-grid');
-      const equipmentSection = finalizeTab.querySelector('.review-section[aria-labelledby="equipment-heading"] .equipment-list');
-      const bioSection = finalizeTab.querySelector('.review-section[aria-labelledby="biography-heading"] .bio-preview');
-      const proficienciesSection = finalizeTab.querySelector('.review-section[aria-labelledby="proficiencies-heading"] .proficiencies-list');
-      if (!basicInfoSection || !abilitiesSection || !equipmentSection || !bioSection) return;
-      await this.#updateBasicInfoReview(basicInfoSection);
-      await this.#updateAbilitiesReview(abilitiesSection);
-      await this.#updateEquipmentReview(equipmentSection);
-      await this.#updateBiographyReview(bioSection);
-      if (proficienciesSection) await this.#updateProficienciesReview(proficienciesSection);
-    } catch (error) {
-      log(1, 'Error updating review tab:', error);
-    }
+    const basicInfoSection = finalizeTab.querySelector('.review-section[aria-labelledby="basic-info-heading"] .review-content');
+    const abilitiesSection = finalizeTab.querySelector('.review-section[aria-labelledby="abilities-heading"] .abilities-grid');
+    const equipmentSection = finalizeTab.querySelector('.review-section[aria-labelledby="equipment-heading"] .equipment-list');
+    const bioSection = finalizeTab.querySelector('.review-section[aria-labelledby="biography-heading"] .bio-preview');
+    const proficienciesSection = finalizeTab.querySelector('.review-section[aria-labelledby="proficiencies-heading"] .proficiencies-list');
+    if (!basicInfoSection || !abilitiesSection || !equipmentSection || !bioSection) return;
+    await this.#updateBasicInfoReview(basicInfoSection);
+    await this.#updateAbilitiesReview(abilitiesSection);
+    await this.#updateEquipmentReview(equipmentSection);
+    await this.#updateBiographyReview(bioSection);
+    if (proficienciesSection) await this.#updateProficienciesReview(proficienciesSection);
   }
 
   /* -------------------------------------------- */
@@ -567,9 +498,7 @@ export class HeroMancerUI {
   static #getDropdownElements(element, types) {
     const dropdowns = {};
     for (const type of types) {
-      const selector = `#${type}-dropdown`;
-      dropdowns[type] = element.querySelector(selector);
-      if (!dropdowns[type]) log(2, `${type} dropdown not found`);
+      dropdowns[type] = element.querySelector(`#${type}-dropdown`);
     }
     return dropdowns;
   }
@@ -585,12 +514,8 @@ export class HeroMancerUI {
     const value = event.target.value;
     if (!value) {
       HM.SELECTED[type] = { value: '', id: '', uuid: '' };
-      log(3, `${type} reset to default`);
       const currentTab = element.querySelector(`.tab[data-tab="${type}"]`);
-      if (!currentTab) {
-        log(1, `Could not find tab for ${type}`);
-        return;
-      }
+      if (!currentTab) return;
       const journalContainer = currentTab.querySelector('.journal-container');
       if (journalContainer) {
         journalContainer.innerHTML = '';
@@ -603,12 +528,9 @@ export class HeroMancerUI {
     const id = value.split(' ')[0].trim();
     const uuid = value.match(/\[(.*?)]/)?.[1] || '';
     HM.SELECTED[type] = { value, id, uuid };
-    log(3, `${type} updated:`, HM.SELECTED[type]);
+    log(3, `Selection changed — ${type} = "${id}" (${uuid})`);
     const currentTab = element.querySelector(`.tab[data-tab="${type}"]`);
-    if (!currentTab) {
-      log(1, `Could not find tab for ${type}`);
-      return;
-    }
+    if (!currentTab) return;
     const journalContainer = currentTab.querySelector('.journal-container');
     if (journalContainer) {
       let doc = null;
@@ -635,8 +557,6 @@ export class HeroMancerUI {
         journalContainer.removeAttribute('data-journal-id');
         journalContainer.innerHTML = game.i18n.localize('hm.app.no-description');
       }
-    } else {
-      log(1, `Could not find journal container for ${type}`);
     }
     await this.#updateUIForDropdownType(element, type);
     if (type === 'race' && uuid) await this.updateRaceSize(uuid);
@@ -664,9 +584,7 @@ export class HeroMancerUI {
     const rollMethodSelect = element.querySelector('#roll-method');
     if (!rollMethodSelect) return;
     EventRegistry.on(rollMethodSelect, 'change', async (event) => {
-      const method = event.target.value;
-      log(3, `Roll method changed to: ${method}`);
-      this.#handleRollMethodChange(element, method);
+      this.#handleRollMethodChange(element, event.target.value);
     });
   }
 
@@ -746,19 +664,15 @@ export class HeroMancerUI {
    */
   static #getPrimaryAbilitiesForClass() {
     const primaryAbilities = new Set();
-    try {
-      const classUUID = HM.SELECTED.class?.uuid;
-      if (!classUUID) return primaryAbilities;
-      const classItem = fromUuidSync(classUUID);
-      if (!classItem) return primaryAbilities;
-      if (classItem?.system?.primaryAbility?.value?.length) for (const ability of classItem.system.primaryAbility.value) primaryAbilities.add(ability.toLowerCase());
-      if (classItem?.system?.spellcasting?.ability) primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
-      if (classItem?.advancement?.byType?.Trait) {
-        const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
-        for (const trait of level1Traits) for (const grant of trait.configuration.grants) if (grant.startsWith('saves:')) primaryAbilities.add(grant.split(':')[1].toLowerCase());
-      }
-    } catch (error) {
-      log(1, 'Error getting class primary abilities:', error);
+    const classUUID = HM.SELECTED.class?.uuid;
+    if (!classUUID) return primaryAbilities;
+    const classItem = fromUuidSync(classUUID);
+    if (!classItem) return primaryAbilities;
+    if (classItem?.system?.primaryAbility?.value?.length) for (const ability of classItem.system.primaryAbility.value) primaryAbilities.add(ability.toLowerCase());
+    if (classItem?.system?.spellcasting?.ability) primaryAbilities.add(classItem.system.spellcasting.ability.toLowerCase());
+    if (classItem?.advancement?.byType?.Trait) {
+      const level1Traits = classItem.advancement.byType.Trait.filter((entry) => entry.level === 1 && entry.configuration.grants);
+      for (const trait of level1Traits) for (const grant of trait.configuration.grants) if (grant.startsWith('saves:')) primaryAbilities.add(grant.split(':')[1].toLowerCase());
     }
     return primaryAbilities;
   }
@@ -896,7 +810,6 @@ export class HeroMancerUI {
    * @static
    */
   static async #renderJournalPage(doc, descData, descriptionEl) {
-    log(3, `Found journal page ID ${descData.journalPageId} for ${doc.name}`);
     const container = descriptionEl.querySelector('.journal-container') || document.createElement('div');
     if (!container.classList.contains('journal-container')) {
       container.classList.add('journal-container');
@@ -906,27 +819,22 @@ export class HeroMancerUI {
     const embed = new JournalPageEmbed(container, { scrollable: true, height: 'auto' });
     try {
       const result = await embed.render(descData.journalPageId, doc.name);
-      if (result) {
-        log(3, `Successfully rendered journal page for ${doc.name}`);
-        return;
-      }
+      if (result) return;
       throw new Error('Failed to render journal page');
     } catch (error) {
-      log(2, `Failed to render journal page ${descData.journalPageId} for ${doc.name}: ${error.message}`);
       descriptionEl.innerHTML = '<div class="notification error">Failed to load journal page content</div>';
-      setTimeout(() => this.#renderStandardDescription(doc, descData, descriptionEl), 500);
+      setTimeout(() => this.#renderStandardDescription(descData, descriptionEl), 500);
     }
   }
 
   /**
    * Render standard text description
-   * @param {object} _doc - Document object with basic info (unused)
    * @param {object} descData - Description data from lazy loading
    * @param {HTMLElement} descriptionEl - Description element to update
    * @private
    * @static
    */
-  static #renderStandardDescription(_doc, descData, descriptionEl) {
+  static #renderStandardDescription(descData, descriptionEl) {
     let contentContainer = descriptionEl.classList.contains('journal-container') ? descriptionEl : descriptionEl.querySelector('.journal-container');
     if (!contentContainer) {
       contentContainer = document.createElement('div');
@@ -975,7 +883,6 @@ export class HeroMancerUI {
         element.textContent = game.i18n.localize('hm.unknown');
       }
     } catch (error) {
-      log(2, `Error fetching document ${uuid}:`, error);
       element.textContent = game.i18n.localize('hm.unknown');
     }
   }
@@ -1056,7 +963,6 @@ export class HeroMancerUI {
       addCategory(proficiencyData.skills, 'DND5E.Skills', 'fa-solid fa-star');
       addCategory(proficiencyData.languages, 'DND5E.Languages', 'fa-solid fa-language');
 
-      log(3, 'Final proficiency data collected:', categories);
       container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', { categories });
     } catch (error) {
       log(1, 'Error updating proficiencies review:', error);
@@ -1073,25 +979,18 @@ export class HeroMancerUI {
    * @static
    */
   static async #extractProficiencies(type, proficiencyData) {
-    try {
-      const selected = HM.SELECTED[type];
-      if (!selected?.uuid) return;
-      const doc = fromUuidSync(selected.uuid);
-      if (!doc) {
-        log(2, `${type} document not found`);
-        return;
+    const selected = HM.SELECTED[type];
+    if (!selected?.uuid) return;
+    const doc = fromUuidSync(selected.uuid);
+    if (!doc) return;
+    if (doc.advancement?.byType?.Trait) {
+      for (const trait of doc.advancement.byType.Trait) if (trait.configuration?.grants) for (const grant of trait.configuration.grants) this.#categorizeTraitGrant(grant, proficiencyData, doc.name);
+    }
+    if (type === 'race' && doc.system?.traits?.languages?.value) {
+      for (const lang of doc.system.traits.languages.value) {
+        const langConfig = CONFIG.DND5E.languages[lang];
+        if (langConfig) proficiencyData.languages.add({ name: langConfig.label || lang, source: doc.name });
       }
-      if (doc.advancement?.byType?.Trait) {
-        for (const trait of doc.advancement.byType.Trait) if (trait.configuration?.grants) for (const grant of trait.configuration.grants) this.#categorizeTraitGrant(grant, proficiencyData, doc.name);
-      }
-      if (type === 'race' && doc.system?.traits?.languages?.value) {
-        for (const lang of doc.system.traits.languages.value) {
-          const langConfig = CONFIG.DND5E.languages[lang];
-          if (langConfig) proficiencyData.languages.add({ name: langConfig.label || lang, source: doc.name });
-        }
-      }
-    } catch (error) {
-      log(1, `Error extracting ${type} proficiencies:`, error);
     }
   }
 
@@ -1104,36 +1003,32 @@ export class HeroMancerUI {
    * @static
    */
   static #categorizeTraitGrant(grant, proficiencyData, source) {
-    try {
-      if (grant.startsWith('saves:')) {
-        const ability = grant.split(':')[1];
-        const abilityConfig = CONFIG.DND5E.abilities[ability];
-        proficiencyData.savingThrows.add({ name: abilityConfig.label, source: source });
-      } else if (grant.startsWith('skills:')) {
-        const skill = grant.split(':')[1];
-        const skillConfig = CONFIG.DND5E.skills[skill];
-        proficiencyData.skills.add({ name: skillConfig.label, source: source });
-      } else if (grant.startsWith('languages:')) {
-        const langParts = grant.split(':');
-        const langType = langParts[1]; // e.g., 'standard', 'exotic'
-        const langConfig = CONFIG.DND5E.languages[langType];
-        proficiencyData.languages.add({ name: langConfig.label, source: source });
-      } else if (grant.startsWith('armor:')) {
-        const armor = grant.split(':')[1];
-        const armorConfig = CONFIG.DND5E.armorProficiencies?.[armor] || CONFIG.DND5E.armorTypes?.[armor];
-        proficiencyData.armor.add({ name: armorConfig.label || armorConfig, source: source });
-      } else if (grant.startsWith('weapon:')) {
-        const weapon = grant.split(':')[1];
-        const weaponConfig = CONFIG.DND5E.weaponProficiencies?.[weapon] || CONFIG.DND5E.weaponTypes?.[weapon];
-        proficiencyData.weapons.add({ name: weaponConfig.label || weaponConfig, source: source });
-      } else if (grant.startsWith('tool:')) {
-        const toolParts = grant.split(':');
-        const toolType = toolParts[1];
-        let toolConfig = CONFIG.DND5E.toolProficiencies?.[toolType] || CONFIG.DND5E.toolIds?.[grant] || CONFIG.DND5E.toolTypes?.[toolType];
-        proficiencyData.tools.add({ name: toolConfig?.label || toolConfig, source: source });
-      }
-    } catch (error) {
-      log(1, `Error categorizing grant "${grant}":`, error);
+    if (grant.startsWith('saves:')) {
+      const ability = grant.split(':')[1];
+      const abilityConfig = CONFIG.DND5E.abilities[ability];
+      proficiencyData.savingThrows.add({ name: abilityConfig.label, source: source });
+    } else if (grant.startsWith('skills:')) {
+      const skill = grant.split(':')[1];
+      const skillConfig = CONFIG.DND5E.skills[skill];
+      proficiencyData.skills.add({ name: skillConfig.label, source: source });
+    } else if (grant.startsWith('languages:')) {
+      const langParts = grant.split(':');
+      const langType = langParts[1];
+      const langConfig = CONFIG.DND5E.languages[langType];
+      proficiencyData.languages.add({ name: langConfig.label, source: source });
+    } else if (grant.startsWith('armor:')) {
+      const armor = grant.split(':')[1];
+      const armorConfig = CONFIG.DND5E.armorProficiencies?.[armor] || CONFIG.DND5E.armorTypes?.[armor];
+      proficiencyData.armor.add({ name: armorConfig.label || armorConfig, source: source });
+    } else if (grant.startsWith('weapon:')) {
+      const weapon = grant.split(':')[1];
+      const weaponConfig = CONFIG.DND5E.weaponProficiencies?.[weapon] || CONFIG.DND5E.weaponTypes?.[weapon];
+      proficiencyData.weapons.add({ name: weaponConfig.label || weaponConfig, source: source });
+    } else if (grant.startsWith('tool:')) {
+      const toolParts = grant.split(':');
+      const toolType = toolParts[1];
+      const toolConfig = CONFIG.DND5E.toolProficiencies?.[toolType] || CONFIG.DND5E.toolIds?.[grant] || CONFIG.DND5E.toolTypes?.[toolType];
+      proficiencyData.tools.add({ name: toolConfig?.label || toolConfig, source: source });
     }
   }
 
@@ -1257,13 +1152,8 @@ export class HeroMancerUI {
    */
   static async #getBackgroundName() {
     if (!HM.SELECTED.background?.uuid) return '';
-    try {
-      const background = fromUuidSync(HM.SELECTED.background.uuid);
-      return background?.name || '';
-    } catch (error) {
-      log(2, `Error getting background name: ${error.message}`);
-      return '';
-    }
+    const background = fromUuidSync(HM.SELECTED.background.uuid);
+    return background?.name || '';
   }
 
   /**
@@ -1274,13 +1164,8 @@ export class HeroMancerUI {
    */
   static async #getClassName() {
     if (!HM.SELECTED.class?.uuid) return '';
-    try {
-      const classItem = fromUuidSync(HM.SELECTED.class.uuid);
-      return classItem?.name || '';
-    } catch (error) {
-      log(2, `Error getting class name: ${error.message}`);
-      return '';
-    }
+    const classItem = fromUuidSync(HM.SELECTED.class.uuid);
+    return classItem?.name || '';
   }
 
   /**

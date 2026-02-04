@@ -4,6 +4,7 @@ import { log } from '../utils/logger.mjs';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const DragDropClass = foundry.applications.ux.DragDrop.implementation;
 
+/** Character customization settings application. */
 export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
   /*  Static Properties                           */
@@ -52,6 +53,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
+  /** @returns {string} Window title */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.customization.menu.name')}`;
   }
@@ -60,7 +62,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   /*  Instance Properties                         */
   /* -------------------------------------------- */
 
-  /** @type {Array} Advancement order configuration */
   config = [];
 
   /* -------------------------------------------- */
@@ -306,8 +307,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       for (const setting of settingsToFetch) {
         try {
           context[setting] = game.settings.get(MODULE.ID, setting);
-        } catch (settingError) {
-          log(2, `Error fetching setting "${setting}": ${settingError.message}`);
+        } catch {
           context[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
         }
       }
@@ -323,7 +323,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       return context;
     } catch (error) {
       log(1, `Error preparing context: ${error.message}`);
-      ui.notifications.error('hm.settings.customization.error-context', { localize: true });
+      ui.notifications.warn('hm.settings.customization.error-context', { localize: true });
       return context;
     }
   }
@@ -342,8 +342,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!inputField) throw new Error('Could not find artPickerRoot input field');
 
       const currentPath = inputField.value || '/';
-      log(3, 'Creating FilePicker for folder selection:', { currentPath });
-
       const pickerConfig = {
         type: 'folder',
         current: currentPath,
@@ -392,18 +390,13 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const setting of settings) {
       try {
         defaults[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
-
-        // Check for empty string values
-        const value = formData.object[setting];
-        const isEmpty = typeof value === 'string' && value.trim() === '';
-
-        if (isEmpty) {
-          resetSettings.push(setting);
-        }
-      } catch (error) {
-        log(2, `Error validating setting "${setting}": ${error.message}`);
+      } catch {
         defaults[setting] = null;
       }
+
+      const value = formData.object[setting];
+      const isEmpty = typeof value === 'string' && value.trim() === '';
+      if (isEmpty) resetSettings.push(setting);
     }
 
     return { defaults, resetSettings, settings };
@@ -418,8 +411,8 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * Validates and saves settings for character customization options
    * @param {Event} _event - The form submission event
    * @param {HTMLFormElement} _form - The form element
-   * @param {FormDataExtended} formData - The processed form data
-   * @returns {Promise<boolean|void>} Returns false if validation fails
+   * @param {object} formData - The processed form data
+   * @returns {boolean|void} Returns false if validation fails
    * @static
    */
   static formHandler(_event, _form, formData) {
@@ -488,10 +481,8 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
       // Show warnings for reset settings
       if (resetSettings.length > 0) {
-        for (const setting of resetSettings) {
-          let settingName = game.i18n.localize(`hm.settings.${setting}.name`);
-          ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: settingName }));
-        }
+        const names = resetSettings.map((s) => game.i18n.localize(`hm.settings.${s}.name`));
+        ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: names.join(', ') }));
       }
 
       // Handle reloads and re-renders based on what changed

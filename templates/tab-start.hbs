@@ -1,106 +1,104 @@
 {{!-- Start Tab - Initial Character Setup --}}
 <div class="tab {{ tabs.start.cssClass }}" data-tab="start" data-group="hero-mancer-tabs" role="tabpanel"
   id="start-panel" aria-labelledby="tab-start">
-    {{!-- Introduction --}}
-    {{{localize 'hm.app.start.preamble.text'}}}
+  {{!-- Introduction --}}
+  {{{localize 'hm.app.start.preamble.text'}}}
 
-    {{!-- Player Settings --}}
+  {{!-- Player Settings --}}
+  <fieldset>
+    <legend>{{localize 'hm.app.start.player-settings'}}</legend>
+
+    <div class="form-group" id="character-name-row">
+      <label for="character-name">{{localize 'hm.app.start.name-label'}}</label>
+      <div class="form-fields">
+        <input id="character-name" type="text" name="character-name"
+          placeholder="{{localize 'hm.app.start.name-placeholder'}}" aria-required="true" />
+        <button data-action="randomizeCharacterName" type="button"
+          data-tooltip="{{localize 'hm.app.start.generate-random-name'}}"
+          aria-label="{{localize 'hm.app.start.generate-random-name'}}">
+          <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    {{#if isGM}}
+      <div class="form-group">
+        <label for="player-assignment">{{localize 'hm.app.start.player-assignment-label'}}</label>
+        <div class="form-fields">
+          <select id="player-assignment" name="player">
+            <option value="">{{localize 'hm.app.start.player-assignment-placeholder'}}</option>
+            {{#each players}}
+              <option value="{{this.id}}">{{this.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+    {{/if}}
+
+    <div class="form-group">
+      <label for="character-art-path">{{localize 'hm.app.start.character-art-label'}}</label>
+      <div class="form-fields">
+        <input id="character-art-path" type="text" name="character-art" readonly
+          placeholder="{{localize 'hm.app.start.character-art-placeholder'}}" />
+        <button data-action="selectCharacterArt" type="button" aria-label="{{localize 'hm.app.start.select-art'}}">
+          {{localize 'hm.app.start.select-art'}}
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="link-token-art">{{localize 'hm.app.start.token-same-as-character'}}</label>
+      <div class="form-fields">
+        <input type="checkbox" id="link-token-art" checked />
+      </div>
+    </div>
+
+    <div class="form-group" id="token-art-row" style="display: none">
+      <label for="token-art-path">{{localize 'hm.app.start.token-art-label'}}</label>
+      <div class="form-fields">
+        <input id="token-art-path" type="text" name="token-art" readonly
+          placeholder="{{localize 'hm.app.start.token-art-placeholder'}}" />
+        <button data-action="selectTokenArt" type="button" aria-label="{{localize 'hm.app.start.select-art'}}">
+          {{localize 'hm.app.start.select-art'}}
+        </button>
+      </div>
+    </div>
+
+    {{#if playerCustomizationEnabled}}
+      <div class="form-group" id="color-row">
+        <label for="player-color">{{localize 'hm.app.start.player-color'}}</label>
+        <div class="form-fields">
+          <color-picker id="player-color" name="player-color" value="#FF0000"
+            aria-label="{{localize 'hm.app.start.player-color'}}" />
+        </div>
+      </div>
+      <div class="form-group" id="pronoun-row">
+        <label for="player-pronouns">{{localize 'hm.app.start.player-pronouns'}}</label>
+        <div class="form-fields">
+          <input id="player-pronouns" type="text" name="player-pronouns"
+            placeholder="{{localize 'hm.app.start.player-pronouns-placeholder'}}" />
+        </div>
+      </div>
+      <div class="form-group" id="avatar-row">
+        <label for="player-avatar-path">{{localize 'hm.app.start.player-avatar'}}</label>
+        <div class="form-fields">
+          <input id="player-avatar-path" type="text" name="player-avatar" readonly
+            placeholder="{{localize 'hm.app.start.player-avatar-placeholder'}}" />
+          <button data-action="selectPlayerAvatar" type="button"
+            aria-label="{{localize 'hm.app.start.player-avatar-placeholder'}}">
+            {{localize 'hm.app.start.select-art'}}
+          </button>
+        </div>
+      </div>
+    {{/if}}
+  </fieldset>
+
+  {{!-- Token Settings --}}
+  {{#if tokenCustomizationEnabled}}
     <fieldset>
-      <legend>{{localize 'hm.app.start.player-settings'}}</legend>
-
-      <div class="form-group" id="character-name-row">
-        <label for="character-name">{{localize 'hm.app.start.name-label'}}</label>
-        <div class="form-fields">
-          <input id="character-name" type="text" name="character-name"
-            placeholder="{{localize 'hm.app.start.name-placeholder'}}" aria-required="true" />
-          <button data-action="randomizeCharacterName" type="button"
-            data-tooltip="{{localize 'hm.app.start.generate-random-name'}}"
-            aria-label="{{localize 'hm.app.start.generate-random-name'}}">
-            <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>
-
-      {{#if isGM}}
-        <div class="form-group">
-          <label for="player-assignment">{{localize 'hm.app.start.player-assignment-label'}}</label>
-          <div class="form-fields">
-            <select id="player-assignment" name="player">
-              <option value="">{{localize 'hm.app.start.player-assignment-placeholder'}}</option>
-              {{#each players}}
-                <option value="{{this.id}}">{{this.name}}</option>
-              {{/each}}
-            </select>
-          </div>
-        </div>
-      {{/if}}
+      <legend>{{localize 'hm.app.start.token-settings'}}</legend>
 
       <div class="form-group">
-        <label for="character-art-path">{{localize 'hm.app.start.character-art-label'}}</label>
-        <div class="form-fields">
-          <input id="character-art-path" type="text" name="character-art" readonly
-            placeholder="{{localize 'hm.app.start.character-art-placeholder'}}" />
-          <button data-action="selectCharacterArt" type="button"
-            aria-label="{{localize 'hm.app.start.select-art'}}">
-            {{localize 'hm.app.start.select-art'}}
-          </button>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="link-token-art">{{localize 'hm.app.start.token-same-as-character'}}</label>
-        <div class="form-fields">
-          <input type="checkbox" id="link-token-art" checked />
-        </div>
-      </div>
-
-      <div class="form-group" id="token-art-row" style="display: none">
-        <label for="token-art-path">{{localize 'hm.app.start.token-art-label'}}</label>
-        <div class="form-fields">
-          <input id="token-art-path" type="text" name="token-art" readonly
-            placeholder="{{localize 'hm.app.start.token-art-placeholder'}}" />
-          <button data-action="selectTokenArt" type="button"
-            aria-label="{{localize 'hm.app.start.select-art'}}">
-            {{localize 'hm.app.start.select-art'}}
-          </button>
-        </div>
-      </div>
-
-      {{#if playerCustomizationEnabled}}
-        <div class="form-group" id="color-row">
-          <label for="player-color">{{localize 'hm.app.start.player-color'}}</label>
-          <div class="form-fields">
-            <color-picker id="player-color" name="player-color" value="#FF0000"
-              aria-label="{{localize 'hm.app.start.player-color'}}" />
-          </div>
-        </div>
-        <div class="form-group" id="pronoun-row">
-          <label for="player-pronouns">{{localize 'hm.app.start.player-pronouns'}}</label>
-          <div class="form-fields">
-            <input id="player-pronouns" type="text" name="player-pronouns"
-              placeholder="{{localize 'hm.app.start.player-pronouns-placeholder'}}" />
-          </div>
-        </div>
-        <div class="form-group" id="avatar-row">
-          <label for="player-avatar-path">{{localize 'hm.app.start.player-avatar'}}</label>
-          <div class="form-fields">
-            <input id="player-avatar-path" type="text" name="player-avatar" readonly
-              placeholder="{{localize 'hm.app.start.player-avatar-placeholder'}}" />
-            <button data-action="selectPlayerAvatar" type="button"
-              aria-label="{{localize 'hm.app.start.player-avatar-placeholder'}}">
-              {{localize 'hm.app.start.select-art'}}
-            </button>
-          </div>
-        </div>
-      {{/if}}
-    </fieldset>
-
-    {{!-- Token Settings --}}
-    {{#if tokenCustomizationEnabled}}
-      <fieldset>
-        <legend>{{localize 'hm.app.start.token-settings'}}</legend>
-
-        <div class="form-group">
         <label for="displayName">{{localize "TOKEN.FIELDS.displayName.label"}}</label>
         <div class="form-fields">
           <select id="displayName" name="displayName">
@@ -156,8 +154,8 @@
       <div class="form-group">
         <label for="background-color">{{localize "TOKEN.FIELDS.ring.colors.background.label"}}</label>
         <div class="form-fields">
-          <color-picker id="background-color" name="backgroundColor"
-            value="{{ object.backgroundColor }}" aria-label="{{localize 'DND5E.TokenRings.BackgroundColor'}}" />
+          <color-picker id="background-color" name="backgroundColor" value="{{ object.backgroundColor }}"
+            aria-label="{{localize 'DND5E.TokenRings.BackgroundColor'}}" />
         </div>
       </div>
 
@@ -173,6 +171,6 @@
           {{/each}}
         </div>
       </div>
-      </fieldset>
-    {{/if}}
+    </fieldset>
+  {{/if}}
 </div>

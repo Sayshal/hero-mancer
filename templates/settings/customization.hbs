@@ -1,155 +1,158 @@
 {{!-- Character Customization Settings --}}
 <div>
 
-{{!-- General Options --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.general-options.header'}}</legend>
+	{{!-- General Options --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.general-options.header'}}</legend>
 
-	{{!-- Randomization Option --}}
-	<div class="form-group">
-		<label for="enableRandomize">{{localize 'hm.settings.randomize.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="enableRandomize" name="enableRandomize" {{#if enableRandomize}}checked{{/if}} />
+		{{!-- Randomization Option --}}
+		<div class="form-group">
+			<label for="enableRandomize">{{localize 'hm.settings.randomize.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="enableRandomize" name="enableRandomize" {{#if enableRandomize}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.randomize.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.randomize.hint'}}</p>
-	</div>
 
-	{{!-- Player Customization Option --}}
-	<div class="form-group">
-		<label for="enablePlayerCustomization">{{localize 'hm.settings.player-customization.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="enablePlayerCustomization" name="enablePlayerCustomization"
-				{{#if enablePlayerCustomization}}checked{{/if}} />
+		{{!-- Player Customization Option --}}
+		<div class="form-group">
+			<label for="enablePlayerCustomization">{{localize 'hm.settings.player-customization.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="enablePlayerCustomization" name="enablePlayerCustomization"
+					{{#if enablePlayerCustomization}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.player-customization.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.player-customization.hint'}}</p>
-	</div>
 
-	{{!-- Token Customization Option --}}
-	<div class="form-group">
-		<label for="enableTokenCustomization">{{localize 'hm.settings.token-customization.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="enableTokenCustomization" name="enableTokenCustomization"
-				{{#if enableTokenCustomization}}checked{{/if}} />
+		{{!-- Token Customization Option --}}
+		<div class="form-group">
+			<label for="enableTokenCustomization">{{localize 'hm.settings.token-customization.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="enableTokenCustomization" name="enableTokenCustomization"
+					{{#if enableTokenCustomization}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.token-customization.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.token-customization.hint'}}</p>
-	</div>
 
-	{{!-- Alignment & Faith Input Option --}}
-	<div class="form-group">
-		<label for="enableAlignmentFaithInputs">{{localize 'hm.settings.alignment-faith-inputs.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="enableAlignmentFaithInputs" name="enableAlignmentFaithInputs"
-				{{#if enableAlignmentFaithInputs}}checked{{/if}} />
+		{{!-- Alignment & Faith Input Option --}}
+		<div class="form-group">
+			<label for="enableAlignmentFaithInputs">{{localize 'hm.settings.alignment-faith-inputs.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="enableAlignmentFaithInputs" name="enableAlignmentFaithInputs"
+					{{#if enableAlignmentFaithInputs}}checked{{/if}} />
+			</div>
+			<p class="hint">{{localize 'hm.settings.alignment-faith-inputs.hint'}}</p>
 		</div>
-		<p class="hint">{{localize 'hm.settings.alignment-faith-inputs.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Character Appearance Options Section --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.appearance-options.header'}}</legend>
+	{{!-- Character Appearance Options Section --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.appearance-options.header'}}</legend>
 
-	{{!-- Alignments --}}
-	<div class="form-group">
-		<label for="alignments">{{localize 'hm.settings.alignments.name'}}</label>
-		<div class="form-fields">
-			<input id="alignments" type="text" name="alignments" value="{{alignments}}" aria-describedby="alignments-hint" />
+		{{!-- Alignments --}}
+		<div class="form-group">
+			<label for="alignments">{{localize 'hm.settings.alignments.name'}}</label>
+			<div class="form-fields">
+				<input id="alignments" type="text" name="alignments" value="{{alignments}}"
+					aria-describedby="alignments-hint" />
+			</div>
+			<p class="hint" id="alignments-hint">{{localize 'hm.settings.alignments.hint'}}</p>
 		</div>
-		<p class="hint" id="alignments-hint">{{localize 'hm.settings.alignments.hint'}}</p>
-	</div>
 
-	{{!-- Deities --}}
-	<div class="form-group">
-		<label for="deities">{{localize 'hm.settings.deities.name'}}</label>
-		<div class="form-fields">
-			<input id="deities" type="text" name="deities" value="{{deities}}" aria-describedby="deities-hint" />
+		{{!-- Deities --}}
+		<div class="form-group">
+			<label for="deities">{{localize 'hm.settings.deities.name'}}</label>
+			<div class="form-fields">
+				<input id="deities" type="text" name="deities" value="{{deities}}" aria-describedby="deities-hint" />
+			</div>
+			<p class="hint" id="deities-hint">{{localize 'hm.settings.deities.hint'}}</p>
 		</div>
-		<p class="hint" id="deities-hint">{{localize 'hm.settings.deities.hint'}}</p>
-	</div>
 
-	{{!-- Eye Colors --}}
-	<div class="form-group">
-		<label for="eyeColors">{{localize 'hm.settings.eye-colors.name'}}</label>
-		<div class="form-fields">
-			<input id="eyeColors" type="text" name="eyeColors" value="{{eyeColors}}" aria-describedby="eyeColors-hint" />
+		{{!-- Eye Colors --}}
+		<div class="form-group">
+			<label for="eyeColors">{{localize 'hm.settings.eye-colors.name'}}</label>
+			<div class="form-fields">
+				<input id="eyeColors" type="text" name="eyeColors" value="{{eyeColors}}" aria-describedby="eyeColors-hint" />
+			</div>
+			<p class="hint" id="eyeColors-hint">{{localize 'hm.settings.eye-colors.hint'}}</p>
 		</div>
-		<p class="hint" id="eyeColors-hint">{{localize 'hm.settings.eye-colors.hint'}}</p>
-	</div>
 
-	{{!-- Hair Colors --}}
-	<div class="form-group">
-		<label for="hairColors">{{localize 'hm.settings.hair-colors.name'}}</label>
-		<div class="form-fields">
-			<input id="hairColors" type="text" name="hairColors" value="{{hairColors}}" aria-describedby="hairColors-hint" />
+		{{!-- Hair Colors --}}
+		<div class="form-group">
+			<label for="hairColors">{{localize 'hm.settings.hair-colors.name'}}</label>
+			<div class="form-fields">
+				<input id="hairColors" type="text" name="hairColors" value="{{hairColors}}"
+					aria-describedby="hairColors-hint" />
+			</div>
+			<p class="hint" id="hairColors-hint">{{localize 'hm.settings.hair-colors.hint'}}</p>
 		</div>
-		<p class="hint" id="hairColors-hint">{{localize 'hm.settings.hair-colors.hint'}}</p>
-	</div>
 
-	{{!-- Skin Tones --}}
-	<div class="form-group">
-		<label for="skinTones">{{localize 'hm.settings.skin-tones.name'}}</label>
-		<div class="form-fields">
-			<input id="skinTones" type="text" name="skinTones" value="{{skinTones}}" aria-describedby="skinTones-hint" />
+		{{!-- Skin Tones --}}
+		<div class="form-group">
+			<label for="skinTones">{{localize 'hm.settings.skin-tones.name'}}</label>
+			<div class="form-fields">
+				<input id="skinTones" type="text" name="skinTones" value="{{skinTones}}" aria-describedby="skinTones-hint" />
+			</div>
+			<p class="hint" id="skinTones-hint">{{localize 'hm.settings.skin-tones.hint'}}</p>
 		</div>
-		<p class="hint" id="skinTones-hint">{{localize 'hm.settings.skin-tones.hint'}}</p>
-	</div>
 
-	{{!-- Genders --}}
-	<div class="form-group">
-		<label for="genders">{{localize 'hm.settings.genders.name'}}</label>
-		<div class="form-fields">
-			<input id="genders" type="text" name="genders" value="{{genders}}" aria-describedby="genders-hint" />
+		{{!-- Genders --}}
+		<div class="form-group">
+			<label for="genders">{{localize 'hm.settings.genders.name'}}</label>
+			<div class="form-fields">
+				<input id="genders" type="text" name="genders" value="{{genders}}" aria-describedby="genders-hint" />
+			</div>
+			<p class="hint" id="genders-hint">{{localize 'hm.settings.genders.hint'}}</p>
 		</div>
-		<p class="hint" id="genders-hint">{{localize 'hm.settings.genders.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Character Options Section --}}
-<fieldset>
-	<legend>{{localize 'hm.settings.character-options.header'}}</legend>
+	{{!-- Character Options Section --}}
+	<fieldset>
+		<legend>{{localize 'hm.settings.character-options.header'}}</legend>
 
-	{{!-- Art Picker Root --}}
-	<div class="form-group">
-		<label for="artPickerRoot">{{localize 'hm.settings.art-picker-root.name'}}</label>
-		<div class="form-fields">
-			<input type="text" id="artPickerRoot" name="artPickerRoot" value="{{artPickerRoot}}"
-				data-dtype="String" data-type="folder" aria-describedby="art-picker-root-hint" />
-			<button type="button" class="file-picker" data-action="selectArtPickerRoot" data-type="folder"
-				data-target="artPickerRoot" aria-label="{{localize 'hm.settings.art-picker-root.browse'}}">
-				<i class="fas fa-file-import fa-fw" aria-hidden="true"></i>
-			</button>
+		{{!-- Art Picker Root --}}
+		<div class="form-group">
+			<label for="artPickerRoot">{{localize 'hm.settings.art-picker-root.name'}}</label>
+			<div class="form-fields">
+				<input type="text" id="artPickerRoot" name="artPickerRoot" value="{{artPickerRoot}}" data-dtype="String"
+					data-type="folder" aria-describedby="art-picker-root-hint" />
+				<button type="button" class="file-picker" data-action="selectArtPickerRoot" data-type="folder"
+					data-target="artPickerRoot" aria-label="{{localize 'hm.settings.art-picker-root.browse'}}">
+					<i class="fas fa-file-import fa-fw" aria-hidden="true"></i>
+				</button>
+			</div>
+			<p class="hint" id="art-picker-root-hint">{{localize 'hm.settings.art-picker-root.hint'}}</p>
 		</div>
-		<p class="hint" id="art-picker-root-hint">{{localize 'hm.settings.art-picker-root.hint'}}</p>
-	</div>
-</fieldset>
+	</fieldset>
 
-{{!-- Tokenizer Compatibility --}}
-{{#if tokenizerModuleActive}}
-	<div class="form-group">
-		<label for="tokenizerCompatibility">{{localize 'hm.settings.tokenizer.name'}}</label>
-		<div class="form-fields">
-			<input type="checkbox" id="tokenizerCompatibility" name="tokenizerCompatibility"
-				{{#if tokenizerCompatibility}}checked{{/if}} />
+	{{!-- Tokenizer Compatibility --}}
+	{{#if tokenizerModuleActive}}
+		<div class="form-group">
+			<label for="tokenizerCompatibility">{{localize 'hm.settings.tokenizer.name'}}</label>
+			<div class="form-fields">
+				<input type="checkbox" id="tokenizerCompatibility" name="tokenizerCompatibility"
+					{{#if tokenizerCompatibility}}checked{{/if}} />
+			</div>
 		</div>
-	</div>
-{{/if}}
+	{{/if}}
 
-{{!-- Advancement Order --}}
-<fieldset class="advancement-order-configuration">
-	<legend>{{localize 'hm.settings.advancement-order.menu.name'}}</legend>
-	<p class="hint">{{localize 'hm.settings.advancement-order.hint'}}</p>
+	{{!-- Advancement Order --}}
+	<fieldset class="advancement-order-configuration">
+		<legend>{{localize 'hm.settings.advancement-order.menu.name'}}</legend>
+		<p class="hint">{{localize 'hm.settings.advancement-order.hint'}}</p>
 
-	<div class="form-group">
-		<ul class="advancement-order-list">
-			{{#each advancementConfig}}
-			<li class="advancement-item {{#unless sortable}}not-sortable{{/unless}}" data-index="{{@index}}" data-item-id="{{id}}">
-				<div class="advancement-order-item">
-					{{#if sortable}}<i class="fas fa-grip-vertical drag-handle"></i>{{/if}}
-					<span class="advancement-item-label">{{localizedLabel}}</span>
-				</div>
-			</li>
-			{{/each}}
-		</ul>
-	</div>
-</fieldset>
+		<div class="form-group">
+			<ul class="advancement-order-list">
+				{{#each advancementConfig}}
+					<li class="advancement-item {{#unless sortable}}not-sortable{{/unless}}" data-index="{{@index}}"
+						data-item-id="{{id}}">
+						<div class="advancement-order-item">
+							{{#if sortable}}<i class="fas fa-grip-vertical drag-handle"></i>{{/if}}
+							<span class="advancement-item-label">{{localizedLabel}}</span>
+						</div>
+					</li>
+				{{/each}}
+			</ul>
+		</div>
+	</fieldset>
 </div>

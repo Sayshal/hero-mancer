@@ -1,5 +1,4 @@
 import { HeroMancer, HeroMancerUI, MODULE, StatRoller } from './index.js';
-import { log } from './logger.mjs';
 
 /**
  * Centralized form validation utilities
@@ -16,33 +15,24 @@ export class FormValidation {
    * @returns {boolean} Whether the field has valid content
    */
   static isFieldComplete(element) {
-    if (!element || !(element instanceof HTMLElement)) {
-      log(2, 'FormValidation.isFieldComplete called with invalid element', element);
-      return false;
-    }
-
-    try {
-      const type = this.#determineElementType(element);
-      const value = element?.value ?? '';
-      const checked = element?.checked ?? false;
-      switch (type) {
-        case 'checkbox':
-          return checked;
-        case 'text':
-        case 'textarea':
-          return this.#isTextFieldComplete(value);
-        case 'color-picker':
-          return this.#isColorFieldComplete(value);
-        case 'select-one':
-          return this.#isSelectFieldComplete(value);
-        case 'prose-mirror':
-          return this.#isProseMirrorComplete(element, value);
-        default:
-          return this.#isTextFieldComplete(value);
-      }
-    } catch (error) {
-      log(1, 'Error in FormValidation.isFieldComplete:', error);
-      return false;
+    if (!element || !(element instanceof HTMLElement)) return false;
+    const type = this.#determineElementType(element);
+    const value = element?.value ?? '';
+    const checked = element?.checked ?? false;
+    switch (type) {
+      case 'checkbox':
+        return checked;
+      case 'text':
+      case 'textarea':
+        return this.#isTextFieldComplete(value);
+      case 'color-picker':
+        return this.#isColorFieldComplete(value);
+      case 'select-one':
+        return this.#isSelectFieldComplete(value);
+      case 'prose-mirror':
+        return this.#isProseMirrorComplete(element, value);
+      default:
+        return this.#isTextFieldComplete(value);
     }
   }
 
@@ -53,23 +43,11 @@ export class FormValidation {
    * @returns {boolean} Whether the field is complete
    */
   static isAbilityFieldComplete(element, abilityBlock) {
-    if (!element || !(element instanceof HTMLElement)) {
-      log(2, 'FormValidation.isAbilityFieldComplete called with invalid element', element);
-      return false;
-    }
-    if (!abilityBlock || !(abilityBlock instanceof HTMLElement)) {
-      log(2, 'FormValidation.isAbilityFieldComplete called with invalid abilityBlock', abilityBlock);
-      return false;
-    }
-
-    try {
-      if (element.classList.contains('ability-dropdown') && !abilityBlock.classList.contains('point-buy')) return this.#isStandardArrayComplete(element);
-      else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) return this.#isPointBuyComplete(element);
-      else return this.#isManualEntryComplete(abilityBlock);
-    } catch (error) {
-      log(1, 'Error in FormValidation.isAbilityFieldComplete:', error);
-      return false;
-    }
+    if (!element || !(element instanceof HTMLElement)) return false;
+    if (!abilityBlock || !(abilityBlock instanceof HTMLElement)) return false;
+    if (element.classList.contains('ability-dropdown') && !abilityBlock.classList.contains('point-buy')) return this.#isStandardArrayComplete(element);
+    else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) return this.#isPointBuyComplete(element);
+    else return this.#isManualEntryComplete(abilityBlock);
   }
 
   /**
@@ -78,26 +56,16 @@ export class FormValidation {
    * @returns {HTMLElement|null} The associated label element or null if not found
    */
   static findAssociatedLabel(element) {
-    if (!element || !(element instanceof HTMLElement)) {
-      log(2, 'FormValidation.findAssociatedLabel called with invalid element', element);
-      return null;
+    if (!element || !(element instanceof HTMLElement)) return null;
+    if (element.localName === 'prose-mirror') {
+      const fieldset = element.closest('fieldset');
+      return fieldset ? fieldset.querySelector('legend') : null;
     }
-
-    try {
-      if (element.localName === 'prose-mirror') {
-        const fieldset = element.closest('fieldset');
-        return fieldset ? fieldset.querySelector('legend') : null;
-      }
-      const container = element.closest(
-        '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group'
-      );
-
-      if (!container) return null;
-      return container.querySelector('label, span.ability-label');
-    } catch (error) {
-      log(1, 'Error in FormValidation.findAssociatedLabel:', error);
-      return null;
-    }
+    const container = element.closest(
+      '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group'
+    );
+    if (!container) return null;
+    return container.querySelector('label, span.ability-label');
   }
 
   /**
@@ -106,32 +74,24 @@ export class FormValidation {
    * @param {boolean} [isComplete] - Whether the associated field is complete
    */
   static addIndicator(labelElement, isComplete = false) {
-    if (!labelElement || !(labelElement instanceof HTMLElement)) {
-      log(2, 'FormValidation.addIndicator called with invalid labelElement', labelElement);
-      return;
-    }
+    if (!labelElement || !(labelElement instanceof HTMLElement)) return;
     isComplete = !!isComplete;
-
-    try {
-      const existingIcon = labelElement.querySelector('.mandatory-indicator');
-      if (existingIcon) {
-        const currentIsComplete = existingIcon.classList.contains('fa-circle-check');
-        if (currentIsComplete === isComplete) return;
-        existingIcon.remove();
-      }
-
-      const icon = document.createElement('i');
-      if (isComplete) {
-        icon.className = 'fa-solid fa-circle-check mandatory-indicator complete';
-        icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.completed'));
-      } else {
-        icon.className = 'fa-solid fa-triangle-exclamation mandatory-indicator incomplete';
-        icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.incomplete'));
-      }
-      labelElement.prepend(icon);
-    } catch (error) {
-      log(1, 'Error in FormValidation.addIndicator:', error);
+    const existingIcon = labelElement.querySelector('.mandatory-indicator');
+    if (existingIcon) {
+      const currentIsComplete = existingIcon.classList.contains('fa-circle-check');
+      if (currentIsComplete === isComplete) return;
+      existingIcon.remove();
     }
+
+    const icon = document.createElement('i');
+    if (isComplete) {
+      icon.className = 'fa-solid fa-circle-check mandatory-indicator complete';
+      icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.completed'));
+    } else {
+      icon.className = 'fa-solid fa-triangle-exclamation mandatory-indicator incomplete';
+      icon.setAttribute('title', game.i18n.localize('hm.app.mandatory.incomplete'));
+    }
+    labelElement.prepend(icon);
   }
 
   /**
@@ -141,34 +101,18 @@ export class FormValidation {
    * @returns {Promise<boolean>} True if all mandatory fields are valid
    */
   static async checkMandatoryFields(form) {
-    try {
-      if (!form) {
-        log(2, 'No form provided to checkMandatoryFields');
-        return true;
-      }
-
-      let mandatoryFields;
-      try {
-        mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-      } catch (error) {
-        log(1, `Error fetching mandatory fields: ${error.message}`);
-        mandatoryFields = [];
-      }
-
-      HeroMancerUI.updateTabIndicators(form);
-      if (!mandatoryFields.length) return true;
-      const fieldStatus = FormValidation._evaluateFieldStatus(form, mandatoryFields);
-      await FormValidation._updateFieldIndicators(fieldStatus);
-      const submitButton = form.querySelector('.hm-app-footer-submit');
-      if (submitButton) {
-        const isValid = fieldStatus.missingFields.length === 0;
-        FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
-      }
-      return fieldStatus.missingFields.length === 0;
-    } catch (error) {
-      log(1, `Error in checkMandatoryFields: ${error.message}`);
-      return true;
+    if (!form) return true;
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
+    HeroMancerUI.updateTabIndicators(form);
+    if (!mandatoryFields.length) return true;
+    const fieldStatus = FormValidation._evaluateFieldStatus(form, mandatoryFields);
+    await FormValidation._updateFieldIndicators(fieldStatus);
+    const submitButton = form.querySelector('.hm-app-footer-submit');
+    if (submitButton) {
+      const isValid = fieldStatus.missingFields.length === 0;
+      FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
     }
+    return fieldStatus.missingFields.length === 0;
   }
 
   /**
@@ -178,27 +122,21 @@ export class FormValidation {
    * @returns {boolean} Whether the tab has any incomplete mandatory fields
    */
   static hasIncompleteTabFields(tabId, form) {
-    try {
-      if (!form || !tabId) return false;
-      const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
-      if (!tabElement) return false;
-      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-      if (!mandatoryFields.length) return false;
-      for (const fieldName of mandatoryFields) {
-        // Tab-level abilities check
-        if (fieldName === 'abilities') {
-          if (tabId === 'abilities' && !FormValidation.#isAbilitiesTabComplete(form)) return true;
-          continue;
-        }
-        const element = tabElement.querySelector(`[name="${fieldName}"]`);
-        if (!element) continue;
-        if (!FormValidation.isFieldComplete(element)) return true;
+    if (!form || !tabId) return false;
+    const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
+    if (!tabElement) return false;
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
+    if (!mandatoryFields.length) return false;
+    for (const fieldName of mandatoryFields) {
+      if (fieldName === 'abilities') {
+        if (tabId === 'abilities' && !FormValidation.#isAbilitiesTabComplete(form)) return true;
+        continue;
       }
-      return false;
-    } catch (error) {
-      log(1, `Error checking tab mandatory fields: ${error.message}`);
-      return false;
+      const element = tabElement.querySelector(`[name="${fieldName}"]`);
+      if (!element) continue;
+      if (!FormValidation.isFieldComplete(element)) return true;
     }
+    return false;
   }
 
   /* -------------------------------------------- */
@@ -216,7 +154,6 @@ export class FormValidation {
     const fieldStatus = { fields: [], missingFields: [] };
 
     for (const field of mandatoryFields) {
-      // Tab-level abilities check
       if (field === 'abilities') {
         const isComplete = FormValidation.#isAbilitiesTabComplete(form);
         const abilitiesTab = form.querySelector('.tab[data-tab="abilities"]') || (form.matches?.('.tab[data-tab="abilities"]') ? form : null);
@@ -353,7 +290,6 @@ export class FormValidation {
       return spent >= total;
     }
 
-    // Standard Array or Manual — check all ability blocks
     const blocks = abilitiesTab.querySelectorAll('.ability-block');
     for (const block of blocks) {
       const dropdown = block.querySelector('.ability-dropdown');
