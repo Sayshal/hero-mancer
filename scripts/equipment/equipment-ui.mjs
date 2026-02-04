@@ -186,8 +186,8 @@ export class EquipmentUI {
       base.hasOptions = base.options.length > 0;
       base.categoryKey = entry.key;
       if (entry.requiresProficiency) {
-        base.options = base.options.filter(() => {
-          return this.#checkProficiency();
+        base.options = base.options.filter((option) => {
+          return this.#checkProficiency(option, entry.type);
         });
       }
       if (base.count > 1) {
@@ -216,13 +216,45 @@ export class EquipmentUI {
 
   /**
    * Check if user has proficiency for an item.
+   * @param {object} option - Item option with uuid, name, img
+   * @param {string} categoryType - Equipment category (weapon, armor, tool, focus)
    * @returns {boolean} True if user has proficiency
-   * @todo REVISIT THIS
    */
-  static #checkProficiency() {
-    // For now, return true - full proficiency checking requires more context
-    // This can be enhanced later
-    return true;
+  static #checkProficiency(option, categoryType) {
+    const { proficiencies } = EquipmentManager;
+    if (!proficiencies.size) return true;
+
+    const doc = fromUuidSync(option.uuid);
+    if (!doc) return true;
+
+    switch (categoryType) {
+      case 'weapon': {
+        const weaponType = doc.system?.type?.value;
+        if (!weaponType) return true;
+        const profKey = CONFIG.DND5E.weaponProficienciesMap?.[weaponType];
+        if (profKey && proficiencies.has(`weapon:${profKey}`)) return true;
+        const baseItem = doc.system?.type?.baseItem;
+        return !!(baseItem && proficiencies.has(`weapon:${baseItem}`));
+      }
+      case 'armor': {
+        const armorType = doc.system?.type?.value;
+        if (!armorType) return true;
+        const profKey = CONFIG.DND5E.armorProficienciesMap?.[armorType];
+        if (profKey === true) return true;
+        if (profKey && proficiencies.has(`armor:${profKey}`)) return true;
+        const baseItem = doc.system?.type?.baseItem;
+        return !!(baseItem && proficiencies.has(`armor:${baseItem}`));
+      }
+      case 'tool': {
+        const toolType = doc.system?.type?.value;
+        if (!toolType) return true;
+        if (proficiencies.has(`tool:${toolType}`)) return true;
+        const baseItem = doc.system?.type?.baseItem;
+        return !!(baseItem && proficiencies.has(`tool:${baseItem}`));
+      }
+      default:
+        return true;
+    }
   }
 
   /**

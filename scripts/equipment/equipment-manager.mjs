@@ -22,6 +22,11 @@ export class EquipmentManager {
    * @returns {Promise<{class: object[], background: object[]}>} Equipment data by type
    */
   static async fetchEquipmentData() {
+    const raceUuid = HM.SELECTED.race?.uuid;
+    if (raceUuid) {
+      const raceDoc = fromUuidSync(raceUuid);
+      if (raceDoc) this.#extractProficiencies(raceDoc.system?.advancement || []);
+    }
     const [classEquipment, backgroundEquipment] = await Promise.all([this.#getEquipmentForType('class'), this.#getEquipmentForType('background')]);
     log(3, `Fetched ${classEquipment.length} class entries, ${backgroundEquipment.length} background entries`);
     return { class: classEquipment, background: backgroundEquipment };
