@@ -249,7 +249,6 @@
   "hm.settings.ability-scores.standard-array-fixed": "Standard array values {original} were outside the allowed range ({min}-{max}) and have been adjusted automatically.",
   "hm.settings.advancement-order.error-saving": "Error saving advancement order configuration.",
   "hm.settings.advancement-order.hint": "Drag items to reorder how advancements are processed during character creation.",
-  "hm.settings.advancement-order.list-label": "Advancement Processing Order:",
   "hm.settings.advancement-order.menu.hint": "Configure the order in which character advancements are processed.",
   "hm.settings.advancement-order.menu.name": "Advancement Order",
   "hm.settings.advancement-order.name": "Advancement Processing Order",

@@ -37,7 +37,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       openCompendiumSettings: (event) => HeroMancer.openMenu(event, 'customCompendiumMenu'),
       openCustomizationSettings: (event) => HeroMancer.openMenu(event, 'customizationMenu'),
       openDiceRollingSettings: (event) => HeroMancer.openMenu(event, 'diceRollingMenu'),
-      openAdvancementOrderConfigSettings: (event) => HeroMancer.openMenu(event, 'advancementOrderMenu'),
       openMandatoryFieldsSettings: (event) => HeroMancer.openMenu(event, 'mandatoryFieldsMenu'),
       openTroubleshooterSettings: (event) => HeroMancer.openMenu(event, 'troubleshootingMenu'),
       previousTab: HeroMancer.navigatePreviousTab,
@@ -53,7 +52,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         { icon: 'fa-solid fa-atlas', label: 'hm.settings.configure-compendiums', action: 'openCompendiumSettings', dataset: { menu: 'customCompendiumMenu' } },
         { icon: 'fa-solid fa-palette', label: 'hm.settings.configure-customization', action: 'openCustomizationSettings', dataset: { menu: 'customizationMenu' } },
         { icon: 'fa-solid fa-dice', label: 'hm.settings.configure-rolling', action: 'openDiceRollingSettings', dataset: { menu: 'diceRollingMenu' } },
-        { icon: 'fa-solid fa-sort', label: 'hm.settings.configure-advancement-order', action: 'openAdvancementOrderConfigSettings', dataset: { menu: 'advancementOrderMenu' } },
         { icon: 'fa-solid fa-list-check', label: 'hm.settings.configure-mandatory', action: 'openMandatoryFieldsSettings', dataset: { menu: 'mandatoryFieldsMenu' } },
         { icon: 'fa-solid fa-bug', label: 'hm.settings.troubleshooter.generate-report', action: 'openTroubleshooterSettings', dataset: { menu: 'troubleshootingMenu' } }
       ]
@@ -112,13 +110,15 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       game.users.forEach((user) => {
         HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
       });
+
       if (HM.COMPAT?.ELKAN) options.parts = options.parts.filter((part) => part !== 'equipment');
+
       return {
         ...context,
         raceDocs: HM.documents.race || [],
         classDocs: HM.documents.class || [],
         backgroundDocs: HM.documents.background || [],
-        tabs: this._getTabs(options.parts),
+        tabs: this._getTabs(HeroMancer.getTabOrder()),
         players: game.users.map((user) => ({ id: user.id, name: user.name, color: user.color.css }))
       };
     } catch (error) {
@@ -140,7 +140,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     let abilitiesCount, diceRollMethod;
     try {
       if (context.tabs?.[partId]) context.tab = context.tabs[partId];
-      const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'].filter((tab) => !(HM.COMPAT?.ELKAN && tab === 'equipment'));
+      const tabOrder = HeroMancer.getTabOrder();
       const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
       switch (partId) {
         case 'start':
@@ -423,6 +423,21 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
 
   /**
+   * Build the tab order array using the advancement order setting
+   * @returns {string[]} Ordered tab IDs with Elkan equipment filter applied
+   * @static
+   */
+  static getTabOrder() {
+    const advancementOrder = game.settings.get(HM.ID, 'advancementOrder');
+    const orderedIds =
+      Array.isArray(advancementOrder) && advancementOrder.length > 0
+        ? [...advancementOrder].sort((a, b) => a.order - b.order).map((item) => item.id)
+        : ['background', 'race', 'class'];
+    const tabOrder = ['start', ...orderedIds, 'abilities', 'equipment', 'biography', 'finalize'];
+    return HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
+  }
+
+  /**
    * Action handler for resetting options
    * @param {Event} _event - The triggering event
    * @param {HTMLElement} target - The DOM element that triggered the reset
@@ -598,13 +613,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!app) return;
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
-    const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
-
-    const currentIndex = filteredTabs.indexOf(currentTab);
+    const tabOrder = HeroMancer.getTabOrder();
+    const currentIndex = tabOrder.indexOf(currentTab);
     if (currentIndex > 0) {
-      const previousTab = filteredTabs[currentIndex - 1];
-      app.changeTab(previousTab, tabGroup);
+      app.changeTab(tabOrder[currentIndex - 1], tabGroup);
     }
   }
 
@@ -620,12 +632,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!app) return;
     const tabGroup = 'hero-mancer-tabs';
     const currentTab = app.tabGroups[tabGroup];
-    const tabOrder = ['start', 'background', 'race', 'class', 'abilities', 'equipment', 'biography', 'finalize'];
-    const filteredTabs = HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
-    const currentIndex = filteredTabs.indexOf(currentTab);
-    if (currentIndex < filteredTabs.length - 1) {
-      const nextTab = filteredTabs[currentIndex + 1];
-      app.changeTab(nextTab, tabGroup);
+    const tabOrder = HeroMancer.getTabOrder();
+    const currentIndex = tabOrder.indexOf(currentTab);
+    if (currentIndex < tabOrder.length - 1) {
+      app.changeTab(tabOrder[currentIndex + 1], tabGroup);
     }
   }
 

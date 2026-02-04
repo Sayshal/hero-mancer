@@ -133,4 +133,23 @@
 		</div>
 	</div>
 {{/if}}
+
+{{!-- Advancement Order --}}
+<fieldset class="advancement-order-configuration">
+	<legend>{{localize 'hm.settings.advancement-order.menu.name'}}</legend>
+	<p class="hint">{{localize 'hm.settings.advancement-order.hint'}}</p>
+
+	<div class="form-group">
+		<ul class="advancement-order-list">
+			{{#each advancementConfig}}
+			<li class="advancement-item {{#unless sortable}}not-sortable{{/unless}}" data-index="{{@index}}" data-item-id="{{id}}">
+				<div class="advancement-order-item">
+					{{#if sortable}}<i class="fas fa-grip-vertical drag-handle"></i>{{/if}}
+					<span class="advancement-item-label">{{localizedLabel}}</span>
+				</div>
+			</li>
+			{{/each}}
+		</ul>
+	</div>
+</fieldset>
 </div>

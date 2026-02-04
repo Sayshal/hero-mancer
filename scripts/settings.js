@@ -1,4 +1,4 @@
-import { AdvancementOrderConfiguration, CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
+import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
 
 const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foundry.data.fields;
 
@@ -16,7 +16,6 @@ export function registerSettings() {
   registerCompendiumSettings();
   registerCustomizationSettings();
   registerDiceRollingSettings();
-  registerAdvancementOrderSettings();
   registerMandatoryFieldsSettings();
   registerTroubleshootingSettings();
 
@@ -252,6 +251,18 @@ function registerCustomizationSettings() {
     type: new BooleanField({ initial: false })
   });
 
+  game.settings.register(HM.ID, 'advancementOrder', {
+    name: 'hm.settings.advancement-order.name',
+    scope: 'world',
+    config: false,
+    type: new ArrayField(new ObjectField()),
+    default: [
+      { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
+      { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
+      { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
+    ]
+  });
+
   HM.log(3, 'Customization settings registered.');
 }
 
@@ -376,34 +387,6 @@ function registerDiceRollingSettings() {
   });
 
   HM.log(3, 'Dice Rolling settings registered.');
-}
-
-/**
- * Registers advancement order settings.
- */
-function registerAdvancementOrderSettings() {
-  game.settings.registerMenu(HM.ID, 'advancementOrderMenu', {
-    name: 'hm.settings.advancement-order.menu.name',
-    hint: 'hm.settings.advancement-order.menu.hint',
-    icon: 'fa-solid fa-sort',
-    label: 'hm.settings.configure-advancement-order',
-    type: AdvancementOrderConfiguration,
-    restricted: true
-  });
-
-  game.settings.register(HM.ID, 'advancementOrder', {
-    name: 'hm.settings.advancement-order.name',
-    scope: 'world',
-    config: false,
-    type: new ArrayField(new ObjectField()),
-    default: [
-      { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
-      { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
-      { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
-    ]
-  });
-
-  HM.log(3, 'Advancement Order settings registered.');
 }
 
 /**

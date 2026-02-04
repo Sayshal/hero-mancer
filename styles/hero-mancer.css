@@ -43,18 +43,6 @@
   min-height: 0;
   max-height: calc(100vh - 9.375rem);
 
-  :is(.fa-egg, .fa-dice, .fa-list-check, .fa-atlas, .fa-palette, .fa-bug, .fa-sort) {
-    color: var(--color-text-light-6);
-  }
-
-  :is(h2, h3) {
-    padding: 0.2rem 0 0.3rem;
-  }
-
-  table {
-    margin: 0;
-  }
-
   .form-group > label {
     flex: 3;
   }
@@ -1408,6 +1396,10 @@
 /* ==========================================================================
   Customization Settings
  ========================================================================== */
+#hero-mancer-settings-customization .window-content > .standard-form {
+  overflow-y: auto;
+}
+
 #hero-mancer-settings-customization button.file-picker {
   aspect-ratio: 1/1;
   margin-inline-start: 0.3rem;
