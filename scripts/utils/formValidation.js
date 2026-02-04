@@ -84,15 +84,14 @@ export class FormValidation {
 
     try {
       if (element.localName === 'prose-mirror') {
-        const section = element.closest('.notes-section');
-        return section ? section.querySelector('h2') : null;
+        const fieldset = element.closest('fieldset');
+        return fieldset ? fieldset.querySelector('legend') : null;
       }
       const container = element.closest(
-        '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group, .physical-description-section, .characteristics-section'
+        '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group'
       );
 
       if (!container) return null;
-      if (container.classList.contains('physical-description-section') || container.classList.contains('characteristics-section')) return container.querySelector('h2');
       return container.querySelector('label, span.ability-label');
     } catch (error) {
       HM.log(1, 'Error in FormValidation.findAssociatedLabel:', error);

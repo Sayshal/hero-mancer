@@ -167,7 +167,6 @@ export class ProgressBar {
     return (
       input.disabled ||
       input.closest('.equipment-section')?.classList.contains('disabled') ||
-      input.className.includes('equipment-favorite-checkbox') ||
       input.name?.startsWith('use-starting-wealth') ||
       input.name === 'ring.effects'
     );

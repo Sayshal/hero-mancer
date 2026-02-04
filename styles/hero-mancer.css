@@ -566,12 +566,6 @@
     }
 
     /* Biography */
-    .characteristics-section {
-      :is(.form-input, .form-select) {
-        flex: 3;
-        min-width: 100%;
-      }
-    }
 
     .personality-trait-group {
       margin-block-end: var(--hm-spacing-md);
@@ -588,29 +582,12 @@
       width: 100%;
     }
 
-    .physical-description-section textarea {
+    .personality-group textarea {
+      flex: 1;
       min-height: 7.5rem;
+      font-size: var(--font-size-14);
+      font-family: var(--font-h3);
       resize: none;
-    }
-
-    .biography-tab {
-      h2 {
-        margin-block-end: 0.5rem !important;
-      }
-
-      label {
-        font-size: var(--font-size-16);
-      }
-    }
-
-    .input-with-roll {
-      textarea {
-        flex: 1;
-        min-height: 7.5rem;
-        font-size: var(--font-size-14);
-        font-family: var(--font-h3);
-        resize: none;
-      }
     }
 
     .notes-grid {
@@ -1430,17 +1407,7 @@
   Biography Tab
  ========================================================================== */
 /* Biography grid layouts */
-.characteristics-section > div {
-  display: grid;
-  gap: var(--hm-spacing-md);
-  margin-block-end: var(--hm-spacing-md);
-}
-
-.characteristics-section > .grid-5-col {
-  grid-template-columns: repeat(5, 1fr);
-}
-
-.personality-section > .grid-2-col {
+.grid-2-col {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--hm-spacing-md);
@@ -1450,6 +1417,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 2rem;
   margin-block-end: var(--hm-spacing-sm);
 }
 

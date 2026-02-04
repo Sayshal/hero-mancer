@@ -127,17 +127,11 @@ export class HeroMancerUI {
         if (mutation.type === 'childList' && mutation.addedNodes.length) {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              const newCheckboxes = node.querySelectorAll?.('.equipment-favorite-checkbox') || [];
-              newCheckboxes.forEach((checkbox) => {
-                EventRegistry.on(checkbox, 'change', () => {
-                  this.updateEquipmentSummary();
-                });
-              });
               if (node.querySelector('select') || node.querySelector('input[type="checkbox"]')) needsUpdate = true;
             }
           });
         }
-        if (mutation.type === 'attributes' && mutation.attributeName === 'checked' && mutation.target.classList.contains('equipment-favorite-checkbox')) needsUpdate = true;
+        if (mutation.type === 'attributes' && mutation.attributeName === 'checked') needsUpdate = true;
       }
       if (needsUpdate) this.updateEquipmentSummary();
     });
@@ -346,7 +340,7 @@ export class HeroMancerUI {
     rollButtons.forEach((button) => {
       EventRegistry.on(button, 'click', async (event) => {
         const tableType = event.currentTarget.dataset.table;
-        const textarea = event.currentTarget.closest('.input-with-roll').querySelector('textarea');
+        const textarea = event.currentTarget.closest('.personality-group').querySelector('textarea');
         const backgroundId = HM.SELECTED.background.id;
         if (!backgroundId) {
           ui.notifications.warn(game.i18n.localize('hm.warnings.select-background'));
@@ -995,8 +989,6 @@ export class HeroMancerUI {
       .filter(Boolean);
     const priorityTypes = ['weapon', 'armor', 'shield'];
     selectedEquipment.sort((a, b) => {
-      if (a.favorite && !b.favorite) return -1;
-      if (!a.favorite && b.favorite) return 1;
       const aIndex = priorityTypes.indexOf(a.type);
       const bIndex = priorityTypes.indexOf(b.type);
       return (bIndex === -1 ? -999 : bIndex) - (aIndex === -1 ? -999 : aIndex);
@@ -1014,16 +1006,12 @@ export class HeroMancerUI {
     if (el.tagName === 'SELECT') {
       const selectedOption = el.options[el.selectedIndex];
       if (!selectedOption || !selectedOption.value || !selectedOption.value.includes('Compendium')) return null;
-      const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
-      const isFavorite = favoriteCheckbox?.checked || false;
-      return { type: selectedOption.dataset.tooltip?.toLowerCase() || '', uuid: selectedOption.value, text: selectedOption.textContent?.trim(), favorite: isFavorite };
+      return { type: selectedOption.dataset.tooltip?.toLowerCase() || '', uuid: selectedOption.value, text: selectedOption.textContent?.trim() };
     } else {
       const link = el.parentElement?.querySelector('.content-link');
       const uuid = link?.dataset?.uuid;
       if (!link || !uuid || uuid.includes(',') || !uuid.includes('Compendium')) return null;
-      const favoriteCheckbox = el.closest('.equipment-item')?.querySelector('.equipment-favorite-checkbox');
-      const isFavorite = favoriteCheckbox?.checked || false;
-      return { type: link.dataset.tooltip?.toLowerCase() || '', uuid: uuid, text: link.textContent?.trim(), favorite: isFavorite };
+      return { type: link.dataset.tooltip?.toLowerCase() || '', uuid: uuid, text: link.textContent?.trim() };
     }
   }
 
@@ -1542,7 +1530,7 @@ export class HeroMancerUI {
       const itemName = select.options[select.selectedIndex]?.textContent || select.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
       items.push({ uuid: select.value, name: itemName, source: type });
     }
-    for (const checkbox of section.querySelectorAll('input[type="checkbox"]:not(.equipment-favorite-checkbox):not([disabled]):checked')) {
+    for (const checkbox of section.querySelectorAll('input[type="checkbox"]:not([disabled]):checked')) {
       if (!checkbox.value || !checkbox.value.includes('Compendium')) continue;
       const itemLink = checkbox.closest('label')?.querySelector('.content-link');
       const itemName = itemLink?.textContent || checkbox.closest('table')?.querySelector('h4')?.textContent || 'Unknown Item';
