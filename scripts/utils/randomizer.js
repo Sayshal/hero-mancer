@@ -1,4 +1,4 @@
-import { HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
 
 /**
  * Combined class for character randomization and name generation
@@ -405,6 +405,7 @@ export class CharacterRandomizer {
       ui.notifications.error('hm.errors.randomization-failed', { localize: true });
     } finally {
       HeroMancerUI.updateReviewTab();
+      FormValidation.checkMandatoryFields(form);
       this.#isRandomizing = false;
       this.#enableRandomizeButton(randomizeButton);
     }

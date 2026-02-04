@@ -1,4 +1,4 @@
-import { HeroMancer, HeroMancerUI, HM } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, HM } from './index.js';
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -785,6 +785,8 @@ export class StatRoller {
       this.updateRemainingPointsDisplay(remainingPoints);
       this.updatePlusButtonState(selectedAbilities, remainingPoints);
       this.updateMinusButtonState(selectedAbilities);
+      const form = abilityScoreElement.closest('form') || abilityScoreElement.closest('.hm-app');
+      if (form) FormValidation.checkMandatoryFields(form);
     }
   }
 

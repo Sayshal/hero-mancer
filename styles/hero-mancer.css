@@ -40,8 +40,8 @@
  ========================================================================== */
 .application.hm-app {
   max-width: calc(100vw - 6.25rem);
-  min-height: 0;
-  max-height: calc(100vh - 9.375rem);
+  min-height: 46.875rem;
+  max-height: 75vh;
 
   .form-group > label {
     flex: 3;
@@ -49,7 +49,6 @@
 
   /* Window content and navigation */
   .hm-app-nav {
-    padding-block-end: 0.4rem;
     display: flex;
     gap: unset;
     flex-flow: row wrap;
@@ -76,10 +75,9 @@
   .hm-app-header {
     --progress-percent: 0%;
 
-    margin-block-end: 1rem;
     display: flex;
     position: relative;
-    flex: 0 0 6.25rem;
+    flex: 0 0 4rem;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -118,6 +116,7 @@
     }
 
     .progress-overlay {
+      margin-top: -0.4rem;
       inset-block-end: 0.3rem;
       width: 100%;
       text-align: center;
@@ -919,7 +918,17 @@
   }
 
   /* Label styling with mandatory indicators */
-  :is(.ability-block > span.ability-label, .ability-block > label, .trait-group > label, .personality-trait-group > label, .description-group > label, .notes-group > label, .notes-section > h3) {
+  :is(
+    .ability-block > span.ability-label,
+    .ability-block > label,
+    .trait-group > label,
+    .personality-trait-group > label,
+    .description-group > label,
+    .notes-group > label,
+    .notes-section > h3,
+    .personality-group > .input-header > label,
+    fieldset > legend
+  ) {
     gap: 0.5rem;
     display: flex;
     position: relative;
@@ -1069,7 +1078,7 @@
   flex-shrink: 0;
   justify-content: center;
   align-items: center;
-  font-size: 1.1rem;
+  font-size: inherit;
 
   &.complete {
     color: var(--hm-color-success);
@@ -1534,84 +1543,12 @@
 /* ==========================================================================
   Mandatory Fields Settings
  ========================================================================== */
-.field-column {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
+#hero-mancer-settings-mandatory-fields {
+  max-height: 80vh;
 
-  > h3 {
-    padding-block-end: var(--hm-spacing-xs);
-    font-weight: bold;
-    text-align: center;
+  .window-content > .standard-form {
+    overflow-y: auto;
   }
-
-  .field-group {
-    margin-block-end: 0.4rem;
-    padding: var(--hm-spacing-sm);
-    border: 0.063rem solid var(--color-border-light-tertiary);
-    border-radius: var(--hm-radius-md);
-
-    > h4 {
-      margin-block-end: var(--hm-spacing-xs);
-      font-size: 1rem;
-    }
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: var(--hm-spacing-sm);
-      white-space: nowrap;
-    }
-  }
-}
-
-.fields-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--hm-spacing-sm);
-  padding-inline-end: var(--hm-spacing-sm);
-  overflow-y: auto;
-}
-
-.hm-mandatory-fields-popup {
-  gap: 0.625rem;
-  display: flex;
-  flex-direction: column;
-  max-height: 70vh;
-  padding: 0.625rem;
-
-  .field-group {
-    padding: 0.625rem;
-    border-radius: var(--hm-radius-md);
-
-    h3 {
-      padding-block-end: 0.313rem;
-      font-weight: bold;
-    }
-
-    h4 {
-      margin: 0.3rem 0;
-      font-size: 1rem;
-    }
-  }
-
-  label {
-    gap: 0.5rem;
-    display: flex;
-    align-items: center;
-  }
-
-  input[type='checkbox'] {
-    margin: 0;
-  }
-}
-
-.hm-mandatory-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.625rem;
 }
 
 /* ==========================================================================

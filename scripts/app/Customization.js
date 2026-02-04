@@ -10,7 +10,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-customization',
-    classes: ['hm-app', 'standard-form'],
+    classes: ['hm-app'],
     tag: 'form',
     form: {
       handler: Customization.formHandler,
@@ -18,10 +18,11 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       submitOnChange: false
     },
     position: {
-      height: 750,
+      height: 'auto',
       width: 800
     },
     window: {
+      contentClasses: ['standard-form'],
       icon: 'fa-solid fa-palette',
       resizable: false
     },
@@ -351,7 +352,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       };
 
-      const filepicker = new FilePicker(pickerConfig);
+      const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
       HM.log(1, `Error selecting art picker root: ${error.message}`);

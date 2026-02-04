@@ -1,4 +1,4 @@
-import { HeroMancerUI, HM } from './index.js';
+import { HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
 
 /**
  * Centralized form validation utilities
@@ -184,16 +184,14 @@ export class FormValidation {
       const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
       if (!mandatoryFields.length) return false;
       for (const fieldName of mandatoryFields) {
+        // Tab-level abilities check
+        if (fieldName === 'abilities') {
+          if (tabId === 'abilities' && !FormValidation.#isAbilitiesTabComplete(form)) return true;
+          continue;
+        }
         const element = tabElement.querySelector(`[name="${fieldName}"]`);
         if (!element) continue;
-        let isComplete = false;
-        if (fieldName.startsWith('abilities[')) {
-          const abilityBlock = element.closest('.ability-block');
-          isComplete = FormValidation.isAbilityFieldComplete(element, abilityBlock);
-        } else {
-          isComplete = FormValidation.isFieldComplete(element);
-        }
-        if (!isComplete) return true;
+        if (!FormValidation.isFieldComplete(element)) return true;
       }
       return false;
     } catch (error) {
@@ -215,31 +213,31 @@ export class FormValidation {
    */
   static _evaluateFieldStatus(form, mandatoryFields) {
     const fieldStatus = { fields: [], missingFields: [] };
-    const elementMap = new Map();
-    mandatoryFields.forEach((field) => {
-      const element = form.querySelector(`[name="${field}"]`);
-      if (!element) return;
-      if (!element.classList.contains('mandatory-field')) element.classList.add('mandatory-field');
-      elementMap.set(field, { element, field, abilityField: field.startsWith('abilities['), isComplete: false, label: null });
-    });
 
-    elementMap.forEach((data, field) => {
-      let isComplete = false;
-      let label = null;
-      if (data.abilityField) {
-        const abilityBlock = data.element.closest('.ability-block');
-        label = abilityBlock?.querySelector('.ability-label') || abilityBlock?.querySelector('label');
-        isComplete = FormValidation.isAbilityFieldComplete(data.element, abilityBlock);
-      } else {
-        isComplete = FormValidation.isFieldComplete(data.element);
-        label = FormValidation.findAssociatedLabel(data.element);
+    for (const field of mandatoryFields) {
+      // Tab-level abilities check
+      if (field === 'abilities') {
+        const isComplete = FormValidation.#isAbilitiesTabComplete(form);
+        const abilitiesTab = form.querySelector('.tab[data-tab="abilities"]') || (form.matches?.('.tab[data-tab="abilities"]') ? form : null);
+        if (!abilitiesTab) continue;
+        const label = abilitiesTab.querySelector('legend') || abilitiesTab.querySelector('h2');
+        const data = { element: abilitiesTab, field, isComplete, label };
+        fieldStatus.fields.push(data);
+        if (!isComplete) fieldStatus.missingFields.push(field);
+        continue;
       }
 
-      data.isComplete = isComplete;
-      data.label = label;
+      const element = form.querySelector(`[name="${field}"]`);
+      if (!element) continue;
+      if (!element.classList.contains('mandatory-field')) element.classList.add('mandatory-field');
+
+      const isComplete = FormValidation.isFieldComplete(element);
+      const label = FormValidation.findAssociatedLabel(element);
+      const data = { element, field, isComplete, label };
       fieldStatus.fields.push(data);
       if (!isComplete) fieldStatus.missingFields.push(field);
-    });
+    }
+
     return fieldStatus;
   }
 
@@ -253,7 +251,7 @@ export class FormValidation {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
         fieldStatus.fields.forEach((data) => {
-          data.element.classList.toggle('complete', data.isComplete);
+          if (data.element) data.element.classList.toggle('complete', data.isComplete);
           if (data.label) FormValidation.addIndicator(data.label, data.isComplete);
         });
 
@@ -335,6 +333,34 @@ export class FormValidation {
     const proseMirrorValue = value || '';
     const editorContent = element.querySelector('.editor-content.ProseMirror')?.innerHTML || '';
     return !emptyStates.includes(proseMirrorValue) && proseMirrorValue.trim() !== '' && !emptyStates.includes(editorContent) && editorContent.trim() !== '';
+  }
+
+  /**
+   * Checks if the abilities tab is fully complete based on the active roll method
+   * @param {HTMLElement} form - The form element
+   * @returns {boolean} Whether all abilities are complete
+   * @private
+   */
+  static #isAbilitiesTabComplete(form) {
+    const abilitiesTab = form.querySelector('.tab[data-tab="abilities"]') || (form.matches?.('.tab[data-tab="abilities"]') ? form : null);
+    if (!abilitiesTab) return false;
+
+    const isPointBuy = abilitiesTab.querySelector('.ability-container.point-buy');
+    if (isPointBuy) {
+      const total = StatRoller.getTotalPoints();
+      const spent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+      return spent >= total;
+    }
+
+    // Standard Array or Manual — check all ability blocks
+    const blocks = abilitiesTab.querySelectorAll('.ability-block');
+    for (const block of blocks) {
+      const dropdown = block.querySelector('.ability-dropdown');
+      if (dropdown && !dropdown.value) return false;
+      const scoreInput = block.querySelector('.ability-score');
+      if (scoreInput && !scoreInput.value) return false;
+    }
+    return blocks.length > 0;
   }
 
   /**

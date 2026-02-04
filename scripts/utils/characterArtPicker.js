@@ -90,7 +90,7 @@ export class CharacterArtPicker {
         }
       };
 
-      const filepicker = new FilePicker(pickerConfig);
+      const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
       HM.log(1, 'Error opening character art picker:', error);
@@ -141,7 +141,7 @@ export class CharacterArtPicker {
         }
       };
 
-      const filepicker = new FilePicker(pickerConfig);
+      const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
       HM.log(1, 'Error opening token art picker:', error);
@@ -186,7 +186,7 @@ export class CharacterArtPicker {
         }
       };
 
-      const filepicker = new FilePicker(pickerConfig);
+      const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
       HM.log(1, 'Error opening player avatar picker:', error);

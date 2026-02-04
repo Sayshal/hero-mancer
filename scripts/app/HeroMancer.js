@@ -42,9 +42,10 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       previousTab: HeroMancer.navigatePreviousTab,
       nextTab: HeroMancer.navigateNextTab
     },
-    classes: ['hm-app', 'standard-form'],
-    position: { height: 'auto', width: 800, top: '100' },
+    classes: ['hm-app'],
+    position: { height: '850', width: 800 },
     window: {
+      contentClasses: ['standard-form'],
       icon: 'fa-solid fa-egg',
       resizable: false,
       minimizable: true,

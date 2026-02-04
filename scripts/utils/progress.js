@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { HeroMancer, HM, StatRoller } from '../utils/index.js';
 
 /**
  * Manages progress bar for Hero Mancer
@@ -150,9 +150,22 @@ export class ProgressBar {
    * @private
    * @static
    */
+  /** @type {Set<string>} Field names to exclude from progress calculation */
+  static #IGNORED_FIELDS = new Set([
+    'ring.effects',
+    'ring.enabled',
+    'ring.color',
+    'backgroundColor',
+    'player',
+    'starting-wealth-rolled-class',
+    'starting-wealth-amount-class',
+    'starting-wealth-rolled-background',
+    'starting-wealth-amount-background'
+  ]);
+
   static #shouldSkipInput(input) {
     return (
-      input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || input.name === 'ring.effects' || input.name === 'player'
+      input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || this.#IGNORED_FIELDS.has(input.name)
     );
   }
 
@@ -168,7 +181,7 @@ export class ProgressBar {
       input.disabled ||
       input.closest('.equipment-section')?.classList.contains('disabled') ||
       input.name?.startsWith('use-starting-wealth') ||
-      input.name === 'ring.effects'
+      this.#IGNORED_FIELDS.has(input.name)
     );
   }
 
@@ -259,7 +272,7 @@ export class ProgressBar {
     const isPointBuy = rollMethodSelect.value === 'pointBuy';
 
     if (isPointBuy) {
-      return this.#isPointBuyComplete(form);
+      return this.#isPointBuyComplete();
     }
 
     return this.#isAbilityValueFilled(value);
@@ -272,18 +285,11 @@ export class ProgressBar {
    * @private
    * @static
    */
-  static #isPointBuyComplete(form) {
-    const remainingPointsElement = form.querySelector('#remaining-points');
-    if (!remainingPointsElement) return false;
-
-    const remainingPointsText = remainingPointsElement.textContent || '0';
-    const remainingPoints = parseInt(remainingPointsText, 10);
-
-    if (isNaN(remainingPoints)) return false;
-
-    const isComplete = remainingPoints === 0;
-    HM.log(3, `Point Buy ability check - remaining points: ${remainingPoints}, filled: ${isComplete}`);
-
+  static #isPointBuyComplete() {
+    const total = StatRoller.getTotalPoints();
+    const spent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
+    const isComplete = spent >= total;
+    HM.log(3, `Point Buy ability check - spent: ${spent}/${total}, filled: ${isComplete}`);
     return isComplete;
   }
 

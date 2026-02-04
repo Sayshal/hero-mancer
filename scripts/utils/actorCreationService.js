@@ -288,11 +288,12 @@ export class ActorCreationService {
     const fieldMappings = { name: 'character-name', race: 'race', class: 'class', background: 'background' };
     const missingFields = { basic: [], abilities: [], background: [] };
     for (const field of mandatoryFields) {
+      // Tab-level abilities check is handled by UI validation, skip here
+      if (field === 'abilities') continue;
       const formField = fieldMappings[field] || field;
       const value = formData[formField];
       if (!value || (typeof value === 'string' && value.trim() === '')) {
-        if (field.startsWith('abilities')) missingFields.abilities.push(field);
-        else if (['bond', 'ideal', 'flaw', 'trait'].includes(field)) missingFields.background.push(field);
+        if (['bond', 'ideal', 'flaw', 'trait'].includes(field)) missingFields.background.push(field);
         else missingFields.basic.push(field);
       }
     }
