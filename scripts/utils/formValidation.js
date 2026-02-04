@@ -5,10 +5,6 @@ import { HeroMancer, HeroMancerUI, MODULE, StatRoller } from './index.js';
  * @class
  */
 export class FormValidation {
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Checks if a form field contains valid content
    * @param {HTMLElement} element - The form field to check
@@ -61,9 +57,7 @@ export class FormValidation {
       const fieldset = element.closest('fieldset');
       return fieldset ? fieldset.querySelector('legend') : null;
     }
-    const container = element.closest(
-      '.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group'
-    );
+    const container = element.closest('.form-row, .art-selection-row, .customization-row, .ability-block, .form-group, .trait-group, .personality-group, .description-group, .notes-group');
     if (!container) return null;
     return container.querySelector('label, span.ability-label');
   }
@@ -82,7 +76,6 @@ export class FormValidation {
       if (currentIsComplete === isComplete) return;
       existingIcon.remove();
     }
-
     const icon = document.createElement('i');
     if (isComplete) {
       icon.className = 'fa-solid fa-circle-check mandatory-indicator complete';
@@ -139,10 +132,6 @@ export class FormValidation {
     return false;
   }
 
-  /* -------------------------------------------- */
-  /*  Static Protected Methods                    */
-  /* -------------------------------------------- */
-
   /**
    * Evaluates the status of all mandatory fields
    * @param {HTMLElement} form - The form element
@@ -152,7 +141,6 @@ export class FormValidation {
    */
   static _evaluateFieldStatus(form, mandatoryFields) {
     const fieldStatus = { fields: [], missingFields: [] };
-
     for (const field of mandatoryFields) {
       if (field === 'abilities') {
         const isComplete = FormValidation.#isAbilitiesTabComplete(form);
@@ -164,18 +152,15 @@ export class FormValidation {
         if (!isComplete) fieldStatus.missingFields.push(field);
         continue;
       }
-
       const element = form.querySelector(`[name="${field}"]`);
       if (!element) continue;
       if (!element.classList.contains('mandatory-field')) element.classList.add('mandatory-field');
-
       const isComplete = FormValidation.isFieldComplete(element);
       const label = FormValidation.findAssociatedLabel(element);
       const data = { element, field, isComplete, label };
       fieldStatus.fields.push(data);
       if (!isComplete) fieldStatus.missingFields.push(field);
     }
-
     return fieldStatus;
   }
 
@@ -192,7 +177,6 @@ export class FormValidation {
           if (data.element) data.element.classList.toggle('complete', data.isComplete);
           if (data.label) FormValidation.addIndicator(data.label, data.isComplete);
         });
-
         resolve();
       });
     });
@@ -208,12 +192,9 @@ export class FormValidation {
    */
   static _updateSubmitButton(submitButton, isValid, missingFields) {
     submitButton.disabled = !isValid;
-    if (!isValid) submitButton['data-tooltip'] = game.i18n.format('hm.errors.missing-mandatory-fields', { fields: missingFields.join(', ') });
+    if (!isValid) submitButton.setAttribute('data-tooltip', game.i18n.format('hm.errors.mandatory-fields-incomplete', { fields: missingFields.join(', ') }));
+    else submitButton.removeAttribute('data-tooltip');
   }
-
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
 
   /**
    * Determines the type of an element for validation purposes
@@ -282,14 +263,12 @@ export class FormValidation {
   static #isAbilitiesTabComplete(form) {
     const abilitiesTab = form.querySelector('.tab[data-tab="abilities"]') || (form.matches?.('.tab[data-tab="abilities"]') ? form : null);
     if (!abilitiesTab) return false;
-
     const isPointBuy = abilitiesTab.querySelector('.ability-container.point-buy');
     if (isPointBuy) {
       const total = StatRoller.getTotalPoints();
       const spent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
       return spent >= total;
     }
-
     const blocks = abilitiesTab.querySelectorAll('.ability-block');
     for (const block of blocks) {
       const dropdown = block.querySelector('.ability-dropdown');

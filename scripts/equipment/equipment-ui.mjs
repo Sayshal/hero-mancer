@@ -5,8 +5,8 @@
 
 import { MODULE } from '../constants.mjs';
 import { HM } from '../hero-mancer.js';
-import { log } from '../utils/logger.mjs';
 import { EventRegistry } from '../utils/event-registry.mjs';
+import { log } from '../utils/logger.mjs';
 import { EquipmentManager } from './equipment-manager.mjs';
 
 /**
@@ -61,7 +61,14 @@ export class EquipmentUI {
       container.appendChild(section);
     }
     const typeName = fromUuidSync(HM.SELECTED[type]?.uuid)?.name || type;
-    const sectionContext = { type, label: game.i18n.format('hm.app.equipment.type-equipment', { type: typeName }), entries: await this.#processEntriesForTemplate(entries), wealth, hasWealth: !!wealth, isModernRules };
+    const sectionContext = {
+      type,
+      label: game.i18n.format('hm.app.equipment.type-equipment', { type: typeName }),
+      entries: await this.#processEntriesForTemplate(entries),
+      wealth,
+      hasWealth: !!wealth,
+      isModernRules
+    };
     const html = await foundry.applications.handlebars.renderTemplate(this.CHOICE_TEMPLATE, sectionContext);
     section.innerHTML = html;
     this.#attachListeners(container);
@@ -102,12 +109,7 @@ export class EquipmentUI {
       if (element.closest('.disabled')) return;
       const uuid = element.dataset.uuid;
       if (!uuid) return;
-      selections.push({
-        uuid,
-        name: element.dataset.name || element.textContent?.trim() || uuid,
-        count: parseInt(element.dataset.count) || 1,
-        type: 'linked'
-      });
+      selections.push({ uuid, name: element.dataset.name || element.textContent?.trim() || uuid, count: parseInt(element.dataset.count) || 1, type: 'linked' });
     });
     container.querySelectorAll('input[data-wealth-checkbox]:checked').forEach((checkbox) => {
       selections.push({ isWealth: true, type: checkbox.dataset.type, formula: checkbox.dataset.formula });
@@ -229,8 +231,6 @@ export class EquipmentUI {
    */
   static #attachListeners(container) {
     EventRegistry.cleanup(container);
-
-    // Wealth checkbox — use delegation on container to survive DOM replacement
     EventRegistry.on(container, 'change', (event) => {
       const checkbox = event.target.closest('[data-wealth-checkbox]');
       if (!checkbox) return;
@@ -248,19 +248,13 @@ export class EquipmentUI {
           if (input !== checkbox) input.disabled = isChecked;
         });
       }
-
       if (rollRow) rollRow.hidden = !isChecked;
-
       if (wealthInput) {
-        if (isChecked && isModern) {
-          wealthInput.value = `${formula} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
-        } else if (!isChecked) {
-          wealthInput.value = '';
-        }
+        if (isChecked && isModern) wealthInput.value = `${formula} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
+        else if (!isChecked) wealthInput.value = '';
       }
     });
 
-    // Wealth roll button — use delegation on container
     EventRegistry.on(container, 'click', async (event) => {
       const button = event.target.closest('.wealth-roll-button');
       if (!button) return;
@@ -268,24 +262,17 @@ export class EquipmentUI {
       const type = button.dataset.type;
       const wealthInput = container.querySelector(`#starting-wealth-amount-${type}`);
       if (!formula || !wealthInput) return;
-
       const roll = new Roll(formula);
       await roll.evaluate();
       wealthInput.value = `${roll.total} ${CONFIG.DND5E.currencies.gp.abbreviation}`;
       const hiddenInput = container.querySelector(`[name="starting-wealth-rolled-${type}"]`);
       if (hiddenInput) hiddenInput.value = roll.total;
-
       if (game.settings.get(MODULE.ID, 'publishWealthRolls')) {
         const characterName = document.getElementById('character-name')?.value || game.user.name;
         const typeLabel = game.i18n.localize(`TYPES.Item.${type}`);
-        await roll.toMessage({
-          flavor: game.i18n.format('hm.app.equipment.wealth-roll-message', { name: characterName, type: typeLabel, result: roll.total }),
-          speaker: ChatMessage.getSpeaker()
-        });
+        await roll.toMessage({ flavor: game.i18n.format('hm.app.equipment.wealth-roll-message', { name: characterName, type: typeLabel, result: roll.total }), speaker: ChatMessage.getSpeaker() });
       }
     });
-
-    // OR select — toggle child controls based on selection
     EventRegistry.on(container, 'change', (event) => {
       const select = event.target.closest('[data-or-select]');
       if (!select) return;
@@ -303,8 +290,6 @@ export class EquipmentUI {
         }
       });
     });
-
-    // Inject content link icons after labels in form-groups with selects
     container.querySelectorAll('[data-equipment-select], [data-or-select]').forEach((select) => {
       const formGroup = select.closest('.form-group');
       if (!formGroup || formGroup.querySelector(':scope > .content-link.item-icon')) return;
@@ -314,8 +299,6 @@ export class EquipmentUI {
       if (!label) return;
       label.after(this.#createItemLink(uuid));
     });
-
-    // Update content link icon when any select changes
     EventRegistry.on(container, 'change', (event) => {
       const select = event.target.closest('[data-equipment-select], [data-or-select]');
       if (!select) return;
@@ -330,13 +313,10 @@ export class EquipmentUI {
         anchor.hidden = true;
       }
     });
-
   }
 
   /**
    * Resolve the UUID for the currently selected option of a select.
-   * Category selects have UUIDs as option values directly.
-   * OR selects have entry IDs — look up UUID from associated hidden inputs.
    * @param {HTMLSelectElement} select - Select element
    * @param {HTMLElement} container - Equipment container
    * @returns {string|null} UUID or null

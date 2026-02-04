@@ -41,12 +41,8 @@ export class SummaryMessage {
       <h3>${game.i18n.localize('DND5E.AbilityScorePl')}</h3>
       <table class="ability-table">
         <tr>
-          <th>${game.i18n.localize('DND5E.Ability')}</th>
-          <th>${game.i18n.localize('DND5E.AbilityScoreShort')}</th>
-          <th>${game.i18n.localize('DND5E.AbilityModifierShort')}</th>
-        </tr>
-  `;
-
+        <th>${game.i18n.localize('DND5E.Ability')}</th><th>${game.i18n.localize('DND5E.AbilityScoreShort')}</th><th>${game.i18n.localize('DND5E.AbilityModifierShort')}</th>
+        </tr>`;
     for (const [key] of Object.entries(CONFIG.DND5E.abilities)) {
       const ability = actor.system.abilities[key];
       if (!ability) continue;
@@ -54,19 +50,9 @@ export class SummaryMessage {
       const mod = ability.mod;
       const label = CONFIG.DND5E.abilities[key]?.label || key;
       const modPrefix = mod >= 0 ? '+' : '';
-      tableHTML += `
-      <tr>
-        <td>${label.toUpperCase()}</td>
-        <td>${score}</td>
-        <td>${modPrefix}${mod}</td>
-      </tr>
-    `;
+      tableHTML += `<tr><td>${label.toUpperCase()}</td><td>${score}</td><td>${modPrefix}${mod}</td></tr>`;
     }
-    tableHTML += `
-      </table>
-    </div>
-  `;
-
+    tableHTML += `</table></div>`;
     return tableHTML;
   }
 

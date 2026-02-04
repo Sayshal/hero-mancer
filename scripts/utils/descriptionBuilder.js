@@ -13,19 +13,14 @@ export class JournalPageFinder {
    */
   static async findRelatedJournalPage(doc) {
     if (!doc) return null;
-    try {
-      const docType = doc.type;
-      const docName = doc.name;
-      const docUuid = doc.uuid;
-      if (!docType || !docName) return null;
-      const moduleId = this.#extractModuleId(doc);
-      if (moduleId === 'dnd5e' && ['background', 'race', 'species'].includes(docType)) return null;
-      const journalPacks = game.packs.filter((p) => p.metadata.type === 'JournalEntry');
-      return await this.#searchCompendiumsForPage(journalPacks, docName, docType, docUuid);
-    } catch (error) {
-      log(2, `Error finding journal page for ${doc?.name}:`, error);
-      return null;
-    }
+    const docType = doc.type;
+    const docName = doc.name;
+    const docUuid = doc.uuid;
+    if (!docType || !docName) return null;
+    const moduleId = this.#extractModuleId(doc);
+    if (moduleId === 'dnd5e' && ['background', 'race', 'species'].includes(docType)) return null;
+    const journalPacks = game.packs.filter((p) => p.metadata.type === 'JournalEntry');
+    return await this.#searchCompendiumsForPage(journalPacks, docName, docUuid);
   }
 
   /**
@@ -50,12 +45,11 @@ export class JournalPageFinder {
    * Search compendiums for matching journal page
    * @param {object[]} packs - Journal packs to search through
    * @param {string} itemName - Item name to find
-   * @param {string} itemType - Item type (race, class, background)
    * @param {string} [itemUuid] - Optional UUID of the original item for module matching
    * @returns {Promise<string|null>} - Journal page UUID or null
    * @private
    */
-  static async #searchCompendiumsForPage(packs, itemName, itemType, itemUuid) {
+  static async #searchCompendiumsForPage(packs, itemName, itemUuid) {
     if (!packs?.length || !itemName) return null;
     const normalizedItemName = itemName.toLowerCase();
     const baseRaceName = this._getBaseRaceName(itemName);
@@ -123,23 +117,18 @@ export class JournalPageFinder {
    * @private
    */
   static async #searchSingleCompendium(pack, normalizedItemName, baseRaceName) {
-    try {
-      const index = await pack.getIndex();
-      for (const entry of index) {
-        if (this.#isArtHandout(entry.name)) continue;
-        if (!entry.pages?.length) continue;
-        const exactMatch = entry.pages.find((p) => p.name.toLowerCase() === normalizedItemName);
-        if (exactMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${exactMatch._id}`;
-        if (baseRaceName) {
-          const baseMatch = entry.pages.find((p) => p.name.toLowerCase() === baseRaceName.toLowerCase());
-          if (baseMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${baseMatch._id}`;
-        }
+    const index = await pack.getIndex();
+    for (const entry of index) {
+      if (this.#isArtHandout(entry.name)) continue;
+      if (!entry.pages?.length) continue;
+      const exactMatch = entry.pages.find((p) => p.name.toLowerCase() === normalizedItemName);
+      if (exactMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${exactMatch._id}`;
+      if (baseRaceName) {
+        const baseMatch = entry.pages.find((p) => p.name.toLowerCase() === baseRaceName.toLowerCase());
+        if (baseMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${baseMatch._id}`;
       }
-      return null;
-    } catch (error) {
-      log(2, `Error searching journal pack ${pack.metadata.label}:`, error);
-      return null;
     }
+    return null;
   }
 
   /**
@@ -178,10 +167,6 @@ export class JournalPageEmbed {
   /**
    * @param {HTMLElement} container - The container element where the journal page will be embedded
    * @param {object} options - Configuration options
-   * @param {boolean} [options.editable] - Whether the journal page is editable
-   * @param {string|number} [options.height] - Height of the embedded content
-   * @param {string|number} [options.width] - Width of the embedded content
-   * @param {boolean} [options.scrollable] - Whether the content is scrollable
    */
   constructor(container, options = {}) {
     this.container = container;
@@ -220,11 +205,7 @@ export class JournalPageEmbed {
    * @private
    */
   #showLoadingIndicator() {
-    this.container.innerHTML = `
-      <div class="journal-loading">
-        <i class="fas fa-spinner fa-spin"></i>
-        ${game.i18n.localize('hm.app.journal-loading')}
-      </div>`;
+    this.container.innerHTML = `<div class="journal-loading"><i class="fas fa-spinner fa-spin"></i>${game.i18n.localize('hm.app.journal-loading')}</div>`;
   }
 
   /**
@@ -233,8 +214,7 @@ export class JournalPageEmbed {
    * @private
    */
   #showErrorMessage(message) {
-    this.container.innerHTML = `
-      <div class="notification error">${message}</div>`;
+    this.container.innerHTML = `<div class="notification error">${message}</div>`;
   }
 
   /**
@@ -413,16 +393,6 @@ export class JournalPageEmbed {
   }
 
   /**
-   * Normalize item name for matching
-   * @param {string} itemName - Item name to normalize
-   * @returns {string} Normalized name
-   * @private
-   */
-  #normalizeItemName(itemName) {
-    return itemName?.toLowerCase()?.trim() || '';
-  }
-
-  /**
    * Find a matching page for an item
    * @param {object} pages - Collection of pages to search
    * @param {string} itemName - Item name to match against
@@ -431,7 +401,7 @@ export class JournalPageEmbed {
    */
   async #findMatchingPage(pages, itemName) {
     if (!pages?.size || !itemName) return null;
-    const normalizedItemName = this.#normalizeItemName(itemName);
+    const normalizedItemName = itemName?.toLowerCase()?.trim() || '';
     const matchStrategies = [
       (page) => page.name === itemName,
       (page) => page.name.toLowerCase() === normalizedItemName,

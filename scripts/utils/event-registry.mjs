@@ -23,7 +23,6 @@ export class EventRegistry {
     if (!element || !(element instanceof Element)) return callback;
     if (!eventType || typeof eventType !== 'string') return callback;
     if (typeof callback !== 'function') return callback;
-
     if (!this.#listeners.has(element)) this.#listeners.set(element, new Map());
     const elementEvents = this.#listeners.get(element);
     if (!elementEvents.has(eventType)) elementEvents.set(eventType, new Set());
@@ -67,7 +66,6 @@ export class EventRegistry {
     if (!element || !(element instanceof Element)) return null;
     if (!id || typeof id !== 'string') return null;
     if (typeof callback !== 'function') return null;
-
     if (!this.#observers.has(element)) this.#observers.set(element, new Map());
     const elementObservers = this.#observers.get(element);
     if (elementObservers.has(id)) elementObservers.get(id).disconnect();

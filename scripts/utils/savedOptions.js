@@ -6,10 +6,6 @@ import { log } from './logger.mjs';
  * @class
  */
 export class SavedOptions {
-  /**
-   * Flag name used for storing options
-   * @static
-   */
   static FLAG = 'saved-options';
 
   /**
@@ -26,7 +22,7 @@ export class SavedOptions {
       return await game.user.setFlag(MODULE.ID, this.FLAG, data);
     } catch (error) {
       log(1, 'Error saving options:', error);
-      ui.notifications?.error('hm.errors.save-options-failed', { localize: true });
+      ui.notifications.error('hm.errors.save-options-failed', { localize: true });
       return null;
     }
   }
@@ -64,7 +60,7 @@ export class SavedOptions {
       return true;
     } catch (error) {
       log(1, 'Error resetting options:', error);
-      ui.notifications?.error('hm.errors.reset-options-failed', { localize: true });
+      ui.notifications.error('hm.errors.reset-options-failed', { localize: true });
       return false;
     }
   }
@@ -89,13 +85,9 @@ export class SavedOptions {
    * @static
    */
   static #resetSingleElement(elem) {
-    if (elem.type === 'checkbox') {
-      elem.checked = false;
-    } else if (elem.tagName.toLowerCase() === 'color-picker' || elem.type === 'color') {
-      elem.value = '#000000';
-    } else {
-      elem.value = '';
-    }
+    if (elem.type === 'checkbox') elem.checked = false;
+    else if (elem.tagName.toLowerCase() === 'color-picker' || elem.type === 'color') elem.value = '#000000';
+    else elem.value = '';
     elem.dispatchEvent(new Event('change', { bubbles: true }));
   }
 }

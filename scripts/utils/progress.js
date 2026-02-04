@@ -1,15 +1,10 @@
 import { HeroMancer, StatRoller } from '../utils/index.js';
-import { log } from './logger.mjs';
 
 /**
  * Manages progress bar for Hero Mancer
  * @class
  */
 export class ProgressBar {
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Updates progress based on form data
    * @param {HTMLElement} element - The application element
@@ -19,15 +14,9 @@ export class ProgressBar {
    */
   static calculateAndUpdateProgress(element, form) {
     if (!element || !form) return 0;
-
-    try {
-      const progressData = this.calculateProgress(form);
-      this.updateProgressUI(element, progressData.percentage);
-      return progressData.percentage;
-    } catch (err) {
-      log(1, 'Error processing form progress:', err);
-      return 0;
-    }
+    const progressData = this.calculateProgress(form);
+    this.updateProgressUI(element, progressData.percentage);
+    return progressData.percentage;
   }
 
   /**
@@ -38,14 +27,7 @@ export class ProgressBar {
   static calculateProgress(form) {
     const [filledCount, totalFields, unfilledFields, filledFields] = this.#calculateCompletionFromForm(form);
     const percentage = totalFields ? (filledCount / totalFields) * 100 : 0;
-
-    return {
-      filledCount,
-      totalFields,
-      percentage,
-      unfilledFields,
-      filledFields
-    };
+    return { filledCount, totalFields, percentage, unfilledFields, filledFields };
   }
 
   /**
@@ -55,25 +37,13 @@ export class ProgressBar {
    */
   static updateProgressUI(element, percentage) {
     if (!element) return;
-
     requestAnimationFrame(() => {
-      // Update progress bar
       const hmHeader = element.querySelector('.hm-app-header');
-      if (hmHeader) {
-        hmHeader.style.setProperty('--progress-percent', `${percentage}%`);
-      }
-
-      // Update progress text
+      if (hmHeader) hmHeader.style.setProperty('--progress-percent', `${percentage}%`);
       const progressText = element.querySelector('.wizard-progress-text');
-      if (progressText) {
-        progressText.textContent = `${Math.round(percentage)}%`;
-      }
+      if (progressText) progressText.textContent = `${Math.round(percentage)}%`;
     });
   }
-
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
 
   /**
    * Processes form data to determine completion
@@ -83,16 +53,9 @@ export class ProgressBar {
    * @static
    */
   static #calculateCompletionFromForm(form) {
-    const results = {
-      totalFields: 0,
-      filledCount: 0,
-      unfilledFields: [],
-      filledFields: []
-    };
-
+    const results = { totalFields: 0, filledCount: 0, unfilledFields: [], filledFields: [] };
     this.#processNamedInputs(form, results);
     this.#processEquipmentInputs(form, results);
-
     return [results.filledCount, results.totalFields, results.unfilledFields, results.filledFields];
   }
 
@@ -105,13 +68,10 @@ export class ProgressBar {
    */
   static #processNamedInputs(form, results) {
     const namedInputs = form.querySelectorAll('[name]');
-
     namedInputs.forEach((input) => {
       if (this.#shouldSkipInput(input)) return;
-
       results.totalFields++;
       const isFilled = this.#checkInputFilled(input, form);
-
       this.#updateFieldResults(input, isFilled, results);
     });
   }
@@ -126,20 +86,16 @@ export class ProgressBar {
   static #processEquipmentInputs(form, results) {
     const equipmentContainer = form.querySelector('.equipment-container');
     if (!equipmentContainer) return;
-
     const equipmentInputs = equipmentContainer.querySelectorAll('input[type="checkbox"], select');
-
     equipmentInputs.forEach((input) => {
       if (this.#shouldSkipEquipmentInput(input)) return;
-
       results.totalFields++;
       const isFilled = input.type === 'checkbox' ? input.checked : Boolean(input.value);
-
       this.#updateFieldResults(input, isFilled, results);
     });
   }
 
-  static #IGNORED_FIELDS = new Set([
+  static IGNORED_FIELDS = new Set([
     'ring.effects',
     'ring.enabled',
     'ring.color',
@@ -159,9 +115,7 @@ export class ProgressBar {
    * @static
    */
   static #shouldSkipInput(input) {
-    return (
-      input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || this.#IGNORED_FIELDS.has(input.name)
-    );
+    return input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name.startsWith('use-starting-wealth') || this.IGNORED_FIELDS.has(input.name);
   }
 
   /**
@@ -172,12 +126,7 @@ export class ProgressBar {
    * @static
    */
   static #shouldSkipEquipmentInput(input) {
-    return (
-      input.disabled ||
-      input.closest('.equipment-section')?.classList.contains('disabled') ||
-      input.name?.startsWith('use-starting-wealth') ||
-      this.#IGNORED_FIELDS.has(input.name)
-    );
+    return input.disabled || input.closest('.equipment-section')?.classList.contains('disabled') || input.name?.startsWith('use-starting-wealth') || this.IGNORED_FIELDS.has(input.name);
   }
 
   /**
@@ -189,17 +138,8 @@ export class ProgressBar {
    * @static
    */
   static #updateFieldResults(input, isFilled, results) {
-    const fieldInfo = {
-      name: input.name || 'equipment-item',
-      type: input.type,
-      value: input.value,
-      element: input
-    };
-
-    if (input.id && !input.name) {
-      fieldInfo.id = input.id;
-    }
-
+    const fieldInfo = { name: input.name || 'equipment-item', type: input.type, value: input.value, element: input };
+    if (input.id && !input.name) fieldInfo.id = input.id;
     if (isFilled) {
       results.filledCount++;
       results.filledFields.push(fieldInfo);
@@ -217,13 +157,9 @@ export class ProgressBar {
    * @static
    */
   static #checkInputFilled(input, form) {
-    if (input.type === 'checkbox') {
-      return input.checked;
-    } else if (input.type === 'select-one') {
-      return Boolean(input.value);
-    } else {
-      return this.#isFormFieldPopulated(input.name, input.value, form);
-    }
+    if (input.type === 'checkbox') return input.checked;
+    else if (input.type === 'select-one') return Boolean(input.value);
+    else return this.#isFormFieldPopulated(input.name, input.value, form);
   }
 
   /**
@@ -236,17 +172,8 @@ export class ProgressBar {
    * @static
    */
   static #isFormFieldPopulated(key, value, form) {
-    // Handle abilities fields
-    if (key && key.match(/^abilities\[.*]$/)) {
-      return this.#isAbilityScoreFieldPopulated(value, form);
-    }
-
-    // Handle starting-wealth-amount field
-    if (key === 'starting-wealth-amount') {
-      return true; // Always consider filled
-    }
-
-    // Normal field handling - ensure we have a valid value
+    if (key && key.match(/^abilities\[.*]$/)) return this.#isAbilityScoreFieldPopulated(value, form);
+    if (key === 'starting-wealth-amount') return true;
     return value !== null && value !== undefined && value !== '' && value !== false;
   }
 
@@ -260,16 +187,10 @@ export class ProgressBar {
    */
   static #isAbilityScoreFieldPopulated(value, form) {
     if (!form) return false;
-
     const rollMethodSelect = form.querySelector('#roll-method');
     if (!rollMethodSelect) return false;
-
     const isPointBuy = rollMethodSelect.value === 'pointBuy';
-
-    if (isPointBuy) {
-      return this.#isPointBuyComplete();
-    }
-
+    if (isPointBuy) return this.#isPointBuyComplete();
     return this.#isAbilityValueFilled(value);
   }
 
@@ -294,8 +215,6 @@ export class ProgressBar {
    */
   static #isAbilityValueFilled(value) {
     if (value === null || value === undefined || value === '') return false;
-
-    // Check if it's just commas or whitespace
     const stringValue = String(value);
     return stringValue.replace(/,/g, '').trim() !== '';
   }

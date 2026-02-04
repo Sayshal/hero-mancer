@@ -1,14 +1,10 @@
 import { HM, MODULE, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
-import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /** Mandatory fields settings application. */
 export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
+  /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-mandatory-fields',
     classes: ['hm-app'],
@@ -18,84 +14,37 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       closeOnSubmit: true,
       submitOnChange: false
     },
-    position: {
-      height: 'auto',
-      width: 500
-    },
-    window: {
-      contentClasses: ['standard-form'],
-      icon: 'fa-solid fa-list-check',
-      resizable: false
-    }
+    position: { height: 'auto', width: 500 },
+    window: { contentClasses: ['standard-form'], icon: 'fa-solid fa-list-check', resizable: false }
   };
 
+  /** @override */
   static PARTS = {
-    form: {
-      template: 'modules/hero-mancer/templates/settings/mandatory-fields.hbs',
-      id: 'body',
-      classes: ['standard-form'],
-      scrollable: ['']
-    },
-    footer: {
-      template: 'modules/hero-mancer/templates/settings/settings-footer.hbs',
-      id: 'footer',
-      classes: ['hm-compendiums-footer']
-    }
+    form: { template: 'modules/hero-mancer/templates/settings/mandatory-fields.hbs', id: 'body', classes: ['standard-form'], scrollable: [''] },
+    footer: { template: 'modules/hero-mancer/templates/settings/settings-footer.hbs', id: 'footer', classes: ['hm-compendiums-footer'] }
   };
 
-  /** @returns {string} Window title */
+  /** @override */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
   }
 
-  /* -------------------------------------------- */
-  /*  Protected Methods                           */
-  /* -------------------------------------------- */
-
-  /**
-   * Prepares context data for the mandatory fields configuration
-   * @param {object} options - Application render options
-   * @returns {Promise<object>} Context data for template rendering
-   * @protected
-   * @override
-   */
+  /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    try {
-      const fieldCategories = this.getAllFormFields();
-      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-      const playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
-      const tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
-
-      // Process each category to add mandatory status
-      const processedFields = {};
-      for (const [category, fields] of Object.entries(fieldCategories)) {
-        processedFields[category] = fields.map((field) => {
-          const isInitialSetup = mandatoryFields.length === 0;
-          return {
-            key: field.key,
-            label: field.label,
-            mandatory: isInitialSetup ? field.default : mandatoryFields.includes(field.key)
-          };
-        });
-      }
-
-      return {
-        ...context,
-        fields: processedFields,
-        playerCustomizationEnabled,
-        tokenCustomizationEnabled
-      };
-    } catch (error) {
-      log(1, `Error preparing context: ${error.message}`);
-      ui.notifications.warn('hm.settings.mandatory-fields.error-context', { localize: true });
-      return { ...context, fields: {}, playerCustomizationEnabled: false, tokenCustomizationEnabled: false };
+    const fieldCategories = this.getAllFormFields();
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields');
+    const playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
+    const tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
+    const processedFields = {};
+    for (const [category, fields] of Object.entries(fieldCategories)) {
+      processedFields[category] = fields.map((field) => {
+        const isInitialSetup = mandatoryFields.length === 0;
+        return { key: field.key, label: field.label, mandatory: isInitialSetup ? field.default : mandatoryFields.includes(field.key) };
+      });
     }
+    return { ...context, fields: processedFields, playerCustomizationEnabled, tokenCustomizationEnabled };
   }
-
-  /* -------------------------------------------- */
-  /*  Public Methods                              */
-  /* -------------------------------------------- */
 
   /**
    * Retrieves all configurable form fields organized by category
@@ -104,11 +53,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   getAllFormFields() {
     const playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
     const tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
-
-    // Single abilities checkbox for the whole tab
     const abilityFields = [{ key: 'abilities', label: game.i18n.localize('hm.settings.mandatory-fields.groups.abilities'), default: false }];
-
-    // Combine basic + player fields into one category
     const playerFields = [
       { key: 'character-name', label: game.i18n.localize('hm.app.start.name-label'), default: true },
       { key: 'character-art', label: game.i18n.localize('hm.app.start.character-art-label'), default: false },
@@ -121,7 +66,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
         { key: 'player-avatar', label: game.i18n.localize('hm.app.start.player-avatar'), default: false }
       );
     }
-
     return {
       player: playerFields,
       token: tokenCustomizationEnabled
@@ -155,10 +99,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Processes form submission for mandatory field settings
    * @param {Event} _event - The form submission event
@@ -168,39 +108,19 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static async formHandler(_event, form, _formData) {
-    try {
-      if (!form) {
-        throw new Error('Form element is missing');
-      }
-
-      const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
-      const currentMandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-
-      const hasChanged = JSON.stringify([...currentMandatoryFields].sort()) !== JSON.stringify([...mandatoryFields].sort());
-      const changedSettings = hasChanged ? { mandatoryFields: true } : {};
-
-      if (hasChanged) {
-        MandatoryFields._saveMandatoryFields(mandatoryFields);
-
-        if (needsReload(changedSettings)) {
-          HM.reloadConfirm({ world: true });
-        } else if (needsRerender(changedSettings)) {
-          rerenderHM();
-        }
-      }
-
-      ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
-      return true;
-    } catch (error) {
-      log(1, `Error in MandatoryFields formHandler: ${error.message}`);
-      ui.notifications.error('hm.settings.mandatory-fields.error-saving', { localize: true });
-      return false;
+    const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
+    const currentMandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields');
+    const hasChanged = JSON.stringify([...currentMandatoryFields].sort()) !== JSON.stringify([...mandatoryFields].sort());
+    const changedSettings = hasChanged ? { mandatoryFields: true } : {};
+    if (hasChanged) {
+      await game.settings.set(MODULE.ID, 'mandatoryFields', mandatoryFields);
+      if (needsReload(changedSettings)) HM.reloadConfirm({ world: true });
+      else if (needsRerender(changedSettings)) rerenderHM();
     }
-  }
 
-  /* -------------------------------------------- */
-  /*  Static Protected Methods                    */
-  /* -------------------------------------------- */
+    ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
+    return true;
+  }
 
   /**
    * Collects selected mandatory fields from form checkboxes
@@ -214,15 +134,5 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     return Array.from(checkboxes)
       .filter((checkbox) => checkbox.checked)
       .map((checkbox) => checkbox.name);
-  }
-
-  /**
-   * Saves collected mandatory fields to game settings
-   * @param {string[]} mandatoryFields - Array of field names to save
-   * @static
-   * @protected
-   */
-  static _saveMandatoryFields(mandatoryFields) {
-    game.settings.set(MODULE.ID, 'mandatoryFields', mandatoryFields);
   }
 }

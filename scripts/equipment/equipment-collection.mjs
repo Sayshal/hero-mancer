@@ -47,14 +47,9 @@ export class EquipmentCollection {
       const formula = checkbox.dataset.formula;
       const type = checkbox.dataset.type;
       if (!formula) continue;
-      try {
-        const roll = await new Roll(formula).evaluate();
-        wealthItems.push({ type: 'currency', source: type, currency: 'gp', amount: roll.total, formula, rollTotal: roll.total });
-      } catch (error) {
-        log(1, `EquipmentCollection: Failed to roll wealth - ${error.message}`);
-      }
+      const roll = await new Roll(formula).evaluate();
+      wealthItems.push({ type: 'currency', source: type, currency: 'gp', amount: roll.total, formula, rollTotal: roll.total });
     }
-
     return wealthItems;
   }
 
@@ -65,106 +60,29 @@ export class EquipmentCollection {
    * @returns {boolean} True if wealth checkbox is checked
    */
   static isWealthSelected(container, type) {
-    const checkbox = container?.querySelector(`[data-wealth-checkbox][data-type="${type}"]`);
-    return checkbox?.checked || false;
+    return container?.querySelector(`[data-wealth-checkbox][data-type="${type}"]`)?.checked || false;
   }
 
   /**
-   * Process a single equipment section.
+   * Process all equipment elements in a section (selects, checkboxes, linked items).
    * @param {HTMLElement} section - Section element
    * @param {object[]} equipment - Array to add items to
-   * @param {string} type - Section type
    */
   static async #processSection(section, equipment) {
-    await this.#processSelects(section, equipment);
-    await this.#processCheckboxes(section, equipment);
-    await this.#processLinkedItems(section, equipment);
-  }
-
-  /**
-   * Process select elements in a section.
-   * @param {HTMLElement} section - Section element
-   * @param {object[]} equipment - Array to add items to
-   */
-  static async #processSelects(section, equipment) {
-    const selects = section.querySelectorAll('select[data-equipment-select]:not(:disabled)');
-    for (const select of selects) {
-      const value = select.value;
-      if (!value) continue;
-      if (select.closest('.disabled')) continue;
-      const count = parseInt(select.dataset.count) || 1;
-      const item = await this.#resolveItem(value);
-      if (item) {
-        const entry = this.#createEquipmentEntry(item);
-        entry.system.quantity = count;
-        equipment.push(entry);
-      }
+    const elements = [
+      ...section.querySelectorAll('select[data-equipment-select]:not(:disabled)'),
+      ...section.querySelectorAll('input[type="checkbox"][data-equipment-item]:checked:not(:disabled)'),
+      ...section.querySelectorAll('[data-linked-item]:not(:disabled)')
+    ];
+    for (const el of elements) {
+      if (el.closest('.disabled') || el.closest('[hidden]')) continue;
+      if (el.type === 'checkbox' && !el.checked) continue;
+      const uuid = el.dataset.uuid || el.value;
+      if (!uuid) continue;
+      const count = parseInt(el.dataset.count) || 1;
+      const item = await fromUuid(uuid);
+      if (!item) continue;
+      equipment.push({ uuid: item.uuid, name: item.name, img: item.img, type: item.type, system: { ...foundry.utils.deepClone(item.system), quantity: count } });
     }
-  }
-
-  /**
-   * Process checkbox elements for optional items.
-   * @param {HTMLElement} section - Section element
-   * @param {object[]} equipment - Array to add items to
-   */
-  static async #processCheckboxes(section, equipment) {
-    const checkboxes = section.querySelectorAll('input[type="checkbox"][data-equipment-item]:checked:not(:disabled)');
-    for (const checkbox of checkboxes) {
-      if (checkbox.closest('.disabled')) continue;
-      const uuid = checkbox.dataset.uuid;
-      const count = parseInt(checkbox.dataset.count) || 1;
-      const item = await this.#resolveItem(uuid);
-      if (item) {
-        const entry = this.#createEquipmentEntry(item);
-        entry.system.quantity = count;
-        equipment.push(entry);
-      }
-    }
-  }
-
-  /**
-   * Process linked items that are always included.
-   * @param {HTMLElement} section - Section element
-   * @param {object[]} equipment - Array to add items to
-   */
-  static async #processLinkedItems(section, equipment) {
-    const linkedItems = section.querySelectorAll('[data-linked-item]:not(:disabled)');
-    for (const element of linkedItems) {
-      if (element.type === 'checkbox' && !element.checked) continue;
-      if (element.closest('[hidden]')) continue;
-      if (element.closest('.disabled')) continue;
-      const uuid = element.dataset.uuid;
-      const count = parseInt(element.dataset.count) || 1;
-      const item = await this.#resolveItem(uuid);
-      if (item) {
-        const entry = this.#createEquipmentEntry(item);
-        entry.system.quantity = count;
-        equipment.push(entry);
-      }
-    }
-  }
-
-  /**
-   * Resolve an item from UUID.
-   * @param {string} uuid - Item UUID
-   * @returns {Promise<object|null>} Item document or null
-   */
-  static async #resolveItem(uuid) {
-    if (!uuid) return null;
-    try {
-      return await fromUuid(uuid);
-    } catch (error) {
-      log(2, `EquipmentCollection: Failed to resolve ${uuid} - ${error.message}`);
-      return null;
-    }
-  }
-
-  /**
-   * Create an equipment entry for actor creation.
-   * @param {object} item - Item document
-   * @returns {object} Equipment entry
-   */
-  static #createEquipmentEntry(item) {
-    return { uuid: item.uuid, name: item.name, img: item.img, type: item.type, system: foundry.utils.deepClone(item.system) };
   }
 }

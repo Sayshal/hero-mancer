@@ -121,7 +121,7 @@ export class EquipmentManager {
       currency.gp += roll.total;
       if (game.settings.get(MODULE.ID, 'publishWealthRolls')) {
         roll.toMessage({
-          flavor: game.i18n.format('hm.app.equipment.wealth-roll', { type: game.i18n.localize(`hm.app.equipment.${type}`) }),
+          flavor: game.i18n.format('hm.app.equipment.wealth-roll-message', { name: game.user.name, type: game.i18n.localize(`hm.app.tab-names.${type}`), result: roll.total }),
           speaker: { alias: game.user.name }
         });
       }
@@ -208,22 +208,24 @@ export class EquipmentManager {
       isChoice: entry.type in EquipmentEntryData.OPTION_TYPES,
       children: []
     };
-
     if (processed.isGrouping) {
       const childEntries = allEntries.filter((e) => e.group === entry._id);
       processed.children = await Promise.all(childEntries.map((child) => this.#processEntry(child, allEntries)));
     }
-
     if (processed.isChoice && entry.type !== 'linked' && entry.type !== 'currency') {
       processed.keyOptions = entry.keyOptions;
       processed.categoryLabel = entry.categoryLabel;
       if (entry.availableOptions?.size) processed.dnd5eOptions = Array.from(entry.availableOptions);
     }
-
     if (entry.type === 'linked') {
       const linkedDoc = fromUuidSync(entry.key);
       processed.linkedItem = linkedDoc
-        ? { uuid: entry.key, name: linkedDoc.name, img: linkedDoc.img, link: `<a class="content-link" draggable="true" data-link data-uuid="${entry.key}" data-tooltip="${linkedDoc.type ?? 'Item'}"><i class="fa-solid fa-suitcase" inert></i>${linkedDoc.name}</a>` }
+        ? {
+            uuid: entry.key,
+            name: linkedDoc.name,
+            img: linkedDoc.img,
+            link: `<a class="content-link" draggable="true" data-link data-uuid="${entry.key}" data-tooltip="${linkedDoc.type ?? 'Item'}"><i class="fa-solid fa-suitcase" inert></i>${linkedDoc.name}</a>`
+          }
         : null;
     }
     return processed;

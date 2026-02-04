@@ -6,10 +6,7 @@ const DragDropClass = foundry.applications.ux.DragDrop.implementation;
 
 /** Character customization settings application. */
 export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
+  /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-customization',
     classes: ['hm-app'],
@@ -19,74 +16,41 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       closeOnSubmit: true,
       submitOnChange: false
     },
-    position: {
-      height: 'auto',
-      width: 800
-    },
-    window: {
-      contentClasses: ['standard-form'],
-      icon: 'fa-solid fa-palette',
-      resizable: false
-    },
-    actions: {
-      selectArtPickerRoot: Customization.selectArtPickerRoot
-    },
-    dragDrop: [
-      {
-        dragSelector: '.advancement-order-item',
-        dropSelector: '.advancement-order-list'
-      }
-    ]
+    position: { height: 'auto', width: 800 },
+    window: { contentClasses: ['standard-form'], icon: 'fa-solid fa-palette', resizable: false },
+    actions: { selectArtPickerRoot: Customization.selectArtPickerRoot },
+    dragDrop: [{ dragSelector: '.advancement-order-item', dropSelector: '.advancement-order-list' }]
   };
 
+  /** @override */
   static PARTS = {
-    form: {
-      template: 'modules/hero-mancer/templates/settings/customization.hbs',
-      id: 'body',
-      classes: ['standard-form'],
-      scrollable: ['']
-    },
-    footer: {
-      template: 'modules/hero-mancer/templates/settings/settings-footer.hbs',
-      id: 'footer',
-      classes: ['hm-compendiums-footer']
-    }
+    form: { template: 'modules/hero-mancer/templates/settings/customization.hbs', id: 'body', classes: ['standard-form'], scrollable: [''] },
+    footer: { template: 'modules/hero-mancer/templates/settings/settings-footer.hbs', id: 'footer', classes: ['hm-compendiums-footer'] }
   };
 
-  /** @returns {string} Window title */
+  /** @override */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.customization.menu.name')}`;
   }
 
-  /* -------------------------------------------- */
-  /*  Instance Properties                         */
-  /* -------------------------------------------- */
+  /** @type {Array<{id: string, label: string, order: number, sortable: boolean}>} */
+  static #ADVANCEMENT_DEFAULTS = [
+    { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
+    { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
+    { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
+  ];
 
   config = [];
-
-  /* -------------------------------------------- */
-  /*  Protected Methods                           */
-  /* -------------------------------------------- */
 
   /**
    * Initialize the advancement order configuration from settings or defaults
    */
   initializeConfig() {
-    const defaults = [
-      { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
-      { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
-      { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
-    ];
+    const defaults = Customization.#ADVANCEMENT_DEFAULTS;
     try {
       let config = game.settings.get(MODULE.ID, 'advancementOrder');
-      if (!config || !Array.isArray(config) || config.length === 0) {
-        config = defaults;
-      } else {
-        config = config.map((item) => ({
-          ...item,
-          sortable: item.sortable !== undefined ? item.sortable : true
-        }));
-      }
+      if (!config || !Array.isArray(config) || config.length === 0) config = defaults;
+      else config = config.map((item) => ({ ...item, sortable: item.sortable !== undefined ? item.sortable : true }));
       this.config = foundry.utils.deepClone(config);
     } catch (error) {
       log(1, 'Error initializing advancement order configuration:', error);
@@ -100,24 +64,9 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static getValidConfiguration() {
-    try {
-      const config = game.settings.get(MODULE.ID, 'advancementOrder');
-      if (!config || !Array.isArray(config) || config.length === 0) {
-        return [
-          { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
-          { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
-          { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
-        ];
-      }
-      return config;
-    } catch (error) {
-      log(1, 'Error retrieving advancement order configuration, using defaults:', error);
-      return [
-        { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
-        { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
-        { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
-      ];
-    }
+    const config = game.settings.get(MODULE.ID, 'advancementOrder');
+    if (!config || !Array.isArray(config) || config.length === 0) return Customization.#ADVANCEMENT_DEFAULTS;
+    return config;
   }
 
   /** @override */
@@ -133,15 +82,8 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   _setupDragDrop() {
     this.options.dragDrop.forEach((dragDropOptions) => {
-      dragDropOptions.permissions = {
-        dragstart: () => true,
-        drop: () => true
-      };
-      dragDropOptions.callbacks = {
-        dragstart: this._onDragStart.bind(this),
-        dragover: this._onDragOver.bind(this),
-        drop: this._onDrop.bind(this)
-      };
+      dragDropOptions.permissions = { dragstart: () => true, drop: () => true };
+      dragDropOptions.callbacks = { dragstart: this._onDragStart.bind(this), dragover: this._onDragOver.bind(this), drop: this._onDrop.bind(this) };
       const dragDropHandler = new DragDropClass(dragDropOptions);
       dragDropHandler.bind(this.element);
     });
@@ -295,31 +237,12 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
         'enableTokenCustomization',
         'enableAlignmentFaithInputs'
       ];
-
-      // Add tokenizerCompatibility only if the module is active
       const tokenizerModuleActive = !!game.modules.get('vtta-tokenizer')?.active;
-      if (tokenizerModuleActive) {
-        settingsToFetch.push('tokenizerCompatibility');
-      }
-
+      if (tokenizerModuleActive) settingsToFetch.push('tokenizerCompatibility');
       context.tokenizerModuleActive = tokenizerModuleActive;
-
-      for (const setting of settingsToFetch) {
-        try {
-          context[setting] = game.settings.get(MODULE.ID, setting);
-        } catch {
-          context[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
-        }
-      }
-
-      // Advancement order
+      for (const setting of settingsToFetch) context[setting] = game.settings.get(MODULE.ID, setting);
       if (!Array.isArray(this.config) || this.config.length === 0) this.initializeConfig();
-      context.advancementConfig = this.config.map((item) => ({
-        ...item,
-        localizedLabel: game.i18n.localize(item.label),
-        sortable: item.sortable !== undefined ? item.sortable : true
-      }));
-
+      context.advancementConfig = this.config.map((item) => ({ ...item, localizedLabel: game.i18n.localize(item.label), sortable: item.sortable !== undefined ? item.sortable : true }));
       return context;
     } catch (error) {
       log(1, `Error preparing context: ${error.message}`);
@@ -330,7 +253,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Handles the selection of the art picker root directory
-   * Opens a FilePicker dialog to select a folder path for character art
    * @param {Event} _event - The triggering event
    * @param {HTMLElement} target - The target element that triggered the action
    * @returns {Promise<void>} A promise that resolves when the directory selection is complete
@@ -340,7 +262,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       const inputField = target.closest('.form-fields').querySelector('input[name="artPickerRoot"]');
       if (!inputField) throw new Error('Could not find artPickerRoot input field');
-
       const currentPath = inputField.value || '/';
       const pickerConfig = {
         type: 'folder',
@@ -350,7 +271,6 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
           inputField.dispatchEvent(new Event('change', { bubbles: true }));
         }
       };
-
       const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
@@ -360,138 +280,73 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Validates form data before saving customization settings
-   * @param {object} formData - The processed form data
-   * @returns {object} Object containing validation results and defaults
-   * @static
-   * @private
-   */
-  static _validateFormData(formData) {
-    const settings = [
-      'alignments',
-      'deities',
-      'eyeColors',
-      'hairColors',
-      'skinTones',
-      'genders',
-      'enableRandomize',
-      'artPickerRoot',
-      'enablePlayerCustomization',
-      'enableTokenCustomization',
-      'enableAlignmentFaithInputs'
-    ];
-
-    if (HM.COMPAT.TOKENIZER) settings.push('tokenizerCompatibility');
-
-    // Get default values from game settings
-    const defaults = {};
-    const resetSettings = [];
-
-    for (const setting of settings) {
-      try {
-        defaults[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
-      } catch {
-        defaults[setting] = null;
-      }
-
-      const value = formData.object[setting];
-      const isEmpty = typeof value === 'string' && value.trim() === '';
-      if (isEmpty) resetSettings.push(setting);
-    }
-
-    return { defaults, resetSettings, settings };
-  }
-
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
-  /**
    * Processes form submission for customization settings
-   * Validates and saves settings for character customization options
    * @param {Event} _event - The form submission event
-   * @param {HTMLFormElement} _form - The form element
+   * @param {HTMLFormElement} form - The form element
    * @param {object} formData - The processed form data
    * @returns {boolean|void} Returns false if validation fails
    * @static
    */
-  static formHandler(_event, _form, formData) {
+  static formHandler(_event, form, formData) {
     try {
-      // Validate form data
-      const validation = Customization._validateFormData(formData);
-      const changedSettings = {};
-
-      // Apply settings
-      const { defaults, resetSettings, settings } = validation;
-
-      // Apply settings (using defaults for resetSettings)
+      const settings = [
+        'alignments',
+        'deities',
+        'eyeColors',
+        'hairColors',
+        'skinTones',
+        'genders',
+        'enableRandomize',
+        'artPickerRoot',
+        'enablePlayerCustomization',
+        'enableTokenCustomization',
+        'enableAlignmentFaithInputs'
+      ];
+      if (HM.COMPAT.TOKENIZER) settings.push('tokenizerCompatibility');
+      const defaults = {};
+      const resetSettings = [];
       for (const setting of settings) {
-        try {
-          const currentValue = game.settings.get(MODULE.ID, setting);
-          let newValue;
-
-          if (resetSettings.includes(setting)) {
-            newValue = defaults[setting];
-          } else {
-            newValue = formData.object[setting];
-          }
-
-          // Check if the value actually changed
-          if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
-            game.settings.set(MODULE.ID, setting, newValue);
-            changedSettings[setting] = true;
-          }
-        } catch (error) {
-          log(1, `Error saving setting "${setting}": ${error.message}`);
-          ui.notifications.warn(game.i18n.format('hm.settings.customization.save-error', { setting }));
+        defaults[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
+        if (typeof formData.object[setting] === 'string' && formData.object[setting].trim() === '') resetSettings.push(setting);
+      }
+      const changedSettings = {};
+      for (const setting of settings) {
+        const currentValue = game.settings.get(MODULE.ID, setting);
+        let newValue;
+        if (resetSettings.includes(setting)) newValue = defaults[setting];
+        else newValue = formData.object[setting];
+        if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
+          game.settings.set(MODULE.ID, setting, newValue);
+          changedSettings[setting] = true;
         }
       }
-
-      // Update CharacterArtPicker root directory
       const newRootDirectory = formData.object.artPickerRoot || defaults.artPickerRoot;
-      if (CharacterArtPicker.rootDirectory !== newRootDirectory) {
-        CharacterArtPicker.rootDirectory = newRootDirectory;
+      if (CharacterArtPicker.rootDirectory !== newRootDirectory) CharacterArtPicker.rootDirectory = newRootDirectory;
+      const advancementElements = Array.from(form.querySelectorAll('.advancement-item:not(.not-sortable)'));
+      if (advancementElements.length) {
+        const currentConfig = Customization.getValidConfiguration();
+        const orderMap = {};
+        advancementElements.forEach((el, idx) => {
+          const itemId = el.dataset.itemId;
+          if (itemId) orderMap[itemId] = idx;
+        });
+        const updatedConfig = currentConfig.map((item) => ({ ...item }));
+        updatedConfig.sort((a, b) => {
+          const orderA = orderMap[a.id] !== undefined ? orderMap[a.id] : a.order;
+          const orderB = orderMap[b.id] !== undefined ? orderMap[b.id] : b.order;
+          return orderA - orderB;
+        });
+        updatedConfig.forEach((item, idx) => {
+          item.order = (idx + 1) * 10;
+        });
+        game.settings.set(MODULE.ID, 'advancementOrder', updatedConfig);
       }
-
-      // Save advancement order from DOM
-      try {
-        const form = _form;
-        const advancementElements = Array.from(form.querySelectorAll('.advancement-item:not(.not-sortable)'));
-        if (advancementElements.length) {
-          const currentConfig = Customization.getValidConfiguration();
-          const orderMap = {};
-          advancementElements.forEach((el, idx) => {
-            const itemId = el.dataset.itemId;
-            if (itemId) orderMap[itemId] = idx;
-          });
-          const updatedConfig = currentConfig.map((item) => ({ ...item }));
-          updatedConfig.sort((a, b) => {
-            const orderA = orderMap[a.id] !== undefined ? orderMap[a.id] : a.order;
-            const orderB = orderMap[b.id] !== undefined ? orderMap[b.id] : b.order;
-            return orderA - orderB;
-          });
-          updatedConfig.forEach((item, idx) => {
-            item.order = (idx + 1) * 10;
-          });
-          game.settings.set(MODULE.ID, 'advancementOrder', updatedConfig);
-        }
-      } catch (error) {
-        log(1, `Error saving advancement order: ${error.message}`);
-      }
-
-      // Show warnings for reset settings
       if (resetSettings.length > 0) {
         const names = resetSettings.map((s) => game.i18n.localize(`hm.settings.${s}.name`));
         ui.notifications.warn(game.i18n.format('hm.settings.reset-to-default', { setting: names.join(', ') }));
       }
-
-      // Handle reloads and re-renders based on what changed
-      if (needsReload(changedSettings)) {
-        HM.reloadConfirm({ world: true });
-      } else if (needsRerender(changedSettings)) {
-        rerenderHM();
-      }
-
+      if (needsReload(changedSettings)) HM.reloadConfirm({ world: true });
+      else if (needsRerender(changedSettings)) rerenderHM();
       ui.notifications.info('hm.settings.customization.saved', { localize: true });
     } catch (error) {
       log(1, `Error in formHandler: ${error.message}`);

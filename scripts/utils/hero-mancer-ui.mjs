@@ -12,16 +12,8 @@ import { log } from './logger.mjs';
  * @class
  */
 export class HeroMancerUI {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static #equipmentUpdateInProgress = false;
   static #pendingEquipmentUpdate = null;
-
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
 
   /**
    * Clean up all registered listeners, observers, and internal state.
@@ -159,10 +151,7 @@ export class HeroMancerUI {
     const ringEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
     if (!ringEnabled) return;
     const ringEnabledElement = element.querySelector('input[name="ring.enabled"]');
-    const ringOptions = element.querySelectorAll(
-      ['.form-group:has(color-picker[name="ring.color"])', '.form-group:has(color-picker[name="backgroundColor"])', '.form-group.ring-effects'].join(', ')
-    );
-
+    const ringOptions = element.querySelectorAll(['.form-group:has(color-picker[name="ring.color"])', '.form-group:has(color-picker[name="backgroundColor"])', '.form-group.ring-effects'].join(', '));
     if (!ringEnabledElement || !ringOptions.length) return;
     ringOptions.forEach((option) => {
       option.style.display = ringEnabledElement.checked ? 'flex' : 'none';
@@ -266,14 +255,9 @@ export class HeroMancerUI {
     const sizeLabels = sizesArray.map((size) => CONFIG.DND5E.actorSizes[size]?.label || size);
     const or = game.i18n.localize('hm.app.list-or');
     let sizeText = '';
-    if (sizeLabels.length === 1) {
-      sizeText = sizeLabels[0];
-    } else if (sizeLabels.length === 2) {
-      sizeText = `${sizeLabels[0]} ${or} ${sizeLabels[1]}`;
-    } else if (sizeLabels.length > 2) {
-      const lastLabel = sizeLabels.pop();
-      sizeText = `${sizeLabels.join(', ')}, ${or} ${lastLabel}`;
-    }
+    if (sizeLabels.length === 1) sizeText = sizeLabels[0];
+    else if (sizeLabels.length === 2) sizeText = `${sizeLabels[0]} ${or} ${sizeLabels[1]}`;
+    else if (sizeLabels.length > 2) sizeText = `${sizeLabels.join(', ')}, ${or} ${sizeLabels.pop()}`;
     sizeInput.value = sizeText;
     if (hint) sizeInput.title = hint;
   }
@@ -328,11 +312,8 @@ export class HeroMancerUI {
             }
           });
         }
-      } else if (indicator) {
-        operations.push(() => indicator.remove());
-      }
+      } else if (indicator) operations.push(() => indicator.remove());
     }
-
     if (operations.length > 0) requestAnimationFrame(() => operations.forEach((op) => op()));
   }
 
@@ -357,10 +338,6 @@ export class HeroMancerUI {
       }
     }
   }
-
-  /* -------------------------------------------- */
-  /*  Helper Methods                              */
-  /* -------------------------------------------- */
 
   /**
    * Update description element with content
@@ -404,31 +381,19 @@ export class HeroMancerUI {
     const equipmentContainer = element.querySelector('#equipment-container');
     if (!equipmentContainer || HM.COMPAT.ELKAN) return;
     log(3, `Equipment update triggered for ${type}`);
-
     if (this.#equipmentUpdateInProgress) {
       return new Promise((resolve) => {
         this.#pendingEquipmentUpdate = { element, type, resolve };
       });
     }
-
     this.#equipmentUpdateInProgress = true;
-
-    try {
-      // Clear cache for the changed type to force refresh
-      EquipmentManager.clearCache();
-
-      // Re-render the specific section
-      await EquipmentUI.renderType(equipmentContainer, type);
-    } catch (error) {
-      log(1, `Error in updateEquipment for ${type}:`, error);
-    } finally {
-      this.#equipmentUpdateInProgress = false;
-
-      if (this.#pendingEquipmentUpdate) {
-        const { element: pendingElement, type: pendingType, resolve: pendingResolve } = this.#pendingEquipmentUpdate;
-        this.#pendingEquipmentUpdate = null;
-        this.updateEquipment(pendingElement, pendingType).then(pendingResolve);
-      }
+    EquipmentManager.clearCache();
+    await EquipmentUI.renderType(equipmentContainer, type);
+    this.#equipmentUpdateInProgress = false;
+    if (this.#pendingEquipmentUpdate) {
+      const { element: pendingElement, type: pendingType, resolve: pendingResolve } = this.#pendingEquipmentUpdate;
+      this.#pendingEquipmentUpdate = null;
+      this.updateEquipment(pendingElement, pendingType).then(pendingResolve);
     }
   }
 
@@ -452,14 +417,8 @@ export class HeroMancerUI {
       characterDescription += `, ${game.i18n.format('hm.app.title', { components: components.join(' ') })}`;
       characterDescription += '.';
     }
-
     const newTitle = `${MODULE.NAME} | ${characterDescription}`;
-
-    HM.heroMancer._updateFrame({
-      window: {
-        title: newTitle
-      }
-    });
+    HM.heroMancer._updateFrame({ window: { title: newTitle } });
   }
 
   /**
@@ -470,7 +429,6 @@ export class HeroMancerUI {
   static async updateReviewTab() {
     const finalizeTab = document.querySelector('.tab[data-tab="finalize"]');
     if (!finalizeTab) return;
-
     const basicInfoSection = finalizeTab.querySelector('.review-section[aria-labelledby="basic-info-heading"] .review-content');
     const abilitiesSection = finalizeTab.querySelector('.review-section[aria-labelledby="abilities-heading"] .abilities-grid');
     const equipmentSection = finalizeTab.querySelector('.review-section[aria-labelledby="equipment-heading"] .equipment-list');
@@ -484,10 +442,6 @@ export class HeroMancerUI {
     if (proficienciesSection) await this.#updateProficienciesReview(proficienciesSection);
   }
 
-  /* -------------------------------------------- */
-  /*  Private Methods                             */
-  /* -------------------------------------------- */
-
   /**
    * Get dropdown elements for specified types
    * @param {HTMLElement} element - Root element
@@ -497,9 +451,7 @@ export class HeroMancerUI {
    */
   static #getDropdownElements(element, types) {
     const dropdowns = {};
-    for (const type of types) {
-      dropdowns[type] = element.querySelector(`#${type}-dropdown`);
-    }
+    for (const type of types) dropdowns[type] = element.querySelector(`#${type}-dropdown`);
     return dropdowns;
   }
 
@@ -524,7 +476,6 @@ export class HeroMancerUI {
       await this.#updateUIForDropdownType(element, type);
       return;
     }
-
     const id = value.split(' ')[0].trim();
     const uuid = value.match(/\[(.*?)]/)?.[1] || '';
     HM.SELECTED[type] = { value, id, uuid };
@@ -541,7 +492,6 @@ export class HeroMancerUI {
           break;
         }
       }
-
       if (doc) {
         const descData = await DocumentService.getDocumentDescription(doc.uuid);
         if (descData.journalPageId) {
@@ -779,7 +729,6 @@ export class HeroMancerUI {
       }
       if (abilityKey) abilityScores[abilityKey] = score;
     });
-
     return abilityScores;
   }
 
@@ -817,14 +766,8 @@ export class HeroMancerUI {
       descriptionEl.appendChild(container);
     }
     const embed = new JournalPageEmbed(container, { scrollable: true, height: 'auto' });
-    try {
-      const result = await embed.render(descData.journalPageId, doc.name);
-      if (result) return;
-      throw new Error('Failed to render journal page');
-    } catch (error) {
-      descriptionEl.innerHTML = '<div class="notification error">Failed to load journal page content</div>';
-      setTimeout(() => this.#renderStandardDescription(descData, descriptionEl), 500);
-    }
+    const result = await embed.render(descData.journalPageId, doc.name);
+    if (!result) this.#renderStandardDescription(descData, descriptionEl);
   }
 
   /**
@@ -874,15 +817,11 @@ export class HeroMancerUI {
       element.textContent = game.i18n.localize('hm.unknown');
       return;
     }
-    try {
-      const doc = fromUuidSync(uuid);
-      if (doc) {
-        const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
-        element.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(linkHtml);
-      } else {
-        element.textContent = game.i18n.localize('hm.unknown');
-      }
-    } catch (error) {
+    const doc = fromUuidSync(uuid);
+    if (doc) {
+      const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
+      element.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(linkHtml);
+    } else {
       element.textContent = game.i18n.localize('hm.unknown');
     }
   }
@@ -941,8 +880,6 @@ export class HeroMancerUI {
       await this.#extractProficiencies('race', proficiencyData);
       await this.#extractProficiencies('class', proficiencyData);
       await this.#extractProficiencies('background', proficiencyData);
-
-      // Deduplicate entries by name, merge sources into a tooltip string
       const dedup = (set) => {
         const map = new Map();
         for (const { name, source } of set) {
@@ -951,7 +888,6 @@ export class HeroMancerUI {
         }
         return Array.from(map.entries()).map(([name, sources]) => ({ name, tooltip: Array.from(sources).join(', ') }));
       };
-
       const categories = [];
       const addCategory = (set, labelKey, icon) => {
         if (set.size > 0) categories.push({ label: game.i18n.localize(labelKey), icon, items: dedup(set) });
@@ -962,7 +898,6 @@ export class HeroMancerUI {
       addCategory(proficiencyData.savingThrows, 'DND5E.ClassSaves', 'fa-solid fa-dice-d20');
       addCategory(proficiencyData.skills, 'DND5E.Skills', 'fa-solid fa-star');
       addCategory(proficiencyData.languages, 'DND5E.Languages', 'fa-solid fa-language');
-
       container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', { categories });
     } catch (error) {
       log(1, 'Error updating proficiencies review:', error);
@@ -983,8 +918,10 @@ export class HeroMancerUI {
     if (!selected?.uuid) return;
     const doc = fromUuidSync(selected.uuid);
     if (!doc) return;
-    if (doc.advancement?.byType?.Trait) {
-      for (const trait of doc.advancement.byType.Trait) if (trait.configuration?.grants) for (const grant of trait.configuration.grants) this.#categorizeTraitGrant(grant, proficiencyData, doc.name);
+    const traits = doc.advancement?.byType?.Trait;
+    if (traits) {
+      const grants = traits.flatMap((t) => t.configuration?.grants || []);
+      for (const grant of grants) this.#categorizeTraitGrant(grant, proficiencyData, doc.name);
     }
     if (type === 'race' && doc.system?.traits?.languages?.value) {
       for (const lang of doc.system.traits.languages.value) {
@@ -996,40 +933,24 @@ export class HeroMancerUI {
 
   /**
    * Categorizes a trait grant into the appropriate proficiency category
-   * @param {string} grant The grant string to categorize
-   * @param {object} proficiencyData The proficiency data object
-   * @param {string} source The source of the proficiency
+   * @param {string} grant - The grant string (e.g. "saves:dex", "skills:acr")
+   * @param {object} proficiencyData - The proficiency data object to populate
+   * @param {string} source - The source document name
    * @private
    * @static
    */
   static #categorizeTraitGrant(grant, proficiencyData, source) {
-    if (grant.startsWith('saves:')) {
-      const ability = grant.split(':')[1];
-      const abilityConfig = CONFIG.DND5E.abilities[ability];
-      proficiencyData.savingThrows.add({ name: abilityConfig.label, source: source });
-    } else if (grant.startsWith('skills:')) {
-      const skill = grant.split(':')[1];
-      const skillConfig = CONFIG.DND5E.skills[skill];
-      proficiencyData.skills.add({ name: skillConfig.label, source: source });
-    } else if (grant.startsWith('languages:')) {
-      const langParts = grant.split(':');
-      const langType = langParts[1];
-      const langConfig = CONFIG.DND5E.languages[langType];
-      proficiencyData.languages.add({ name: langConfig.label, source: source });
-    } else if (grant.startsWith('armor:')) {
-      const armor = grant.split(':')[1];
-      const armorConfig = CONFIG.DND5E.armorProficiencies?.[armor] || CONFIG.DND5E.armorTypes?.[armor];
-      proficiencyData.armor.add({ name: armorConfig.label || armorConfig, source: source });
-    } else if (grant.startsWith('weapon:')) {
-      const weapon = grant.split(':')[1];
-      const weaponConfig = CONFIG.DND5E.weaponProficiencies?.[weapon] || CONFIG.DND5E.weaponTypes?.[weapon];
-      proficiencyData.weapons.add({ name: weaponConfig.label || weaponConfig, source: source });
-    } else if (grant.startsWith('tool:')) {
-      const toolParts = grant.split(':');
-      const toolType = toolParts[1];
-      const toolConfig = CONFIG.DND5E.toolProficiencies?.[toolType] || CONFIG.DND5E.toolIds?.[grant] || CONFIG.DND5E.toolTypes?.[toolType];
-      proficiencyData.tools.add({ name: toolConfig?.label || toolConfig, source: source });
-    }
+    const [prefix, key] = grant.split(':');
+    const map = {
+      saves: { set: 'savingThrows', config: CONFIG.DND5E.abilities[key] },
+      skills: { set: 'skills', config: CONFIG.DND5E.skills[key] },
+      languages: { set: 'languages', config: CONFIG.DND5E.languages[key] },
+      armor: { set: 'armor', config: CONFIG.DND5E.armorProficiencies?.[key] || CONFIG.DND5E.armorTypes?.[key] },
+      weapon: { set: 'weapons', config: CONFIG.DND5E.weaponProficiencies?.[key] || CONFIG.DND5E.weaponTypes?.[key] },
+      tool: { set: 'tools', config: CONFIG.DND5E.toolProficiencies?.[key] || CONFIG.DND5E.toolIds?.[grant] || CONFIG.DND5E.toolTypes?.[key] }
+    };
+    const entry = map[prefix];
+    if (entry?.config) proficiencyData[entry.set].add({ name: entry.config.label || entry.config, source });
   }
 
   /**
@@ -1048,8 +969,6 @@ export class HeroMancerUI {
     const section = document.querySelector(`.${type}-equipment-section`);
     if (!section) return [];
     const items = [];
-
-    // Checked linked-item checkboxes — UUID from data-uuid, name from the label's content-link
     for (const checkbox of section.querySelectorAll('input[type="checkbox"][data-linked-item]:checked')) {
       if (checkbox.closest('[hidden]')) continue;
       const uuid = checkbox.dataset.uuid;
@@ -1060,8 +979,6 @@ export class HeroMancerUI {
       const count = parseInt(checkbox.dataset.count) || 1;
       items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
     }
-
-    // Category selects (data-equipment-select) — skip selects inside hidden OR containers
     for (const select of section.querySelectorAll('select[data-equipment-select]')) {
       if (select.closest('[hidden]')) continue;
       const uuid = select.value;
@@ -1070,13 +987,9 @@ export class HeroMancerUI {
       const count = parseInt(select.dataset.count) || 1;
       items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
     }
-
-    // OR selects (data-or-select) — resolve selected child to items
     for (const select of section.querySelectorAll('select[data-or-select]')) {
       const selectedValue = select.value;
       const group = select.dataset.orGroup;
-
-      // Pattern A: single hidden input with data-or-child (e.g. Chain Mail, Dungeoneer's Pack)
       const hiddenInput = section.querySelector(`input[data-or-child="${selectedValue}"][data-or-parent="${group}"]:not([disabled])`);
       if (hiddenInput) {
         const uuid = hiddenInput.value || hiddenInput.dataset.uuid;
@@ -1087,8 +1000,6 @@ export class HeroMancerUI {
         }
         continue;
       }
-
-      // Pattern B: container div with data-or-child holding multiple linked items
       const container = section.querySelector(`div[data-or-child="${selectedValue}"][data-or-parent="${group}"]:not([hidden])`);
       if (!container) continue;
       for (const input of container.querySelectorAll('input[type="hidden"][data-linked-item]')) {
@@ -1099,16 +1010,12 @@ export class HeroMancerUI {
         const name = item?.name || 'Unknown Item';
         items.push({ uuid, name: count > 1 ? `${name} ×${count}` : name, source: type });
       }
-      // Category selects inside visible containers are handled by the loop above
     }
-
-    // Currency labels (bare labels without a for attribute inside equipment-entries)
     for (const label of section.querySelectorAll('.equipment-entries > label')) {
       if (label.closest('[hidden]')) continue;
       const text = label.textContent?.trim();
       if (text) items.push({ uuid: null, name: text, source: type, isCurrency: true });
     }
-
     return items;
   }
 
@@ -1130,10 +1037,12 @@ export class HeroMancerUI {
     const className = (await this.#getClassName()) || game.i18n.localize('TYPES.Item.class');
     const enrichItems = async (items) => {
       if (!items.length || items[0].isStartingWealth) return items;
-      return Promise.all(items.map(async (item) => {
-        if (item.isCurrency || !item.uuid) return { ...item, link: item.name };
-        return { ...item, link: await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) };
-      }));
+      return Promise.all(
+        items.map(async (item) => {
+          if (item.isCurrency || !item.uuid) return { ...item, link: item.name };
+          return { ...item, link: await foundry.applications.ux.TextEditor.implementation.enrichHTML(`@UUID[${item.uuid}]{${item.name}}`) };
+        })
+      );
     };
     container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/equipment-review.hbs', {
       elkanMode: false,
@@ -1168,31 +1077,34 @@ export class HeroMancerUI {
     return classItem?.name || '';
   }
 
+  /** @type {Object<string, string>} Maps biography data keys to form input element IDs */
+  static #BIO_FIELDS = {
+    alignment: 'alignment',
+    size: 'size',
+    gender: 'gender',
+    age: 'age',
+    weight: 'weight',
+    height: 'height',
+    eyes: 'eyes',
+    hair: 'hair',
+    skin: 'skin',
+    faith: 'faith',
+    personalityTraits: 'personality',
+    ideals: 'ideals',
+    bonds: 'bonds',
+    flaws: 'flaws',
+    physicalDescription: 'description',
+    backstory: 'backstory'
+  };
+
   /**
    * Collects biography data from form inputs
-   * @returns {object} Biography data
+   * @returns {object} Biography field values keyed by data name
    * @private
    * @static
    */
   static #collectBiographyData() {
-    return {
-      alignment: document.querySelector('#alignment')?.value || '',
-      size: document.querySelector('#size')?.value || '',
-      gender: document.querySelector('#gender')?.value || '',
-      age: document.querySelector('#age')?.value || '',
-      weight: document.querySelector('#weight')?.value || '',
-      height: document.querySelector('#height')?.value || '',
-      eyes: document.querySelector('#eyes')?.value || '',
-      hair: document.querySelector('#hair')?.value || '',
-      skin: document.querySelector('#skin')?.value || '',
-      faith: document.querySelector('#faith')?.value || '',
-      personalityTraits: document.querySelector('#personality')?.value || '',
-      ideals: document.querySelector('#ideals')?.value || '',
-      bonds: document.querySelector('#bonds')?.value || '',
-      flaws: document.querySelector('#flaws')?.value || '',
-      physicalDescription: document.querySelector('#description')?.value || '',
-      backstory: document.querySelector('#backstory')?.value || ''
-    };
+    return Object.fromEntries(Object.entries(this.#BIO_FIELDS).map(([key, id]) => [key, document.querySelector(`#${id}`)?.value || '']));
   }
 
   /**
@@ -1220,7 +1132,6 @@ export class HeroMancerUI {
       skinAdjective: skinAdjective,
       skin: bioData.skin || game.i18n.localize('hm.unknown')
     };
-
     const includeFaith = bioData.faith && bioData.faith !== game.i18n.localize('None');
     formatString = includeFaith ? 'hm.app.finalize.review.biography-format-with-faith' : formatString;
     if (includeFaith) formatData.faith = bioData.faith;

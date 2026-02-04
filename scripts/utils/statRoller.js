@@ -8,10 +8,6 @@ const { DialogV2 } = foundry.applications.api;
  * @class
  */
 export class StatRoller {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static chainRollEnabled = false;
 
   static isRolling = false;
@@ -21,10 +17,6 @@ export class StatRoller {
   static #abilityDropdownValues = new Map();
 
   static #lastHandledChanges = new Map();
-
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
 
   /**
    * Gets available roll methods with localized names
@@ -38,10 +30,6 @@ export class StatRoller {
     };
   }
 
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Initiates the stat rolling process
    * @param {HTMLElement} form - The form containing the ability score input
@@ -51,7 +39,6 @@ export class StatRoller {
    */
   static async rollAbilityScore(form) {
     if (this.isRolling) return;
-
     try {
       const rollData = this.#prepareRollData(form);
       if (!rollData) return;
@@ -590,10 +577,6 @@ export class StatRoller {
     this.refreshAbilityDropdownsState(abilityDropdowns, selectedValues);
   }
 
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
-
   /**
    * Shows the reroll confirmation dialog
    * @param {string} rollFormula - The formula to use for rolling
@@ -709,10 +692,6 @@ export class StatRoller {
     else await StatRoller.rollSingleAbilityScore(rollFormula, index, input);
   }
 
-  /* -------------------------------------------- */
-  /*  Ability UI Methods                          */
-  /* -------------------------------------------- */
-
   /**
    * Updates the display of remaining points in the abilities tab
    * @param {number} remainingPoints - The number of points remaining to spend
@@ -796,7 +775,6 @@ export class StatRoller {
       const inputElement = document.getElementById(`ability-${index}-input`);
       if (inputElement && inputElement.value !== String(currentScore)) updates.push(() => (inputElement.value = currentScore));
     });
-
     if (updates.length) requestAnimationFrame(() => updates.forEach((update) => update()));
   }
 

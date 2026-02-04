@@ -7,15 +7,7 @@ import { log } from './logger.mjs';
  * @class
  */
 export class ActorCreationService {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static ADVANCEMENT_DELAY = { transitionDelay: 300, renderTimeout: 3000, retryAttempts: 3 };
-
-  /* -------------------------------------------- */
-  /*  Public Methods                              */
-  /* -------------------------------------------- */
 
   /**
    * Main handler for character creation
@@ -29,21 +21,14 @@ export class ActorCreationService {
     if (!canCreateActor) return await this.#submitForApproval(event, formData);
     const targetUser = this.#determineTargetUser(formData);
     log(3, `Starting character creation for ${targetUser.name} (GM: ${game.user.isGM})`);
-    ui.notifications.clear();
-
-    try {
-      if (!this.#validateMandatoryFields(formData.object)) return;
-      const { useClassWealth, useBackgroundWealth, startingWealth } = await this.#processWealthOptions(formData.object);
-      const equipmentSelections = await this.#collectEquipment(event, useClassWealth, useBackgroundWealth);
-      const characterData = this.#extractCharacterData(formData.object);
-      if (!this.#validateCharacterData(characterData)) return;
-      const actor = await this.#createAndSetupActor(formData.object, characterData, targetUser);
-      await this.#processItemsAndAdvancements(actor, characterData, equipmentSelections, event, startingWealth);
-      return actor;
-    } catch (error) {
-      log(1, 'Error in character creation:', error);
-      ui.notifications.error('hm.errors.form-submission', { localize: true });
-    }
+    if (!this.#validateMandatoryFields(formData.object)) return;
+    const { useClassWealth, useBackgroundWealth, startingWealth } = await this.#processWealthOptions(formData.object);
+    const equipmentSelections = await this.#collectEquipment(event, useClassWealth, useBackgroundWealth);
+    const characterData = this.#extractCharacterData(formData.object);
+    if (!this.#validateCharacterData(characterData)) return;
+    const actor = await this.#createAndSetupActor(formData.object, characterData, targetUser);
+    await this.#processItemsAndAdvancements(actor, characterData, equipmentSelections, event, startingWealth);
+    return actor;
   }
 
   /**
@@ -56,17 +41,10 @@ export class ActorCreationService {
   static async createCharacterForPlayer(characterData, targetUser) {
     if (!game.user.isGM) return;
     const formData = characterData.formData || {};
-    ui.notifications.clear();
-
-    try {
-      if (!this.#validateMandatoryFields(formData)) return;
-      const extractedCharacterData = this.#extractCharacterData(formData);
-      if (!this.#validateCharacterData(extractedCharacterData)) return;
-      return await this.#createActorDocumentForPlayer(formData, extractedCharacterData.abilities, targetUser);
-    } catch (error) {
-      log(1, 'Error creating actor for player:', error);
-      ui.notifications.error('hm.errors.form-submission', { localize: true });
-    }
+    if (!this.#validateMandatoryFields(formData)) return;
+    const extractedCharacterData = this.#extractCharacterData(formData);
+    if (!this.#validateCharacterData(extractedCharacterData)) return;
+    return await this.#createActorDocumentForPlayer(formData, extractedCharacterData.abilities, targetUser);
   }
 
   /**
@@ -78,28 +56,18 @@ export class ActorCreationService {
    */
   static async continueCharacterCreation(actorId, characterData) {
     log(3, `Continuing creation with advancements for actor ${actorId}`);
-    ui.notifications.clear();
     const actor = game.actors.get(actorId);
-    if (!actor) {
-      ui.notifications.error('hm.errors.actor-not-found', { localize: true, permanent: true });
-      return;
-    }
-
+    if (!actor) return;
     const formData = characterData.formData || {};
-    try {
-      const { startingWealth } = await this.#processWealthOptions(formData);
-      const extractedCharacterData = this.#extractCharacterData(formData);
-      const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(extractedCharacterData.backgroundData, extractedCharacterData.raceData, extractedCharacterData.classData);
-      if (!backgroundItem || !raceItem || !classItem) return;
-      const expectedItems = { background: { name: backgroundItem.name, type: 'background' }, race: { name: raceItem.name, type: 'race' }, class: { name: classItem.name, type: 'class' } };
-      if (startingWealth) await this.#updateActorCurrency(actor, startingWealth);
-      const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
-      await this.#processAdvancements(orderedItems, actor, expectedItems);
-      return actor;
-    } catch (error) {
-      log(1, 'Error continuing character creation:', error);
-      ui.notifications.error('hm.errors.form-submission', { localize: true });
-    }
+    const { startingWealth } = await this.#processWealthOptions(formData);
+    const extractedCharacterData = this.#extractCharacterData(formData);
+    const { backgroundItem, raceItem, classItem } = await this.#fetchCompendiumItems(extractedCharacterData.backgroundData, extractedCharacterData.raceData, extractedCharacterData.classData);
+    if (!backgroundItem || !raceItem || !classItem) return;
+    const expectedItems = { background: { name: backgroundItem.name, type: 'background' }, race: { name: raceItem.name, type: 'race' }, class: { name: classItem.name, type: 'class' } };
+    if (startingWealth) await this.#updateActorCurrency(actor, startingWealth);
+    const orderedItems = this.#getOrderedAdvancementItems(backgroundItem, raceItem, classItem);
+    await this.#processAdvancements(orderedItems, actor, expectedItems);
+    return actor;
   }
 
   /**
@@ -115,7 +83,6 @@ export class ActorCreationService {
       ui.notifications.warn('hm.errors.mandatory-fields-incomplete', { localize: true });
       return;
     }
-
     const characterData = this.#extractCharacterData(formData.object);
     if (!this.#validateCharacterData(characterData)) return;
     await SavedOptions.saveOptions(formData.object);
@@ -142,10 +109,6 @@ export class ActorCreationService {
     await targetUser.update({ character: actor.id });
     return actor;
   }
-
-  /* -------------------------------------------- */
-  /*  Character Creation Data Processing          */
-  /* -------------------------------------------- */
 
   /**
    * Determines the target user for the character
@@ -229,22 +192,12 @@ export class ActorCreationService {
    * @static
    */
   static #getOrderedAdvancementItems(backgroundItem, raceItem, classItem) {
-    const orderConfig = game.settings.get(MODULE.ID, 'advancementOrder') || [
-      { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
-      { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
-      { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
-    ];
+    const orderConfig = game.settings.get(MODULE.ID, 'advancementOrder');
     const itemMap = { background: backgroundItem, race: raceItem, class: classItem };
-    const ordered = orderConfig
-      .filter((config) => itemMap[config.id])
-      .sort((a, b) => a.order - b.order);
+    const ordered = orderConfig.filter((config) => itemMap[config.id]).sort((a, b) => a.order - b.order);
     log(3, `Advancement order resolved as [${ordered.map((c) => c.id).join(', ')}]`);
     return ordered.map((config) => itemMap[config.id]);
   }
-
-  /* -------------------------------------------- */
-  /*  Field Validation                            */
-  /* -------------------------------------------- */
 
   /**
    * Validates that all mandatory fields are filled in
@@ -279,16 +232,13 @@ export class ActorCreationService {
    * @static
    */
   static #validateRequiredSelections(backgroundData, raceData, classData) {
-    if (!backgroundData?.uuid) {
-      ui.notifications.error('hm.errors.select-background', { localize: true });
-      return false;
-    }
-    if (!raceData?.uuid) {
-      ui.notifications.error('hm.errors.select-race', { localize: true });
-      return false;
-    }
-    if (!classData?.uuid) {
-      ui.notifications.error('hm.errors.select-class', { localize: true });
+    const missing = [
+      [backgroundData, 'background'],
+      [raceData, 'race'],
+      [classData, 'class']
+    ].find(([data]) => !data?.uuid);
+    if (missing) {
+      ui.notifications.error(game.i18n.format('hm.errors.select-required', { type: missing[1] }));
       return false;
     }
     return true;
@@ -305,7 +255,6 @@ export class ActorCreationService {
   static #validateRequiredItems(actor, expectedItems) {
     const validation = { success: true, errors: [], warnings: [] };
     const actorItems = actor.items;
-
     for (const [type, expected] of Object.entries(expectedItems)) {
       const items = actorItems.filter((item) => item.type === type);
       if (items.length === 0) {
@@ -317,13 +266,8 @@ export class ActorCreationService {
         validation.warnings.push(game.i18n.format('hm.validation.item-mismatch', { type: game.i18n.localize(`hm.app.tab-names.${type}`), expected: expected.name, actual: items[0].name }));
       }
     }
-
     return validation;
   }
-
-  /* -------------------------------------------- */
-  /*  Wealth & Equipment Handling                 */
-  /* -------------------------------------------- */
 
   /**
    * Processes starting wealth options from form data
@@ -366,13 +310,8 @@ export class ActorCreationService {
    */
   static async #processEquipmentAndFavorites(actor, equipment, _event, startingWealth) {
     log(3, `Processing ${equipment.length} equipment items, startingWealth: ${!!startingWealth}`);
-    try {
-      await this.#createEquipmentItems(actor, equipment);
-      if (startingWealth) await this.#updateActorCurrency(actor, startingWealth);
-    } catch (error) {
-      log(1, 'Error processing equipment:', error);
-      ui.notifications.warn('hm.warnings.equipment-processing-failed', { localize: true });
-    }
+    await this.#createEquipmentItems(actor, equipment);
+    if (startingWealth) await this.#updateActorCurrency(actor, startingWealth);
   }
 
   /**
@@ -397,14 +336,7 @@ export class ActorCreationService {
         return item;
       })
     );
-
-    try {
-      return await actor.createEmbeddedDocuments('Item', fullyLoadedEquipment, { keepId: true });
-    } catch (error) {
-      log(1, 'Failed to create equipment items:', error);
-      ui.notifications.warn('hm.warnings.equipment-creation-failed', { localize: true });
-      return [];
-    }
+    return await actor.createEmbeddedDocuments('Item', fullyLoadedEquipment, { keepId: true });
   }
 
   /**
@@ -418,10 +350,6 @@ export class ActorCreationService {
   static async #updateActorCurrency(actor, currencyData) {
     await actor.update({ system: { currency: currencyData } });
   }
-
-  /* -------------------------------------------- */
-  /*  Data Extraction & Parsing                   */
-  /* -------------------------------------------- */
 
   /**
    * Extracts item IDs, pack IDs, and UUIDs from form selections
@@ -467,10 +395,6 @@ export class ActorCreationService {
     }
     return abilities;
   }
-
-  /* -------------------------------------------- */
-  /*  Actor Document Creation                     */
-  /* -------------------------------------------- */
 
   /**
    * Creates the initial actor document with basic character data
@@ -546,10 +470,6 @@ export class ActorCreationService {
     };
   }
 
-  /* -------------------------------------------- */
-  /*  Token Configuration                         */
-  /* -------------------------------------------- */
-
   /**
    * Transforms form data into a token configuration object
    * @param {object} formData - Form data containing token settings
@@ -615,10 +535,6 @@ export class ActorCreationService {
     return effects;
   }
 
-  /* -------------------------------------------- */
-  /*  Compendium Item Handling                    */
-  /* -------------------------------------------- */
-
   /**
    * Fetches required compendium items for character creation
    * @param {object} backgroundData - Background selection data
@@ -629,33 +545,20 @@ export class ActorCreationService {
    * @static
    */
   static async #fetchCompendiumItems(backgroundData, raceData, classData) {
-    try {
-      const backgroundItem = await game.packs.get(backgroundData.packId)?.getDocument(backgroundData.itemId);
-      const raceItem = await game.packs.get(raceData.packId)?.getDocument(raceData.itemId);
-      const classItem = await game.packs.get(classData.packId)?.getDocument(classData.itemId);
-      if (!backgroundItem) {
-        ui.notifications.error('hm.errors.no-background', { localize: true, permanent: true });
-        return {};
-      }
-      if (!raceItem) {
-        ui.notifications.error('hm.errors.no-race', { localize: true, permanent: true });
-        return {};
-      }
-      if (!classItem) {
-        ui.notifications.error('hm.errors.no-class', { localize: true, permanent: true });
-        return {};
-      }
-      return { backgroundItem, raceItem, classItem };
-    } catch (error) {
-      log(1, 'Error fetching compendium items:', error);
-      ui.notifications.error('hm.errors.fetch-fail', { localize: true, permanent: true });
+    const backgroundItem = await game.packs.get(backgroundData.packId)?.getDocument(backgroundData.itemId);
+    const raceItem = await game.packs.get(raceData.packId)?.getDocument(raceData.itemId);
+    const classItem = await game.packs.get(classData.packId)?.getDocument(classData.itemId);
+    const missing = [
+      [backgroundItem, 'background'],
+      [raceItem, 'race'],
+      [classItem, 'class']
+    ].find(([item]) => !item);
+    if (missing) {
+      ui.notifications.error(game.i18n.format('hm.errors.item-not-found', { type: missing[1] }), { permanent: true });
       return {};
     }
+    return { backgroundItem, raceItem, classItem };
   }
-
-  /* -------------------------------------------- */
-  /*  Advancement Processing                      */
-  /* -------------------------------------------- */
 
   /**
    * Processes character advancement for class, race, and background
@@ -671,7 +574,7 @@ export class ActorCreationService {
     const { itemsWithAdvancements, itemsWithoutAdvancements } = this.#categorizeItemsByAdvancements(items);
     if (itemsWithAdvancements.length) await this.#runAdvancementManagers(itemsWithAdvancements, actor, expectedItems);
     if (itemsWithoutAdvancements.length) await this.#addItemsWithoutAdvancements(actor, itemsWithoutAdvancements);
-    await this.#createCharacterSummary(actor);
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker(), content: SummaryMessage.generate(actor), flags: { 'hero-mancer': { type: 'character-summary' } } });
   }
 
   /**
@@ -710,17 +613,6 @@ export class ActorCreationService {
   }
 
   /**
-   * Creates character summary chat message
-   * @param {object} actor - Current actor data to derive chat details from
-   * @returns {Promise<void>}
-   * @private
-   * @static
-   */
-  static async #createCharacterSummary(actor) {
-    await ChatMessage.create({ speaker: ChatMessage.getSpeaker(), content: SummaryMessage.generate(actor), flags: { 'hero-mancer': { type: 'character-summary' } } });
-  }
-
-  /**
    * Runs advancement managers for items with advancements
    * @param {Array<object>} items - Items with advancements
    * @param {object} actor - Actor to apply advancements to
@@ -737,30 +629,23 @@ export class ActorCreationService {
     try {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        try {
-          log(3, `Running advancement ${i + 1}/${items.length} for "${item.name}"`);
-          currentManager = await this.#createAdvancementManager(actor, item);
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-              reject(new Error(`Advancement for ${item.name} timed out`));
-            }, this.ADVANCEMENT_DELAY.renderTimeout * 300);
-            Hooks.once('dnd5e.advancementManagerComplete', async () => {
-              clearTimeout(timeout);
-              await new Promise((resolve) => setTimeout(resolve, this.ADVANCEMENT_DELAY.transitionDelay));
-              currentManager = null;
-              results.success.push(item.name);
-              resolve();
-            });
-            currentManager.render(true);
+        log(3, `Running advancement ${i + 1}/${items.length} for "${item.name}"`);
+        currentManager = await this.#createAdvancementManager(actor, item);
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error(`Advancement for ${item.name} timed out`));
+          }, this.ADVANCEMENT_DELAY.renderTimeout * 300);
+          Hooks.once('dnd5e.advancementManagerComplete', async () => {
+            clearTimeout(timeout);
+            await new Promise((resolve) => setTimeout(resolve, this.ADVANCEMENT_DELAY.transitionDelay));
+            currentManager = null;
+            results.success.push(item.name);
+            resolve();
           });
-        } catch (error) {
-          results.failure.push(item.name);
-          log(1, `Error processing advancements for ${item.name}:`, error);
-          continue;
-        }
+          currentManager.render(true);
+        });
       }
-
-      this.#reportAdvancementResults(results, actor);
+      await this.#reportAdvancementResults(results, actor);
       const validation = this.#validateRequiredItems(actor, expectedItems);
       if (!validation.success) ui.notifications.error(validation.errors.join('\n'), { permanent: true });
       if (validation.warnings.length > 0) ui.notifications.warn(validation.warnings.join('\n'));
@@ -777,10 +662,10 @@ export class ActorCreationService {
    * @private
    * @static
    */
-  static #reportAdvancementResults(results, actor) {
+  static async #reportAdvancementResults(results, actor) {
     if (results.failure.length === 0) ui.notifications.info('hm.info.all-advancements-complete', { localize: true });
     else ui.notifications.warn(game.i18n.format('hm.warnings.some-advancements-failed', { failed: results.failure.join(', '), succeeded: results.success.join(', ') }));
-    if (HM.COMPAT.CPR) this.#applyCPREffects(actor);
+    if (HM.COMPAT.CPR) await chrisPremades.utils.actorUtils.updateAll(actor);
   }
 
   /**
@@ -815,26 +700,6 @@ export class ActorCreationService {
   }
 
   /**
-   * Applies CPR effects to the actor if compatibility is enabled
-   * @param {object} actor - The actor to apply automations to
-   * @returns {Promise<void>}
-   * @private
-   * @static
-   */
-  static async #applyCPREffects(actor) {
-    if (!actor) return;
-    try {
-      await chrisPremades.utils.actorUtils.updateAll(actor);
-    } catch (error) {
-      log(1, 'Error applying CPR effects:', error);
-    }
-  }
-
-  /* -------------------------------------------- */
-  /*  User & Ownership Management                 */
-  /* -------------------------------------------- */
-
-  /**
    * Assigns the character to the appropriate user
    * @param {object} actor - The created actor
    * @param {object} targetUser - The target user
@@ -844,11 +709,8 @@ export class ActorCreationService {
    * @static
    */
   static async #assignCharacterToUser(actor, targetUser, formData) {
-    if (game.user.isGM && formData.player && formData.player !== game.user.id) {
-      await game.users.get(formData.player).update({ character: actor.id });
-    } else {
-      await targetUser.update({ character: actor.id });
-    }
+    if (game.user.isGM && formData.player && formData.player !== game.user.id) await game.users.get(formData.player).update({ character: actor.id });
+    else await targetUser.update({ character: actor.id });
   }
 
   /**

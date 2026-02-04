@@ -71,11 +71,7 @@ export class TableManager {
       const loadPromises = matches.map((match) => this.#loadSingleTable(match, foundTableTypes));
       const tables = await Promise.all(loadPromises);
       const validTables = tables.filter((table) => table !== null);
-
-      if (validTables.length) {
-        await this.#resetTablesInParallel(validTables);
-      }
-
+      if (validTables.length) await this.#resetTablesInParallel(validTables);
       return { tables: validTables, foundTableTypes };
     } catch (error) {
       log(1, 'Error in table loading process:', error);
@@ -96,12 +92,9 @@ export class TableManager {
       const uuid = `Compendium.${match[1]}.${match[2]}.RollTable.${match[3]}`;
       const table = await fromUuid(uuid);
       if (!table) return null;
-
       const tableName = table.name.toLowerCase();
       this.tableTypes.forEach((type) => {
-        if (tableName.includes(type.toLowerCase()) || (type === 'Personality Traits' && tableName.includes('personality'))) {
-          foundTableTypes.add(type);
-        }
+        if (tableName.includes(type.toLowerCase()) || (type === 'Personality Traits' && tableName.includes('personality'))) foundTableTypes.add(type);
       });
 
       return table;
@@ -133,11 +126,7 @@ export class TableManager {
         }
       }
       const resetPromises = tables.map(async (table) => {
-        try {
-          await table.resetResults();
-        } catch (error) {
-          log(1, `Error resetting table ${table.id}:`, error);
-        }
+        await table.resetResults();
       });
       await Promise.all(resetPromises);
     } catch (error) {
@@ -147,9 +136,7 @@ export class TableManager {
         for (const [packId, wasLocked] of lockedPacks) {
           if (wasLocked) {
             const pack = game.packs.get(packId);
-            if (pack && !pack.locked) {
-              await pack.configure({ locked: true });
-            }
+            if (pack && !pack.locked) await pack.configure({ locked: true });
           }
         }
       } catch (lockError) {
@@ -200,16 +187,12 @@ export class TableManager {
    */
   static async rollOnBackgroundCharacteristicTable(backgroundId, characteristicType) {
     if (!backgroundId || !characteristicType) return null;
-
     const tables = this.currentTables.get(backgroundId);
     if (!tables || !tables.length) return null;
-
     const matchingTable = this.#findMatchingTable(tables, characteristicType);
     if (!matchingTable.table) return null;
-
     const availableResults = this.#getAvailableTableResults(matchingTable.table);
     if (availableResults.length === 0) return null;
-
     return this.#drawFromTable(matchingTable.table);
   }
 
@@ -253,35 +236,20 @@ export class TableManager {
   static async #drawFromTable(table) {
     let wasLocked = false;
     const pack = table.pack ? game.packs.get(table.pack) : null;
-
     try {
       if (pack?.locked) {
         wasLocked = true;
         await pack.configure({ locked: false });
       }
-
       const result = await table.draw({ displayChat: false });
       if (!result.results || !result.results.length) return null;
-
-      await table.updateEmbeddedDocuments('TableResult', [
-        {
-          _id: result.results[0].id,
-          drawn: true
-        }
-      ]);
-
+      await table.updateEmbeddedDocuments('TableResult', [{ _id: result.results[0].id, drawn: true }]);
       return result.results[0]?.description || null;
     } catch (error) {
       log(1, `Error drawing from table ${table.name}:`, error);
       return null;
     } finally {
-      if (wasLocked && pack && !pack.locked) {
-        try {
-          await pack.configure({ locked: true });
-        } catch (lockError) {
-          log(1, 'Error re-locking pack:', lockError);
-        }
-      }
+      if (wasLocked && pack && !pack.locked) await pack.configure({ locked: true });
     }
   }
 
@@ -294,13 +262,10 @@ export class TableManager {
    */
   static areAllTableResultsDrawn(backgroundId, characteristicType) {
     if (!backgroundId || !characteristicType) return true;
-
     const tables = this.currentTables.get(backgroundId);
     if (!tables || !tables.length) return true;
-
     const matchingTable = this.#findMatchingTable(tables, characteristicType);
     if (!matchingTable.table) return true;
-
     const availableResults = this.#getAvailableTableResults(matchingTable.table);
     return availableResults.length === 0;
   }

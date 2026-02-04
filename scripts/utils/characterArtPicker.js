@@ -6,10 +6,6 @@ import { log } from './logger.mjs';
  * @class
  */
 export class CharacterArtPicker {
-  /* -------------------------------------------- */
-  /*  Static Getters & Setters                    */
-  /* -------------------------------------------- */
-
   /**
    * Gets the root directory for art selection
    * @returns {string} The configured root directory path
@@ -29,25 +25,18 @@ export class CharacterArtPicker {
     game.settings.set(MODULE.ID, 'artPickerRoot', path);
   }
 
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Opens a file picker to select character portrait art
    * @param {Event} event - The triggering event
    * @param {HTMLElement} _target - The element that triggered the event
+   * @returns {boolean|void} Result of Tokenizer handling, if applicable
    * @static
    */
   static selectCharacterArt(event, _target) {
-    if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) {
-      return CharacterArtPicker.handleTokenizer(event, 'character');
-    }
-
+    if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) return CharacterArtPicker.handleTokenizer(event, 'character');
     const rootDir = CharacterArtPicker.rootDirectory;
     const inputField = document.getElementById('character-art-path');
     if (!inputField) return;
-
     const pickerConfig = {
       type: 'image',
       current: inputField.value || rootDir,
@@ -64,7 +53,6 @@ export class CharacterArtPicker {
         }
       }
     };
-
     new foundry.applications.apps.FilePicker.implementation(pickerConfig).render(true);
   }
 
@@ -72,17 +60,14 @@ export class CharacterArtPicker {
    * Opens a file picker to select token art
    * @param {Event} event - The triggering event
    * @param {HTMLElement} _target - The element that triggered the event
+   * @returns {boolean|void} Result of Tokenizer handling, if applicable
    * @static
    */
   static selectTokenArt(event, _target) {
-    if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) {
-      return CharacterArtPicker.handleTokenizer(event, 'token');
-    }
-
+    if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) return CharacterArtPicker.handleTokenizer(event, 'token');
     const rootDir = CharacterArtPicker.rootDirectory;
     const inputField = document.getElementById('token-art-path');
     if (!inputField) return;
-
     const pickerConfig = {
       type: 'image',
       current: inputField.value || rootDir,
@@ -92,7 +77,6 @@ export class CharacterArtPicker {
         inputField.dispatchEvent(new Event('change', { bubbles: true }));
       }
     };
-
     new foundry.applications.apps.FilePicker.implementation(pickerConfig).render(true);
   }
 
@@ -106,7 +90,6 @@ export class CharacterArtPicker {
     const rootDir = CharacterArtPicker.rootDirectory;
     const inputField = document.getElementById('player-avatar-path');
     if (!inputField) return;
-
     const pickerConfig = {
       type: 'image',
       current: inputField.value || rootDir,
@@ -116,7 +99,6 @@ export class CharacterArtPicker {
         inputField.dispatchEvent(new Event('change', { bubbles: true }));
       }
     };
-
     new foundry.applications.apps.FilePicker.implementation(pickerConfig).render(true);
   }
 
@@ -131,14 +113,12 @@ export class CharacterArtPicker {
     event.preventDefault();
     const inputField = document.getElementById(`${type}-art-path`);
     if (!inputField) return false;
-
     const characterName = document.getElementById('character-name')?.value || game.user.name;
     const tokenizer = game.modules.get('vtta-tokenizer')?.api || window.Tokenizer;
     if (!tokenizer) {
       log(1, 'Tokenizer API not found');
       return false;
     }
-
     tokenizer.launch({ name: characterName, type: 'pc' }, (response) => {
       if (type === 'character' && response.avatarFilename) {
         inputField.value = response.avatarFilename;
@@ -155,7 +135,6 @@ export class CharacterArtPicker {
         inputField.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
-
     return true;
   }
 }

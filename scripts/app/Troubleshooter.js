@@ -4,22 +4,12 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /** Troubleshooter settings application. */
 export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-troubleshooter',
     classes: ['hm-troubleshooter'],
-    position: {
-      width: 750,
-      height: 'auto'
-    },
-    window: {
-      icon: 'fa-solid fa-bug',
-      resizable: false
-    },
+    position: { width: 750, height: 'auto' },
+    window: { icon: 'fa-solid fa-bug', resizable: false },
     tag: 'div',
     actions: {
       exportReport: Troubleshooter._onExportReport,
@@ -30,37 +20,18 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   /** @override */
-  static PARTS = {
-    main: {
-      template: 'modules/hero-mancer/templates/settings/troubleshooter.hbs',
-      classes: ['hm-troubleshooter-content']
-    }
-  };
+  static PARTS = { main: { template: 'modules/hero-mancer/templates/settings/troubleshooter.hbs', classes: ['hm-troubleshooter-content'] } };
 
-  /** @returns {string} Window title */
+  /** @override */
   get title() {
     return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.troubleshooter.title')}`;
   }
 
-  /* -------------------------------------------- */
-  /*  Instance Methods                            */
-  /* -------------------------------------------- */
-
-  /**
-   * Prepares context data for the troubleshooter application
-   * @param {object} options - Application render options
-   * @returns {Promise<object>} Context data for template rendering
-   * @protected
-   * @override
-   */
+  /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     return { ...context, output: Troubleshooter.generateTextReport() };
   }
-
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
 
   /**
    * Generates a text-based troubleshooting report
@@ -75,13 +46,11 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       addLine(`/////////////// ${text} ///////////////`);
       addLine('');
     };
-
     this._addGameInformation(addLine, addHeader);
     this._addModuleInformation(addLine, addHeader);
     this._addHeroMancerSettings(addLine, addHeader);
     this._addCompendiumConfiguration(addLine, addHeader);
     this._addMancerFormData(addLine, addHeader);
-
     return reportLines.join('\n');
   }
 
@@ -144,10 +113,6 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     window.open('https://github.com/Sayshal/hero-mancer/issues');
   }
 
-  /* -------------------------------------------- */
-  /*  Report Section Generators                   */
-  /* -------------------------------------------- */
-
   /**
    * Adds game information to the report
    * @param {Function} addLine - Function to add a line to the report
@@ -175,11 +140,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     const enabledModules = this.getEnabledModules()
       .map((module) => `${module.title}: ${module.version}`)
       .sort();
-    if (enabledModules.length) {
-      enabledModules.forEach((text) => addLine(text));
-    } else {
-      addLine('No active modules found');
-    }
+    if (enabledModules.length) enabledModules.forEach((text) => addLine(text));
+    else addLine('No active modules found');
   }
 
   /**
@@ -235,7 +197,6 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   static _addMancerFormData(addLine, addHeader) {
     const mancerData = this.collectMancerFormData();
     if (!mancerData || !Object.keys(mancerData).length) return;
-
     addHeader('Hero Mancer Form Data');
     const formatMancerData = (data, prefix = '') => {
       for (const [key, value] of Object.entries(data)) {
@@ -251,10 +212,6 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     formatMancerData(mancerData);
   }
-
-  /* -------------------------------------------- */
-  /*  Static Utility Methods                      */
-  /* -------------------------------------------- */
 
   /**
    * Gets a list of all enabled modules
@@ -276,15 +233,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static collectSettings() {
     const settings = {};
-    for (const [, setting] of game.settings.settings.entries()) {
-      if (setting.namespace === MODULE.ID) {
-        try {
-          settings[setting.key] = game.settings.get(MODULE.ID, setting.key);
-        } catch (error) {
-          settings[setting.key] = `[Error: ${error.message}]`;
-        }
-      }
-    }
+    for (const [, setting] of game.settings.settings.entries()) if (setting.namespace === MODULE.ID) settings[setting.key] = game.settings.get(MODULE.ID, setting.key);
     return settings;
   }
 
@@ -296,10 +245,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   static collectMancerFormData() {
     const mancerApp = document.getElementById('hero-mancer-app');
     if (!mancerApp) return null;
-
     const formElements = mancerApp.querySelectorAll('[name]');
     if (!formElements.length) return null;
-
     const formData = {};
     const processName = (name, value) => {
       const match = name.match(/^([^[]+)\[([^\]]+)]$/);
@@ -311,11 +258,9 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         formData[name] = value;
       }
     };
-
     formElements.forEach((element) => {
       const name = element.getAttribute('name');
       if (!name) return;
-
       let value;
       if (element.type === 'checkbox') {
         value = element.checked;
@@ -332,10 +277,8 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       } else {
         value = element.value;
       }
-
       processName(name, value);
     });
-
     return formData;
   }
 
@@ -350,9 +293,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       const packs = game.settings.get(MODULE.ID, `${type}Packs`) || [];
       compendiums[type] = packs.map((packId) => {
         const pack = game.packs.get(packId);
-        return pack
-          ? { id: packId, name: pack.metadata.label, system: pack.metadata.system, packageName: pack.metadata.packageName }
-          : { id: packId, error: 'Pack not found' };
+        return pack ? { id: packId, name: pack.metadata.label, system: pack.metadata.system, packageName: pack.metadata.packageName } : { id: packId, error: 'Pack not found' };
       });
     }
     return compendiums;

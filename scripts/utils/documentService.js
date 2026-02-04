@@ -74,19 +74,19 @@ export class DocumentService {
         this.#fetchTypeDocumentsFromCompendiums('background')
       ]);
       if (raceResults.status === 'fulfilled') {
-        HM.documents.race = this.#organizeDocumentsByTopLevelFolder(raceResults.value.documents, 'race');
+        HM.documents.race = this.#organizeDocumentsByTopLevelFolder(raceResults.value.documents);
       } else {
         log(1, 'Failed to load race documents:', raceResults.reason);
         HM.documents.race = [];
       }
       if (classResults.status === 'fulfilled') {
-        HM.documents.class = this.#organizeDocumentsByTopLevelFolder(classResults.value.documents, 'class');
+        HM.documents.class = this.#organizeDocumentsByTopLevelFolder(classResults.value.documents);
       } else {
         log(1, 'Failed to load class documents:', classResults.reason);
         HM.documents.class = [];
       }
       if (backgroundResults.status === 'fulfilled') {
-        HM.documents.background = this.#organizeDocumentsByTopLevelFolder(backgroundResults.value.documents, 'background');
+        HM.documents.background = this.#organizeDocumentsByTopLevelFolder(backgroundResults.value.documents);
       } else {
         log(1, 'Failed to load background documents:', backgroundResults.reason);
         HM.documents.background = [];
@@ -125,10 +125,6 @@ export class DocumentService {
     }
   }
 
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
-
   /**
    * Gets flat list of documents with minimal processing
    * @param {Array} documents - Documents to process
@@ -159,7 +155,7 @@ export class DocumentService {
    * @private
    */
   static #organizeRacesByFolderName(documents) {
-    return this.#organizeDocumentsByTopLevelFolder(documents, 'race');
+    return this.#organizeDocumentsByTopLevelFolder(documents);
   }
 
   /**
@@ -194,20 +190,13 @@ export class DocumentService {
       const invalidPackIds = [];
       for (const packId of selectedPacks) {
         const pack = game.packs.get(packId);
-        if (pack && pack.metadata.type === 'Item') {
-          validPacks.push(pack);
-        } else {
-          invalidPackIds.push(packId);
-        }
+        if (pack && pack.metadata.type === 'Item') validPacks.push(pack);
+        else invalidPackIds.push(packId);
       }
       if (invalidPackIds.length > 0) {
         const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
         log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
-        try {
-          game.settings.set(MODULE.ID, `${type}Packs`, updatedPacks);
-        } catch (e) {
-          log(1, `Failed to update ${type}Packs setting: ${e.message}`);
-        }
+        game.settings.set(MODULE.ID, `${type}Packs`, updatedPacks);
       }
       if (validPacks.length > 0) return validPacks;
     }
@@ -415,11 +404,10 @@ export class DocumentService {
   /**
    * Organizes documents into groups based on pack top-level folder
    * @param {Array} documents - Documents (or index entries) to organize
-   * @param {string} documentType - Type of documents being organized
    * @returns {Array} Grouped documents
    * @private
    */
-  static #organizeDocumentsByTopLevelFolder(documents, documentType) {
+  static #organizeDocumentsByTopLevelFolder(documents) {
     if (!documents?.length) return [];
     const organizationGroups = new Map();
     for (const docData of documents) {

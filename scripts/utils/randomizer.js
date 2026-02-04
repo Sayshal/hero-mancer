@@ -4,9 +4,7 @@ import { FormValidation, HeroMancer, HeroMancerUI, MODULE, StatRoller } from './
  * Combined class for character randomization and name generation
  */
 export class CharacterRandomizer {
-  // Flag to prevent duplicate operations
   static #isRandomizing = false;
-
   static #nameSymbols = {
     s: [
       'ach',
@@ -370,7 +368,6 @@ export class CharacterRandomizer {
       'uzz'
     ]
   };
-
   static #namePatterns = ['BsV', 'BVs', 'CVcs', 'CVsC', 'VcCV', 'BsVc', 'BVsc', 'BVcv', 'BsVCs', 'CVCVs', 'BVCVs'];
 
   /**
@@ -596,7 +593,6 @@ export class CharacterRandomizer {
   static #randomizeFaith(form) {
     const faithElement = form.querySelector('select[name="faith"], input[name="faith"]');
     if (!faithElement) return false;
-
     if (faithElement.tagName.toLowerCase() === 'select') {
       const options = Array.from(faithElement.options).filter((opt) => !opt.disabled && opt.value);
       if (!options.length) return false;
@@ -890,13 +886,7 @@ export class CharacterRandomizer {
       console.error('Error during manual formula randomization:', error);
       return false;
     } finally {
-      if (originalDiceConfiguration) {
-        try {
-          game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
-        } catch (restoreError) {
-          console.error('Failed to restore dice configuration:', restoreError);
-        }
-      }
+      if (originalDiceConfiguration) game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
     }
   }
 

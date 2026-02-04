@@ -7,10 +7,6 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  * @extends ApplicationV2
  */
 export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static selectedAbilities = [];
 
   static ORIGINAL_PLAYER_COLORS = new Map();
@@ -74,39 +70,20 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     footer: { template: 'modules/hero-mancer/templates/app-footer.hbs', classes: ['hm-app-footer'] }
   };
 
-  /* -------------------------------------------- */
-  /*  Instance Properties                         */
-  /* -------------------------------------------- */
-
   #isRendering;
 
-  /**
-   * Application window title
-   * @returns {string} Window title
-   */
+  /** @override */
   get title() {
     return `${MODULE.NAME} | ${game.user.name}`;
   }
 
-  /* -------------------------------------------- */
-  /*  Protected Methods                           */
-  /* -------------------------------------------- */
-
-  /**
-   * Prepares the main context data for the character creation application
-   * @param {object} options - Application render options
-   * @returns {Promise<object>} Complete context for character creation rendering
-   * @protected
-   * @override
-   */
+  /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     game.users.forEach((user) => {
       HeroMancer.ORIGINAL_PLAYER_COLORS.set(user.id, user.color.css);
     });
-
     if (HM.COMPAT?.ELKAN) options.parts = options.parts.filter((part) => part !== 'equipment');
-
     return {
       ...context,
       raceDocs: HM.documents.race || [],
@@ -117,15 +94,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  /**
-   * Prepares context data for a specific part/tab of the application
-   * Handles specific logic for each tab section
-   * @param {string} partId - ID of the template part being rendered
-   * @param {object} context - Shared context from _prepareContext
-   * @returns {object} Modified context for the specific part
-   * @protected
-   * @override
-   */
+  /** @override */
   _preparePartContext(partId, context) {
     if (context.tabs?.[partId]) context.tab = context.tabs[partId];
     const tabOrder = HeroMancer.getTabOrder();
@@ -189,13 +158,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     return context;
   }
 
-  /**
-   * Generate the data for tab navigation using the ApplicationV2 structure.
-   * @param {string[]} parts An array of parts that correspond to tabs
-   * @returns {object} Tab configuration object
-   * @protected
-   * @override
-   */
+  /** @override */
   _getTabs(parts) {
     const tabGroup = 'hero-mancer-tabs';
     if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'start';
@@ -209,7 +172,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       biography: { icon: 'fa-solid fa-book-open' },
       finalize: { icon: 'fa-solid fa-flag-checkered' }
     };
-
     const nonTabs = ['header', 'tabs', 'footer'];
     return parts.reduce((tabs, partId) => {
       if (nonTabs.includes(partId) || !tabConfigs[partId]) return tabs;
@@ -220,13 +182,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     }, {});
   }
 
-  /**
-   * Actions performed after the first render of the Application.
-   * @param {object} _context Prepared context data
-   * @param {object} _options Provided render options
-   * @protected
-   * @override
-   */
+  /** @override */
   async _onFirstRender(_context, _options) {
     await HeroMancerUI.initializeEquipmentContainer(this.element);
     await HeroMancerUI.restoreFormOptions(this.element);
@@ -236,70 +192,49 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
-  /**
-   * Actions performed after any render of the Application.
-   * @param {object} context Prepared context data
-   * @param {object} options Provided render options
-   * @protected
-   * @override
-   */
+  /** @override */
   async _onRender(context, options) {
     super._onRender(context, options);
     if (this.#isRendering) return;
-    try {
-      this.#isRendering = true;
-      HeroMancerUI.updateReviewTab();
-      const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
-      const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
-      if (isFooterPartialRender) {
-        const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
-        if (mandatoryFields.length > 0) {
-          const submitButton = this.element.querySelector('.hm-app-footer-submit');
-          if (submitButton) {
-            const fieldStatus = FormValidation._evaluateFieldStatus(this.element, mandatoryFields);
-            const isValid = fieldStatus.missingFields.length === 0;
-            FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
-          }
+    this.#isRendering = true;
+    HeroMancerUI.updateReviewTab();
+    const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
+    const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
+    if (isFooterPartialRender) {
+      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
+      if (mandatoryFields.length > 0) {
+        const submitButton = this.element.querySelector('.hm-app-footer-submit');
+        if (submitButton) {
+          const fieldStatus = FormValidation._evaluateFieldStatus(this.element, mandatoryFields);
+          const isValid = fieldStatus.missingFields.length === 0;
+          FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
         }
-        return;
       }
-
-      if (isAbilitiesPartialRender) {
-        const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
-        if (abilitiesTab) await HeroMancerUI.initializeAbilities(this.element);
-        const abilitiesFields = this.element.querySelector('.tab[data-tab="abilities"]');
-        if (abilitiesFields) await FormValidation.checkMandatoryFields(abilitiesFields);
-        return;
-      }
+      return;
+    }
+    if (isAbilitiesPartialRender) {
       const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
       if (abilitiesTab) await HeroMancerUI.initializeAbilities(this.element);
-      await HeroMancerUI.initialize(this.element);
-      await FormValidation.checkMandatoryFields(this.element);
-      HeroMancerUI.updateTabIndicators(this.element);
-      HeroMancerUI.updateReviewTab();
-    } finally {
-      this.#isRendering = false;
+      const abilitiesFields = this.element.querySelector('.tab[data-tab="abilities"]');
+      if (abilitiesFields) await FormValidation.checkMandatoryFields(abilitiesFields);
+      return;
     }
+    const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
+    if (abilitiesTab) await HeroMancerUI.initializeAbilities(this.element);
+    await HeroMancerUI.initialize(this.element);
+    await FormValidation.checkMandatoryFields(this.element);
+    HeroMancerUI.updateTabIndicators(this.element);
+    HeroMancerUI.updateReviewTab();
+    this.#isRendering = false;
   }
 
-  /**
-   * Processes form changes and updates completion progress
-   * @param {object} formConfig - Form configuration
-   * @param {Event} event - Change event
-   * @protected
-   * @override
-   */
+  /** @override */
   _onChangeForm(formConfig, event) {
     super._onChangeForm(formConfig, event);
     if (event.currentTarget && ProgressBar) this.completionPercentage = ProgressBar.calculateAndUpdateProgress(this.element, event.currentTarget);
   }
 
-  /**
-   * Clean up embedded journals before closing
-   * @returns {Promise<boolean>} True if cleanup was successful
-   * @protected
-   * @override
-   */
+  /** @override */
   async _preClose() {
     await super._preClose();
     const embedContainers = this.element.querySelectorAll('.journal-container, .journal-embed-container');
@@ -308,27 +243,16 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       if (embedInstanceId && this[embedInstanceId]) this[embedInstanceId].close();
       container.innerHTML = '';
     }
-
     HeroMancerUI.cleanup();
     return true;
   }
 
-  /**
-   * Override the changeTab method to update the navigation buttons
-   * @param {string} tabName - The name of the tab to activate
-   * @param {string} groupName - The name of the tab group to activate
-   * @param {object} options - Additional options
-   * @override
-   */
+  /** @override */
   changeTab(tabName, groupName, options = {}) {
     super.changeTab(tabName, groupName, options);
     this.render(false, { parts: ['footer'] });
     HeroMancerUI.updateTabIndicators(this.element);
   }
-
-  /* -------------------------------------------- */
-  /*  Private Instance Methods                    */
-  /* -------------------------------------------- */
 
   /**
    * Gets token configuration data
@@ -388,10 +312,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }, {});
   }
 
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Build the tab order array using the advancement order setting
    * @returns {string[]} Ordered tab IDs with Elkan equipment filter applied
@@ -400,9 +320,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   static getTabOrder() {
     const advancementOrder = game.settings.get(MODULE.ID, 'advancementOrder');
     const orderedIds =
-      Array.isArray(advancementOrder) && advancementOrder.length > 0
-        ? [...advancementOrder].sort((a, b) => a.order - b.order).map((item) => item.id)
-        : ['background', 'race', 'class'];
+      Array.isArray(advancementOrder) && advancementOrder.length > 0 ? [...advancementOrder].sort((a, b) => a.order - b.order).map((item) => item.id) : ['background', 'race', 'class'];
     const tabOrder = ['start', ...orderedIds, 'abilities', 'equipment', 'biography', 'finalize'];
     return HM.COMPAT?.ELKAN ? tabOrder.filter((tab) => tab !== 'equipment') : tabOrder;
   }
@@ -465,9 +383,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       if (user) await user.update({ color: originalColor });
     }
     HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
-    if (event.target.className === 'hm-app-footer-cancel') {
-      await HM.heroMancer.close(options);
-    }
+    if (event.target.className === 'hm-app-footer-cancel') await HM.heroMancer.close(options);
   }
 
   /**
@@ -480,7 +396,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     event.preventDefault();
     const nameInput = document.getElementById('character-name');
     if (!nameInput) return null;
-
     const randomName = CharacterRandomizer.generateRandomName();
     nameInput.value = randomName;
     nameInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -559,7 +474,6 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /**
    * Main form submission handler for character creation
-   * Validates input, creates actor, and applies advancements
    * @param {Event} event - The form submission event
    * @param {HTMLFormElement} _form - The form element
    * @param {object} formData - The processed form data

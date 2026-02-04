@@ -31,11 +31,6 @@ export function log(level, ...args) {
  * @returns {void}
  */
 export function initializeLogger() {
-  try {
-    const level = game.settings.get(MODULE.ID, 'loggingLevel');
-    MODULE.LOG_LEVEL = parseInt(level) || 0;
-  } catch (error) {
-    console.error(`${MODULE.ID} | Error initializing logger:`, error);
-    MODULE.LOG_LEVEL = 1;
-  }
+  const level = game.settings.get(MODULE.ID, 'loggingLevel');
+  MODULE.LOG_LEVEL = parseInt(level) || 0;
 }
