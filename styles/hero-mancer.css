@@ -39,7 +39,7 @@
   Components Layer - Application Structure
  ========================================================================== */
 .application.hm-app {
-  width: 68.75rem;
+  width: 50rem;
   max-width: calc(100vw - 6.25rem);
   min-height: 0;
   max-height: calc(100vh - 9.375rem);
@@ -64,6 +64,7 @@
   .hm-app-nav {
     padding-block-end: 0.4rem;
     display: flex;
+    gap: unset;
     flex-flow: row wrap;
     align-items: center;
     align-self: center;
@@ -941,6 +942,7 @@
   /* Abilities Tab */
   .ability-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     height: auto;
