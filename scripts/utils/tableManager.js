@@ -344,14 +344,17 @@ export class TableManager {
   static async #drawFromTable(table) {
     HM.log(3, `Drawing from table: ${table.name}`);
 
-    try {
-      // Set replacement to false to prevent duplicates
-      const drawOptions = {
-        displayChat: false,
-        replacement: false
-      };
+    let wasLocked = false;
+    const pack = table.pack ? game.packs.get(table.pack) : null;
 
-      const result = await table.draw(drawOptions);
+    try {
+      // Unlock the compendium pack if needed
+      if (pack?.locked) {
+        wasLocked = true;
+        await pack.configure({ locked: false });
+      }
+
+      const result = await table.draw({ displayChat: false });
       HM.log(3, 'Draw result object:', result);
 
       if (!result.results || !result.results.length) {
@@ -367,13 +370,20 @@ export class TableManager {
         }
       ]);
 
-      // Return the actual text, not a Promise
-      let resultText = result.results[0]?.text || null;
+      let resultText = result.results[0]?.description || null;
       HM.log(3, 'Resulting text:', resultText);
       return resultText;
     } catch (error) {
       HM.log(1, `Error drawing from table ${table.name}:`, error);
       return null;
+    } finally {
+      if (wasLocked && pack && !pack.locked) {
+        try {
+          await pack.configure({ locked: true });
+        } catch (lockError) {
+          HM.log(1, 'Error re-locking pack:', lockError);
+        }
+      }
     }
   }
 
