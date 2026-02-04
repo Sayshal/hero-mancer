@@ -9,7 +9,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-customization',
-    classes: ['hm-app'],
+    classes: ['hm-app', 'standard-form'],
     tag: 'form',
     form: {
       handler: Customization.formHandler,
@@ -18,7 +18,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     },
     position: {
       height: 'auto',
-      width: '550'
+      width: 'auto'
     },
     window: {
       icon: 'fa-solid fa-palette',
@@ -33,7 +33,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     form: {
       template: 'modules/hero-mancer/templates/settings/customization.hbs',
       id: 'body',
-      classes: ['hm-customization-popup']
+      classes: ['standard-form']
     },
     footer: {
       template: 'modules/hero-mancer/templates/settings/settings-footer.hbs',
@@ -108,7 +108,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static async selectArtPickerRoot(_event, target) {
     try {
-      const inputField = target.closest('.flex.items-center').querySelector('input[name="artPickerRoot"]');
+      const inputField = target.closest('.form-fields').querySelector('input[name="artPickerRoot"]');
       if (!inputField) throw new Error('Could not find artPickerRoot input field');
 
       const currentPath = inputField.value || '/';

@@ -326,6 +326,7 @@
   "hm.settings.folder-organization.improved": "R/B/C items are now organized by top-level folder or source",
   "hm.settings.genders.hint": "Comma-separated list of genders used for character randomization.",
   "hm.settings.genders.name": "Genders",
+  "hm.settings.general-options.header": "General Options",
   "hm.settings.hair-colors.hint": "Comma-separated list of hair colors used for character randomization.",
   "hm.settings.hair-colors.name": "Hair Colors",
   "hm.settings.item-packs.name": "Item Packs",

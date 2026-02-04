@@ -39,7 +39,6 @@
   Components Layer - Application Structure
  ========================================================================== */
 .application.hm-app {
-  width: 50rem;
   max-width: calc(100vw - 6.25rem);
   min-height: 0;
   max-height: calc(100vh - 9.375rem);
@@ -1409,26 +1408,17 @@
 /* ==========================================================================
   Customization Settings
  ========================================================================== */
-.customization-application {
+#hero-mancer-settings-customization button.file-picker {
+  aspect-ratio: 1/1;
+  margin-inline-start: 0.3rem;
   display: flex;
-  flex-direction: column;
-  margin-inline: 0.25rem;
-  padding-inline: 0.25rem;
-  overflow-y: auto;
-  text-align: start;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: 100%;
 
-  button.file-picker {
-    aspect-ratio: 1/1;
-    margin-inline-start: 0.3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: auto;
-    height: 100%;
-
-    i {
-      margin: 0;
-    }
+  i {
+    margin: 0;
   }
 }
 
