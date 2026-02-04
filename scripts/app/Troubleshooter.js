@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { MODULE } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -38,7 +38,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   get title() {
-    return `${HM.NAME} | ${game.i18n.localize('hm.settings.troubleshooter.title')}`;
+    return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.troubleshooter.title')}`;
   }
 
   /* -------------------------------------------- */
@@ -205,7 +205,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       addLine(`Foundry: ${game.version}`);
       addLine(`System: ${game.system.id} v${game.system.version}`);
       addLine(`Language: ${game.settings.get('core', 'language')}`);
-      addLine(`Hero Mancer Version: ${game.modules.get(HM.ID)?.version || 'unknown'}`);
+      addLine(`Hero Mancer Version: ${game.modules.get(MODULE.ID)?.version || 'unknown'}`);
     } catch (error) {
       log(1, `Error adding game information: ${error.message}`);
       addLine('[Error retrieving game information]');
@@ -375,9 +375,9 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       const settings = {};
       for (const [key, setting] of game.settings.settings.entries()) {
-        if (setting.namespace === HM.ID) {
+        if (setting.namespace === MODULE.ID) {
           try {
-            settings[setting.key] = game.settings.get(HM.ID, setting.key);
+            settings[setting.key] = game.settings.get(MODULE.ID, setting.key);
           } catch (error) {
             settings[setting.key] = `[Error: ${error.message}]`;
           }
@@ -470,7 +470,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       for (const type of ['class', 'race', 'background', 'item']) {
         try {
           const packSetting = `${type}Packs`;
-          const packs = game.settings.get(HM.ID, packSetting) || [];
+          const packs = game.settings.get(MODULE.ID, packSetting) || [];
 
           compendiums[type] = packs.map((packId) => {
             const pack = game.packs.get(packId);

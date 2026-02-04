@@ -1,4 +1,4 @@
-import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { HM, MODULE, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -43,7 +43,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   get title() {
-    return `${HM.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
+    return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.mandatory-fields.menu.name')}`;
   }
 
   /* -------------------------------------------- */
@@ -61,9 +61,9 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     const context = await super._prepareContext(options);
     try {
       const fieldCategories = this.getAllFormFields();
-      const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
-      const playerCustomizationEnabled = game.settings.get(HM.ID, 'enablePlayerCustomization');
-      const tokenCustomizationEnabled = game.settings.get(HM.ID, 'enableTokenCustomization');
+      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
+      const playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
+      const tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
 
       // Process each category to add mandatory status
       const processedFields = {};
@@ -100,8 +100,8 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {object} Object containing categorized form fields
    */
   getAllFormFields() {
-    const playerCustomizationEnabled = game.settings.get(HM.ID, 'enablePlayerCustomization');
-    const tokenCustomizationEnabled = game.settings.get(HM.ID, 'enableTokenCustomization');
+    const playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
+    const tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
 
     // Single abilities checkbox for the whole tab
     const abilityFields = [{ key: 'abilities', label: game.i18n.localize('hm.settings.mandatory-fields.groups.abilities'), default: false }];
@@ -172,7 +172,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       }
 
       const mandatoryFields = MandatoryFields._collectMandatoryFields(form);
-      const currentMandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+      const currentMandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
 
       const hasChanged = JSON.stringify([...currentMandatoryFields].sort()) !== JSON.stringify([...mandatoryFields].sort());
       const changedSettings = hasChanged ? { mandatoryFields: true } : {};
@@ -221,6 +221,6 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @protected
    */
   static _saveMandatoryFields(mandatoryFields) {
-    game.settings.set(HM.ID, 'mandatoryFields', mandatoryFields);
+    game.settings.set(MODULE.ID, 'mandatoryFields', mandatoryFields);
   }
 }

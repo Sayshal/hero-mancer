@@ -1,26 +1,13 @@
+import { MODULE } from './constants.mjs';
 import { migrateSettingKeys, registerSettings } from './settings.js';
 import { API, CharacterApprovalService, DocumentService, EquipmentManager, HeroMancer, StatRoller } from './utils/index.js';
 import { initializeLogger, log } from './utils/logger.mjs';
 
 /**
- * Main Hero Mancer class, define some statics that will be used everywhere in the module.
+ * Runtime state container for Hero Mancer.
  * @class
  */
 export class HM {
-  /**
-   * Module identifier used for settings and prefixing
-   * @static
-   * @type {string}
-   */
-  static ID = 'hero-mancer';
-
-  /**
-   * Display name of the module
-   * @static
-   * @type {string}
-   */
-  static NAME = 'Hero Mancer';
-
   /**
    * Compatibility flags for other modules
    * @static
@@ -69,22 +56,6 @@ export class HM {
   /* -------------------------------------------- */
 
   /**
-   * Initialize the Hero Mancer module
-   * @static
-   * @returns {void}
-   */
-  static init() {
-    registerSettings();
-    initializeLogger();
-    this.ABILITY_SCORES = {
-      DEFAULT: game.settings.get(this.ID, 'abilityScoreDefault') || 8,
-      MIN: game.settings.get(this.ID, 'abilityScoreMin') || 8,
-      MAX: game.settings.get(this.ID, 'abilityScoreMax') || 15
-    };
-    log(3, `Ability score configuration: Default=${this.ABILITY_SCORES.DEFAULT}, Min=${this.ABILITY_SCORES.MIN}, Max=${this.ABILITY_SCORES.MAX}`);
-  }
-
-  /**
    * Shows a confirmation dialog for reloading the world/application
    * @static
    * @async
@@ -106,31 +77,17 @@ export class HM {
     if (world && game.user.can('SETTINGS_MODIFY')) game.socket.emit('reload');
     foundry.utils.debouncedReload();
   }
-
-  /**
-   * Check and set compatibility flags for other modules
-   * @static
-   * @returns {void}
-   */
-  static checkModuleCompatibility() {
-    HM.COMPAT = {};
-    if (game.modules.get('elkan5e')?.active && game.settings.get(HM.ID, 'elkanCompatibility')) {
-      HM.COMPAT.ELKAN = true;
-      log(3, 'Elkan Detected: Compatibility auto-enabled.');
-    }
-    if (game.modules.get('chris-premades')?.active) {
-      HM.COMPAT.CPR = true;
-      log(3, 'CPR Detected: Compatibility auto-enabled.');
-    }
-    if (game.modules.get('vtta-tokenizer')?.active) {
-      HM.COMPAT.TOKENIZER = true;
-      log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
-    }
-  }
 }
 
 Hooks.on('init', async () => {
-  HM.init();
+  registerSettings();
+  initializeLogger();
+  HM.ABILITY_SCORES = {
+    DEFAULT: game.settings.get(MODULE.ID, 'abilityScoreDefault') || 8,
+    MIN: game.settings.get(MODULE.ID, 'abilityScoreMin') || 8,
+    MAX: game.settings.get(MODULE.ID, 'abilityScoreMax') || 15
+  };
+  log(3, `Ability score configuration: Default=${HM.ABILITY_SCORES.DEFAULT}, Min=${HM.ABILITY_SCORES.MIN}, Max=${HM.ABILITY_SCORES.MAX}`);
   await foundry.applications.handlebars.loadTemplates([
     'modules/hero-mancer/templates/tabs/selection.hbs',
     'modules/hero-mancer/templates/equipment/equipment-container.hbs',
@@ -142,15 +99,30 @@ Hooks.on('init', async () => {
 });
 
 Hooks.once('ready', async () => {
-  if (!game.settings.get(HM.ID, 'enable')) return;
+  if (!game.settings.get(MODULE.ID, 'enable')) return;
   await migrateSettingKeys();
-  HM.checkModuleCompatibility();
+
+  // Check module compatibility
+  HM.COMPAT = {};
+  if (game.modules.get('elkan5e')?.active && game.settings.get(MODULE.ID, 'elkanCompatibility')) {
+    HM.COMPAT.ELKAN = true;
+    log(3, 'Elkan Detected: Compatibility auto-enabled.');
+  }
+  if (game.modules.get('chris-premades')?.active) {
+    HM.COMPAT.CPR = true;
+    log(3, 'CPR Detected: Compatibility auto-enabled.');
+  }
+  if (game.modules.get('vtta-tokenizer')?.active) {
+    HM.COMPAT.TOKENIZER = true;
+    log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
+  }
+
   CharacterApprovalService.registerSocketListeners();
   await DocumentService.loadAndInitializeDocuments();
   if (!HM.COMPAT.ELKAN) await EquipmentManager.initializeLookup();
-  const customArraySetting = game.settings.get(HM.ID, 'customStandardArray') || StatRoller.getStandardArrayDefault();
+  const customArraySetting = game.settings.get(MODULE.ID, 'customStandardArray') || StatRoller.getStandardArrayDefault();
   if (!customArraySetting || customArraySetting.trim() === '') {
-    game.settings.set(HM.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
+    game.settings.set(MODULE.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
     log(3, 'Custom Standard Array was reset to default values due to invalid length.');
   }
   globalThis.heroMancer = HM.API;
@@ -158,7 +130,7 @@ Hooks.once('ready', async () => {
 });
 
 Hooks.on('renderActorDirectory', (_app, html) => {
-  if (!game.settings.get(HM.ID, 'enable')) return;
+  if (!game.settings.get(MODULE.ID, 'enable')) return;
   if (html.querySelector('.hm-actortab-button')) return;
   const headerActions = html.querySelector('.header-actions');
   if (!headerActions) return;
@@ -166,7 +138,7 @@ Hooks.on('renderActorDirectory', (_app, html) => {
   button.type = 'button';
   button.classList.add('hm-actortab-button');
   button.setAttribute('data-tooltip', game.i18n.localize('hm.actortab-button.hint'));
-  const compact = game.settings.get(HM.ID, 'compactButton');
+  const compact = game.settings.get(MODULE.ID, 'compactButton');
   if (compact) button.innerHTML = `<i class="fa-solid fa-egg"></i>`;
   else {
     button.innerHTML = `<i class="fa-solid fa-egg"></i> ${game.i18n.localize('hm.actortab-button.name')}`;

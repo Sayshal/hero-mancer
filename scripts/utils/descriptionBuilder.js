@@ -1,4 +1,3 @@
-import { HM } from '../hero-mancer.js';
 import { log } from './logger.mjs';
 
 /**

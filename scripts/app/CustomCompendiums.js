@@ -1,4 +1,4 @@
-import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { HM, MODULE, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -55,7 +55,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   ];
 
   get title() {
-    return `${HM.NAME} | ${game.i18n.localize('hm.settings.custom-compendiums.menu.name')}`;
+    return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.custom-compendiums.menu.name')}`;
   }
 
   /* -------------------------------------------- */
@@ -64,7 +64,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
   _onFirstRender() {
     for (const { type, settingKey } of CustomCompendiums.TYPES) {
-      CustomCompendiums.PACKS[type] = game.settings.get(HM.ID, settingKey);
+      CustomCompendiums.PACKS[type] = game.settings.get(MODULE.ID, settingKey);
     }
   }
 
@@ -74,7 +74,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
     for (const { type, label, icon, settingKey } of CustomCompendiums.TYPES) {
       const validPacks = await CustomCompendiums.#collectValidPacks(type);
-      const selectedPacks = game.settings.get(HM.ID, settingKey) || [];
+      const selectedPacks = game.settings.get(MODULE.ID, settingKey) || [];
       const dialogData = CustomCompendiums.#prepareCompendiumDialogData(validPacks, selectedPacks);
 
       columns.push({
@@ -118,7 +118,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         const selectedPacks = checked.length > 0 ? checked : Array.from(form.querySelectorAll(`input[name="${settingKey}"]`)).map((el) => el.value);
 
         if (JSON.stringify(original) !== JSON.stringify(selectedPacks)) {
-          game.settings.set(HM.ID, settingKey, selectedPacks);
+          game.settings.set(MODULE.ID, settingKey, selectedPacks);
           changedSettings[settingKey] = true;
           successCount++;
         }

@@ -1,4 +1,4 @@
-import { CharacterArtPicker, HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { CharacterArtPicker, HM, MODULE, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -53,7 +53,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   get title() {
-    return `${HM.NAME} | ${game.i18n.localize('hm.settings.customization.menu.name')}`;
+    return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.customization.menu.name')}`;
   }
 
   /* -------------------------------------------- */
@@ -77,7 +77,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
     ];
     try {
-      let config = game.settings.get(HM.ID, 'advancementOrder');
+      let config = game.settings.get(MODULE.ID, 'advancementOrder');
       if (!config || !Array.isArray(config) || config.length === 0) {
         config = defaults;
       } else {
@@ -100,7 +100,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static getValidConfiguration() {
     try {
-      const config = game.settings.get(HM.ID, 'advancementOrder');
+      const config = game.settings.get(MODULE.ID, 'advancementOrder');
       if (!config || !Array.isArray(config) || config.length === 0) {
         return [
           { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
@@ -305,10 +305,10 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
       for (const setting of settingsToFetch) {
         try {
-          context[setting] = game.settings.get(HM.ID, setting);
+          context[setting] = game.settings.get(MODULE.ID, setting);
         } catch (settingError) {
           log(2, `Error fetching setting "${setting}": ${settingError.message}`);
-          context[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
+          context[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
         }
       }
 
@@ -391,7 +391,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
     for (const setting of settings) {
       try {
-        defaults[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
+        defaults[setting] = game.settings.settings.get(`${MODULE.ID}.${setting}`).default;
 
         // Check for empty string values
         const value = formData.object[setting];
@@ -434,7 +434,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       // Apply settings (using defaults for resetSettings)
       for (const setting of settings) {
         try {
-          const currentValue = game.settings.get(HM.ID, setting);
+          const currentValue = game.settings.get(MODULE.ID, setting);
           let newValue;
 
           if (resetSettings.includes(setting)) {
@@ -445,7 +445,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
           // Check if the value actually changed
           if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
-            game.settings.set(HM.ID, setting, newValue);
+            game.settings.set(MODULE.ID, setting, newValue);
             changedSettings[setting] = true;
           }
         } catch (error) {
@@ -480,7 +480,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
           updatedConfig.forEach((item, idx) => {
             item.order = (idx + 1) * 10;
           });
-          game.settings.set(HM.ID, 'advancementOrder', updatedConfig);
+          game.settings.set(MODULE.ID, 'advancementOrder', updatedConfig);
         }
       } catch (error) {
         log(1, `Error saving advancement order: ${error.message}`);

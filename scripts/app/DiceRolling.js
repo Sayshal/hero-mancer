@@ -1,4 +1,4 @@
-import { HM, StatRoller, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { HM, MODULE, StatRoller, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -43,7 +43,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   get title() {
-    return `${HM.NAME} | ${game.i18n.localize('hm.settings.dice-rolling.menu.name')}`;
+    return `${MODULE.NAME} | ${game.i18n.localize('hm.settings.dice-rolling.menu.name')}`;
   }
 
   /* -------------------------------------------- */
@@ -74,7 +74,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
       for (const setting of settingsToFetch) {
         try {
-          let value = game.settings.get(HM.ID, setting.key);
+          let value = game.settings.get(MODULE.ID, setting.key);
           context[setting.key] = value || setting.defaultValue;
         } catch (settingError) {
           log(2, `Error fetching setting "${setting.key}": ${settingError.message}`);
@@ -201,9 +201,9 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       const changedSettings = {};
 
       // Check and save allowedMethods setting
-      const currentAllowedMethods = game.settings.get(HM.ID, 'allowedMethods');
+      const currentAllowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
       if (JSON.stringify(currentAllowedMethods) !== JSON.stringify(allowedMethods)) {
-        game.settings.set(HM.ID, 'allowedMethods', allowedMethods);
+        game.settings.set(MODULE.ID, 'allowedMethods', allowedMethods);
         changedSettings.allowedMethods = true;
       }
 
@@ -221,11 +221,11 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       ];
 
       for (const setting of otherSettings) {
-        const currentValue = game.settings.get(HM.ID, setting);
+        const currentValue = game.settings.get(MODULE.ID, setting);
         const newValue = formData.object[setting];
 
         if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
-          game.settings.set(HM.ID, setting, newValue);
+          game.settings.set(MODULE.ID, setting, newValue);
           changedSettings[setting] = true;
         }
       }

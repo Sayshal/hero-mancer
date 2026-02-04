@@ -1,4 +1,4 @@
-import { ActorCreationService, HM, SavedOptions } from './index.js';
+import { ActorCreationService, MODULE, SavedOptions } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -15,7 +15,7 @@ export class CharacterApprovalService {
    * @static
    * @type {string}
    */
-  static SOCKET_NAME = `module.${HM.ID}`;
+  static SOCKET_NAME = `module.${MODULE.ID}`;
 
   /**
    * Socket event types
@@ -94,7 +94,7 @@ export class CharacterApprovalService {
     log(3, 'Submitting character for GM approval:', { characterData, userId: user.id });
 
     // Store the pending submission in user flags
-    await user.setFlag(HM.ID, 'pendingCharacterSubmission', {
+    await user.setFlag(MODULE.ID, 'pendingCharacterSubmission', {
       characterData,
       timestamp: Date.now()
     });
@@ -342,7 +342,7 @@ export class CharacterApprovalService {
         // Clear the pending submission flag
         const targetUser = game.users.get(userId);
         if (targetUser) {
-          await targetUser.unsetFlag(HM.ID, 'pendingCharacterSubmission');
+          await targetUser.unsetFlag(MODULE.ID, 'pendingCharacterSubmission');
         }
 
         // Notify the player and send character data for advancement processing
@@ -375,7 +375,7 @@ export class CharacterApprovalService {
     // Clear the pending submission flag
     const targetUser = game.users.get(userId);
     if (targetUser) {
-      await targetUser.unsetFlag(HM.ID, 'pendingCharacterSubmission');
+      await targetUser.unsetFlag(MODULE.ID, 'pendingCharacterSubmission');
     }
 
     // Notify the player

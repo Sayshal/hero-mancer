@@ -1,4 +1,4 @@
-import { HM, JournalPageFinder } from './index.js';
+import { HM, JournalPageFinder, MODULE } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -198,7 +198,7 @@ export class DocumentService {
    */
   static async #fetchTypeDocumentsFromCompendiums(type) {
     if (!['race', 'class', 'background', 'species'].includes(type)) throw new Error(`Invalid document type: ${type}`);
-    const selectedPacks = game.settings.get(HM.ID, `${type}Packs`) || [];
+    const selectedPacks = game.settings.get(MODULE.ID, `${type}Packs`) || [];
     let packs = this.#getValidPacks(selectedPacks, type);
     if (!packs.length) {
       log(2, `No valid packs found for type ${type}`);
@@ -234,7 +234,7 @@ export class DocumentService {
           const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
           log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
           try {
-            game.settings.set(HM.ID, `${type}Packs`, updatedPacks);
+            game.settings.set(MODULE.ID, `${type}Packs`, updatedPacks);
           } catch (e) {
             log(1, `Failed to update ${type}Packs setting: ${e.message}`);
           }

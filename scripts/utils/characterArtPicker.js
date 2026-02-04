@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { HM, MODULE } from '../utils/index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -16,7 +16,7 @@ export class CharacterArtPicker {
    * @static
    */
   static get rootDirectory() {
-    return game.settings.get(HM.ID, 'artPickerRoot');
+    return game.settings.get(MODULE.ID, 'artPickerRoot');
   }
 
   /**
@@ -29,7 +29,7 @@ export class CharacterArtPicker {
       log(2, 'Attempted to set rootDirectory to empty path');
       return;
     }
-    game.settings.set(HM.ID, 'artPickerRoot', path);
+    game.settings.set(MODULE.ID, 'artPickerRoot', path);
     log(3, `rootDirectory setting updated to: ${path}`);
   }
 
@@ -47,7 +47,7 @@ export class CharacterArtPicker {
     try {
       // Handle Tokenizer if active and shift key is not pressed
       // Handle Tokenizer if active, enabled in settings, and shift key is not pressed
-      if (HM.COMPAT?.TOKENIZER && game.settings.get(HM.ID, 'tokenizerCompatibility') && !event.shiftKey) {
+      if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) {
         return CharacterArtPicker.handleTokenizer(event, 'character');
       }
 
@@ -108,7 +108,7 @@ export class CharacterArtPicker {
   static selectTokenArt(event, _target) {
     try {
       // Handle Tokenizer if active and shift key is not pressed
-      if (HM.COMPAT?.TOKENIZER && game.settings.get(HM.ID, 'tokenizerCompatibility') && !event.shiftKey) {
+      if (HM.COMPAT?.TOKENIZER && game.settings.get(MODULE.ID, 'tokenizerCompatibility') && !event.shiftKey) {
         return CharacterArtPicker.handleTokenizer(event, 'token');
       }
 

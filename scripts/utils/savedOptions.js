@@ -1,4 +1,4 @@
-import { HM } from '../utils/index.js';
+import { MODULE } from '../utils/index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -33,7 +33,7 @@ export class SavedOptions {
       log(3, 'Saving form data:', formData);
       const data = { ...formData };
 
-      const result = await game.user.setFlag(HM.ID, this.FLAG, data);
+      const result = await game.user.setFlag(MODULE.ID, this.FLAG, data);
       log(3, 'Options saved successfully');
       return result;
     } catch (error) {
@@ -55,7 +55,7 @@ export class SavedOptions {
         return {};
       }
 
-      const data = await game.user.getFlag(HM.ID, this.FLAG);
+      const data = await game.user.getFlag(MODULE.ID, this.FLAG);
 
       if (data) {
         log(3, `Loaded saved data for ${game.user.name}:`, data);
@@ -86,7 +86,7 @@ export class SavedOptions {
       }
 
       // Clear saved flags
-      await game.user.setFlag(HM.ID, this.FLAG, null);
+      await game.user.setFlag(MODULE.ID, this.FLAG, null);
       log(3, 'Cleared saved options flags');
 
       // If no form element provided, just clear flags

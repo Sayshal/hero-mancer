@@ -1,5 +1,5 @@
 /* global Actor */
-import { CharacterApprovalService, EquipmentCollection, EquipmentManager, HeroMancer, HM, SavedOptions, SummaryMessage } from './index.js';
+import { CharacterApprovalService, EquipmentCollection, EquipmentManager, HeroMancer, HM, MODULE, SavedOptions, SummaryMessage } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -220,7 +220,7 @@ export class ActorCreationService {
   static async #createAndSetupActor(formData, characterData, targetUser) {
     const actor = await this.#createActorDocument(formData, characterData.abilities, targetUser.id);
     await this.#assignCharacterToUser(actor, targetUser, formData);
-    if (game.settings.get(HM.ID, 'enablePlayerCustomization')) await this.#updatePlayerCustomization(targetUser, formData);
+    if (game.settings.get(MODULE.ID, 'enablePlayerCustomization')) await this.#updatePlayerCustomization(targetUser, formData);
     return actor;
   }
 
@@ -256,7 +256,7 @@ export class ActorCreationService {
    */
   static #getOrderedAdvancementItems(backgroundItem, raceItem, classItem) {
     try {
-      const orderConfig = game.settings.get(HM.ID, 'advancementOrder') || [
+      const orderConfig = game.settings.get(MODULE.ID, 'advancementOrder') || [
         { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
         { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
         { id: 'class', label: 'hm.app.tab-names.class', order: 30, sortable: true }
@@ -285,7 +285,7 @@ export class ActorCreationService {
    * @static
    */
   static #validateMandatoryFields(formData) {
-    const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
     const fieldMappings = { name: 'character-name', race: 'race', class: 'class', background: 'background' };
     const missingFields = { basic: [], abilities: [], background: [] };
     for (const field of mandatoryFields) {
@@ -544,7 +544,7 @@ export class ActorCreationService {
       const abilityMatch = key.match(/^abilities\[(\w+)]-score$/) || key.match(/^abilities\[(\w+)]$/);
       if (abilityMatch) {
         const abilityKey = abilityMatch[1];
-        abilities[abilityKey] = formData[key] || game.settings.get(HM.ID, 'abilityScoreDefault');
+        abilities[abilityKey] = formData[key] || game.settings.get(MODULE.ID, 'abilityScoreDefault');
       }
     }
     return abilities;
@@ -650,7 +650,7 @@ export class ActorCreationService {
   static #transformTokenData(formData) {
     try {
       const tokenData = this.#createBaseTokenData(formData);
-      if (game.settings.get(HM.ID, 'enableTokenCustomization')) this.#addTokenCustomizationData(tokenData, formData);
+      if (game.settings.get(MODULE.ID, 'enableTokenCustomization')) this.#addTokenCustomizationData(tokenData, formData);
       return tokenData;
     } catch (error) {
       log(1, 'Error in #transformTokenData:', error);

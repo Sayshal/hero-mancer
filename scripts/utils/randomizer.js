@@ -1,4 +1,4 @@
-import { FormValidation, HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, MODULE, StatRoller } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -677,7 +677,7 @@ export class CharacterRandomizer {
         return true;
       } else {
         const alignments = game.settings
-          .get(HM.ID, 'alignments')
+          .get(MODULE.ID, 'alignments')
           .split(',')
           .map((a) => a.trim())
           .filter((a) => a);
@@ -724,7 +724,7 @@ export class CharacterRandomizer {
         return true;
       } else {
         const deities = game.settings
-          .get(HM.ID, 'deities')
+          .get(MODULE.ID, 'deities')
           .split(',')
           .map((d) => d.trim())
           .filter((d) => d);
@@ -769,19 +769,19 @@ export class CharacterRandomizer {
   static #randomizeAppearanceTraits(form) {
     const traits = {
       eyes: game.settings
-        .get(HM.ID, 'eyeColors')
+        .get(MODULE.ID, 'eyeColors')
         .split(',')
         .map((e) => e.trim()),
       hair: game.settings
-        .get(HM.ID, 'hairColors')
+        .get(MODULE.ID, 'hairColors')
         .split(',')
         .map((h) => h.trim()),
       skin: game.settings
-        .get(HM.ID, 'skinTones')
+        .get(MODULE.ID, 'skinTones')
         .split(',')
         .map((s) => s.trim()),
       gender: game.settings
-        .get(HM.ID, 'genders')
+        .get(MODULE.ID, 'genders')
         .split(',')
         .map((g) => g.trim())
     };

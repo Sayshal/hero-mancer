@@ -3,6 +3,7 @@
  * @description Handles equipment selection UI rendering using Handlebars templates
  */
 
+import { MODULE } from '../constants.mjs';
 import { HM } from '../hero-mancer.js';
 import { log } from '../utils/logger.mjs';
 import { EventRegistry } from '../utils/event-registry.mjs';
@@ -287,7 +288,7 @@ export class EquipmentUI {
       const hiddenInput = container.querySelector(`[name="starting-wealth-rolled-${type}"]`);
       if (hiddenInput) hiddenInput.value = roll.total;
 
-      if (game.settings.get(HM.ID, 'publishWealthRolls')) {
+      if (game.settings.get(MODULE.ID, 'publishWealthRolls')) {
         const characterName = document.getElementById('character-name')?.value || game.user.name;
         const typeLabel = game.i18n.localize(`TYPES.Item.${type}`);
         await roll.toMessage({

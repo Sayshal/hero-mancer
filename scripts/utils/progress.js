@@ -1,4 +1,4 @@
-import { HeroMancer, HM, StatRoller } from '../utils/index.js';
+import { HeroMancer, StatRoller } from '../utils/index.js';
 import { log } from './logger.mjs';
 
 /**

@@ -3,7 +3,6 @@
  * @description Collects equipment selections from form and processes for actor creation
  */
 
-import { HM } from '../hero-mancer.js';
 import { log } from '../utils/logger.mjs';
 
 /**

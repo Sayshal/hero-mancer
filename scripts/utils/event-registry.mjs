@@ -3,7 +3,6 @@
  * @description Centralized event listener and mutation observer management with automatic cleanup via WeakMap.
  */
 
-import { HM } from './index.js';
 import { log } from './logger.mjs';
 
 /**

@@ -4,7 +4,7 @@
  * event binding, summary updates, review tab, and form state.
  */
 
-import { DocumentService, EquipmentManager, EquipmentUI, EventRegistry, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
+import { DocumentService, EquipmentManager, EquipmentUI, EventRegistry, FormValidation, HeroMancer, HM, JournalPageEmbed, MODULE, SavedOptions, StatRoller, TableManager } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -138,7 +138,7 @@ export class HeroMancerUI {
    * @param {HTMLElement} element - Application root element
    */
   static initializeFormValidation(element) {
-    const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+    const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
     if (mandatoryFields.length === 0) return;
     const formElements = element.querySelectorAll('input, select, textarea, color-picker');
     formElements.forEach((formElement) => {
@@ -167,7 +167,7 @@ export class HeroMancerUI {
    * @param {HTMLElement} element - Application root element
    */
   static initializeTokenCustomization(element) {
-    const ringEnabled = game.settings.get(HM.ID, 'enableTokenCustomization');
+    const ringEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
     if (!ringEnabled) return;
     const ringEnabledElement = element.querySelector('input[name="ring.enabled"]');
     const ringOptions = element.querySelectorAll(
@@ -342,7 +342,7 @@ export class HeroMancerUI {
   static updateTabIndicators(form) {
     try {
       if (!form) return;
-      const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
       if (!mandatoryFields.length) return;
       const tabs = form.querySelectorAll('.hero-mancer-tabs a.item');
       if (!tabs.length) return;
@@ -515,7 +515,7 @@ export class HeroMancerUI {
       characterDescription += '.';
     }
 
-    const newTitle = `${HM.NAME} | ${characterDescription}`;
+    const newTitle = `${MODULE.NAME} | ${characterDescription}`;
 
     HM.heroMancer._updateFrame({
       window: {
@@ -677,7 +677,7 @@ export class HeroMancerUI {
    * @private
    */
   static #handleRollMethodChange(element, method) {
-    game.settings.set(HM.ID, 'diceRollingMethod', method);
+    game.settings.set(MODULE.ID, 'diceRollingMethod', method);
     HeroMancer.selectedAbilities = Array(Object.keys(CONFIG.DND5E.abilities).length).fill(HM.ABILITY_SCORES.DEFAULT);
     const app = HM.heroMancer;
     if (app) {
@@ -696,7 +696,7 @@ export class HeroMancerUI {
     abilityDropdowns.forEach((dropdown, index) => {
       dropdown.dataset.index = index;
       EventRegistry.on(dropdown, 'change', (event) => {
-        const diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
+        const diceRollingMethod = game.settings.get(MODULE.ID, 'diceRollingMethod');
         StatRoller.handleAbilityDropdownChange(event, diceRollingMethod);
         this.updateAbilityHighlights();
       });

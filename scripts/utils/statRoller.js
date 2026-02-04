@@ -1,4 +1,4 @@
-import { FormValidation, HeroMancer, HeroMancerUI, HM } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, HM, MODULE } from './index.js';
 import { log } from './logger.mjs';
 
 const { DialogV2 } = foundry.applications.api;
@@ -77,7 +77,7 @@ export class StatRoller {
    */
   static #prepareRollData(form) {
     const rollFormula = this.getAbilityScoreRollFormula();
-    const chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
+    const chainedRolls = game.settings.get(MODULE.ID, 'chainedRolls');
     const index = form.getAttribute('data-index');
     const input = this.getAbilityInput(index);
     const hasExistingValue = !this.chainRollEnabled && input?.value?.trim() !== '';
@@ -101,10 +101,10 @@ export class StatRoller {
    * @static
    */
   static getAbilityScoreRollFormula() {
-    let formula = game.settings.get(HM.ID, 'customRollFormula');
+    let formula = game.settings.get(MODULE.ID, 'customRollFormula');
     if (!formula?.trim()) {
       formula = '4d6kh3';
-      game.settings.set(HM.ID, 'customRollFormula', formula);
+      game.settings.set(MODULE.ID, 'customRollFormula', formula);
       log(2, 'Roll formula was empty. Resetting to default:', formula);
     }
     return formula;
@@ -196,7 +196,7 @@ export class StatRoller {
     try {
       const roll = new Roll(rollFormula);
       await roll.evaluate();
-      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
+      if (game.dice3d && game.settings.get(MODULE.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
       const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
       if (roll.total !== constrainedResult) log(3, `Roll result: ${roll.total} (constrained to ${constrainedResult})`);
@@ -259,7 +259,7 @@ export class StatRoller {
    * @static
    */
   static async #rollAbilitiesSequentially(blocks, rollFormula) {
-    const delay = game.settings.get(HM.ID, 'rollDelay') || 500;
+    const delay = game.settings.get(MODULE.ID, 'rollDelay') || 500;
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
       const diceIcon = block.querySelector('.fa-dice-d6');
@@ -269,7 +269,7 @@ export class StatRoller {
       const roll = new Roll(rollFormula);
       await roll.evaluate();
       let diceAnimationPromise = Promise.resolve();
-      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) diceAnimationPromise = game.dice3d.showForRoll(roll, game.user, false);
+      if (game.dice3d && game.settings.get(MODULE.ID, 'enableDiceSoNice')) diceAnimationPromise = game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
       const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
       await diceAnimationPromise;
@@ -327,7 +327,7 @@ export class StatRoller {
       scores = scores.map((val) => Math.max(MIN, Math.min(MAX, val)));
     }
     const sortedScores = scores.sort((a, b) => b - a).join(',');
-    game.settings.set(HM.ID, 'customStandardArray', sortedScores);
+    game.settings.set(MODULE.ID, 'customStandardArray', sortedScores);
     return true;
   }
 
@@ -352,7 +352,7 @@ export class StatRoller {
    * @static
    */
   static getTotalPoints() {
-    const customTotal = game.settings.get(HM.ID, 'customPointBuyTotal');
+    const customTotal = game.settings.get(MODULE.ID, 'customPointBuyTotal');
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
     const extraPoints = Math.max(0, abilitiesCount - 6) * 3;
     const defaultTotal = 27 + extraPoints;
@@ -432,8 +432,8 @@ export class StatRoller {
    * @static
    */
   static getDiceRollingMethod() {
-    let diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
-    const allowedMethods = game.settings.get(HM.ID, 'allowedMethods');
+    let diceRollingMethod = game.settings.get(MODULE.ID, 'diceRollingMethod');
+    const allowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
     const methodMapping = { standardArray: 'standardArray', pointBuy: 'pointBuy', manual: 'manualFormula' };
     const validMethods = Object.entries(allowedMethods)
       .filter(([, enabled]) => enabled)
@@ -441,7 +441,7 @@ export class StatRoller {
       .filter(Boolean);
     if (!diceRollingMethod || !validMethods.includes(diceRollingMethod)) {
       diceRollingMethod = validMethods[0];
-      game.settings.set(HM.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => log(1, 'Failed to update diceRollingMethod setting:', err));
+      game.settings.set(MODULE.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => log(1, 'Failed to update diceRollingMethod setting:', err));
       log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
     }
     return diceRollingMethod;
@@ -458,7 +458,7 @@ export class StatRoller {
     const extraAbilities = abilitiesCount > 6 ? abilitiesCount - 6 : 0;
     const { MIN, MAX } = HM.ABILITY_SCORES;
     if (diceRollingMethod === 'standardArray') {
-      const customArray = game.settings.get(HM.ID, 'customStandardArray');
+      const customArray = game.settings.get(MODULE.ID, 'customStandardArray');
       if (customArray) {
         const parsedArray = customArray.split(',').map(Number);
         if (parsedArray.length >= abilitiesCount) return parsedArray.map((val) => Math.max(MIN, Math.min(MAX, val)));
@@ -514,7 +514,7 @@ export class StatRoller {
     if (diceRollingMethod === 'manualFormula') {
       this.#handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues, originalValue);
     } else if (diceRollingMethod === 'standardArray') {
-      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(HM.ID, 'statGenerationSwapMode'), originalValue);
+      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(MODULE.ID, 'statGenerationSwapMode'), originalValue);
     } else if (diceRollingMethod === 'pointBuy') {
       this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, this.getTotalPoints());
     }

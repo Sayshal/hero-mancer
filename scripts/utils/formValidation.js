@@ -1,4 +1,4 @@
-import { HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
+import { HeroMancer, HeroMancerUI, MODULE, StatRoller } from './index.js';
 import { log } from './logger.mjs';
 
 /**
@@ -149,7 +149,7 @@ export class FormValidation {
 
       let mandatoryFields;
       try {
-        mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+        mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
       } catch (error) {
         log(1, `Error fetching mandatory fields: ${error.message}`);
         mandatoryFields = [];
@@ -182,7 +182,7 @@ export class FormValidation {
       if (!form || !tabId) return false;
       const tabElement = form.querySelector(`.tab[data-tab="${tabId}"]`);
       if (!tabElement) return false;
-      const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+      const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
       if (!mandatoryFields.length) return false;
       for (const fieldName of mandatoryFields) {
         // Tab-level abilities check

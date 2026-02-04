@@ -1,4 +1,3 @@
-import { HM } from './index.js';
 import { log } from './logger.mjs';
 
 /**

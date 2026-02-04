@@ -1,4 +1,4 @@
-import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, FormValidation, HeroMancerUI, HM, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, FormValidation, HeroMancerUI, HM, MODULE, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
 import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -18,7 +18,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    id: `${HM.ID}-app`,
+    id: `${MODULE.ID}-app`,
     tag: 'form',
     form: {
       handler: HeroMancer.formHandler,
@@ -91,7 +91,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {string} Window title
    */
   get title() {
-    return `${HM.NAME} | ${game.user.name}`;
+    return `${MODULE.NAME} | ${game.user.name}`;
   }
 
   /* -------------------------------------------- */
@@ -146,8 +146,8 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       const currentTabIndex = tabOrder.indexOf(this.tabGroups['hero-mancer-tabs']);
       switch (partId) {
         case 'start':
-          context.playerCustomizationEnabled = game.settings.get(HM.ID, 'enablePlayerCustomization');
-          context.tokenCustomizationEnabled = game.settings.get(HM.ID, 'enableTokenCustomization');
+          context.playerCustomizationEnabled = game.settings.get(MODULE.ID, 'enablePlayerCustomization');
+          context.tokenCustomizationEnabled = game.settings.get(MODULE.ID, 'enableTokenCustomization');
           context.token = this.#getTokenConfig();
           context.isGM = game.user.isGM;
           break;
@@ -168,30 +168,30 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           context.rollStat = this.rollStat;
           context.rollMethods = StatRoller.rollMethods;
           context.diceRollMethod = diceRollMethod;
-          context.allowedMethods = game.settings.get(HM.ID, 'allowedMethods');
+          context.allowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
           context.standardArray = StatRoller.getStandardArrayValues(diceRollMethod);
           context.selectedAbilities = HeroMancer.selectedAbilities;
           context.totalPoints = StatRoller.getTotalPoints();
           context.pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
           context.remainingPoints = context.totalPoints - context.pointsSpent;
-          context.chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
+          context.chainedRolls = game.settings.get(MODULE.ID, 'chainedRolls');
           break;
         case 'biography':
           context.alignments =
             game.settings
-              .get(HM.ID, 'alignments')
+              .get(MODULE.ID, 'alignments')
               .split(',')
               .map((d) => d.trim()) || [];
           context.deities =
             game.settings
-              .get(HM.ID, 'deities')
+              .get(MODULE.ID, 'deities')
               .split(',')
               .map((d) => d.trim()) || [];
-          context.enableAlignmentFaithInputs = game.settings.get(HM.ID, 'enableAlignmentFaithInputs');
+          context.enableAlignmentFaithInputs = game.settings.get(MODULE.ID, 'enableAlignmentFaithInputs');
           break;
         case 'footer':
-          context.randomizeButton = game.settings.get(HM.ID, 'enableRandomize');
-          context.navigationButtons = game.settings.get(HM.ID, 'enableNavigationButtons');
+          context.randomizeButton = game.settings.get(MODULE.ID, 'enableRandomize');
+          context.navigationButtons = game.settings.get(MODULE.ID, 'enableNavigationButtons');
           context.isFirstTab = currentTabIndex === 0;
           context.isLastTab = currentTabIndex === tabOrder.length - 1;
           context.previousTabName = currentTabIndex > 0 ? game.i18n.localize(`hm.app.tab-names.${tabOrder[currentTabIndex - 1]}`) : '';
@@ -274,7 +274,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       const isAbilitiesPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'abilities';
       const isFooterPartialRender = options.parts && Array.isArray(options.parts) && options.parts.length === 1 && options.parts[0] === 'footer';
       if (isFooterPartialRender) {
-        const mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
+        const mandatoryFields = game.settings.get(MODULE.ID, 'mandatoryFields') || [];
         if (mandatoryFields.length > 0) {
           const submitButton = this.element.querySelector('.hm-app-footer-submit');
           if (submitButton) {
@@ -430,7 +430,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    * @static
    */
   static getTabOrder() {
-    const advancementOrder = game.settings.get(HM.ID, 'advancementOrder');
+    const advancementOrder = game.settings.get(MODULE.ID, 'advancementOrder');
     const orderedIds =
       Array.isArray(advancementOrder) && advancementOrder.length > 0
         ? [...advancementOrder].sort((a, b) => a.order - b.order).map((item) => item.id)
@@ -587,7 +587,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         return false;
       }
 
-      const menuId = `${HM.ID}.${menuKey}`;
+      const menuId = `${MODULE.ID}.${menuKey}`;
       const menuConfig = game.settings.menus.get(menuId);
       if (menuConfig) {
         const MenuClass = menuConfig.type;

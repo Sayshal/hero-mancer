@@ -3,6 +3,7 @@
  * @description Manages equipment data parsing using DnD5e's EquipmentEntryData
  */
 
+import { MODULE } from '../constants.mjs';
 import { HM } from '../hero-mancer.js';
 import { log } from '../utils/logger.mjs';
 
@@ -137,7 +138,7 @@ export class EquipmentManager {
       if (!formula) continue;
       const roll = await new Roll(formula).evaluate();
       currency.gp += roll.total;
-      if (game.settings.get(HM.ID, 'publishWealthRolls')) {
+      if (game.settings.get(MODULE.ID, 'publishWealthRolls')) {
         roll.toMessage({
           flavor: game.i18n.format('hm.app.equipment.wealth-roll', { type: game.i18n.localize(`hm.app.equipment.${type}`) }),
           speaker: { alias: game.user.name }
@@ -168,7 +169,7 @@ export class EquipmentManager {
   static async initializeLookup() {
     if (this.#lookupInitialized) return;
     log(3, 'EquipmentManager: Initializing item lookup');
-    const itemPacks = game.settings.get(HM.ID, 'itemPacks') || [];
+    const itemPacks = game.settings.get(MODULE.ID, 'itemPacks') || [];
     for (const packId of itemPacks) {
       const pack = game.packs.get(packId);
       if (!pack || pack.documentName !== 'Item') continue;
@@ -259,7 +260,7 @@ export class EquipmentManager {
    */
   static async #buildCategoryOptions(type, key) {
     const options = [];
-    const itemPacks = game.settings.get(HM.ID, 'itemPacks') || [];
+    const itemPacks = game.settings.get(MODULE.ID, 'itemPacks') || [];
     for (const packId of itemPacks) {
       const pack = game.packs.get(packId);
       if (!pack || pack.documentName !== 'Item') continue;
