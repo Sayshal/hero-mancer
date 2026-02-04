@@ -43,6 +43,13 @@
   min-height: 46.875rem;
   max-height: 75vh;
 
+  &.hm-customization,
+  &.hm-dice-rolling,
+  &.hm-mandatory-fields,
+  &.hm-compendiums-settings {
+    min-height: unset;
+  }
+
   .form-group > label {
     flex: 3;
   }
@@ -824,6 +831,7 @@
 
   /* Footer styling */
   .hm-app-footer {
+    margin-top: auto;
     display: flex;
     justify-content: center;
     align-items: center;

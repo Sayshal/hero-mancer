@@ -136,7 +136,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #getItemInfoFromSelection(selectionString) {
-    if (!selectionString) return { name: game.i18n.localize('hm.unknown'), uuid: null };
+    if (!selectionString) return { name: game.i18n.format('hm.unknown', { type: 'selection' }), uuid: null };
     const uuidMatch = selectionString.match(/\[(.*?)]/);
     if (uuidMatch && uuidMatch[1]) {
       const item = await fromUuid(uuidMatch[1]);

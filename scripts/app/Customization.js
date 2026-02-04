@@ -9,7 +9,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-customization',
-    classes: ['hm-app'],
+    classes: ['hm-app', 'hm-customization'],
     tag: 'form',
     form: {
       handler: Customization.formHandler,

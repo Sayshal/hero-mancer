@@ -796,9 +796,9 @@ export class HeroMancerUI {
    * @static
    */
   static async #updateBasicInfoReview(container) {
-    await this.#updateReviewValueWithLink(container, '.race-value', HM.SELECTED.race?.uuid);
-    await this.#updateReviewValueWithLink(container, '.class-value', HM.SELECTED.class?.uuid);
-    await this.#updateReviewValueWithLink(container, '.background-value', HM.SELECTED.background?.uuid);
+    await this.#updateReviewValueWithLink(container, '.race-value', HM.SELECTED.race?.uuid, 'race');
+    await this.#updateReviewValueWithLink(container, '.class-value', HM.SELECTED.class?.uuid, 'class');
+    await this.#updateReviewValueWithLink(container, '.background-value', HM.SELECTED.background?.uuid, 'background');
   }
 
   /**
@@ -806,15 +806,17 @@ export class HeroMancerUI {
    * @param {HTMLElement} container - The container element
    * @param {string} selector - Selector for the value element
    * @param {string} uuid - Document UUID
+   * @param {string} type - The selection type for fallback text
    * @returns {Promise<void>}
    * @private
    * @static
    */
-  static async #updateReviewValueWithLink(container, selector, uuid) {
+  static async #updateReviewValueWithLink(container, selector, uuid, type) {
     const element = container.querySelector(selector);
     if (!element) return;
+    const fallback = game.i18n.format('hm.unknown', { type });
     if (!uuid) {
-      element.textContent = game.i18n.localize('hm.unknown');
+      element.textContent = fallback;
       return;
     }
     const doc = fromUuidSync(uuid);
@@ -822,7 +824,7 @@ export class HeroMancerUI {
       const linkHtml = `@UUID[${uuid}]{${doc.name}}`;
       element.innerHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(linkHtml);
     } else {
-      element.textContent = game.i18n.localize('hm.unknown');
+      element.textContent = fallback;
     }
   }
 
@@ -920,7 +922,7 @@ export class HeroMancerUI {
     if (!doc) return;
     const traits = doc.advancement?.byType?.Trait;
     if (traits) {
-      const grants = traits.flatMap((t) => t.configuration?.grants || []);
+      const grants = traits.flatMap((t) => [...(t.configuration?.grants || [])]);
       for (const grant of grants) this.#categorizeTraitGrant(grant, proficiencyData, doc.name);
     }
     if (type === 'race' && doc.system?.traits?.languages?.value) {
@@ -1119,18 +1121,19 @@ export class HeroMancerUI {
     const eyesAdjective = adjectives[Math.floor(Math.random() * adjectives.length)].trim();
     const skinAdjective = adjectives[Math.floor(Math.random() * adjectives.length)].trim();
     let formatString = 'hm.app.finalize.review.biography-format';
+    const unknown = game.i18n.localize('hm.unknown-plain');
     const formatData = {
-      alignment: bioData.alignment || game.i18n.localize('hm.unknown'),
-      size: bioData.size || game.i18n.localize('hm.unknown'),
-      gender: bioData.gender || game.i18n.localize('hm.unknown'),
-      age: bioData.age || game.i18n.localize('hm.unknown'),
-      weight: bioData.weight || game.i18n.localize('hm.unknown'),
-      height: bioData.height || game.i18n.localize('hm.unknown'),
+      alignment: bioData.alignment || unknown,
+      size: bioData.size || unknown,
+      gender: bioData.gender || unknown,
+      age: bioData.age || unknown,
+      weight: bioData.weight || unknown,
+      height: bioData.height || unknown,
       eyesAdjective: eyesAdjective,
-      eyes: bioData.eyes || game.i18n.localize('hm.unknown'),
-      hair: bioData.hair || game.i18n.localize('hm.unknown'),
+      eyes: bioData.eyes || unknown,
+      hair: bioData.hair || unknown,
       skinAdjective: skinAdjective,
-      skin: bioData.skin || game.i18n.localize('hm.unknown')
+      skin: bioData.skin || unknown
     };
     const includeFaith = bioData.faith && bioData.faith !== game.i18n.localize('None');
     formatString = includeFaith ? 'hm.app.finalize.review.biography-format-with-faith' : formatString;

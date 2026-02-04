@@ -7,7 +7,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-dice-rolling',
-    classes: ['hm-app'],
+    classes: ['hm-app', 'hm-dice-rolling'],
     tag: 'form',
     form: {
       handler: DiceRolling.formHandler,

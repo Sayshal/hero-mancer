@@ -7,7 +7,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-mandatory-fields',
-    classes: ['hm-app'],
+    classes: ['hm-app', 'hm-mandatory-fields'],
     tag: 'form',
     form: {
       handler: MandatoryFields.formHandler,

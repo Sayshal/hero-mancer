@@ -210,6 +210,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
           FormValidation._updateSubmitButton(submitButton, isValid, fieldStatus.missingFields);
         }
       }
+      this.#isRendering = false;
       return;
     }
     if (isAbilitiesPartialRender) {
@@ -217,6 +218,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       if (abilitiesTab) await HeroMancerUI.initializeAbilities(this.element);
       const abilitiesFields = this.element.querySelector('.tab[data-tab="abilities"]');
       if (abilitiesFields) await FormValidation.checkMandatoryFields(abilitiesFields);
+      this.#isRendering = false;
       return;
     }
     const abilitiesTab = this.element.querySelector('.tab[data-tab="abilities"]');
@@ -232,6 +234,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
   _onChangeForm(formConfig, event) {
     super._onChangeForm(formConfig, event);
     if (event.currentTarget && ProgressBar) this.completionPercentage = ProgressBar.calculateAndUpdateProgress(this.element, event.currentTarget);
+    HeroMancerUI.updateReviewTab();
   }
 
   /** @override */
@@ -337,19 +340,12 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     const form = target.ownerDocument.getElementById('hero-mancer-app');
     const success = await SavedOptions.resetOptions(form);
     if (success) {
+      HM.SELECTED.class = { value: '', id: '', uuid: '' };
+      HM.SELECTED.race = { value: '', id: '', uuid: '' };
+      HM.SELECTED.background = { value: '', id: '', uuid: '' };
       const app = HM.heroMancer;
       if (app) {
         await app.render(true);
-        requestAnimationFrame(async () => {
-          await HeroMancerUI.initialize(app.element);
-          ['class', 'race', 'background'].forEach((type) => {
-            const dropdown = app.element.querySelector(`#${type}-dropdown`);
-            if (dropdown && dropdown.value) {
-              const id = dropdown.value.split(' ')[0];
-              HeroMancerUI.updateDescription(type, id, app.element.querySelector(`#${type}-description`));
-            }
-          });
-        });
       }
       ui.notifications.info('hm.app.optionsReset', { localize: true });
     }
