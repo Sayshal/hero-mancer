@@ -169,7 +169,6 @@
       margin: unset;
     }
 
-
     table {
       max-width: 100%;
       border-radius: var(--hm-radius-xl);
@@ -212,7 +211,6 @@
       border-block-end: 0.063rem solid rgb(102 102 102);
       margin-block-end: 0.625rem;
     }
-
 
     .ring-effects .form-fields {
       display: flex;
@@ -933,15 +931,7 @@
   }
 
   /* Label styling with mandatory indicators */
-  :is(
-    .ability-block > span.ability-label,
-    .ability-block > label,
-    .trait-group > label,
-    .personality-trait-group > label,
-    .description-group > label,
-    .notes-group > label,
-    .notes-section > h3
-  ) {
+  :is(.ability-block > span.ability-label, .ability-block > label, .trait-group > label, .personality-trait-group > label, .description-group > label, .notes-group > label, .notes-section > h3) {
     gap: 0.5rem;
     display: flex;
     position: relative;
@@ -954,7 +944,6 @@
     justify-content: space-between;
     align-items: center;
     height: auto;
-
   }
 
   .ability-block {
@@ -1167,7 +1156,6 @@
   }
 }
 
-
 :is(.ability-block .ability-label.primary-ability, .ability-block.point-buy .ability-label.primary-ability) {
   color: var(--hm-color-gold);
   text-shadow: 0 -0.3rem 1.25rem rgb(255 215 0 / 60%);
@@ -1183,7 +1171,6 @@
     background-color: var(--color-cool-5);
   }
 }
-
 
 #remaining-points {
   margin-inline: 0.2rem;
@@ -1262,7 +1249,6 @@
   }
 }
 
-
 .equipment-entries {
   gap: 0.5rem;
   display: flex;
@@ -1274,7 +1260,7 @@
   display: none;
 }
 
-[data-or-child]:not([hidden]):not(:has(> :not(input[type="hidden"]))) {
+[data-or-child]:not([hidden]):not(:has(> :not(input[type='hidden']))) {
   display: none;
 }
 
@@ -1288,7 +1274,7 @@
   i {
     margin: 0;
   }
-}
+}, 
 
 .equipment-container .wealth-roll-container input[type='text'] {
   text-align: center;
@@ -1338,24 +1324,71 @@
 }
 
 /* ==========================================================================
-  Custom Compendiums Settings & Dialogs
+  Custom Compendiums Settings
  ========================================================================== */
-.hm-compendiums-popup-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0.625rem 0;
+.hm-compendiums-settings.application.hm-app {
+  width: auto;
+}
 
-  p {
-    flex: 1;
-    margin: 0;
-    white-space: nowrap;
+.hm-compendiums-popup {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.hm-compendiums-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-block-start: 0.5rem;
+  max-width: 70vw;
+
+  .hm-compendiums-column {
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 0.5rem;
+      padding-block-end: 0.25rem;
+      border-bottom: 1px solid var(--color-border-light-2);
+      font-size: var(--font-size-14);
+      white-space: nowrap;
+
+      i {
+        margin-inline-end: 0.25rem;
+      }
+    }
   }
 
-  button {
-    margin-inline-start: 0.625rem;
-    width: auto;
-    white-space: nowrap;
+  .hm-compendium-group-header {
+    font-weight: bold;
+    font-size: var(--font-size-12);
+    padding: 0.1rem 0;
+  }
+
+  .hm-compendium-group-items {
+    margin-inline-start: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hm-compendium-item {
+    margin: 0.1rem 0;
+    padding: 0;
+    font-size: var(--font-size-11);
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    input[type='checkbox'] {
+      margin: 0;
+    }
+
+    span {
+      flex: 1;
+      text-align: start;
+    }
   }
 }
 
@@ -1365,105 +1398,9 @@
   justify-content: center;
   align-items: center;
 
-  .hm-compendiums-footer-actions {
+  .hm-app-footer-actions {
     gap: 0.625rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 50%;
-  }
-}
-
-.hm-compendiums-popup-dialog {
-  :is(.dialog-content, .window-content form) {
-    height: fit-content;
-    padding: 0.5rem;
-    overflow: auto;
-  }
-
-  .window-content {
-    min-width: 16.25rem;
-    max-width: 32.5rem;
-    height: fit-content;
-    max-height: calc(100vh - 12.5rem);
-  }
-
-  .hm-compendium-groups {
-    overflow-y: auto;
-  }
-
-  .hm-compendium-global-header {
-    font-weight: bold;
-  }
-
-  .hm-compendium-group-header {
-    padding: 0.1rem 0.5rem;
-    font-weight: bold;
-  }
-
-  .hm-compendium-group-items {
-    margin-inline-start: 1.5rem;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hm-compendium-group {
-    .hm-compendium-group-items .hm-compendium-item {
-      margin: 0.1rem;
-      padding: 0;
-    }
-  }
-
-  multi-checkbox {
-    padding-inline-end: 0.5rem;
-    display: block;
-    max-height: calc(50vh - 6.25rem);
-    overflow-y: auto;
-
-    label.checkbox {
-      margin-block-end: 0.625rem;
-      padding-block: 0.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      input[type='checkbox'] {
-        order: 1;
-      }
-    }
-  }
-
-  :is(multi-checkbox label.checkbox, .checkbox) {
-    margin-block-end: 0.625rem;
-    padding-block: 0.25rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .checkbox {
-    input[type='checkbox'] {
-      margin-inline-end: 0.625rem;
-    }
-
-    span {
-      flex: 1;
-      text-align: start;
-    }
-  }
-
-  .hm-compendium-dialog-content {
-    padding-inline-end: 0.5rem;
-    max-height: calc(80vh - 9.375rem);
-    overflow-y: auto;
-
-    hr {
-      margin: 0.5rem 0;
-    }
-  }
-
-  :is(.hm-select-all, .hm-select-all-global) {
-    margin-inline-end: 0.5rem;
   }
 }
 
@@ -1715,8 +1652,6 @@
     }
   }
 
-
-
   label {
     gap: 0.5rem;
     display: flex;
@@ -1738,8 +1673,7 @@
 /* ==========================================================================
   Troubleshooter Settings
  ========================================================================== */
-.hm-troubleshooter,
-.hm-compendiums-popup-dialog .fa-solid {
+.hm-troubleshooter {
   .fa-bug {
     color: var(--color-text-light-6);
   }
@@ -1943,7 +1877,6 @@
       padding-inline: 0.313rem;
       font-size: var(--font-size-13);
     }
-
   }
 
   .ability-scores-container {
@@ -2114,7 +2047,7 @@
 /* Grid layouts */
 .hm-approval-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-colus: repeat(3, 1fr);
   gap: 0.5rem;
 }
 
@@ -2163,7 +2096,7 @@
 }
 
 .hm-approval-text:empty::before {
-  content: "\2014";
+  content: '\2014';
   color: var(--color-text-dark-secondary);
 }
 
@@ -2202,11 +2135,6 @@
     .hero-mancer-tabs.tabs.hm-app-nav .item {
       color: rgb(41 41 41);
     }
-
-  }
-
-  .hm-compendiums-popup-dialog hr {
-    background-image: linear-gradient(90deg, transparent 0%, rgb(54 36 23) 50%, transparent 100%);
   }
 
   .hero-mancer-tabs.tabs.hm-app-nav a.item i.fa-solid i.fa-solid.fa-triangle-exclamation.tab-mandatory-indicator {
