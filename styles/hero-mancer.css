@@ -1260,7 +1260,7 @@
   display: none;
 }
 
-[data-or-child]:not([hidden]):not(:has(> :not(input[type='hidden']))) {
+[data-or-child]:not([hidden], :has(> :not(input[type='hidden']))) {
   display: none;
 }
 
@@ -1274,7 +1274,7 @@
   i {
     margin: 0;
   }
-}, 
+}
 
 .equipment-container .wealth-roll-container input[type='text'] {
   text-align: center;
@@ -1949,7 +1949,7 @@
 }
 
 .hm-approval-title h2 {
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.25rem;
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--color-text-light-highlight);
@@ -2030,7 +2030,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
   padding-bottom: 0.375rem;
   border-bottom: 1px solid rgb(255 255 255 / 10%);
   display: flex;
@@ -2047,7 +2047,7 @@
 /* Grid layouts */
 .hm-approval-grid {
   display: grid;
-  grid-template-colus: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
 }
 
@@ -2088,7 +2088,7 @@
 }
 
 .hm-approval-text p {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
 }
 
 .hm-approval-text p:last-child {
