@@ -18,7 +18,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
     },
     position: {
       height: 'auto',
-      width: 'auto'
+      width: 800
     },
     window: {
       icon: 'fa-solid fa-palette',

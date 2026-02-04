@@ -9,7 +9,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-settings-dice-rolling',
-    classes: ['hm-app'],
+    classes: ['hm-app', 'standard-form'],
     tag: 'form',
     form: {
       handler: DiceRolling.formHandler,
@@ -17,8 +17,8 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
       submitOnChange: false
     },
     position: {
-      height: 'auto',
-      width: '550'
+      height: 750,
+      width: 800
     },
     window: {
       icon: 'fa-solid fa-dice',
@@ -30,7 +30,8 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     form: {
       template: 'modules/hero-mancer/templates/settings/dice-rolling.hbs',
       id: 'body',
-      classes: ['hm-dice-rolling-popup']
+      classes: ['standard-form'],
+      scrollable: ['']
     },
     footer: {
       template: 'modules/hero-mancer/templates/settings/settings-footer.hbs',

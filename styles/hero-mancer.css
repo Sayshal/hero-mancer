@@ -1425,39 +1425,20 @@
 /* ==========================================================================
   Dice Rolling Settings
  ========================================================================== */
-.dice-rolling-application {
-  display: flex;
-  flex-direction: column;
-  margin-inline: 0.25rem;
-  padding-inline: 0.25rem;
+#hero-mancer-settings-dice-rolling .window-content > .standard-form {
   overflow-y: auto;
-  text-align: start;
 }
 
-.hm-dice-rolling-popup {
-  .dice-method-options {
-    gap: 1rem;
-    margin-block-end: 0.5rem;
-    display: flex;
-
-    label {
-      gap: 0.5rem;
-      margin-inline-end: 1rem;
-      display: flex;
-      align-items: center;
-
-      input[type='checkbox'] {
-        margin: 0;
-      }
-    }
+#hero-mancer-settings-dice-rolling {
+  fieldset:has(> .form-group:first-child input[type='checkbox']:not(:checked)) > .form-group:not(:first-child) {
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .delay-control {
     gap: 1rem;
     display: flex;
     align-items: center;
-    width: 100%;
-    max-width: 25rem;
 
     input[type='range'] {
       flex: 1;
@@ -1468,27 +1449,6 @@
       font-weight: bold;
       text-align: end;
     }
-  }
-
-  .ability-scores-container {
-    gap: 0.5rem;
-    display: grid;
-    width: 100%;
-    max-width: 25rem;
-    margin: 0.5rem 0 1rem;
-
-    label {
-      margin-block-end: 0.3rem;
-    }
-
-    input[type='number'] {
-      width: 3.75rem;
-      text-align: center;
-    }
-  }
-
-  .tooltip-icon {
-    margin-inline-start: 0.3rem;
   }
 }
 

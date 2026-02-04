@@ -8,17 +8,17 @@
         <select id="roll-method" aria-label="{{localize 'hm.app.abilities.select-method'}}">
           {{#if allowedMethods.standardArray}}
             <option value="standardArray" {{#if (eq diceRollMethod 'standardArray')}}selected{{/if}}>
-              {{localize 'hm.settings.dice-rolling-method.standard-array'}}
+              {{localize 'hm.settings.dice-rolling-method.standard-array.name'}}
             </option>
           {{/if}}
           {{#if allowedMethods.pointBuy}}
             <option value="pointBuy" {{#if (eq diceRollMethod 'pointBuy')}}selected{{/if}}>
-              {{localize 'hm.settings.dice-rolling-method.point-buy'}}
+              {{localize 'hm.settings.dice-rolling-method.point-buy.name'}}
             </option>
           {{/if}}
           {{#if allowedMethods.manual}}
             <option value="manualFormula" {{#if (eq diceRollMethod 'manualFormula')}}selected{{/if}}>
-              {{localize 'hm.settings.dice-rolling-method.manual-formula'}}
+              {{localize 'hm.settings.dice-rolling-method.manual.name'}}
             </option>
           {{/if}}
         </select>
@@ -28,7 +28,7 @@
     {{!-- Point Buy Method --}}
     {{#if (eq diceRollMethod 'pointBuy')}}
       <fieldset>
-        <legend>{{localize 'hm.settings.dice-rolling-method.point-buy'}} (<span id="remaining-points">{{remainingPoints}}</span>/<span id="total-points">{{totalPoints}}</span>)</legend>
+        <legend>{{localize 'hm.settings.dice-rolling-method.point-buy.name'}} (<span id="remaining-points">{{remainingPoints}}</span>/<span id="total-points">{{totalPoints}}</span>)</legend>
         <p>{{localize 'hm.app.abilities.instructions.point-buy.preamble'}}</p>
 
         {{!-- Point Buy Ability Adjusters --}}
@@ -60,7 +60,7 @@
       {{!-- Standard Array Method --}}
     {{else if (eq diceRollMethod 'standardArray')}}
       <fieldset>
-        <legend>{{localize 'hm.settings.dice-rolling-method.standard-array'}}</legend>
+        <legend>{{localize 'hm.settings.dice-rolling-method.standard-array.name'}}</legend>
         <p>{{localize 'hm.app.abilities.instructions.standard-array.preamble'}}</p>
 
         {{!-- Standard Array Ability Selectors --}}
@@ -87,7 +87,7 @@
       {{!-- Manual Formula Method --}}
     {{else if (eq diceRollMethod 'manualFormula')}}
       <fieldset>
-        <legend>{{localize 'hm.settings.dice-rolling-method.manual-formula'}}</legend>
+        <legend>{{localize 'hm.settings.dice-rolling-method.manual.name'}}</legend>
         <p>{{localize 'hm.app.abilities.instructions.manual.preamble'}}</p>
 
         {{!-- Manual Formula Ability Inputs --}}
