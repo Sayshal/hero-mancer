@@ -1,4 +1,5 @@
 import { ActorCreationService, HM, SavedOptions } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Service for handling character approval workflow when players lack ACTOR_CREATE permission
@@ -51,7 +52,7 @@ export class CharacterApprovalService {
     }
 
     this.#socketCallback = (data) => {
-      HM.log(3, 'Socket event received:', data);
+      log(3, 'Socket event received:', data);
       switch (data.type) {
         case this.EVENTS.SUBMIT_CHARACTER:
           if (game.user.isGM) this.#handleCharacterSubmission(data);
@@ -66,7 +67,7 @@ export class CharacterApprovalService {
     };
 
     game.socket.on(this.SOCKET_NAME, this.#socketCallback);
-    HM.log(3, 'Character approval socket listeners registered');
+    log(3, 'Character approval socket listeners registered');
   }
 
   /**
@@ -78,7 +79,7 @@ export class CharacterApprovalService {
     if (this.#socketCallback) {
       game.socket.off(this.SOCKET_NAME, this.#socketCallback);
       this.#socketCallback = null;
-      HM.log(3, 'Character approval socket listeners unregistered');
+      log(3, 'Character approval socket listeners unregistered');
     }
   }
 
@@ -90,7 +91,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async submitForApproval(characterData, user) {
-    HM.log(3, 'Submitting character for GM approval:', { characterData, userId: user.id });
+    log(3, 'Submitting character for GM approval:', { characterData, userId: user.id });
 
     // Store the pending submission in user flags
     await user.setFlag(HM.ID, 'pendingCharacterSubmission', {
@@ -107,7 +108,7 @@ export class CharacterApprovalService {
     });
 
     ui.notifications.info(game.i18n.localize('hm.approval.submitted'));
-    HM.log(3, 'Character submission sent to GMs');
+    log(3, 'Character submission sent to GMs');
   }
 
   /**
@@ -119,22 +120,22 @@ export class CharacterApprovalService {
    */
   static async createActorForPlayer(characterData, targetUserId) {
     if (!game.user.isGM) {
-      HM.log(1, 'Only GMs can create actors for other players');
+      log(1, 'Only GMs can create actors for other players');
       return null;
     }
 
     const targetUser = game.users.get(targetUserId);
     if (!targetUser) {
-      HM.log(1, 'Target user not found:', targetUserId);
+      log(1, 'Target user not found:', targetUserId);
       return null;
     }
 
     try {
-      HM.log(3, 'GM creating actor for player:', { targetUserId, characterData });
+      log(3, 'GM creating actor for player:', { targetUserId, characterData });
       const actor = await ActorCreationService.createCharacterForPlayer(characterData, targetUser);
       return actor;
     } catch (error) {
-      HM.log(1, 'Error creating actor for player:', error);
+      log(1, 'Error creating actor for player:', error);
       return null;
     }
   }
@@ -150,7 +151,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #handleCharacterSubmission(data) {
-    HM.log(3, 'GM received character submission:', data);
+    log(3, 'GM received character submission:', data);
 
     // Show notification to GM
     ui.notifications.info(game.i18n.format('hm.approval.gm-received', { name: data.userName }));
@@ -241,7 +242,7 @@ export class CharacterApprovalService {
         if (item) return { name: item.name, uuid: uuidMatch[1] };
       }
     } catch (error) {
-      HM.log(2, 'Error fetching item info:', error);
+      log(2, 'Error fetching item info:', error);
     }
 
     // Fallback to ID parsing
@@ -331,7 +332,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #approveCharacter(userId, characterData) {
-    HM.log(3, 'Approving character for user:', userId);
+    log(3, 'Approving character for user:', userId);
 
     try {
       // Create the actor (without advancements - those will be processed on player's client)
@@ -356,7 +357,7 @@ export class CharacterApprovalService {
         ui.notifications.info(game.i18n.format('hm.approval.gm-approved', { name: actor.name }));
       }
     } catch (error) {
-      HM.log(1, 'Error approving character:', error);
+      log(1, 'Error approving character:', error);
       ui.notifications.error(game.i18n.localize('hm.approval.error'));
     }
   }
@@ -369,7 +370,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #rejectCharacter(userId, userName) {
-    HM.log(3, 'Rejecting character for user:', userId);
+    log(3, 'Rejecting character for user:', userId);
 
     // Clear the pending submission flag
     const targetUser = game.users.get(userId);
@@ -393,7 +394,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #handleApprovalNotification(data) {
-    HM.log(3, 'Character approved, continuing creation:', data);
+    log(3, 'Character approved, continuing creation:', data);
     ui.notifications.info(game.i18n.format('hm.approval.player-approved', { name: data.actorName }));
 
     // Continue character creation with advancements on player's client
@@ -418,7 +419,7 @@ export class CharacterApprovalService {
    * @static
    */
   static async #handleRejectionNotification(data) {
-    HM.log(3, 'Character rejected, reopening Hero Mancer:', data);
+    log(3, 'Character rejected, reopening Hero Mancer:', data);
     ui.notifications.warn(game.i18n.localize('hm.approval.player-rejected-resume'));
 
     // Reopen Hero Mancer so player can make changes

@@ -1,4 +1,5 @@
 import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -135,7 +136,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
       return true;
     } catch (error) {
-      HM.log(1, 'Error in form submission:', error);
+      log(1, 'Error in form submission:', error);
       ui.notifications.error('hm.settings.custom-compendiums.error-saving', { localize: true });
       return false;
     } finally {
@@ -195,14 +196,14 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
 
     const validPacks = new Set();
 
-    HM.log(3, `Collecting valid ${type} packs from available compendiums`);
+    log(3, `Collecting valid ${type} packs from available compendiums`);
 
     for (const pack of game.packs) {
       if (pack.metadata.type !== 'Item') continue;
 
       if (HM.COMPAT.CPR) {
         if (pack.metadata.id.includes('chris-premades') || pack.metadata.packageName === 'chris-premades') {
-          HM.log(3, `Skipping CPR pack: ${pack.metadata.label}`);
+          log(3, `Skipping CPR pack: ${pack.metadata.label}`);
           continue;
         }
       }
@@ -223,14 +224,14 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
             packId: pack.metadata.id,
             type: pack.metadata.type
           });
-          HM.log(3, `Found valid ${type} pack: ${pack.metadata.label}`);
+          log(3, `Found valid ${type} pack: ${pack.metadata.label}`);
         }
       } catch (error) {
-        HM.log(1, `Failed to retrieve index from pack ${pack.metadata.label}: ${error.message}`, error);
+        log(1, `Failed to retrieve index from pack ${pack.metadata.label}: ${error.message}`, error);
       }
     }
 
-    HM.log(3, `Found ${validPacks.size} valid ${type} packs`);
+    log(3, `Found ${validPacks.size} valid ${type} packs`);
     this.#validPacksCache.set(type, validPacks);
     return validPacks;
   }
@@ -287,7 +288,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       }
       return topLevelFolder || null;
     } catch (error) {
-      HM.log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
+      log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
       return null;
     }
   }
@@ -353,15 +354,15 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       const packTopLevelFolder = this.#getPackTopLevelFolderName(actualPack);
       if (packTopLevelFolder) {
         const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
-        HM.log(3, `Using pack top-level folder "${translatedName}" for ${pack.packName}`);
+        log(3, `Using pack top-level folder "${translatedName}" for ${pack.packName}`);
         return translatedName;
       }
 
       const translatedPackName = this.#translateSystemFolderName(pack.packName, pack.packId);
-      HM.log(3, `Using translated pack name "${translatedPackName}" for ${pack.packName}`);
+      log(3, `Using translated pack name "${translatedPackName}" for ${pack.packName}`);
       return translatedPackName;
     } catch (error) {
-      HM.log(1, `Error determining organization name for ${pack.packName || 'unknown pack'}:`, error);
+      log(1, `Error determining organization name for ${pack.packName || 'unknown pack'}:`, error);
       return pack.packName || 'Unknown Source';
     }
   }

@@ -1,4 +1,5 @@
 import { HeroMancer, HM, StatRoller } from '../utils/index.js';
+import { log } from './logger.mjs';
 
 /**
  * Manages progress bar for Hero Mancer
@@ -24,7 +25,7 @@ export class ProgressBar {
       this.updateProgressUI(element, progressData.percentage);
       return progressData.percentage;
     } catch (err) {
-      HM.log(1, 'Error processing form progress:', err);
+      log(1, 'Error processing form progress:', err);
       return 0;
     }
   }
@@ -38,7 +39,7 @@ export class ProgressBar {
     const [filledCount, totalFields, unfilledFields, filledFields] = this.#calculateCompletionFromForm(form);
     const percentage = totalFields ? (filledCount / totalFields) * 100 : 0;
 
-    HM.log(3, `Progress Update: ${filledCount}/${totalFields} fields filled (${percentage.toFixed(2)}%)`, {
+    log(3, `Progress Update: ${filledCount}/${totalFields} fields filled (${percentage.toFixed(2)}%)`, {
       Filled: filledFields,
       Empty: unfilledFields
     });
@@ -289,7 +290,7 @@ export class ProgressBar {
     const total = StatRoller.getTotalPoints();
     const spent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
     const isComplete = spent >= total;
-    HM.log(3, `Point Buy ability check - spent: ${spent}/${total}, filled: ${isComplete}`);
+    log(3, `Point Buy ability check - spent: ${spent}/${total}, filled: ${isComplete}`);
     return isComplete;
   }
 
@@ -308,7 +309,7 @@ export class ProgressBar {
     const isOnlyCommas = stringValue.replace(/,/g, '').trim() === '';
 
     const isFilled = !isOnlyCommas;
-    HM.log(3, `Standard ability check - value: ${value}, only commas: ${isOnlyCommas}, filled: ${isFilled}`);
+    log(3, `Standard ability check - value: ${value}, only commas: ${isOnlyCommas}, filled: ${isFilled}`);
 
     return isFilled;
   }

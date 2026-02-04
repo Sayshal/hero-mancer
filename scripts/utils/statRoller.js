@@ -1,4 +1,5 @@
 import { FormValidation, HeroMancer, HeroMancerUI, HM } from './index.js';
+import { log } from './logger.mjs';
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -50,7 +51,7 @@ export class StatRoller {
    */
   static async rollAbilityScore(form) {
     if (this.isRolling) {
-      HM.log(2, 'Rolling already in progress, please wait');
+      log(2, 'Rolling already in progress, please wait');
       return;
     }
 
@@ -61,7 +62,7 @@ export class StatRoller {
       else if (rollData.chainedRolls) await this.rollAllStats(rollData.rollFormula);
       else await this.rollSingleAbilityScore(rollData.rollFormula, rollData.index, rollData.input);
     } catch (error) {
-      HM.log(1, 'Error while rolling stat:', error);
+      log(1, 'Error while rolling stat:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       this.isRolling = false;
     }
@@ -104,7 +105,7 @@ export class StatRoller {
     if (!formula?.trim()) {
       formula = '4d6kh3';
       game.settings.set(HM.ID, 'customRollFormula', formula);
-      HM.log(2, 'Roll formula was empty. Resetting to default:', formula);
+      log(2, 'Roll formula was empty. Resetting to default:', formula);
     }
     return formula;
   }
@@ -117,7 +118,7 @@ export class StatRoller {
    */
   static getAbilityInput(index) {
     if (!index) {
-      HM.log(2, 'Invalid ability index provided to getAbilityInput');
+      log(2, 'Invalid ability index provided to getAbilityInput');
       return null;
     }
 
@@ -135,7 +136,7 @@ export class StatRoller {
    */
   static async rollSingleAbilityScore(rollFormula, index, input) {
     if (!rollFormula) {
-      HM.log(2, 'No roll formula provided for ability score roll');
+      log(2, 'No roll formula provided for ability score roll');
       return false;
     }
     this.#updateRollingStatus(index, true);
@@ -150,11 +151,11 @@ export class StatRoller {
         input.dispatchEvent(new Event('change', { bubbles: true }));
         return true;
       } else {
-        HM.log(2, `No input field found for ability index ${index}.`);
+        log(2, `No input field found for ability index ${index}.`);
         return false;
       }
     } catch (error) {
-      HM.log(1, `Failed to roll ${rollFormula}:`, error);
+      log(1, `Failed to roll ${rollFormula}:`, error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       return false;
     } finally {
@@ -198,11 +199,11 @@ export class StatRoller {
       if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
       const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
-      if (roll.total !== constrainedResult) HM.log(3, `Roll result: ${roll.total} (constrained to ${constrainedResult})`);
-      else HM.log(3, 'Roll result:', roll.total);
+      if (roll.total !== constrainedResult) log(3, `Roll result: ${roll.total} (constrained to ${constrainedResult})`);
+      else log(3, 'Roll result:', roll.total);
       return constrainedResult;
     } catch (error) {
-      HM.log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
+      log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
       return null;
     }
   }
@@ -215,13 +216,13 @@ export class StatRoller {
    */
   static async rollAllStats(rollFormula) {
     if (!rollFormula) {
-      HM.log(2, 'No roll formula provided for ability score roll');
+      log(2, 'No roll formula provided for ability score roll');
       return false;
     }
     this.isRolling = true;
     const blocks = this.#getAbilityBlocks();
     if (!blocks.length) {
-      HM.log(2, 'No ability blocks found for rolling');
+      log(2, 'No ability blocks found for rolling');
       this.isRolling = false;
       return false;
     }
@@ -230,7 +231,7 @@ export class StatRoller {
       HeroMancerUI.updateAbilityHighlights();
       return true;
     } catch (error) {
-      HM.log(1, 'Error in chain rolling:', error);
+      log(1, 'Error in chain rolling:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       return false;
     } finally {
@@ -300,7 +301,7 @@ export class StatRoller {
    */
   static validateAndSetCustomStandardArray(value) {
     if (!value) {
-      HM.log(2, 'Empty value provided for standard array');
+      log(2, 'Empty value provided for standard array');
       return false;
     }
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
@@ -313,7 +314,7 @@ export class StatRoller {
       return isNaN(parsed) ? 0 : parsed;
     });
     if (scores.length < abilitiesCount) {
-      HM.log(2, `Standard array too short: ${scores.length} values for ${abilitiesCount} abilities`);
+      log(2, `Standard array too short: ${scores.length} values for ${abilitiesCount} abilities`);
       scores = this.getStandardArrayDefault().split(',').map(Number);
       ui.notifications.info('hm.settings.custom-standard-array.reset-default', { localize: true });
     }
@@ -368,7 +369,7 @@ export class StatRoller {
   static getPointBuyCostForScore(score) {
     const validScore = parseInt(score);
     if (isNaN(validScore)) {
-      HM.log(2, `Invalid ability score provided: ${score}`);
+      log(2, `Invalid ability score provided: ${score}`);
       return 0;
     }
     const costs = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
@@ -386,7 +387,7 @@ export class StatRoller {
    */
   static calculateTotalPointsSpent(scores) {
     if (!Array.isArray(scores)) {
-      HM.log(2, 'Invalid scores array provided to calculateTotalPointsSpent');
+      log(2, 'Invalid scores array provided to calculateTotalPointsSpent');
       return 0;
     }
     const { MIN } = HM.ABILITY_SCORES;
@@ -414,11 +415,11 @@ export class StatRoller {
       let abbreviation = value.abbreviation;
       let fullKey = value.fullKey;
       if (!abbreviation) {
-        HM.log(2, `Ability "${key}" is missing 'abbreviation' property. Using key as fallback. You should report this to the developer who added ${key}.`);
+        log(2, `Ability "${key}" is missing 'abbreviation' property. Using key as fallback. You should report this to the developer who added ${key}.`);
         abbreviation = key.substr(0, 3);
       }
       if (!fullKey) {
-        HM.log(2, `Hero Mancer: Ability "${key}" is missing 'fullKey' property. Using label as fallback. You should report this to the developer who added ${key}.`);
+        log(2, `Hero Mancer: Ability "${key}" is missing 'fullKey' property. Using label as fallback. You should report this to the developer who added ${key}.`);
         fullKey = value.label || key;
       }
       return { key, abbreviation: abbreviation.toUpperCase(), fullKey: fullKey.toUpperCase(), label: value.label.toUpperCase(), currentScore: HM.ABILITY_SCORES.DEFAULT };
@@ -440,8 +441,8 @@ export class StatRoller {
       .filter(Boolean);
     if (!diceRollingMethod || !validMethods.includes(diceRollingMethod)) {
       diceRollingMethod = validMethods[0];
-      game.settings.set(HM.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => HM.log(1, 'Failed to update diceRollingMethod setting:', err));
-      HM.log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
+      game.settings.set(HM.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => log(1, 'Failed to update diceRollingMethod setting:', err));
+      log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
     }
     return diceRollingMethod;
   }
@@ -764,7 +765,7 @@ export class StatRoller {
    */
   static changeAbilityScoreValue(index, change, selectedAbilities) {
     if (!Array.isArray(selectedAbilities)) {
-      HM.log(1, 'selectedAbilities must be an array');
+      log(1, 'selectedAbilities must be an array');
       return;
     }
     const abilityScoreElement = document.getElementById(`ability-score-${index}`);
@@ -774,7 +775,7 @@ export class StatRoller {
     const totalPoints = this.getTotalPoints();
     const pointsSpent = this.calculateTotalPointsSpent(selectedAbilities);
     if (change > 0 && pointsSpent + this.getPointBuyCostForScore(newScore) - this.getPointBuyCostForScore(currentScore) > totalPoints) {
-      HM.log(2, 'Not enough points remaining to increase this score.');
+      log(2, 'Not enough points remaining to increase this score.');
       return;
     }
     if (newScore !== currentScore) {

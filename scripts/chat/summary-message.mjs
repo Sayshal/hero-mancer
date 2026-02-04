@@ -3,7 +3,7 @@
  * @description Generates character summary chat messages for newly created characters.
  */
 
-import { HM } from '../hero-mancer.js';
+import { log } from '../utils/logger.mjs';
 
 /**
  * Service for generating character summary chat messages.
@@ -23,7 +23,7 @@ export class SummaryMessage {
       message += '</div>';
       return message;
     } catch (error) {
-      HM.log(1, 'Error generating character summary message:', error);
+      log(1, 'Error generating character summary message:', error);
       const fallbackName = document.querySelector('#character-name')?.value || game.user.name;
       return `<div class="character-summary"><h2>${fallbackName}</h2><p>${game.i18n.localize('hm.app.character-created')}</p></div>`;
     }

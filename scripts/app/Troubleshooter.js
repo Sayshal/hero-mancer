@@ -1,4 +1,5 @@
 import { HM } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -59,7 +60,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         output: Troubleshooter.generateTextReport()
       };
     } catch (error) {
-      HM.log(1, `Error preparing troubleshooter context: ${error.message}`);
+      log(1, `Error preparing troubleshooter context: ${error.message}`);
       ui.notifications.error('hm.settings.troubleshooter.error-context', { localize: true });
       return { ...context, output: game.i18n.localize('hm.settings.troubleshooter.error-report') };
     }
@@ -89,11 +90,10 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       this._addHeroMancerSettings(addLine, addHeader);
       this._addCompendiumConfiguration(addLine, addHeader);
       this._addMancerFormData(addLine, addHeader);
-      this._addLogData(addLine, addHeader);
 
       return reportLines.join('\n');
     } catch (error) {
-      HM.log(1, `Error generating text report: ${error.message}`);
+      log(1, `Error generating text report: ${error.message}`);
       throw error;
     }
   }
@@ -113,7 +113,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       saveDataToFile(blob, { type: 'text/plain' }, filename);
       return filename;
     } catch (error) {
-      HM.log(1, `Error exporting text report: ${error.message}`);
+      log(1, `Error exporting text report: ${error.message}`);
       ui.notifications.error('hm.settings.troubleshooter.export-error', { localize: true });
       throw error;
     }
@@ -130,7 +130,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       const filename = Troubleshooter.exportTextReport();
       ui.notifications.info(game.i18n.format('hm.settings.troubleshooter.export-success', { filename }));
     } catch (error) {
-      HM.log(1, `Error handling export report event: ${error.message}`);
+      log(1, `Error handling export report event: ${error.message}`);
     }
   }
 
@@ -149,11 +149,11 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
           ui.notifications.info(game.i18n.localize('hm.settings.troubleshooter.copy-success'));
         })
         .catch((error) => {
-          HM.log(1, `Error copying to clipboard: ${error.message}`);
+          log(1, `Error copying to clipboard: ${error.message}`);
           ui.notifications.error('hm.settings.troubleshooter.copy-error', { localize: true });
         });
     } catch (error) {
-      HM.log(1, `Error handling copy to clipboard event: ${error.message}`);
+      log(1, `Error handling copy to clipboard event: ${error.message}`);
     }
   }
 
@@ -167,7 +167,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       event.preventDefault();
       window.open('https://discord.gg/7HSEEyjMR4');
     } catch (error) {
-      HM.log(1, `Error opening Discord link: ${error.message}`);
+      log(1, `Error opening Discord link: ${error.message}`);
       ui.notifications.error('hm.settings.troubleshooter.link-error', { localize: true });
     }
   }
@@ -182,7 +182,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       event.preventDefault();
       window.open('https://github.com/Sayshal/hero-mancer/issues');
     } catch (error) {
-      HM.log(1, `Error opening GitHub link: ${error.message}`);
+      log(1, `Error opening GitHub link: ${error.message}`);
       ui.notifications.error('hm.settings.troubleshooter.link-error', { localize: true });
     }
   }
@@ -207,7 +207,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       addLine(`Language: ${game.settings.get('core', 'language')}`);
       addLine(`Hero Mancer Version: ${game.modules.get(HM.ID)?.version || 'unknown'}`);
     } catch (error) {
-      HM.log(1, `Error adding game information: ${error.message}`);
+      log(1, `Error adding game information: ${error.message}`);
       addLine('[Error retrieving game information]');
     }
   }
@@ -233,7 +233,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         addLine('No active modules found');
       }
     } catch (error) {
-      HM.log(1, `Error adding module information: ${error.message}`);
+      log(1, `Error adding module information: ${error.message}`);
       addLine('[Error retrieving module information]');
     }
   }
@@ -260,7 +260,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         addLine('No settings found');
       }
     } catch (error) {
-      HM.log(1, `Error adding Hero Mancer settings: ${error.message}`);
+      log(1, `Error adding Hero Mancer settings: ${error.message}`);
       addLine('[Error retrieving Hero Mancer settings]');
     }
   }
@@ -295,7 +295,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       }
     } catch (error) {
-      HM.log(1, `Error adding compendium configuration: ${error.message}`);
+      log(1, `Error adding compendium configuration: ${error.message}`);
       addLine('[Error retrieving compendium configuration]');
     }
   }
@@ -333,59 +333,14 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
         formatMancerData(mancerData);
       }
     } catch (error) {
-      HM.log(1, `Error adding Mancer form data: ${error.message}`);
+      log(1, `Error adding Mancer form data: ${error.message}`);
       addLine('[Error retrieving Mancer form data]');
-    }
-  }
-
-  /**
-   * Adds log data to the report
-   * @param {Function} addLine - Function to add a line to the report
-   * @param {Function} addHeader - Function to add a section header
-   * @returns {void}
-   * @static
-   * @private
-   */
-  static _addLogData(addLine, addHeader) {
-    try {
-      const logData = window.console_logs || [];
-      if (logData.length) {
-        addHeader('Log Data');
-
-        const logInfo = this.getLogLevelInfo();
-        addLine(`Log Level: ${logInfo.level} (${logInfo.name})`);
-        addLine('Recent logs:');
-
-        const processedLogs = this.processLogs(logData);
-        processedLogs.forEach((log) => {
-          addLine(`${log.timestamp} [${log.type.toUpperCase()}] ${log.content}`);
-        });
-      }
-    } catch (error) {
-      HM.log(1, `Error adding log data: ${error.message}`);
-      addLine('[Error retrieving log data]');
     }
   }
 
   /* -------------------------------------------- */
   /*  Static Utility Methods                      */
   /* -------------------------------------------- */
-
-  /**
-   * Gets information about the current log level
-   * @returns {object} Object containing log level and name
-   * @static
-   */
-  static getLogLevelInfo() {
-    try {
-      const level = HM.LOG_LEVEL;
-      const name = level === 0 ? 'Disabled' : level === 1 ? 'Errors' : level === 2 ? 'Warnings' : 'Verbose';
-      return { level, name };
-    } catch (error) {
-      HM.log(1, `Error getting log level info: ${error.message}`);
-      return { level: 'unknown', name: 'Unknown' };
-    }
-  }
 
   /**
    * Gets a list of all enabled modules
@@ -406,7 +361,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       });
       return enabledModules;
     } catch (error) {
-      HM.log(1, `Error getting enabled modules: ${error.message}`);
+      log(1, `Error getting enabled modules: ${error.message}`);
       return [];
     }
   }
@@ -430,7 +385,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       return settings;
     } catch (error) {
-      HM.log(1, `Error collecting settings: ${error.message}`);
+      log(1, `Error collecting settings: ${error.message}`);
       return {};
     }
   }
@@ -499,7 +454,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
 
       return formData;
     } catch (error) {
-      HM.log(1, `Error collecting mancer form data: ${error.message}`);
+      log(1, `Error collecting mancer form data: ${error.message}`);
       return null;
     }
   }
@@ -529,78 +484,15 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
               : { id: packId, error: 'Pack not found' };
           });
         } catch (error) {
-          HM.log(1, `Error getting compendium info for ${type}: ${error.message}`);
+          log(1, `Error getting compendium info for ${type}: ${error.message}`);
           compendiums[type] = [];
         }
       }
       return compendiums;
     } catch (error) {
-      HM.log(1, `Error getting compendium info: ${error.message}`);
+      log(1, `Error getting compendium info: ${error.message}`);
       return {};
     }
   }
 
-  /**
-   * Processes log data for display in the report
-   * @param {Array<object>} logs - Array of log objects
-   * @returns {Array<object>} Processed log entries
-   * @static
-   */
-  static processLogs(logs) {
-    try {
-      if (!Array.isArray(logs)) {
-        HM.log(2, 'Logs parameter is not an array');
-        return [];
-      }
-
-      return logs.map((log) => {
-        try {
-          if (!log.content || !Array.isArray(log.content)) {
-            return {
-              timestamp: log.timestamp || 'unknown',
-              type: log.type || 'log',
-              content: String(log.content || '[Invalid log entry]')
-            };
-          }
-
-          const processedContent = log.content
-            .map((item) => {
-              if (typeof item === 'string') return item;
-              if (Array.isArray(item)) return `Array(${item.length})`;
-              if (typeof item === 'object' && item !== null) {
-                const keys = Object.keys(item);
-                const preview = keys
-                  .slice(0, 3)
-                  .map((key) => {
-                    const value = item[key];
-                    if (Array.isArray(value)) return `${key}: Array(${value.length})`;
-                    if (typeof value === 'object' && value !== null) return `${key}: Object`;
-                    return `${key}: ${value}`;
-                  })
-                  .join(', ');
-                return `{${preview}${keys.length > 3 ? '...' : ''}}`;
-              }
-              return String(item);
-            })
-            .join(' ');
-
-          return {
-            timestamp: log.timestamp || 'unknown',
-            type: log.type || 'log',
-            content: processedContent
-          };
-        } catch (itemError) {
-          HM.log(2, `Error processing log item: ${itemError.message}`);
-          return {
-            timestamp: log.timestamp || 'unknown',
-            type: log.type || 'log',
-            content: '[Error processing log entry]'
-          };
-        }
-      });
-    } catch (error) {
-      HM.log(1, `Error processing logs: ${error.message}`);
-      return [];
-    }
-  }
 }

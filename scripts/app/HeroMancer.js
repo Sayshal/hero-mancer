@@ -1,4 +1,5 @@
 import { ActorCreationService, CharacterArtPicker, CharacterRandomizer, FormValidation, HeroMancerUI, HM, ProgressBar, SavedOptions, StatRoller } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -123,7 +124,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         players: game.users.map((user) => ({ id: user.id, name: user.name, color: user.color.css }))
       };
     } catch (error) {
-      HM.log(1, 'Error preparing context:', error);
+      log(1, 'Error preparing context:', error);
       return { ...context, raceDocs: [], classDocs: [], backgroundDocs: [], tabs: {}, players: [] };
     }
   }
@@ -200,7 +201,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       return context;
     } catch (error) {
-      HM.log(1, `Error preparing context for part ${partId}:`, error);
+      log(1, `Error preparing context for part ${partId}:`, error);
       return context;
     }
   }
@@ -236,7 +237,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         return tabs;
       }, {});
     } catch (error) {
-      HM.log(1, 'Error generating tabs:', error);
+      log(1, 'Error generating tabs:', error);
       return { start: { id: 'start', label: game.i18n.localize('hm.app.tab-names.start'), group: 'hero-mancer-tabs', cssClass: 'active', icon: 'fa-solid fa-play-circle' } };
     }
   }
@@ -323,7 +324,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   async _preClose() {
     await super._preClose();
-    HM.log(3, 'Preparing to close application');
+    log(3, 'Preparing to close application');
     const embedContainers = this.element.querySelectorAll('.journal-container, .journal-embed-container');
     for (const container of embedContainers) {
       try {
@@ -331,7 +332,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         if (embedInstanceId && this[embedInstanceId]) this[embedInstanceId].close();
         container.innerHTML = '';
       } catch (error) {
-        HM.log(2, `Error closing journal embed: ${error.message}`);
+        log(2, `Error closing journal embed: ${error.message}`);
       }
     }
 
@@ -371,7 +372,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       const ringEffects = this.#createRingEffectsMapping();
       return { displayModes, barModes: displayModes, barAttributes, ring: { effects: ringEffects } };
     } catch (error) {
-      HM.log(1, 'Error generating token config:', error);
+      log(1, 'Error generating token config:', error);
       return { displayModes: {}, barModes: {}, barAttributes: {}, ring: { effects: {} } };
     }
   }
@@ -471,7 +472,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
 
       return success;
     } catch (error) {
-      HM.log(1, 'Error resetting options:', error);
+      log(1, 'Error resetting options:', error);
       ui.notifications.error('hm.errors.reset-options-failed', { localize: true });
       return false;
     }
@@ -489,7 +490,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       return await StatRoller.rollAbilityScore(form);
     } catch (error) {
-      HM.log(1, 'Error rolling ability score:', error);
+      log(1, 'Error rolling ability score:', error);
       ui.notifications.error('hm.errors.ability-roll-failed', { localize: true });
       return null;
     }
@@ -512,11 +513,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       HeroMancer.ORIGINAL_PLAYER_COLORS.clear();
       if (event.target.className === 'hm-app-footer-cancel') {
-        HM.log(3, 'Closing HeroMancer application via noSubmit.');
+        log(3, 'Closing HeroMancer application via noSubmit.');
         await HM.heroMancer.close(options);
       }
     } catch (error) {
-      HM.log(1, 'Error during form cancellation:', error);
+      log(1, 'Error during form cancellation:', error);
     }
   }
 
@@ -531,17 +532,17 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       event.preventDefault();
       const nameInput = document.getElementById('character-name');
       if (!nameInput) {
-        HM.log(2, 'Could not find character name input element');
+        log(2, 'Could not find character name input element');
         return null;
       }
 
       const randomName = CharacterRandomizer.generateRandomName();
       nameInput.value = randomName;
       nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      HM.log(3, `Generated random name: ${randomName}`);
+      log(3, `Generated random name: ${randomName}`);
       return randomName;
     } catch (error) {
-      HM.log(1, 'Error generating random character name:', error);
+      log(1, 'Error generating random character name:', error);
       return null;
     }
   }
@@ -559,13 +560,13 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
       await HM.heroMancer.render(true);
       const form = document.getElementById('hero-mancer-app');
       if (!form) {
-        HM.log(2, 'Could not find form element when randomizing character');
+        log(2, 'Could not find form element when randomizing character');
         return false;
       }
 
       return await CharacterRandomizer.randomizeAll(form);
     } catch (error) {
-      HM.log(1, 'Error randomizing character:', error);
+      log(1, 'Error randomizing character:', error);
       ui.notifications.error('hm.errors.randomize-failed', { localize: true });
       return false;
     }
@@ -582,7 +583,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       event.preventDefault();
       if (!menuKey) {
-        HM.log(1, 'No menu key provided');
+        log(1, 'No menu key provided');
         return false;
       }
 
@@ -593,11 +594,11 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         new MenuClass().render(true);
         return true;
       } else {
-        HM.log(1, `Menu '${menuId}' not found`);
+        log(1, `Menu '${menuId}' not found`);
         return false;
       }
     } catch (error) {
-      HM.log(1, `Error opening menu ${menuKey}:`, error);
+      log(1, `Error opening menu ${menuKey}:`, error);
       return false;
     }
   }
@@ -657,7 +658,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
         await SavedOptions.saveOptions(formData.object);
         ui.notifications.info('hm.app.optionsSaved', { localize: true });
       } catch (error) {
-        HM.log(1, 'Error saving options:', error);
+        log(1, 'Error saving options:', error);
         ui.notifications.error('hm.errors.save-options-failed', { localize: true });
         throw new Error(`Failed to save options: ${error.message}`);
       }
@@ -667,7 +668,7 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       return await ActorCreationService.createCharacter(event, formData);
     } catch (error) {
-      HM.log(1, 'Character creation failed:', error);
+      log(1, 'Character creation failed:', error);
       ui.notifications.error('hm.errors.character-creation-failed', { localize: true });
       return null;
     }

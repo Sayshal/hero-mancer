@@ -4,6 +4,7 @@
  */
 
 import { HM } from '../hero-mancer.js';
+import { log } from '../utils/logger.mjs';
 
 /**
  * Manages equipment parsing and data retrieval for character creation.
@@ -39,7 +40,7 @@ export class EquipmentManager {
    * @returns {Promise<{class: object[], background: object[]}>} Equipment data by type
    */
   static async fetchEquipmentData() {
-    HM.log(3, 'EquipmentManager: Fetching equipment data');
+    log(3, 'EquipmentManager: Fetching equipment data');
     const [classEquipment, backgroundEquipment] = await Promise.all([this.#getEquipmentForType('class'), this.#getEquipmentForType('background')]);
     return { class: classEquipment, background: backgroundEquipment };
   }
@@ -157,7 +158,7 @@ export class EquipmentManager {
       this.#itemLookup.clear();
       this.#lookupInitialized = false;
     }
-    HM.log(3, 'EquipmentManager: Cache cleared');
+    log(3, 'EquipmentManager: Cache cleared');
   }
 
   /**
@@ -166,7 +167,7 @@ export class EquipmentManager {
    */
   static async initializeLookup() {
     if (this.#lookupInitialized) return;
-    HM.log(3, 'EquipmentManager: Initializing item lookup');
+    log(3, 'EquipmentManager: Initializing item lookup');
     const itemPacks = game.settings.get(HM.ID, 'itemPacks') || [];
     for (const packId of itemPacks) {
       const pack = game.packs.get(packId);
@@ -180,7 +181,7 @@ export class EquipmentManager {
     }
     for (const items of this.#itemLookup.values()) items.sort((a, b) => a.name.localeCompare(b.name));
     this.#lookupInitialized = true;
-    HM.log(3, 'EquipmentManager: Item lookup initialized');
+    log(3, 'EquipmentManager: Item lookup initialized');
   }
 
   /**
@@ -191,20 +192,20 @@ export class EquipmentManager {
   static async #getEquipmentForType(type) {
     const storedData = HM.SELECTED[type];
     if (!storedData?.uuid) {
-      HM.log(3, `EquipmentManager: No ${type} selected`);
+      log(3, `EquipmentManager: No ${type} selected`);
       return [];
     }
     if (this.#cache.has(storedData.uuid)) return this.#cache.get(storedData.uuid);
     const doc = fromUuidSync(storedData.uuid);
     if (!doc) {
-      HM.log(2, `EquipmentManager: Could not load ${type} document`);
+      log(2, `EquipmentManager: Could not load ${type} document`);
       return [];
     }
     this.#extractProficiencies(doc.system?.advancement || []);
     const equipmentEntries = doc.system?.startingEquipment || [];
     const processed = await this.parseEquipmentEntries(equipmentEntries);
     this.#cache.set(storedData.uuid, processed);
-    HM.log(3, `EquipmentManager: Processed ${processed.length} entries for ${type}`);
+    log(3, `EquipmentManager: Processed ${processed.length} entries for ${type}`);
     return processed;
   }
 
@@ -393,6 +394,6 @@ export class EquipmentManager {
       const grants = advancement.configuration?.grants;
       if (grants) for (const grant of grants) this.proficiencies.add(grant);
     }
-    HM.log(3, `EquipmentManager: Extracted ${this.proficiencies.size} proficiencies`);
+    log(3, `EquipmentManager: Extracted ${this.proficiencies.size} proficiencies`);
   }
 }

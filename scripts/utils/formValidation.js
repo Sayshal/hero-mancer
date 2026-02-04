@@ -1,4 +1,5 @@
 import { HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Centralized form validation utilities
@@ -16,7 +17,7 @@ export class FormValidation {
    */
   static isFieldComplete(element) {
     if (!element || !(element instanceof HTMLElement)) {
-      HM.log(2, 'FormValidation.isFieldComplete called with invalid element', element);
+      log(2, 'FormValidation.isFieldComplete called with invalid element', element);
       return false;
     }
 
@@ -40,7 +41,7 @@ export class FormValidation {
           return this.#isTextFieldComplete(value);
       }
     } catch (error) {
-      HM.log(1, 'Error in FormValidation.isFieldComplete:', error);
+      log(1, 'Error in FormValidation.isFieldComplete:', error);
       return false;
     }
   }
@@ -53,11 +54,11 @@ export class FormValidation {
    */
   static isAbilityFieldComplete(element, abilityBlock) {
     if (!element || !(element instanceof HTMLElement)) {
-      HM.log(2, 'FormValidation.isAbilityFieldComplete called with invalid element', element);
+      log(2, 'FormValidation.isAbilityFieldComplete called with invalid element', element);
       return false;
     }
     if (!abilityBlock || !(abilityBlock instanceof HTMLElement)) {
-      HM.log(2, 'FormValidation.isAbilityFieldComplete called with invalid abilityBlock', abilityBlock);
+      log(2, 'FormValidation.isAbilityFieldComplete called with invalid abilityBlock', abilityBlock);
       return false;
     }
 
@@ -66,7 +67,7 @@ export class FormValidation {
       else if (element.type === 'hidden' && abilityBlock.classList.contains('point-buy')) return this.#isPointBuyComplete(element);
       else return this.#isManualEntryComplete(abilityBlock);
     } catch (error) {
-      HM.log(1, 'Error in FormValidation.isAbilityFieldComplete:', error);
+      log(1, 'Error in FormValidation.isAbilityFieldComplete:', error);
       return false;
     }
   }
@@ -78,7 +79,7 @@ export class FormValidation {
    */
   static findAssociatedLabel(element) {
     if (!element || !(element instanceof HTMLElement)) {
-      HM.log(2, 'FormValidation.findAssociatedLabel called with invalid element', element);
+      log(2, 'FormValidation.findAssociatedLabel called with invalid element', element);
       return null;
     }
 
@@ -94,7 +95,7 @@ export class FormValidation {
       if (!container) return null;
       return container.querySelector('label, span.ability-label');
     } catch (error) {
-      HM.log(1, 'Error in FormValidation.findAssociatedLabel:', error);
+      log(1, 'Error in FormValidation.findAssociatedLabel:', error);
       return null;
     }
   }
@@ -106,7 +107,7 @@ export class FormValidation {
    */
   static addIndicator(labelElement, isComplete = false) {
     if (!labelElement || !(labelElement instanceof HTMLElement)) {
-      HM.log(2, 'FormValidation.addIndicator called with invalid labelElement', labelElement);
+      log(2, 'FormValidation.addIndicator called with invalid labelElement', labelElement);
       return;
     }
     isComplete = !!isComplete;
@@ -129,7 +130,7 @@ export class FormValidation {
       }
       labelElement.prepend(icon);
     } catch (error) {
-      HM.log(1, 'Error in FormValidation.addIndicator:', error);
+      log(1, 'Error in FormValidation.addIndicator:', error);
     }
   }
 
@@ -142,7 +143,7 @@ export class FormValidation {
   static async checkMandatoryFields(form) {
     try {
       if (!form) {
-        HM.log(2, 'No form provided to checkMandatoryFields');
+        log(2, 'No form provided to checkMandatoryFields');
         return true;
       }
 
@@ -150,7 +151,7 @@ export class FormValidation {
       try {
         mandatoryFields = game.settings.get(HM.ID, 'mandatoryFields') || [];
       } catch (error) {
-        HM.log(1, `Error fetching mandatory fields: ${error.message}`);
+        log(1, `Error fetching mandatory fields: ${error.message}`);
         mandatoryFields = [];
       }
 
@@ -165,7 +166,7 @@ export class FormValidation {
       }
       return fieldStatus.missingFields.length === 0;
     } catch (error) {
-      HM.log(1, `Error in checkMandatoryFields: ${error.message}`);
+      log(1, `Error in checkMandatoryFields: ${error.message}`);
       return true;
     }
   }
@@ -195,7 +196,7 @@ export class FormValidation {
       }
       return false;
     } catch (error) {
-      HM.log(1, `Error checking tab mandatory fields: ${error.message}`);
+      log(1, `Error checking tab mandatory fields: ${error.message}`);
       return false;
     }
   }

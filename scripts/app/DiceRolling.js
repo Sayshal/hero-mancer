@@ -1,4 +1,5 @@
 import { HM, StatRoller, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -76,14 +77,14 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
           let value = game.settings.get(HM.ID, setting.key);
           context[setting.key] = value || setting.defaultValue;
         } catch (settingError) {
-          HM.log(2, `Error fetching setting "${setting.key}": ${settingError.message}`);
+          log(2, `Error fetching setting "${setting.key}": ${settingError.message}`);
           context[setting.key] = setting.defaultValue;
         }
       }
 
       return context;
     } catch (error) {
-      HM.log(1, `Error preparing dice rolling context: ${error.message}`);
+      log(1, `Error preparing dice rolling context: ${error.message}`);
       ui.notifications.error('hm.settings.dice-rolling.error-context', { localize: true });
       return { ...context, ...this._getDefaultContext() };
     }
@@ -123,7 +124,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       this._setupDelaySlider();
     } catch (error) {
-      HM.log(1, `Error in _onRender: ${error.message}`);
+      log(1, `Error in _onRender: ${error.message}`);
     }
   }
 
@@ -140,7 +141,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
     const output = html.querySelector('.delay-value');
 
     if (!slider || !output) {
-      HM.log(2, 'Could not find slider or output elements');
+      log(2, 'Could not find slider or output elements');
       return;
     }
 
@@ -238,7 +239,7 @@ export class DiceRolling extends HandlebarsApplicationMixin(ApplicationV2) {
 
       ui.notifications.info('hm.settings.dice-rolling.saved', { localize: true });
     } catch (error) {
-      HM.log(1, `Error in formHandler: ${error.message}`);
+      log(1, `Error in formHandler: ${error.message}`);
       ui.notifications.error('hm.settings.dice-rolling.error-saving', { localize: true });
     }
   }

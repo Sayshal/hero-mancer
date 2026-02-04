@@ -4,6 +4,7 @@
  */
 
 import { HM } from '../hero-mancer.js';
+import { log } from '../utils/logger.mjs';
 import { EventRegistry } from '../utils/event-registry.mjs';
 import { EquipmentManager } from './equipment-manager.mjs';
 
@@ -29,7 +30,7 @@ export class EquipmentUI {
    * @returns {Promise<HTMLElement>} Rendered container
    */
   static async render(container) {
-    HM.log(3, 'EquipmentUI: Rendering equipment selection');
+    log(3, 'EquipmentUI: Rendering equipment selection');
     try {
       await EquipmentManager.initializeLookup();
       const equipmentData = await EquipmentManager.fetchEquipmentData();
@@ -37,10 +38,10 @@ export class EquipmentUI {
       const html = await foundry.applications.handlebars.renderTemplate(this.CONTAINER_TEMPLATE, context);
       container.innerHTML = html;
       this.#attachListeners(container);
-      HM.log(3, 'EquipmentUI: Rendering complete');
+      log(3, 'EquipmentUI: Rendering complete');
       return container;
     } catch (error) {
-      HM.log(1, `EquipmentUI: Render failed - ${error.message}`);
+      log(1, `EquipmentUI: Render failed - ${error.message}`);
       container.innerHTML = `<p class="error">${game.i18n.localize('hm.errors.equipment-rendering')}</p>`;
       return container;
     }
@@ -53,7 +54,7 @@ export class EquipmentUI {
    * @returns {Promise<HTMLElement>} Updated container
    */
   static async renderType(container, type) {
-    HM.log(3, `EquipmentUI: Rendering ${type} equipment`);
+    log(3, `EquipmentUI: Rendering ${type} equipment`);
     const equipmentData = await EquipmentManager.fetchEquipmentData();
     const entries = equipmentData[type] || [];
     const wealth = EquipmentManager.getWealthFormula(type);
@@ -342,7 +343,7 @@ export class EquipmentUI {
       }
     });
 
-    HM.log(3, 'EquipmentUI: Event listeners attached');
+    log(3, 'EquipmentUI: Event listeners attached');
   }
 
   /**

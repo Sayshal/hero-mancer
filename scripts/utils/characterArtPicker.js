@@ -1,4 +1,5 @@
 import { HM } from '../utils/index.js';
+import { log } from './logger.mjs';
 
 /**
  * Handles image selection for character, token, and player art
@@ -25,11 +26,11 @@ export class CharacterArtPicker {
    */
   static set rootDirectory(path) {
     if (!path) {
-      HM.log(2, 'Attempted to set rootDirectory to empty path');
+      log(2, 'Attempted to set rootDirectory to empty path');
       return;
     }
     game.settings.set(HM.ID, 'artPickerRoot', path);
-    HM.log(3, `rootDirectory setting updated to: ${path}`);
+    log(3, `rootDirectory setting updated to: ${path}`);
   }
 
   /* -------------------------------------------- */
@@ -55,13 +56,13 @@ export class CharacterArtPicker {
       const inputField = document.getElementById('character-art-path');
 
       if (!inputField) {
-        HM.log(2, 'Character art input field not found');
+        log(2, 'Character art input field not found');
         return;
       }
 
       const currentPath = inputField.value || rootDir;
 
-      HM.log(3, 'Creating FilePicker with paths:', {
+      log(3, 'Creating FilePicker with paths:', {
         currentPath,
         rootDir
       });
@@ -85,7 +86,7 @@ export class CharacterArtPicker {
               }
             }
           } catch (error) {
-            HM.log(1, 'Error updating character art:', error);
+            log(1, 'Error updating character art:', error);
           }
         }
       };
@@ -93,7 +94,7 @@ export class CharacterArtPicker {
       const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
-      HM.log(1, 'Error opening character art picker:', error);
+      log(1, 'Error opening character art picker:', error);
       ui.notifications.error('hm.errors.art-picker-failed', { localize: true });
     }
   }
@@ -116,13 +117,13 @@ export class CharacterArtPicker {
       const inputField = document.getElementById('token-art-path');
 
       if (!inputField) {
-        HM.log(2, 'Token art input field not found');
+        log(2, 'Token art input field not found');
         return;
       }
 
       const currentPath = inputField.value || rootDir;
 
-      HM.log(3, 'Creating FilePicker with paths:', {
+      log(3, 'Creating FilePicker with paths:', {
         currentPath,
         rootDir
       });
@@ -136,7 +137,7 @@ export class CharacterArtPicker {
             inputField.value = path;
             inputField.dispatchEvent(new Event('change', { bubbles: true }));
           } catch (error) {
-            HM.log(1, 'Error updating token art:', error);
+            log(1, 'Error updating token art:', error);
           }
         }
       };
@@ -144,7 +145,7 @@ export class CharacterArtPicker {
       const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
-      HM.log(1, 'Error opening token art picker:', error);
+      log(1, 'Error opening token art picker:', error);
       ui.notifications.error('hm.errors.token-art-picker-failed', { localize: true });
     }
   }
@@ -161,13 +162,13 @@ export class CharacterArtPicker {
       const inputField = document.getElementById('player-avatar-path');
 
       if (!inputField) {
-        HM.log(2, 'Player avatar input field not found');
+        log(2, 'Player avatar input field not found');
         return;
       }
 
       const currentPath = inputField.value || rootDir;
 
-      HM.log(3, 'Creating FilePicker with paths:', {
+      log(3, 'Creating FilePicker with paths:', {
         currentPath,
         rootDir
       });
@@ -181,7 +182,7 @@ export class CharacterArtPicker {
             inputField.value = path;
             inputField.dispatchEvent(new Event('change', { bubbles: true }));
           } catch (error) {
-            HM.log(1, 'Error updating player avatar:', error);
+            log(1, 'Error updating player avatar:', error);
           }
         }
       };
@@ -189,7 +190,7 @@ export class CharacterArtPicker {
       const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
-      HM.log(1, 'Error opening player avatar picker:', error);
+      log(1, 'Error opening player avatar picker:', error);
       ui.notifications.error('hm.errors.avatar-picker-failed', { localize: true });
     }
   }
@@ -207,7 +208,7 @@ export class CharacterArtPicker {
 
       const inputField = document.getElementById(`${type}-art-path`);
       if (!inputField) {
-        HM.log(2, `${type} art input field not found`);
+        log(2, `${type} art input field not found`);
         return false;
       }
 
@@ -221,14 +222,14 @@ export class CharacterArtPicker {
       // Get Tokenizer API
       const tokenizer = game.modules.get('vtta-tokenizer')?.api || window.Tokenizer;
       if (!tokenizer) {
-        HM.log(1, 'Tokenizer API not found');
+        log(1, 'Tokenizer API not found');
         return false;
       }
 
       // Launch Tokenizer
       tokenizer.launch(options, (response) => {
         try {
-          HM.log(3, 'Tokenizer response:', response);
+          log(3, 'Tokenizer response:', response);
 
           if (type === 'character' && response.avatarFilename) {
             // Update character art
@@ -249,13 +250,13 @@ export class CharacterArtPicker {
             inputField.dispatchEvent(new Event('change', { bubbles: true }));
           }
         } catch (error) {
-          HM.log(1, `Error processing Tokenizer response for ${type}:`, error);
+          log(1, `Error processing Tokenizer response for ${type}:`, error);
         }
       });
 
       return true;
     } catch (error) {
-      HM.log(1, `Error handling Tokenizer for ${type}:`, error);
+      log(1, `Error handling Tokenizer for ${type}:`, error);
       return false;
     }
   }

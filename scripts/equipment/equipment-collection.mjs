@@ -4,6 +4,7 @@
  */
 
 import { HM } from '../hero-mancer.js';
+import { log } from '../utils/logger.mjs';
 
 /**
  * Collects and processes equipment selections for character creation.
@@ -18,7 +19,7 @@ export class EquipmentCollection {
    * @returns {Promise<object[]>} Array of equipment items to add to actor
    */
   static async collectSelections(event, options = { includeClass: true, includeBackground: true }) {
-    HM.log(3, 'EquipmentCollection: Collecting selections');
+    log(3, 'EquipmentCollection: Collecting selections');
     const container = event.target?.querySelector('#equipment-container');
     if (!container) return [];
     const equipment = [];
@@ -29,12 +30,12 @@ export class EquipmentCollection {
       if (!section) continue;
       const wealthCheckbox = section.querySelector(`[data-wealth-checkbox][data-type="${type}"]`);
       if (wealthCheckbox?.checked) {
-        HM.log(3, `EquipmentCollection: ${type} using wealth, skipping equipment`);
+        log(3, `EquipmentCollection: ${type} using wealth, skipping equipment`);
         continue;
       }
       await this.#processSection(section, equipment, type);
     }
-    HM.log(3, `EquipmentCollection: Collected ${equipment.length} items`);
+    log(3, `EquipmentCollection: Collected ${equipment.length} items`);
     return equipment;
   }
 
@@ -44,7 +45,7 @@ export class EquipmentCollection {
    * @returns {Promise<object[]>} Currency items to add
    */
   static async processWealth(event) {
-    HM.log(3, 'EquipmentCollection: Processing wealth');
+    log(3, 'EquipmentCollection: Processing wealth');
     const container = event.target?.querySelector('#equipment-container');
     if (!container) return [];
     const wealthItems = [];
@@ -55,10 +56,10 @@ export class EquipmentCollection {
       try {
         const roll = await new Roll(formula).evaluate();
         const goldAmount = roll.total;
-        HM.log(3, `EquipmentCollection: Rolled ${formula} = ${goldAmount} GP for ${type}`);
+        log(3, `EquipmentCollection: Rolled ${formula} = ${goldAmount} GP for ${type}`);
         wealthItems.push({ type: 'currency', source: type, currency: 'gp', amount: goldAmount, formula, rollTotal: roll.total });
       } catch (error) {
-        HM.log(1, `EquipmentCollection: Failed to roll wealth - ${error.message}`);
+        log(1, `EquipmentCollection: Failed to roll wealth - ${error.message}`);
       }
     }
 
@@ -83,7 +84,7 @@ export class EquipmentCollection {
    * @param {string} type - Section type
    */
   static async #processSection(section, equipment, type) {
-    HM.log(3, `EquipmentCollection: Processing ${type} section`);
+    log(3, `EquipmentCollection: Processing ${type} section`);
     await this.#processSelects(section, equipment);
     await this.#processCheckboxes(section, equipment);
     await this.#processLinkedItems(section, equipment);
@@ -162,7 +163,7 @@ export class EquipmentCollection {
     try {
       return await fromUuid(uuid);
     } catch (error) {
-      HM.log(2, `EquipmentCollection: Failed to resolve ${uuid} - ${error.message}`);
+      log(2, `EquipmentCollection: Failed to resolve ${uuid} - ${error.message}`);
       return null;
     }
   }

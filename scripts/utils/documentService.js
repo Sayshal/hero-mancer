@@ -1,4 +1,5 @@
 import { HM, JournalPageFinder } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Service for managing game document preparation and processing
@@ -34,7 +35,7 @@ export class DocumentService {
       if (doc) this.#documentCache.set(uuid, doc);
       return doc;
     } catch (error) {
-      HM.log(1, `Error loading document ${uuid}:`, error);
+      log(1, `Error loading document ${uuid}:`, error);
       return null;
     }
   }
@@ -55,7 +56,7 @@ export class DocumentService {
       this.#descriptionCache.set(uuid, result);
       return result;
     } catch (error) {
-      HM.log(1, `Error getting description for ${uuid}:`, error);
+      log(1, `Error getting description for ${uuid}:`, error);
       return { description: '', enrichedDescription: '', journalPageId: null };
     }
   }
@@ -67,7 +68,7 @@ export class DocumentService {
   static clearCaches() {
     this.#documentCache.clear();
     this.#descriptionCache.clear();
-    HM.log(3, 'DocumentService caches cleared');
+    log(3, 'DocumentService caches cleared');
   }
 
   /**
@@ -77,7 +78,7 @@ export class DocumentService {
    */
   static async loadAndInitializeDocuments() {
     try {
-      HM.log(3, 'Starting document initialization');
+      log(3, 'Starting document initialization');
       const startTime = performance.now();
       if (!HM.documents) HM.documents = {};
       const [raceResults, classResults, backgroundResults] = await Promise.allSettled([
@@ -87,29 +88,29 @@ export class DocumentService {
       ]);
       if (raceResults.status === 'fulfilled') {
         HM.documents.race = this.#organizeDocumentsByTopLevelFolder(raceResults.value.documents, 'race');
-        HM.log(3, `Loaded ${HM.documents.race.reduce((total, group) => total + group.docs.length, 0)} race documents in ${HM.documents.race.length} groups`);
+        log(3, `Loaded ${HM.documents.race.reduce((total, group) => total + group.docs.length, 0)} race documents in ${HM.documents.race.length} groups`);
       } else {
-        HM.log(1, 'Failed to load race documents:', raceResults.reason);
+        log(1, 'Failed to load race documents:', raceResults.reason);
         HM.documents.race = [];
       }
       if (classResults.status === 'fulfilled') {
         HM.documents.class = this.#organizeDocumentsByTopLevelFolder(classResults.value.documents, 'class');
-        HM.log(3, `Loaded ${HM.documents.class.reduce((total, group) => total + group.docs.length, 0)} class documents in ${HM.documents.class.length} groups`);
+        log(3, `Loaded ${HM.documents.class.reduce((total, group) => total + group.docs.length, 0)} class documents in ${HM.documents.class.length} groups`);
       } else {
-        HM.log(1, 'Failed to load class documents:', classResults.reason);
+        log(1, 'Failed to load class documents:', classResults.reason);
         HM.documents.class = [];
       }
       if (backgroundResults.status === 'fulfilled') {
         HM.documents.background = this.#organizeDocumentsByTopLevelFolder(backgroundResults.value.documents, 'background');
-        HM.log(3, `Loaded ${HM.documents.background.reduce((total, group) => total + group.docs.length, 0)} background documents in ${HM.documents.background.length} groups`);
+        log(3, `Loaded ${HM.documents.background.reduce((total, group) => total + group.docs.length, 0)} background documents in ${HM.documents.background.length} groups`);
       } else {
-        HM.log(1, 'Failed to load background documents:', backgroundResults.reason);
+        log(1, 'Failed to load background documents:', backgroundResults.reason);
         HM.documents.background = [];
       }
       const totalTime = Math.round(performance.now() - startTime);
-      HM.log(3, `Document initialization completed in ${totalTime}ms`);
+      log(3, `Document initialization completed in ${totalTime}ms`);
     } catch (error) {
-      HM.log(1, 'Critical error during document initialization:', error);
+      log(1, 'Critical error during document initialization:', error);
       ui.notifications.error('hm.errors.document-loading-failed', { localize: true });
     }
   }
@@ -123,13 +124,13 @@ export class DocumentService {
   static async prepareDocumentsByType(type) {
     try {
       if (!type || !['race', 'class', 'background', 'species'].includes(type)) {
-        HM.log(2, `Invalid document type: ${type}`);
+        log(2, `Invalid document type: ${type}`);
         ui.notifications.error('hm.errors.invalid-document-type', { localize: true });
         return { types: [], dropdownHtml: '' };
       }
       const data = await this.#fetchTypeDocumentsFromCompendiums(type);
       if (!data.documents || !Array.isArray(data.documents)) {
-        HM.log(2, 'No documents found or invalid document data');
+        log(2, 'No documents found or invalid document data');
         return { types: [], dropdownHtml: '' };
       }
       const result = type === 'race' || type === 'species' ? this.#organizeRacesByFolderName(data.documents) : this.#getFlatDocuments(data.documents);
@@ -138,7 +139,7 @@ export class DocumentService {
       await Promise.all(promises);
       return result;
     } catch (error) {
-      HM.log(1, `Error preparing documents of type ${type}:`, error);
+      log(1, `Error preparing documents of type ${type}:`, error);
       ui.notifications.error(game.i18n.format('hm.errors.document-preparation-failed', { type: type, error: error.message }));
       return { types: [], dropdownHtml: '' };
     }
@@ -174,7 +175,7 @@ export class DocumentService {
         })
         .sort((a, b) => a.sortName.localeCompare(b.sortName));
     } catch (error) {
-      HM.log(1, 'Error processing flat documents:', error);
+      log(1, 'Error processing flat documents:', error);
       return [];
     }
   }
@@ -200,7 +201,7 @@ export class DocumentService {
     const selectedPacks = game.settings.get(HM.ID, `${type}Packs`) || [];
     let packs = this.#getValidPacks(selectedPacks, type);
     if (!packs.length) {
-      HM.log(2, `No valid packs found for type ${type}`);
+      log(2, `No valid packs found for type ${type}`);
       ui.notifications.warn(game.i18n.format('hm.warnings.no-packs-found', { type: type }));
       return { documents: [] };
     }
@@ -226,24 +227,24 @@ export class DocumentService {
             validPacks.push(pack);
           } else {
             invalidPackIds.push(packId);
-            HM.log(2, `Pack ${packId} is either missing or not an Item pack. It will be skipped.`);
+            log(2, `Pack ${packId} is either missing or not an Item pack. It will be skipped.`);
           }
         }
         if (invalidPackIds.length > 0) {
           const updatedPacks = selectedPacks.filter((id) => !invalidPackIds.includes(id));
-          HM.log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
+          log(2, `Removing ${invalidPackIds.length} invalid packs from ${type}Packs setting.`);
           try {
             game.settings.set(HM.ID, `${type}Packs`, updatedPacks);
           } catch (e) {
-            HM.log(1, `Failed to update ${type}Packs setting: ${e.message}`);
+            log(1, `Failed to update ${type}Packs setting: ${e.message}`);
           }
         }
         if (validPacks.length > 0) return validPacks;
-        HM.log(2, `No valid packs found in ${type}Packs settings. Falling back to all available Item packs.`);
+        log(2, `No valid packs found in ${type}Packs settings. Falling back to all available Item packs.`);
       }
       return game.packs.filter((pack) => pack.metadata.type === 'Item');
     } catch (error) {
-      HM.log(1, `Error filtering packs for type ${type}:`, error);
+      log(1, `Error filtering packs for type ${type}:`, error);
       return [];
     }
   }
@@ -261,24 +262,24 @@ export class DocumentService {
     const processingErrors = [];
     for (const pack of packs) {
       if (!pack?.metadata) {
-        HM.log(2, 'Invalid pack encountered during processing');
+        log(2, 'Invalid pack encountered during processing');
         continue;
       }
       try {
         const startTime = performance.now();
         const index = await pack.getIndex({ fields: ['system.properties', 'folder'] });
         const endTime = performance.now();
-        if (endTime - startTime > 500) HM.log(2, `Pack index slow for ${pack.metadata.label}: ${Math.round(endTime - startTime)}ms`);
+        if (endTime - startTime > 500) log(2, `Pack index slow for ${pack.metadata.label}: ${Math.round(endTime - startTime)}ms`);
         const typeEntries = index.filter((entry) => entry.type === type);
         if (!typeEntries.length) {
-          HM.log(3, `No documents of type ${type} found in ${pack.metadata.label}`);
+          log(3, `No documents of type ${type} found in ${pack.metadata.label}`);
           continue;
         }
         const packDocuments = await this.#processPackIndexEntries(pack, typeEntries);
         validPacks.push(...packDocuments.filter(Boolean));
-        HM.log(3, `Indexed ${typeEntries.length} ${type} entries from ${pack.metadata.label}`);
+        log(3, `Indexed ${typeEntries.length} ${type} entries from ${pack.metadata.label}`);
       } catch (error) {
-        HM.log(1, `Failed to retrieve index from pack ${pack.metadata.label}:`, error);
+        log(1, `Failed to retrieve index from pack ${pack.metadata.label}:`, error);
         processingErrors.push(error.message);
         failedPacks.push(pack.metadata.label);
       }
@@ -332,7 +333,7 @@ export class DocumentService {
     if (failedPacks.length === 0) return;
     const errorDetails = processingErrors.length ? ` (Errors: ${processingErrors.join(', ')})` : '';
     ui.notifications.error(game.i18n.format('hm.errors.failed-compendium-retrieval', { type: failedPacks.join(', '), details: errorDetails }));
-    HM.log(1, 'Failed pack retrieval details:', { failedPacks, processingErrors });
+    log(1, 'Failed pack retrieval details:', { failedPacks, processingErrors });
   }
 
   /**
@@ -364,7 +365,7 @@ export class DocumentService {
           return nameCompare || (a.packName || '').localeCompare(b.packName || '');
         });
     } catch (error) {
-      HM.log(1, 'Error sorting documents:', error);
+      log(1, 'Error sorting documents:', error);
       return documents;
     }
   }
@@ -388,7 +389,7 @@ export class DocumentService {
         .replace(/<\/ h3/g, '</ h2');
       return { description: rawDescription, enrichedDescription: enrichedDescription };
     } catch (error) {
-      HM.log(1, `Error generating description for ${doc?.name}:`, error);
+      log(1, `Error generating description for ${doc?.name}:`, error);
       const rawDescription = doc.system?.description?.value || game.i18n.localize('hm.app.no-description');
       return { description: rawDescription };
     }
@@ -412,7 +413,7 @@ export class DocumentService {
       }
       return topLevelFolder || null;
     } catch (error) {
-      HM.log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
+      log(2, `Error getting pack top-level folder for ${pack.metadata.label}:`, error);
       return null;
     }
   }
@@ -429,14 +430,14 @@ export class DocumentService {
       const packTopLevelFolder = this.#getPackTopLevelFolderName(pack);
       if (packTopLevelFolder) {
         const translatedName = this.#translateSystemFolderName(packTopLevelFolder);
-        HM.log(3, `Using pack top-level folder "${translatedName}" for ${docData.name}`);
+        log(3, `Using pack top-level folder "${translatedName}" for ${docData.name}`);
         return translatedName;
       }
       const translatedPackName = this.#translateSystemFolderName(docData.packName, pack.metadata.id);
-      HM.log(3, `Using translated pack name "${translatedPackName}" for ${docData.name}`);
+      log(3, `Using translated pack name "${translatedPackName}" for ${docData.name}`);
       return translatedPackName;
     } catch (error) {
-      HM.log(1, `Error determining organization name for ${docData.name || 'unknown document'}:`, error);
+      log(1, `Error determining organization name for ${docData.name || 'unknown document'}:`, error);
       return docData.packName || 'Unknown Source';
     }
   }
@@ -486,20 +487,20 @@ export class DocumentService {
    */
   static #organizeDocumentsByTopLevelFolder(documents, documentType) {
     if (!documents?.length) {
-      HM.log(2, `Invalid or empty documents array for ${documentType} organization`);
+      log(2, `Invalid or empty documents array for ${documentType} organization`);
       return [];
     }
     try {
-      HM.log(3, `Organizing ${documents.length} ${documentType} documents by pack top-level folder`);
+      log(3, `Organizing ${documents.length} ${documentType} documents by pack top-level folder`);
       const organizationGroups = new Map();
       for (const docData of documents) {
         if (!docData || !docData.uuid || !docData.name) {
-          HM.log(2, `Skipping invalid document data in ${documentType} organization - missing uuid or name`);
+          log(2, `Skipping invalid document data in ${documentType} organization - missing uuid or name`);
           continue;
         }
         const pack = game.packs.get(docData.packId);
         if (!pack) {
-          HM.log(2, `Could not find pack ${docData.packId} for document ${docData.name}`);
+          log(2, `Could not find pack ${docData.packId} for document ${docData.name}`);
           continue;
         }
         const organizationName = this.#determineOrganizationName(docData, pack);
@@ -521,10 +522,10 @@ export class DocumentService {
       }
       for (const group of organizationGroups.values()) group.docs.sort((a, b) => a.name.localeCompare(b.name));
       const result = Array.from(organizationGroups.values()).sort((a, b) => a.folderName.localeCompare(b.folderName));
-      HM.log(3, `Organized ${documentType} into ${result.length} groups: ${result.map((g) => `${g.folderName} (${g.docs.length})`).join(', ')}`);
+      log(3, `Organized ${documentType} into ${result.length} groups: ${result.map((g) => `${g.folderName} (${g.docs.length})`).join(', ')}`);
       return result;
     } catch (error) {
-      HM.log(1, `Error organizing ${documentType} by pack top-level folder:`, error);
+      log(1, `Error organizing ${documentType} by pack top-level folder:`, error);
       return [];
     }
   }

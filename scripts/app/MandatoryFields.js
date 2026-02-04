@@ -1,4 +1,5 @@
 import { HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -84,7 +85,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
         tokenCustomizationEnabled
       };
     } catch (error) {
-      HM.log(1, `Error preparing context: ${error.message}`);
+      log(1, `Error preparing context: ${error.message}`);
       ui.notifications.error('hm.settings.mandatory-fields.error-context', { localize: true });
       return { ...context, fields: {}, playerCustomizationEnabled: false, tokenCustomizationEnabled: false };
     }
@@ -189,7 +190,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
       ui.notifications.info('hm.settings.mandatory-fields.saved', { localize: true });
       return true;
     } catch (error) {
-      HM.log(1, `Error in MandatoryFields formHandler: ${error.message}`);
+      log(1, `Error in MandatoryFields formHandler: ${error.message}`);
       ui.notifications.error('hm.settings.mandatory-fields.error-saving', { localize: true });
       return false;
     }

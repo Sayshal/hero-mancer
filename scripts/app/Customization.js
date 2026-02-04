@@ -1,4 +1,5 @@
 import { CharacterArtPicker, HM, needsReload, needsRerender, rerenderHM } from '../utils/index.js';
+import { log } from '../utils/logger.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const DragDropClass = foundry.applications.ux.DragDrop.implementation;
@@ -87,7 +88,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       this.config = foundry.utils.deepClone(config);
     } catch (error) {
-      HM.log(1, 'Error initializing advancement order configuration:', error);
+      log(1, 'Error initializing advancement order configuration:', error);
       this.config = defaults;
     }
   }
@@ -109,7 +110,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       return config;
     } catch (error) {
-      HM.log(1, 'Error retrieving advancement order configuration, using defaults:', error);
+      log(1, 'Error retrieving advancement order configuration, using defaults:', error);
       return [
         { id: 'background', label: 'hm.app.tab-names.background', order: 10, sortable: true },
         { id: 'race', label: 'hm.app.tab-names.race', order: 20, sortable: true },
@@ -247,7 +248,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       this.render(false);
       return true;
     } catch (error) {
-      HM.log(1, 'Error handling drop:', error);
+      log(1, 'Error handling drop:', error);
       return false;
     } finally {
       this._cleanupDragElements();
@@ -306,7 +307,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
         try {
           context[setting] = game.settings.get(HM.ID, setting);
         } catch (settingError) {
-          HM.log(2, `Error fetching setting "${setting}": ${settingError.message}`);
+          log(2, `Error fetching setting "${setting}": ${settingError.message}`);
           context[setting] = game.settings.settings.get(`${HM.ID}.${setting}`).default;
         }
       }
@@ -321,7 +322,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
       return context;
     } catch (error) {
-      HM.log(1, `Error preparing context: ${error.message}`);
+      log(1, `Error preparing context: ${error.message}`);
       ui.notifications.error('hm.settings.customization.error-context', { localize: true });
       return context;
     }
@@ -341,7 +342,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!inputField) throw new Error('Could not find artPickerRoot input field');
 
       const currentPath = inputField.value || '/';
-      HM.log(3, 'Creating FilePicker for folder selection:', { currentPath });
+      log(3, 'Creating FilePicker for folder selection:', { currentPath });
 
       const pickerConfig = {
         type: 'folder',
@@ -355,7 +356,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
       const filepicker = new foundry.applications.apps.FilePicker.implementation(pickerConfig);
       filepicker.render(true);
     } catch (error) {
-      HM.log(1, `Error selecting art picker root: ${error.message}`);
+      log(1, `Error selecting art picker root: ${error.message}`);
       ui.notifications.error('hm.settings.customization.error-art-picker', { localize: true });
     }
   }
@@ -400,7 +401,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
           resetSettings.push(setting);
         }
       } catch (error) {
-        HM.log(2, `Error validating setting "${setting}": ${error.message}`);
+        log(2, `Error validating setting "${setting}": ${error.message}`);
         defaults[setting] = null;
       }
     }
@@ -448,7 +449,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
             changedSettings[setting] = true;
           }
         } catch (error) {
-          HM.log(1, `Error saving setting "${setting}": ${error.message}`);
+          log(1, `Error saving setting "${setting}": ${error.message}`);
           ui.notifications.warn(game.i18n.format('hm.settings.customization.save-error', { setting }));
         }
       }
@@ -482,7 +483,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
           game.settings.set(HM.ID, 'advancementOrder', updatedConfig);
         }
       } catch (error) {
-        HM.log(1, `Error saving advancement order: ${error.message}`);
+        log(1, `Error saving advancement order: ${error.message}`);
       }
 
       // Show warnings for reset settings
@@ -502,7 +503,7 @@ export class Customization extends HandlebarsApplicationMixin(ApplicationV2) {
 
       ui.notifications.info('hm.settings.customization.saved', { localize: true });
     } catch (error) {
-      HM.log(1, `Error in formHandler: ${error.message}`);
+      log(1, `Error in formHandler: ${error.message}`);
       ui.notifications.error('hm.settings.customization.error-saving', { localize: true });
       return false;
     }

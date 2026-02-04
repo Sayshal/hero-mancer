@@ -5,6 +5,7 @@
  */
 
 import { DocumentService, EquipmentManager, EquipmentUI, EventRegistry, FormValidation, HeroMancer, HM, JournalPageEmbed, SavedOptions, StatRoller, TableManager } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Centralized UI management for the HeroMancer application.
@@ -34,7 +35,7 @@ export class HeroMancerUI {
     this.#pendingEquipmentUpdate = null;
     EventRegistry.cleanupAll();
     EquipmentManager.clearCache();
-    HM.log(3, 'HeroMancerUI: cleanup complete');
+    log(3, 'HeroMancerUI: cleanup complete');
     return true;
   }
 
@@ -45,7 +46,7 @@ export class HeroMancerUI {
    */
   static async initialize(element) {
     if (!element) {
-      HM.log(1, 'Cannot initialize HeroMancerUI: No element provided');
+      log(1, 'Cannot initialize HeroMancerUI: No element provided');
       return false;
     }
     try {
@@ -57,7 +58,7 @@ export class HeroMancerUI {
       this.initializeTokenCustomization(element);
       await this.initializeRollButtons(element);
     } catch (error) {
-      HM.log(1, 'Error during HeroMancerUI initialization:', error);
+      log(1, 'Error during HeroMancerUI initialization:', error);
       return false;
     }
   }
@@ -101,7 +102,7 @@ export class HeroMancerUI {
     try {
       await EquipmentUI.render(equipmentContainer);
     } catch (error) {
-      HM.log(1, 'Failed to initialize equipment container:', error);
+      log(1, 'Failed to initialize equipment container:', error);
       equipmentContainer.innerHTML = `<p class="error">${game.i18n.localize('hm.errors.equipment-rendering')}</p>`;
     }
   }
@@ -223,7 +224,7 @@ export class HeroMancerUI {
           return;
         }
         const result = await TableManager.rollOnBackgroundCharacteristicTable(backgroundId, tableType);
-        HM.log(3, 'Roll result:', result);
+        log(3, 'Roll result:', result);
         if (result) {
           textarea.value = textarea.value ? `${textarea.value} ${result}` : result;
           textarea.dispatchEvent(new Event('change', { bubbles: true }));
@@ -249,31 +250,31 @@ export class HeroMancerUI {
   static async updateRaceSize(raceUuid) {
     try {
       if (!raceUuid) {
-        HM.log(3, 'No race UUID provided for size update');
+        log(3, 'No race UUID provided for size update');
         return;
       }
       const sizeInput = document.getElementById('size');
       if (!sizeInput) {
-        HM.log(2, 'Could not find size input element');
+        log(2, 'Could not find size input element');
         return;
       }
       const race = fromUuidSync(raceUuid);
       if (!race) {
-        HM.log(2, `Could not find race with UUID: ${raceUuid}`);
+        log(2, `Could not find race with UUID: ${raceUuid}`);
         sizeInput.value = '';
         sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
         return;
       }
-      HM.log(3, `Processing race: ${race.name}`, race);
+      log(3, `Processing race: ${race.name}`, race);
       let sizesArray = [];
       let hint = '';
       if (race.advancement?.byType?.Size?.length) {
         const sizeAdvancement = race.advancement.byType.Size[0];
-        HM.log(3, 'Found Size advancement:', sizeAdvancement);
+        log(3, 'Found Size advancement:', sizeAdvancement);
         if (sizeAdvancement.configuration?.sizes) {
           if (sizeAdvancement.configuration.sizes instanceof Set) {
             sizesArray = Array.from(sizeAdvancement.configuration.sizes);
-            HM.log(3, `Converted sizes Set to Array: ${sizesArray.join(', ')}`);
+            log(3, `Converted sizes Set to Array: ${sizesArray.join(', ')}`);
           } else if (Array.isArray(sizeAdvancement.configuration.sizes)) {
             sizesArray = sizeAdvancement.configuration.sizes;
           }
@@ -281,7 +282,7 @@ export class HeroMancerUI {
         }
       }
       if (!sizesArray.length) {
-        HM.log(2, `No size advancement found for race: ${race.name}`, { advancement: race.advancement });
+        log(2, `No size advancement found for race: ${race.name}`, { advancement: race.advancement });
         sizeInput.value = '';
         sizeInput.placeholder = game.i18n.localize('hm.app.biography.size-placeholder');
         return;
@@ -289,7 +290,7 @@ export class HeroMancerUI {
       const sizeLabels = sizesArray.map((size) => {
         return CONFIG.DND5E.actorSizes[size]?.label || size;
       });
-      HM.log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
+      log(3, `Size labels for ${race.name}: ${sizeLabels.join(', ')}`);
       const or = game.i18n.localize('hm.app.list-or');
       let sizeText = '';
       if (sizeLabels.length === 1) {
@@ -301,13 +302,13 @@ export class HeroMancerUI {
         sizeText = `${sizeLabels.join(', ')}, ${or} ${lastLabel}`;
       }
       sizeInput.value = sizeText;
-      HM.log(3, `Updated size input with value: "${sizeText}"`);
+      log(3, `Updated size input with value: "${sizeText}"`);
       if (hint) {
         sizeInput.title = hint;
-        HM.log(3, `Added size hint from race: "${hint}"`);
+        log(3, `Added size hint from race: "${hint}"`);
       }
     } catch (error) {
-      HM.log(1, `Error updating race size: ${error.message}`, error);
+      log(1, `Error updating race size: ${error.message}`, error);
       const sizeInput = document.getElementById('size');
       if (sizeInput) {
         sizeInput.value = '';
@@ -374,7 +375,7 @@ export class HeroMancerUI {
 
       if (operations.length > 0) requestAnimationFrame(() => operations.forEach((op) => op()));
     } catch (error) {
-      HM.log(1, `Error updating tab indicators: ${error.message}`);
+      log(1, `Error updating tab indicators: ${error.message}`);
     }
   }
 
@@ -414,11 +415,11 @@ export class HeroMancerUI {
    */
   static async updateDescription(type, id, descriptionEl) {
     if (!descriptionEl) {
-      HM.log(2, `Cannot update ${type} description: No description element provided`);
+      log(2, `Cannot update ${type} description: No description element provided`);
       return;
     }
 
-    HM.log(3, `Updating ${type} description for ID: ${id}`);
+    log(3, `Updating ${type} description for ID: ${id}`);
     try {
       if (!id) {
         descriptionEl.innerHTML = '';
@@ -436,7 +437,7 @@ export class HeroMancerUI {
       }
       this.#renderStandardDescription(doc, descData, descriptionEl);
     } catch (error) {
-      HM.log(1, `Error updating ${type} description: ${error.message}`, error);
+      log(1, `Error updating ${type} description: ${error.message}`, error);
       descriptionEl.innerHTML = game.i18n.localize('hm.app.no-description');
     }
   }
@@ -466,7 +467,7 @@ export class HeroMancerUI {
       // Re-render the specific section
       await EquipmentUI.renderType(equipmentContainer, type);
     } catch (error) {
-      HM.log(1, `Error in updateEquipment for ${type}:`, error);
+      log(1, `Error in updateEquipment for ${type}:`, error);
     } finally {
       this.#equipmentUpdateInProgress = false;
 
@@ -505,7 +506,7 @@ export class HeroMancerUI {
         background = backgroundDoc?.name || '';
       }
     } catch (error) {
-      HM.log(2, `Error getting document: ${error}`);
+      log(2, `Error getting document: ${error}`);
     }
     let characterDescription = characterName;
     const components = [race, background, charClass].filter((c) => c);
@@ -532,7 +533,7 @@ export class HeroMancerUI {
     try {
       const finalizeTab = document.querySelector('.tab[data-tab="finalize"]');
       if (!finalizeTab) {
-        HM.log(2, 'Finalize tab not found');
+        log(2, 'Finalize tab not found');
         return;
       }
 
@@ -548,7 +549,7 @@ export class HeroMancerUI {
       await this.#updateBiographyReview(bioSection);
       if (proficienciesSection) await this.#updateProficienciesReview(proficienciesSection);
     } catch (error) {
-      HM.log(1, 'Error updating review tab:', error);
+      log(1, 'Error updating review tab:', error);
     }
   }
 
@@ -568,7 +569,7 @@ export class HeroMancerUI {
     for (const type of types) {
       const selector = `#${type}-dropdown`;
       dropdowns[type] = element.querySelector(selector);
-      if (!dropdowns[type]) HM.log(2, `${type} dropdown not found`);
+      if (!dropdowns[type]) log(2, `${type} dropdown not found`);
     }
     return dropdowns;
   }
@@ -584,10 +585,10 @@ export class HeroMancerUI {
     const value = event.target.value;
     if (!value) {
       HM.SELECTED[type] = { value: '', id: '', uuid: '' };
-      HM.log(3, `${type} reset to default`);
+      log(3, `${type} reset to default`);
       const currentTab = element.querySelector(`.tab[data-tab="${type}"]`);
       if (!currentTab) {
-        HM.log(1, `Could not find tab for ${type}`);
+        log(1, `Could not find tab for ${type}`);
         return;
       }
       const journalContainer = currentTab.querySelector('.journal-container');
@@ -602,10 +603,10 @@ export class HeroMancerUI {
     const id = value.split(' ')[0].trim();
     const uuid = value.match(/\[(.*?)]/)?.[1] || '';
     HM.SELECTED[type] = { value, id, uuid };
-    HM.log(3, `${type} updated:`, HM.SELECTED[type]);
+    log(3, `${type} updated:`, HM.SELECTED[type]);
     const currentTab = element.querySelector(`.tab[data-tab="${type}"]`);
     if (!currentTab) {
-      HM.log(1, `Could not find tab for ${type}`);
+      log(1, `Could not find tab for ${type}`);
       return;
     }
     const journalContainer = currentTab.querySelector('.journal-container');
@@ -635,7 +636,7 @@ export class HeroMancerUI {
         journalContainer.innerHTML = game.i18n.localize('hm.app.no-description');
       }
     } else {
-      HM.log(1, `Could not find journal container for ${type}`);
+      log(1, `Could not find journal container for ${type}`);
     }
     await this.#updateUIForDropdownType(element, type);
     if (type === 'race' && uuid) await this.updateRaceSize(uuid);
@@ -664,7 +665,7 @@ export class HeroMancerUI {
     if (!rollMethodSelect) return;
     EventRegistry.on(rollMethodSelect, 'change', async (event) => {
       const method = event.target.value;
-      HM.log(3, `Roll method changed to: ${method}`);
+      log(3, `Roll method changed to: ${method}`);
       this.#handleRollMethodChange(element, method);
     });
   }
@@ -757,7 +758,7 @@ export class HeroMancerUI {
         for (const trait of level1Traits) for (const grant of trait.configuration.grants) if (grant.startsWith('saves:')) primaryAbilities.add(grant.split(':')[1].toLowerCase());
       }
     } catch (error) {
-      HM.log(1, 'Error getting class primary abilities:', error);
+      log(1, 'Error getting class primary abilities:', error);
     }
     return primaryAbilities;
   }
@@ -895,7 +896,7 @@ export class HeroMancerUI {
    * @static
    */
   static async #renderJournalPage(doc, descData, descriptionEl) {
-    HM.log(3, `Found journal page ID ${descData.journalPageId} for ${doc.name}`);
+    log(3, `Found journal page ID ${descData.journalPageId} for ${doc.name}`);
     const container = descriptionEl.querySelector('.journal-container') || document.createElement('div');
     if (!container.classList.contains('journal-container')) {
       container.classList.add('journal-container');
@@ -906,12 +907,12 @@ export class HeroMancerUI {
     try {
       const result = await embed.render(descData.journalPageId, doc.name);
       if (result) {
-        HM.log(3, `Successfully rendered journal page for ${doc.name}`);
+        log(3, `Successfully rendered journal page for ${doc.name}`);
         return;
       }
       throw new Error('Failed to render journal page');
     } catch (error) {
-      HM.log(2, `Failed to render journal page ${descData.journalPageId} for ${doc.name}: ${error.message}`);
+      log(2, `Failed to render journal page ${descData.journalPageId} for ${doc.name}: ${error.message}`);
       descriptionEl.innerHTML = '<div class="notification error">Failed to load journal page content</div>';
       setTimeout(() => this.#renderStandardDescription(doc, descData, descriptionEl), 500);
     }
@@ -974,7 +975,7 @@ export class HeroMancerUI {
         element.textContent = game.i18n.localize('hm.unknown');
       }
     } catch (error) {
-      HM.log(2, `Error fetching document ${uuid}:`, error);
+      log(2, `Error fetching document ${uuid}:`, error);
       element.textContent = game.i18n.localize('hm.unknown');
     }
   }
@@ -1055,10 +1056,10 @@ export class HeroMancerUI {
       addCategory(proficiencyData.skills, 'DND5E.Skills', 'fa-solid fa-star');
       addCategory(proficiencyData.languages, 'DND5E.Languages', 'fa-solid fa-language');
 
-      HM.log(3, 'Final proficiency data collected:', categories);
+      log(3, 'Final proficiency data collected:', categories);
       container.innerHTML = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/review/proficiencies-review.hbs', { categories });
     } catch (error) {
-      HM.log(1, 'Error updating proficiencies review:', error);
+      log(1, 'Error updating proficiencies review:', error);
       container.innerHTML = `<div class="error-message">${game.i18n.localize('hm.app.finalize.review.proficiencies-error')}</div>`;
     }
   }
@@ -1077,7 +1078,7 @@ export class HeroMancerUI {
       if (!selected?.uuid) return;
       const doc = fromUuidSync(selected.uuid);
       if (!doc) {
-        HM.log(2, `${type} document not found`);
+        log(2, `${type} document not found`);
         return;
       }
       if (doc.advancement?.byType?.Trait) {
@@ -1090,7 +1091,7 @@ export class HeroMancerUI {
         }
       }
     } catch (error) {
-      HM.log(1, `Error extracting ${type} proficiencies:`, error);
+      log(1, `Error extracting ${type} proficiencies:`, error);
     }
   }
 
@@ -1132,7 +1133,7 @@ export class HeroMancerUI {
         proficiencyData.tools.add({ name: toolConfig?.label || toolConfig, source: source });
       }
     } catch (error) {
-      HM.log(1, `Error categorizing grant "${grant}":`, error);
+      log(1, `Error categorizing grant "${grant}":`, error);
     }
   }
 
@@ -1260,7 +1261,7 @@ export class HeroMancerUI {
       const background = fromUuidSync(HM.SELECTED.background.uuid);
       return background?.name || '';
     } catch (error) {
-      HM.log(2, `Error getting background name: ${error.message}`);
+      log(2, `Error getting background name: ${error.message}`);
       return '';
     }
   }
@@ -1277,7 +1278,7 @@ export class HeroMancerUI {
       const classItem = fromUuidSync(HM.SELECTED.class.uuid);
       return classItem?.name || '';
     } catch (error) {
-      HM.log(2, `Error getting class name: ${error.message}`);
+      log(2, `Error getting class name: ${error.message}`);
       return '';
     }
   }

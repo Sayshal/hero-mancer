@@ -14,6 +14,7 @@ export { EquipmentCollection } from '../equipment/equipment-collection.mjs';
 export { EquipmentManager } from '../equipment/equipment-manager.mjs';
 export { EquipmentUI } from '../equipment/equipment-ui.mjs';
 export { HM } from '../hero-mancer.js';
+export { initializeLogger, log, setLogLevel } from './logger.mjs';
 export { needsReload, needsRerender, rerenderHM } from '../settings.js';
 export { ActorCreationService } from './actorCreationService.js';
 export { CharacterApprovalService } from './characterApprovalService.js';

@@ -4,6 +4,7 @@
  */
 
 import { HM } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Centralized registry for DOM event listeners and mutation observers.
@@ -28,15 +29,15 @@ export class EventRegistry {
    */
   static on(element, eventType, callback) {
     if (!element || !(element instanceof Element)) {
-      HM.log(2, 'EventRegistry.on: Invalid element provided');
+      log(2, 'EventRegistry.on: Invalid element provided');
       return callback;
     }
     if (!eventType || typeof eventType !== 'string') {
-      HM.log(2, `EventRegistry.on: Invalid event type "${eventType}"`);
+      log(2, `EventRegistry.on: Invalid event type "${eventType}"`);
       return callback;
     }
     if (typeof callback !== 'function') {
-      HM.log(2, 'EventRegistry.on: Callback must be a function');
+      log(2, 'EventRegistry.on: Callback must be a function');
       return callback;
     }
 
@@ -81,15 +82,15 @@ export class EventRegistry {
    */
   static observe(element, id, options, callback) {
     if (!element || !(element instanceof Element)) {
-      HM.log(2, `EventRegistry.observe: Invalid element for observer "${id}"`);
+      log(2, `EventRegistry.observe: Invalid element for observer "${id}"`);
       return null;
     }
     if (!id || typeof id !== 'string') {
-      HM.log(2, 'EventRegistry.observe: Observer ID must be a non-empty string');
+      log(2, 'EventRegistry.observe: Observer ID must be a non-empty string');
       return null;
     }
     if (typeof callback !== 'function') {
-      HM.log(2, `EventRegistry.observe: Callback must be a function for observer "${id}"`);
+      log(2, `EventRegistry.observe: Callback must be a function for observer "${id}"`);
       return null;
     }
 

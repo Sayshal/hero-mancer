@@ -1,4 +1,5 @@
 import { CharacterArtPicker, CustomCompendiums, Customization, DiceRolling, HM, MandatoryFields, StatRoller, Troubleshooter } from './utils/index.js';
+import { log, setLogLevel } from './utils/logger.mjs';
 
 const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foundry.data.fields;
 
@@ -7,7 +8,7 @@ const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foun
  * Calls specialized registration functions for different setting categories.
  */
 export function registerSettings() {
-  HM.log(3, 'Registering module settings.');
+  log(3, 'Registering module settings.');
 
   // Register core settings
   registerCoreSettings();
@@ -68,9 +69,9 @@ function registerCoreSettings() {
       }
     }),
     onChange: (value) => {
-      const logMessage = `hm.settings.logger.level.${value}`;
+      setLogLevel(parseInt(value));
       if (value !== '0') {
-        HM.log(3, logMessage);
+        log(3, `hm.settings.logger.level.${value}`);
       }
     }
   });
@@ -89,7 +90,7 @@ function registerCoreSettings() {
     type: new StringField({ initial: 'standardArray' })
   });
 
-  HM.log(3, 'Core settings registered.');
+  log(3, 'Core settings registered.');
 }
 
 /**
@@ -134,7 +135,7 @@ function registerCompendiumSettings() {
     type: new ArrayField(new StringField())
   });
 
-  HM.log(3, 'Compendium settings registered.');
+  log(3, 'Compendium settings registered.');
 }
 
 /**
@@ -263,7 +264,7 @@ function registerCustomizationSettings() {
     ]
   });
 
-  HM.log(3, 'Customization settings registered.');
+  log(3, 'Customization settings registered.');
 }
 
 /**
@@ -386,7 +387,7 @@ function registerDiceRollingSettings() {
     type: new BooleanField({ initial: false })
   });
 
-  HM.log(3, 'Dice Rolling settings registered.');
+  log(3, 'Dice Rolling settings registered.');
 }
 
 /**
@@ -409,7 +410,7 @@ function registerMandatoryFieldsSettings() {
     type: new ArrayField(new StringField())
   });
 
-  HM.log(3, 'Mandatory Field settings registered.');
+  log(3, 'Mandatory Field settings registered.');
 }
 
 /**
@@ -425,7 +426,7 @@ function registerTroubleshootingSettings() {
     restricted: false
   });
 
-  HM.log(3, 'Troubleshooter settings registered.');
+  log(3, 'Troubleshooter settings registered.');
 }
 
 /**
@@ -463,7 +464,7 @@ function registerCompatibilitySettings() {
     });
   }
 
-  HM.log(3, 'Compatibility settings registered.');
+  log(3, 'Compatibility settings registered.');
 }
 
 export const RELOAD = new Set(['enable', 'classPacks', 'racePacks', 'backgroundPacks', 'itemPacks', 'elkanCompatibility', 'tokenizerCompatibility']);
@@ -547,6 +548,6 @@ export async function migrateSettingKeys() {
     const value = JSON.parse(oldEntry.value);
     await game.settings.set(HM.ID, newKey, value);
     await oldEntry.delete();
-    HM.log(3, `Migrated setting '${oldKey}' → '${newKey}'`);
+    log(3, `Migrated setting '${oldKey}' → '${newKey}'`);
   }
 }

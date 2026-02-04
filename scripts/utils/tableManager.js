@@ -1,4 +1,5 @@
 import { HM } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Manages RollTable interactions for character backgrounds and characteristics.
@@ -25,18 +26,18 @@ export class TableManager {
    */
   static async loadRollTablesForBackground(background) {
     if (!background) {
-      HM.log(2, 'No background provided for table initialization');
+      log(2, 'No background provided for table initialization');
       TableManager.updateRollButtonsAvailability(null);
       return false;
     }
 
-    HM.log(3, `Loading tables for background: ${background.name} (${background.id})`);
+    log(3, `Loading tables for background: ${background.name} (${background.id})`);
     this.currentTables.delete(background.id);
 
     try {
       // Validate background has required properties
       if (!background.system?.description?.value) {
-        HM.log(2, 'Background document missing required properties');
+        log(2, 'Background document missing required properties');
         TableManager.updateRollButtonsAvailability(null);
         return false;
       }
@@ -45,14 +46,14 @@ export class TableManager {
       const tableMatches = this.#findTableUuidsInDescription(description);
 
       if (!tableMatches.length) {
-        HM.log(2, 'No RollTable UUIDs found in background description, hiding UI elements.');
+        log(2, 'No RollTable UUIDs found in background description, hiding UI elements.');
         TableManager.updateRollButtonsAvailability(null);
         return false;
       }
 
       const tableResults = await this.#loadAndResetTables(tableMatches);
       if (!tableResults.tables.length) {
-        HM.log(2, 'No valid tables were loaded');
+        log(2, 'No valid tables were loaded');
         TableManager.updateRollButtonsAvailability(null);
         return false;
       }
@@ -64,7 +65,7 @@ export class TableManager {
       TableManager.updateRollButtonsAvailability(tableResults.foundTableTypes);
       return true;
     } catch (error) {
-      HM.log(1, 'Error initializing tables for background:', error);
+      log(1, 'Error initializing tables for background:', error);
       TableManager.updateRollButtonsAvailability(null);
       return false;
     }
@@ -82,7 +83,7 @@ export class TableManager {
       const uuidPattern = /@UUID\[Compendium\.(.*?)\.(.*?)\.RollTable\.(.*?)]/g;
       return [...description.matchAll(uuidPattern)];
     } catch (error) {
-      HM.log(1, 'Error parsing description for table UUIDs:', error);
+      log(1, 'Error parsing description for table UUIDs:', error);
       return [];
     }
   }
@@ -112,7 +113,7 @@ export class TableManager {
 
       return { tables: validTables, foundTableTypes };
     } catch (error) {
-      HM.log(1, 'Error in table loading process:', error);
+      log(1, 'Error in table loading process:', error);
       return { tables: [], foundTableTypes };
     }
   }
@@ -131,7 +132,7 @@ export class TableManager {
       const table = await fromUuid(uuid);
 
       if (!table) {
-        HM.log(2, `Could not load table with UUID: ${uuid}`);
+        log(2, `Could not load table with UUID: ${uuid}`);
         return null;
       }
 
@@ -145,7 +146,7 @@ export class TableManager {
 
       return table;
     } catch (error) {
-      HM.log(1, 'Error loading table from match:', error);
+      log(1, 'Error loading table from match:', error);
       return null;
     }
   }
@@ -167,7 +168,7 @@ export class TableManager {
       for (const packId of packIds) {
         const pack = game.packs.get(packId);
         if (pack && pack.locked) {
-          HM.log(3, `Unlocking pack: ${pack.collection}`);
+          log(3, `Unlocking pack: ${pack.collection}`);
           lockedPacks.set(packId, true);
           await pack.configure({ locked: false });
         }
@@ -175,28 +176,28 @@ export class TableManager {
       const resetPromises = tables.map(async (table) => {
         try {
           await table.resetResults();
-          HM.log(3, `Successfully reset table: ${table.name}`);
+          log(3, `Successfully reset table: ${table.name}`);
         } catch (error) {
-          HM.log(1, `Error resetting table ${table.id}:`, error);
+          log(1, `Error resetting table ${table.id}:`, error);
           // Continue with other tables even if one fails
         }
       });
       await Promise.all(resetPromises);
     } catch (error) {
-      HM.log(1, 'Error in parallel table reset:', error);
+      log(1, 'Error in parallel table reset:', error);
     } finally {
       try {
         for (const [packId, wasLocked] of lockedPacks) {
           if (wasLocked) {
             const pack = game.packs.get(packId);
             if (pack && !pack.locked) {
-              HM.log(3, `Re-locking pack: ${pack.collection}`);
+              log(3, `Re-locking pack: ${pack.collection}`);
               await pack.configure({ locked: true });
             }
           }
         }
       } catch (lockError) {
-        HM.log(1, 'Error re-locking packs:', lockError);
+        log(1, 'Error re-locking packs:', lockError);
       }
     }
   }
@@ -246,7 +247,7 @@ export class TableManager {
           }
         });
       } catch (error) {
-        HM.log(1, 'Error updating roll button availability:', error);
+        log(1, 'Error updating roll button availability:', error);
       }
     });
   }
@@ -260,13 +261,13 @@ export class TableManager {
    */
   static async rollOnBackgroundCharacteristicTable(backgroundId, characteristicType) {
     if (!backgroundId || !characteristicType) {
-      HM.log(2, 'Missing required parameters for table roll');
+      log(2, 'Missing required parameters for table roll');
       return null;
     }
 
     const tables = this.currentTables.get(backgroundId);
     if (!tables || !tables.length) {
-      HM.log(2, `No tables found for background ID: ${backgroundId}`);
+      log(2, `No tables found for background ID: ${backgroundId}`);
       return null;
     }
 
@@ -274,14 +275,14 @@ export class TableManager {
       // Find matching table
       const matchingTable = this.#findMatchingTable(tables, characteristicType);
       if (!matchingTable.table) {
-        HM.log(2, `No matching table found for type: ${characteristicType}`);
+        log(2, `No matching table found for type: ${characteristicType}`);
         return null;
       }
 
       // Check for available results
       const availableResults = this.#getAvailableTableResults(matchingTable.table);
       if (availableResults.length === 0) {
-        HM.log(2, `All results have been drawn from table: ${matchingTable.table.name}`);
+        log(2, `All results have been drawn from table: ${matchingTable.table.name}`);
         return null;
       }
 
@@ -289,7 +290,7 @@ export class TableManager {
       const resultText = await this.#drawFromTable(matchingTable.table);
       return resultText;
     } catch (error) {
-      HM.log(1, 'Error rolling on background characteristic table:', error);
+      log(1, 'Error rolling on background characteristic table:', error);
       return null;
     }
   }
@@ -309,7 +310,7 @@ export class TableManager {
       const tableName = table.name.toLowerCase();
       const isMatch = tableName.includes(searchTerm) || (searchTerm === 'traits' && tableName.includes('personality'));
 
-      HM.log(3, `Checking table match: "${table.name}" for type "${characteristicType}" - Match: ${isMatch}`);
+      log(3, `Checking table match: "${table.name}" for type "${characteristicType}" - Match: ${isMatch}`);
 
       if (isMatch) {
         return { table, isMatch };
@@ -342,7 +343,7 @@ export class TableManager {
    * @static
    */
   static async #drawFromTable(table) {
-    HM.log(3, `Drawing from table: ${table.name}`);
+    log(3, `Drawing from table: ${table.name}`);
 
     let wasLocked = false;
     const pack = table.pack ? game.packs.get(table.pack) : null;
@@ -355,10 +356,10 @@ export class TableManager {
       }
 
       const result = await table.draw({ displayChat: false });
-      HM.log(3, 'Draw result object:', result);
+      log(3, 'Draw result object:', result);
 
       if (!result.results || !result.results.length) {
-        HM.log(2, 'Table draw returned no results');
+        log(2, 'Table draw returned no results');
         return null;
       }
 
@@ -371,17 +372,17 @@ export class TableManager {
       ]);
 
       let resultText = result.results[0]?.description || null;
-      HM.log(3, 'Resulting text:', resultText);
+      log(3, 'Resulting text:', resultText);
       return resultText;
     } catch (error) {
-      HM.log(1, `Error drawing from table ${table.name}:`, error);
+      log(1, `Error drawing from table ${table.name}:`, error);
       return null;
     } finally {
       if (wasLocked && pack && !pack.locked) {
         try {
           await pack.configure({ locked: true });
         } catch (lockError) {
-          HM.log(1, 'Error re-locking pack:', lockError);
+          log(1, 'Error re-locking pack:', lockError);
         }
       }
     }
@@ -397,7 +398,7 @@ export class TableManager {
   static areAllTableResultsDrawn(backgroundId, characteristicType) {
     // Validate input parameters
     if (!backgroundId || !characteristicType) {
-      HM.log(2, 'Missing required parameters for table check');
+      log(2, 'Missing required parameters for table check');
       return true; // Treat invalid input as "all drawn" to prevent further actions
     }
 
@@ -418,7 +419,7 @@ export class TableManager {
       const availableResults = this.#getAvailableTableResults(matchingTable.table);
       return availableResults.length === 0;
     } catch (error) {
-      HM.log(1, 'Error checking if all table results are drawn:', error);
+      log(1, 'Error checking if all table results are drawn:', error);
       return true; // On error, assume all drawn to prevent problematic actions
     }
   }

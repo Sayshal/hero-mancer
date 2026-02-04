@@ -1,4 +1,5 @@
 import { FormValidation, HeroMancer, HeroMancerUI, HM, StatRoller } from './index.js';
+import { log } from './logger.mjs';
 
 /**
  * Combined class for character randomization and name generation
@@ -393,12 +394,12 @@ export class CharacterRandomizer {
       this.#isRandomizing = true;
       this.#disableRandomizeButton(randomizeButton);
       ui.notifications.info('hm.app.randomize.randomizing', { localize: true });
-      HM.log(3, 'Randomizing character...');
+      log(3, 'Randomizing character...');
       await this.#randomizeBasicDetails(form);
       await this.#randomizeCharacteristics(form);
       await this.#randomizeAppearance(form);
       await this.#randomizeAbilities(form);
-      HM.log(3, 'Randomizing complete...');
+      log(3, 'Randomizing complete...');
       ui.notifications.info('hm.app.randomization-complete', { localize: true });
     } catch (error) {
       console.error('Error during randomization:', error);
@@ -420,7 +421,7 @@ export class CharacterRandomizer {
       const pattern = this.#getRandomItem(this.#namePatterns);
       return this.#generateNameFromPattern(pattern);
     } catch (error) {
-      HM.log(1, 'Error generating name from pattern:', error);
+      log(1, 'Error generating name from pattern:', error);
       return game.i18n.localize('hm.app.randomize.default-name');
     }
   }
@@ -437,7 +438,7 @@ export class CharacterRandomizer {
       ui.notifications.clear();
       const rollMethodSelect = form.querySelector('#roll-method');
       if (!rollMethodSelect) {
-        HM.log(2, 'Roll method select not found');
+        log(2, 'Roll method select not found');
         return false;
       }
       const rollMethod = rollMethodSelect.value;
@@ -453,12 +454,12 @@ export class CharacterRandomizer {
           success = await this.#randomizeManualFormula(form);
           break;
         default:
-          HM.log(2, `Unknown roll method: ${rollMethod}`);
+          log(2, `Unknown roll method: ${rollMethod}`);
           return false;
       }
       return success;
     } catch (error) {
-      HM.log(1, 'Error randomizing abilities:', error);
+      log(1, 'Error randomizing abilities:', error);
       return false;
     }
   }
@@ -475,7 +476,7 @@ export class CharacterRandomizer {
       await this.#randomizeRace(form);
       await this.#randomizeClass(form);
     } catch (error) {
-      HM.log(1, 'Error randomizing basic details:', error);
+      log(1, 'Error randomizing basic details:', error);
       throw new Error('Failed to randomize basic character details');
     }
   }
@@ -492,7 +493,7 @@ export class CharacterRandomizer {
       this.#randomizeAlignment(form);
       this.#randomizeFaith(form);
     } catch (error) {
-      HM.log(1, 'Error randomizing characteristics:', error);
+      log(1, 'Error randomizing characteristics:', error);
       throw new Error('Failed to randomize character characteristics');
     }
   }
@@ -525,15 +526,15 @@ export class CharacterRandomizer {
     try {
       const nameInput = form.querySelector('#character-name');
       if (!nameInput) {
-        HM.log(2, 'Could not find character name input field');
+        log(2, 'Could not find character name input field');
         return false;
       }
       nameInput.value = this.generateRandomName();
       nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      HM.log(3, `Generated random name: ${nameInput.value}`);
+      log(3, `Generated random name: ${nameInput.value}`);
       return true;
     } catch (error) {
-      HM.log(1, 'Error generating random name:', error);
+      log(1, 'Error generating random name:', error);
       return false;
     }
   }
@@ -546,7 +547,7 @@ export class CharacterRandomizer {
    */
   static #generateNameFromPattern(pattern) {
     if (!pattern) {
-      HM.log(2, 'Invalid name pattern provided');
+      log(2, 'Invalid name pattern provided');
       return 'Adventurer';
     }
     try {
@@ -558,7 +559,7 @@ export class CharacterRandomizer {
       }
       return this.#capitalize(name);
     } catch (error) {
-      HM.log(1, 'Error generating name from pattern:', error);
+      log(1, 'Error generating name from pattern:', error);
       return 'Adventurer';
     }
   }
@@ -573,21 +574,21 @@ export class CharacterRandomizer {
     try {
       const backgroundDropdown = form.querySelector('#background-dropdown');
       if (!backgroundDropdown) {
-        HM.log(2, 'Background dropdown not found');
+        log(2, 'Background dropdown not found');
         return false;
       }
       const options = Array.from(backgroundDropdown.options).filter((opt) => !opt.disabled && opt.value);
       if (!options.length) {
-        HM.log(2, 'No valid background options found');
+        log(2, 'No valid background options found');
         return false;
       }
       const randomOption = this.#getRandomItem(options);
       backgroundDropdown.value = randomOption.value;
       backgroundDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Selected random background: ${randomOption.text}`);
+      log(3, `Selected random background: ${randomOption.text}`);
       return true;
     } catch (error) {
-      HM.log(1, 'Error randomizing background:', error);
+      log(1, 'Error randomizing background:', error);
       return false;
     }
   }
@@ -602,21 +603,21 @@ export class CharacterRandomizer {
     try {
       const raceDropdown = form.querySelector('#race-dropdown');
       if (!raceDropdown) {
-        HM.log(2, 'Race dropdown not found');
+        log(2, 'Race dropdown not found');
         return false;
       }
       const options = Array.from(raceDropdown.options).filter((opt) => !opt.disabled && opt.value);
       if (!options.length) {
-        HM.log(2, 'No valid race options found');
+        log(2, 'No valid race options found');
         return false;
       }
       const randomOption = this.#getRandomItem(options);
       raceDropdown.value = randomOption.value;
       raceDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Selected random race: ${randomOption.text}`);
+      log(3, `Selected random race: ${randomOption.text}`);
       return true;
     } catch (error) {
-      HM.log(1, 'Error randomizing race:', error);
+      log(1, 'Error randomizing race:', error);
       return false;
     }
   }
@@ -631,21 +632,21 @@ export class CharacterRandomizer {
     try {
       const classDropdown = form.querySelector('#class-dropdown');
       if (!classDropdown) {
-        HM.log(2, 'Class dropdown not found');
+        log(2, 'Class dropdown not found');
         return false;
       }
       const options = Array.from(classDropdown.options).filter((opt) => !opt.disabled && opt.value);
       if (!options.length) {
-        HM.log(2, 'No valid class options found');
+        log(2, 'No valid class options found');
         return false;
       }
       const randomOption = this.#getRandomItem(options);
       classDropdown.value = randomOption.value;
       classDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Selected random class: ${randomOption.text}`);
+      log(3, `Selected random class: ${randomOption.text}`);
       return true;
     } catch (error) {
-      HM.log(1, 'Error randomizing class:', error);
+      log(1, 'Error randomizing class:', error);
       return false;
     }
   }
@@ -660,19 +661,19 @@ export class CharacterRandomizer {
     try {
       const alignmentElement = form.querySelector('select[name="alignment"], input[name="alignment"]');
       if (!alignmentElement) {
-        HM.log(2, 'Alignment element not found');
+        log(2, 'Alignment element not found');
         return false;
       }
       if (alignmentElement.tagName.toLowerCase() === 'select') {
         const options = Array.from(alignmentElement.options).filter((opt) => !opt.disabled && opt.value);
         if (!options.length) {
-          HM.log(2, 'No valid alignment options found');
+          log(2, 'No valid alignment options found');
           return false;
         }
         const randomOption = this.#getRandomItem(options);
         alignmentElement.value = randomOption.value;
         alignmentElement.dispatchEvent(new Event('change', { bubbles: true }));
-        HM.log(3, `Selected random alignment: ${randomOption.text}`);
+        log(3, `Selected random alignment: ${randomOption.text}`);
         return true;
       } else {
         const alignments = game.settings
@@ -681,17 +682,17 @@ export class CharacterRandomizer {
           .map((a) => a.trim())
           .filter((a) => a);
         if (!alignments.length) {
-          HM.log(2, 'No valid alignment options found in settings');
+          log(2, 'No valid alignment options found in settings');
           return false;
         }
         const randomAlignment = this.#getRandomItem(alignments);
         alignmentElement.value = randomAlignment;
         alignmentElement.dispatchEvent(new Event('input', { bubbles: true }));
-        HM.log(3, `Selected random alignment: ${randomAlignment}`);
+        log(3, `Selected random alignment: ${randomAlignment}`);
         return true;
       }
     } catch (error) {
-      HM.log(1, 'Error randomizing alignment:', error);
+      log(1, 'Error randomizing alignment:', error);
       return false;
     }
   }
@@ -706,20 +707,20 @@ export class CharacterRandomizer {
     try {
       const faithElement = form.querySelector('select[name="faith"], input[name="faith"]');
       if (!faithElement) {
-        HM.log(2, 'Faith element not found');
+        log(2, 'Faith element not found');
         return false;
       }
 
       if (faithElement.tagName.toLowerCase() === 'select') {
         const options = Array.from(faithElement.options).filter((opt) => !opt.disabled && opt.value);
         if (!options.length) {
-          HM.log(2, 'No valid faith options found');
+          log(2, 'No valid faith options found');
           return false;
         }
         const randomOption = this.#getRandomItem(options);
         faithElement.value = randomOption.value;
         faithElement.dispatchEvent(new Event('change', { bubbles: true }));
-        HM.log(3, `Selected random faith: ${randomOption.text}`);
+        log(3, `Selected random faith: ${randomOption.text}`);
         return true;
       } else {
         const deities = game.settings
@@ -728,17 +729,17 @@ export class CharacterRandomizer {
           .map((d) => d.trim())
           .filter((d) => d);
         if (!deities.length) {
-          HM.log(2, 'No valid faith options found in settings');
+          log(2, 'No valid faith options found in settings');
           return false;
         }
         const randomFaith = this.#getRandomItem(deities);
         faithElement.value = randomFaith;
         faithElement.dispatchEvent(new Event('input', { bubbles: true }));
-        HM.log(3, `Selected random faith: ${randomFaith}`);
+        log(3, `Selected random faith: ${randomFaith}`);
         return true;
       }
     } catch (error) {
-      HM.log(1, 'Error randomizing faith:', error);
+      log(1, 'Error randomizing faith:', error);
       return false;
     }
   }
@@ -755,7 +756,7 @@ export class CharacterRandomizer {
       this.#randomizePhysicalAttributes(form);
       return true;
     } catch (error) {
-      HM.log(1, 'Error randomizing appearance:', error);
+      log(1, 'Error randomizing appearance:', error);
       return false;
     }
   }
@@ -790,7 +791,7 @@ export class CharacterRandomizer {
       if (!input) continue;
       input.value = this.#getRandomItem(values);
       input.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random ${trait}: ${input.value}`);
+      log(3, `Set random ${trait}: ${input.value}`);
     }
   }
 
@@ -805,20 +806,20 @@ export class CharacterRandomizer {
       const useMetric = game.settings.get('dnd5e', 'metricLengthUnits') || false;
       heightInput.value = this.#generateRandomHeight(useMetric);
       heightInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random height: ${heightInput.value}`);
+      log(3, `Set random height: ${heightInput.value}`);
     }
     const weightInput = form.querySelector('input[name="weight"]');
     if (weightInput) {
       const useMetric = game.settings.get('dnd5e', 'metricWeightUnits') || false;
       weightInput.value = this.#generateRandomWeight(useMetric);
       weightInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random weight: ${weightInput.value}`);
+      log(3, `Set random weight: ${weightInput.value}`);
     }
     const ageInput = form.querySelector('input[name="age"]');
     if (ageInput) {
       ageInput.value = Math.floor(Math.random() * 82) + 18;
       ageInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random age: ${ageInput.value}`);
+      log(3, `Set random age: ${ageInput.value}`);
     }
   }
 
@@ -865,14 +866,14 @@ export class CharacterRandomizer {
     try {
       const abilityData = this.#collectAbilityData(form);
       if (!abilityData.availableValues.length) {
-        HM.log(2, 'No standard array values available');
+        log(2, 'No standard array values available');
         return false;
       }
       await this.#assignPrimaryAbilities(abilityData);
       await this.#assignRemainingAbilities(abilityData);
       return true;
     } catch (error) {
-      HM.log(1, 'Error randomizing standard array:', error);
+      log(1, 'Error randomizing standard array:', error);
       return false;
     }
   }
@@ -916,7 +917,7 @@ export class CharacterRandomizer {
         ability.dropdown.value = value;
         ability.dropdown.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Assigned ${value} to primary ability ${ability.label}`);
+        log(3, `Assigned ${value} to primary ability ${ability.label}`);
       }
     }
   }
@@ -935,7 +936,7 @@ export class CharacterRandomizer {
         ability.dropdown.value = value;
         ability.dropdown.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Assigned ${value} to ability ${ability.label}`);
+        log(3, `Assigned ${value} to ability ${ability.label}`);
       }
     }
   }
@@ -948,15 +949,15 @@ export class CharacterRandomizer {
    */
   static async #randomizePointBuy(form) {
     try {
-      HM.log(3, 'Starting point buy randomization');
+      log(3, 'Starting point buy randomization');
       const abilityData = this.#collectPointBuyData(form);
       if (!abilityData.abilities.length) return false;
       await this.#maximizePrimaryAbilities(abilityData);
       await this.#distributeRemainingPoints(abilityData);
-      HM.log(3, 'Point buy randomization complete');
+      log(3, 'Point buy randomization complete');
       return true;
     } catch (error) {
-      HM.log(1, `Error during point buy randomization: ${error.message}`);
+      log(1, `Error during point buy randomization: ${error.message}`);
       console.error(error);
       return false;
     }
@@ -971,16 +972,16 @@ export class CharacterRandomizer {
   static #collectPointBuyData(form) {
     const abilityBlocks = form.querySelectorAll('.ability-block.point-buy');
     if (!abilityBlocks.length) {
-      HM.log(1, 'No ability blocks found for point buy');
+      log(1, 'No ability blocks found for point buy');
       return { abilities: [] };
     }
-    HM.log(3, `Found ${abilityBlocks.length} ability blocks`);
+    log(3, `Found ${abilityBlocks.length} ability blocks`);
     const abilities = Array.from(abilityBlocks).map((block, index) => {
       const label = block.querySelector('.ability-label');
       const plusButton = block.querySelector('.plus-button');
       const currentScore = block.querySelector('.current-score');
       const isPrimary = label?.classList.contains('primary-ability');
-      HM.log(3, `Ability ${index}: ${label?.textContent.trim()} - isPrimary: ${isPrimary}`);
+      log(3, `Ability ${index}: ${label?.textContent.trim()} - isPrimary: ${isPrimary}`);
       return { index, block, isPrimary, plusButton, minusButton: block.querySelector('.minus-button'), currentScore, label: label?.textContent.trim() };
     });
     return { abilities, primaryAbilities: abilities.filter((a) => a.isPrimary), nonPrimaryAbilities: abilities.filter((a) => !a.isPrimary), totalPoints: StatRoller.getTotalPoints() };
@@ -993,19 +994,19 @@ export class CharacterRandomizer {
    * @private
    */
   static async #maximizePrimaryAbilities(abilityData) {
-    HM.log(3, 'Starting to max out primary abilities');
+    log(3, 'Starting to max out primary abilities');
     for (const primary of abilityData.primaryAbilities) {
-      HM.log(3, `Working on primary ability index ${primary.index}`);
+      log(3, `Working on primary ability index ${primary.index}`);
       let maxAttempts = 20;
       let clickCount = 0;
       while (!primary.plusButton.disabled && maxAttempts > 0) {
         clickCount++;
-        HM.log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
+        log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
         maxAttempts--;
         primary.plusButton.click();
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
-      HM.log(3, `Finished primary ability ${primary.index} after ${clickCount} clicks. Final value: ${primary.currentScore.textContent}`);
+      log(3, `Finished primary ability ${primary.index} after ${clickCount} clicks. Final value: ${primary.currentScore.textContent}`);
     }
   }
 
@@ -1018,14 +1019,14 @@ export class CharacterRandomizer {
   static async #distributeRemainingPoints(abilityData) {
     let pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
     let remainingPoints = abilityData.totalPoints - pointsSpent;
-    HM.log(3, `After maxing primaries - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
+    log(3, `After maxing primaries - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
     if (remainingPoints <= 0) {
-      HM.log(3, 'No points remaining for non-primary abilities');
+      log(3, 'No points remaining for non-primary abilities');
       return;
     }
-    HM.log(3, `Starting to distribute ${remainingPoints} remaining points to non-primary abilities`);
+    log(3, `Starting to distribute ${remainingPoints} remaining points to non-primary abilities`);
     this.#shuffleArray(abilityData.nonPrimaryAbilities);
-    HM.log(3, 'Shuffled non-primary abilities order');
+    log(3, 'Shuffled non-primary abilities order');
     let distributionCounter = 0;
     let totalClicks = 0;
     while (remainingPoints > 0 && distributionCounter < 100) {
@@ -1033,25 +1034,25 @@ export class CharacterRandomizer {
       for (const ability of abilityData.nonPrimaryAbilities) {
         if (remainingPoints <= 0) break;
         if (!ability.plusButton.disabled) {
-          HM.log(3, `Clicking + for non-primary ability ${ability.index}, current value: ${ability.currentScore.textContent}`);
+          log(3, `Clicking + for non-primary ability ${ability.index}, current value: ${ability.currentScore.textContent}`);
           ability.plusButton.click();
           totalClicks++;
           await new Promise((resolve) => setTimeout(resolve, 50));
           pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
           remainingPoints = abilityData.totalPoints - pointsSpent;
-          HM.log(3, `After click - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
+          log(3, `After click - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
           if (remainingPoints <= 0) break;
         } else {
-          HM.log(3, `Non-primary ability ${ability.index} button is disabled, skipping`);
+          log(3, `Non-primary ability ${ability.index} button is disabled, skipping`);
         }
       }
       const canStillAssign = abilityData.nonPrimaryAbilities.some((a) => !a.plusButton.disabled);
       if (!canStillAssign) {
-        HM.log(3, 'No more abilities can be increased, breaking loop');
+        log(3, 'No more abilities can be increased, breaking loop');
         break;
       }
     }
-    HM.log(3, `Completed non-primary distribution. Total clicks: ${totalClicks}`);
+    log(3, `Completed non-primary distribution. Total clicks: ${totalClicks}`);
   }
 
   /**
@@ -1066,18 +1067,18 @@ export class CharacterRandomizer {
       originalDiceConfiguration = game.settings.get('core', 'diceConfiguration');
       this.#setupTemporaryDiceConfiguration();
       await this.#performManualFormulaRandomization(form);
-      HM.log(3, 'Manual formula randomization complete');
+      log(3, 'Manual formula randomization complete');
       return true;
     } catch (error) {
-      HM.log(1, 'Error during manual formula randomization:', error);
+      log(1, 'Error during manual formula randomization:', error);
       return false;
     } finally {
       if (originalDiceConfiguration) {
         try {
           game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
-          HM.log(3, 'Restored original dice configuration');
+          log(3, 'Restored original dice configuration');
         } catch (restoreError) {
-          HM.log(1, 'Failed to restore original dice configuration:', restoreError);
+          log(1, 'Failed to restore original dice configuration:', restoreError);
         }
       }
     }
@@ -1090,7 +1091,7 @@ export class CharacterRandomizer {
   static #setupTemporaryDiceConfiguration() {
     const tempDiceConfiguration = { d4: '', d6: '', d8: '', d10: '', d12: '', d20: '', d100: '' };
     game.settings.set('core', 'diceConfiguration', tempDiceConfiguration);
-    HM.log(3, 'Applied temporary dice configuration');
+    log(3, 'Applied temporary dice configuration');
   }
 
   /**
@@ -1102,7 +1103,7 @@ export class CharacterRandomizer {
   static async #performManualFormulaRandomization(form) {
     const abilityBlocks = form.querySelectorAll('.ability-block');
     if (!abilityBlocks.length) {
-      HM.log(2, 'No ability blocks found');
+      log(2, 'No ability blocks found');
       throw new Error('No ability blocks found');
     }
     await this.#randomizeAbilityTypes(form, abilityBlocks);
@@ -1131,7 +1132,7 @@ export class CharacterRandomizer {
       }
     }
 
-    HM.log(3, 'Randomized ability types');
+    log(3, 'Randomized ability types');
   }
 
   /**
@@ -1152,9 +1153,9 @@ export class CharacterRandomizer {
         const ability = abilityBlocks[i].querySelector('.ability-dropdown')?.value;
         const isPrimary = abilityBlocks[i].querySelector('.primary-ability') !== null;
         rollResults.push({ index: i, value: roll.total, ability, isPrimary, input });
-        HM.log(3, `Rolled ${roll.total} for ${ability} (primary: ${isPrimary})`);
+        log(3, `Rolled ${roll.total} for ${ability} (primary: ${isPrimary})`);
       } catch (error) {
-        HM.log(1, `Error rolling for ability ${i}:`, error);
+        log(1, `Error rolling for ability ${i}:`, error);
         rollResults.push({
           index: i,
           value: 10,
@@ -1186,7 +1187,7 @@ export class CharacterRandomizer {
     nonPrimaryAbilities.forEach((nonPrimary) => {
       finalAssignments[nonPrimary.index] = rollResults[resultIndex++].value;
     });
-    HM.log(3, 'Created optimized ability assignments', finalAssignments);
+    log(3, 'Created optimized ability assignments', finalAssignments);
     return finalAssignments;
   }
 
@@ -1204,7 +1205,7 @@ export class CharacterRandomizer {
         input.value = finalAssignments[i];
         input.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Set ability ${i} to ${finalAssignments[i]}`);
+        log(3, `Set ability ${i} to ${finalAssignments[i]}`);
       }
     }
   }
@@ -1217,7 +1218,7 @@ export class CharacterRandomizer {
    */
   static #getRandomItem(items) {
     if (!items || !items.length) {
-      HM.log(2, 'Attempted to get random item from empty collection');
+      log(2, 'Attempted to get random item from empty collection');
       return null;
     }
     return items[Math.floor(Math.random() * items.length)];

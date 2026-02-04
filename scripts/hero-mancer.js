@@ -1,5 +1,6 @@
 import { migrateSettingKeys, registerSettings } from './settings.js';
 import { API, CharacterApprovalService, DocumentService, EquipmentManager, HeroMancer, StatRoller } from './utils/index.js';
+import { initializeLogger, log } from './utils/logger.mjs';
 
 /**
  * Main Hero Mancer class, define some statics that will be used everywhere in the module.
@@ -38,13 +39,6 @@ export class HM {
   static ABILITY_SCORES = {};
 
   /**
-   * Current logging level (0=disabled, 1=errors, 2=warnings, 3=verbose)
-   * @static
-   * @type {number}
-   */
-  static LOG_LEVEL = 0;
-
-  /**
    * Stores the currently selected character options
    * @static
    * @type {object}
@@ -81,60 +75,13 @@ export class HM {
    */
   static init() {
     registerSettings();
-    this.LOG_LEVEL = parseInt(game.settings.get(this.ID, 'loggingLevel'));
+    initializeLogger();
     this.ABILITY_SCORES = {
       DEFAULT: game.settings.get(this.ID, 'abilityScoreDefault') || 8,
       MIN: game.settings.get(this.ID, 'abilityScoreMin') || 8,
       MAX: game.settings.get(this.ID, 'abilityScoreMax') || 15
     };
-    HM.log(3, `Ability score configuration: Default=${this.ABILITY_SCORES.DEFAULT}, Min=${this.ABILITY_SCORES.MIN}, Max=${this.ABILITY_SCORES.MAX}`);
-    if (this.LOG_LEVEL > 0) {
-      const logMessage = `Logging level set to ${this.LOG_LEVEL === 1 ? 'Errors' : this.LOG_LEVEL === 2 ? 'Warnings' : 'Verbose'}`;
-      HM.log(3, logMessage);
-    }
-  }
-
-  /**
-   * Custom logger with caller context information
-   * @static
-   * @param {number} level - Log level (1=error, 2=warning, 3=verbose)
-   * @param {...any} args - Content to log to console
-   * @returns {void}
-   */
-  static log(level, ...args) {
-    const stack = new Error().stack.split('\n');
-    let callerInfo = '';
-    if (stack.length > 2) {
-      const callerLine = stack[2].trim();
-      const callerMatch = callerLine.match(/at\s+([^.]+)\.(\w+)/);
-      if (callerMatch) callerInfo = `[${callerMatch[1]}.${callerMatch[2]}] : `;
-    }
-    if (typeof args[0] === 'string') args[0] = callerInfo + args[0];
-    else args.unshift(callerInfo);
-    const now = new Date();
-    const logEntry = {
-      type: level === 1 ? 'error' : level === 2 ? 'warn' : 'debug',
-      timestamp: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`,
-      level,
-      content: args
-    };
-    if (!window.console_logs) window.console_logs = [];
-    window.console_logs.push(logEntry);
-    if (window.console_logs.length > 1000) window.console_logs = window.console_logs.slice(-500);
-    if (this.LOG_LEVEL > 0 && level <= this.LOG_LEVEL) {
-      switch (level) {
-        case 1:
-          console.error(`${HM.ID} |`, ...args);
-          break;
-        case 2:
-          console.warn(`${HM.ID} |`, ...args);
-          break;
-        case 3:
-        default:
-          console.debug(`${HM.ID} |`, ...args);
-          break;
-      }
-    }
+    log(3, `Ability score configuration: Default=${this.ABILITY_SCORES.DEFAULT}, Min=${this.ABILITY_SCORES.MIN}, Max=${this.ABILITY_SCORES.MAX}`);
   }
 
   /**
@@ -169,15 +116,15 @@ export class HM {
     HM.COMPAT = {};
     if (game.modules.get('elkan5e')?.active && game.settings.get(HM.ID, 'elkanCompatibility')) {
       HM.COMPAT.ELKAN = true;
-      HM.log(3, 'Elkan Detected: Compatibility auto-enabled.');
+      log(3, 'Elkan Detected: Compatibility auto-enabled.');
     }
     if (game.modules.get('chris-premades')?.active) {
       HM.COMPAT.CPR = true;
-      HM.log(3, 'CPR Detected: Compatibility auto-enabled.');
+      log(3, 'CPR Detected: Compatibility auto-enabled.');
     }
     if (game.modules.get('vtta-tokenizer')?.active) {
       HM.COMPAT.TOKENIZER = true;
-      HM.log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
+      log(3, 'Tokenizer Detected: Compatibility auto-enabled.');
     }
   }
 }
@@ -204,7 +151,7 @@ Hooks.once('ready', async () => {
   const customArraySetting = game.settings.get(HM.ID, 'customStandardArray') || StatRoller.getStandardArrayDefault();
   if (!customArraySetting || customArraySetting.trim() === '') {
     game.settings.set(HM.ID, 'customStandardArray', StatRoller.getStandardArrayDefault());
-    HM.log(3, 'Custom Standard Array was reset to default values due to invalid length.');
+    log(3, 'Custom Standard Array was reset to default values due to invalid length.');
   }
   globalThis.heroMancer = HM.API;
   Hooks.callAll('heroMancer.Ready', this);
