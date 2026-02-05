@@ -4,6 +4,12 @@
 	{{!-- Player Settings --}}
 	<fieldset>
 		<legend>{{localize "hm.settings.mandatory-fields.groups.player"}}</legend>
+		<div class="form-group select-all-group">
+			<label>{{localize "hm.settings.mandatory-fields.select-all"}}</label>
+			<div class="form-fields">
+				<input type="checkbox" class="select-all" data-category="player" />
+			</div>
+		</div>
 		{{#each fields.player}}
 			<div class="form-group">
 				<label for="{{this.key}}">{{this.label}}</label>
@@ -18,6 +24,12 @@
 	{{#if tokenCustomizationEnabled}}
 		<fieldset>
 			<legend>{{localize "hm.settings.mandatory-fields.groups.token"}}</legend>
+			<div class="form-group select-all-group">
+				<label>{{localize "hm.settings.mandatory-fields.select-all"}}</label>
+				<div class="form-fields">
+					<input type="checkbox" class="select-all" data-category="token" />
+				</div>
+			</div>
 			{{#each fields.token}}
 				<div class="form-group">
 					<label for="{{this.key}}">{{this.label}}</label>
@@ -32,6 +44,12 @@
 	{{!-- Abilities --}}
 	<fieldset>
 		<legend>{{localize "hm.settings.mandatory-fields.groups.abilities"}}</legend>
+		<div class="form-group select-all-group">
+			<label>{{localize "hm.settings.mandatory-fields.select-all"}}</label>
+			<div class="form-fields">
+				<input type="checkbox" class="select-all" data-category="abilities" />
+			</div>
+		</div>
 		{{#each fields.abilities}}
 			<div class="form-group">
 				<label for="{{this.key}}">{{this.label}}</label>
@@ -45,6 +63,12 @@
 	{{!-- Characteristics --}}
 	<fieldset>
 		<legend>{{localize "hm.settings.mandatory-fields.groups.characteristics"}}</legend>
+		<div class="form-group select-all-group">
+			<label>{{localize "hm.settings.mandatory-fields.select-all"}}</label>
+			<div class="form-fields">
+				<input type="checkbox" class="select-all" data-category="characteristics" />
+			</div>
+		</div>
 		{{#each fields.characteristics}}
 			<div class="form-group">
 				<label for="{{this.key}}">{{this.label}}</label>
@@ -58,6 +82,12 @@
 	{{!-- Identity --}}
 	<fieldset>
 		<legend>{{localize "hm.settings.mandatory-fields.groups.identity"}}</legend>
+		<div class="form-group select-all-group">
+			<label>{{localize "hm.settings.mandatory-fields.select-all"}}</label>
+			<div class="form-fields">
+				<input type="checkbox" class="select-all" data-category="identity" />
+			</div>
+		</div>
 		{{#each fields.identity}}
 			<div class="form-group">
 				<label for="{{this.key}}">{{this.label}}</label>

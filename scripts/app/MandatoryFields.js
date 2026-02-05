@@ -99,6 +99,28 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    this.element.querySelectorAll('.select-all').forEach((selectAll) => {
+      const fieldset = selectAll.closest('fieldset');
+      const children = fieldset.querySelectorAll('input[type="checkbox"]:not(.select-all)');
+      selectAll.checked = children.length > 0 && Array.from(children).every((cb) => cb.checked);
+
+      selectAll.addEventListener('change', () => {
+        children.forEach((cb) => {
+          cb.checked = selectAll.checked;
+        });
+      });
+
+      children.forEach((cb) => {
+        cb.addEventListener('change', () => {
+          selectAll.checked = Array.from(children).every((c) => c.checked);
+        });
+      });
+    });
+  }
+
   /**
    * Processes form submission for mandatory field settings
    * @param {Event} _event - The form submission event
@@ -130,7 +152,7 @@ export class MandatoryFields extends HandlebarsApplicationMixin(ApplicationV2) {
    * @protected
    */
   static _collectMandatoryFields(form) {
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]:not(.select-all)');
     return Array.from(checkboxes)
       .filter((checkbox) => checkbox.checked)
       .map((checkbox) => checkbox.name);

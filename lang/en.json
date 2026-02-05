@@ -278,6 +278,7 @@
   "hm.settings.mandatory-fields.menu.hint": "Set which fields must be filled out before submitting a character.",
   "hm.settings.mandatory-fields.menu.name": "Mandatory Fields",
   "hm.settings.mandatory-fields.saved": "Mandatory field settings saved",
+  "hm.settings.mandatory-fields.select-all": "Select All",
   "hm.settings.nav-buttons.hint": "Adds Next/Previous buttons to help users navigate through the tabs",
   "hm.settings.nav-buttons.name": "Enable Navigation Buttons",
   "hm.settings.player-customization.hint": "Allow your players to set some information up during character creation, such as player color, pronouns, and avatar.",
