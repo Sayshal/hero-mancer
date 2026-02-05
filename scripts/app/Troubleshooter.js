@@ -7,7 +7,7 @@ export class Troubleshooter extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     id: 'hero-mancer-troubleshooter',
-    classes: ['hm-troubleshooter'],
+    classes: ['hm-app', 'hm-troubleshooter'],
     position: { width: 750, height: 'auto' },
     window: { icon: 'fa-solid fa-bug', resizable: false },
     tag: 'div',

@@ -21,7 +21,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
   };
 
   static PARTS = {
-    form: { template: 'modules/hero-mancer/templates/settings/custom-compendiums.hbs', id: 'body', classes: ['hm-compendiums-popup'] },
+    form: { template: 'modules/hero-mancer/templates/settings/custom-compendiums.hbs', id: 'body' },
     footer: { template: 'modules/hero-mancer/templates/settings/settings-footer.hbs', id: 'footer', classes: ['hm-compendiums-footer'] }
   };
 

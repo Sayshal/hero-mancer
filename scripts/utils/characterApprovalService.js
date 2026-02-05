@@ -115,7 +115,7 @@ export class CharacterApprovalService {
     };
     const content = await foundry.applications.handlebars.renderTemplate('modules/hero-mancer/templates/approval-review.hbs', context);
     const result = await foundry.applications.api.DialogV2.wait({
-      window: { title: game.i18n.format('hm.approval.review-title', { name: userName }), icon: 'fa-solid fa-user-check' },
+      window: { title: game.i18n.format('hm.approval.review-title', { name: userName }), icon: 'fa-solid fa-user-check', classes: ['hm-app'] },
       content,
       buttons: [
         { action: 'approve', label: game.i18n.localize('hm.approval.approve'), icon: 'fas fa-check', default: true },

@@ -1,13 +1,13 @@
 {{!-- Troubleshooter Interface for Diagnostics and Support --}}
-<div class="hm-troubleshooter-container">
-	<p class="notes">{{localize "hm.settings.troubleshooter.notes"}}</p>
+<div>
+	<p>{{localize "hm.settings.troubleshooter.notes"}}</p>
 
 	{{!-- Diagnostic Output Display --}}
 	<textarea id="troubleshooter-output" rows="25" cols="80" readonly
 		aria-label="{{localize 'hm.settings.troubleshooter.output-label'}}">{{output}}</textarea>
 
 	{{!-- Action Buttons --}}
-	<div class="troubleshooter-buttons">
+	<div class="hm-app-footer">
 		{{!-- Export Report Button --}}
 		<button type="button" data-action="exportReport"
 			aria-label="{{localize "hm.settings.troubleshooter.save-to-file"}}">
