@@ -121,10 +121,10 @@ export class JournalPageFinder {
     for (const entry of index) {
       if (this.#isArtHandout(entry.name)) continue;
       if (!entry.pages?.length) continue;
-      const exactMatch = entry.pages.find((p) => p.name.toLowerCase() === normalizedItemName);
+      const exactMatch = entry.pages.find((p) => p.name?.toLowerCase() === normalizedItemName);
       if (exactMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${exactMatch._id}`;
       if (baseRaceName) {
-        const baseMatch = entry.pages.find((p) => p.name.toLowerCase() === baseRaceName.toLowerCase());
+        const baseMatch = entry.pages.find((p) => p.name?.toLowerCase() === baseRaceName.toLowerCase());
         if (baseMatch) return `Compendium.${pack.collection}.${entry._id}.JournalEntryPage.${baseMatch._id}`;
       }
     }

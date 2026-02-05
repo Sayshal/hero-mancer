@@ -1,6 +1,5 @@
 {{!-- Custom Compendiums Management Form --}}
-<form>
-  <div class="hm-compendiums-grid">
+<div class="hm-compendiums-grid">
     {{#each columns as |col|}}
       <div class="hm-compendiums-column" data-type="{{col.type}}">
         <h3><i class="{{col.icon}}"></i> {{col.label}}</h3>
@@ -9,7 +8,7 @@
           <div class="hm-compendium-group">
             <div class="hm-compendium-group-header">
               <label class="checkbox">
-                <input type="checkbox" class="hm-select-all" data-type="{{../col.type}}" data-source="{{source}}"
+                <input type="checkbox" class="hm-select-all" data-type="{{col.type}}" data-source="{{source}}"
                   {{#if group.allSelected}}checked{{/if}}>
                 <span>{{group.name}}</span>
               </label>
@@ -17,8 +16,8 @@
             <div class="hm-compendium-group-items">
               {{#each group.packs as |pack|}}
                 <label class="checkbox hm-compendium-item">
-                  <input type="checkbox" name="{{../../col.type}}Packs" value="{{pack.value}}"
-                    data-type="{{../../col.type}}" data-source="{{../source}}" {{#if pack.selected}}checked{{/if}}>
+                  <input type="checkbox" name="{{col.type}}Packs" value="{{pack.value}}"
+                    data-type="{{col.type}}" data-source="{{source}}" {{#if pack.selected}}checked{{/if}}>
                   <span>{{pack.label}}</span>
                 </label>
               {{/each}}
@@ -28,4 +27,3 @@
       </div>
     {{/each}}
   </div>
-</form>

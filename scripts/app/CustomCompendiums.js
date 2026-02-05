@@ -89,7 +89,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
         const original = CustomCompendiums.PACKS[type];
         const selectedPacks = checked.length > 0 ? checked : Array.from(form.querySelectorAll(`input[name="${settingKey}"]`)).map((el) => el.value);
         if (JSON.stringify(original) !== JSON.stringify(selectedPacks)) {
-          game.settings.set(MODULE.ID, settingKey, selectedPacks);
+          await game.settings.set(MODULE.ID, settingKey, selectedPacks);
           changedSettings[settingKey] = true;
           successCount++;
         }
