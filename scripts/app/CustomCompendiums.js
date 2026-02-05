@@ -16,7 +16,7 @@ export class CustomCompendiums extends HandlebarsApplicationMixin(ApplicationV2)
       closeOnSubmit: true,
       submitOnChange: false
     },
-    position: { height: 'auto', width: 'auto' },
+    position: { height: '850', width: 'auto' },
     window: { icon: 'fa-solid fa-atlas', resizable: false }
   };
 

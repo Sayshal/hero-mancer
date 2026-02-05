@@ -1057,7 +1057,9 @@
 
   /* ======== Settings: Compendiums ======== */
   &.hm-compendiums-settings {
-    overflow-y: auto;
+    .hm-compendiums-grid {
+      overflow-y: auto;
+    }
   }
 
   .hm-compendiums-grid {
