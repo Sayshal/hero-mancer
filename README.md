@@ -25,7 +25,7 @@ Say goodbye to endless compendium searches and tedious manual entry. **Hero Manc
 - **Intuitive Navigation**: Organized dropdowns sort options by folders and packs for quick selection!
 - **Rich Descriptions**: See fully formatted details for every character option at a glance!
 - **Simplified Stat Rolling**: Roll and assign ability scores with ease, whether it be Standard Array, Point Buy or All Manual!
-- **Built-In Equipment Selection**: Pick your starting equipment (or starting wealth!) based on your background and class - you can even favorite what you plan on using most!
+- **Built-In Equipment Selection**: Pick your starting equipment (or starting wealth!) based on your background and class!
 
 ---
 
@@ -60,44 +60,15 @@ The navigation bar at the top shows all creation steps at a glance, letting you 
 
 ---
 
-### 2. Choose a Background
+### 2. Choose a Background, Race, & Class
 
-![Choose a Background](tour-assets/background.png)
+![Choose a Background, Race, & Class](tour-assets/class.png)
 
-Select your character's background from a dropdown menu organized by source:
-
-- Full descriptions appear automatically when you select an option
-- See detailed information about skill proficiencies, languages, and equipment
-- Review suggested characteristics to help develop your character's personality
-- Backgrounds include traits, ideals, bonds, and flaws to enhance roleplaying
+Select your character's class from a dropdown menu organized by source!
 
 ---
 
-### 3. Choose a Race
-
-![Choose a Race](tour-assets/race.png)
-
-Select your character's race from a dropdown menu organized by race type:
-
-- Detailed information automatically displays ability score increases, size, speed, and special traits
-- See racial abilities like darkvision, keen senses, and weapon training at a glance
-- Extra racial options like languages and proficiencies are clearly presented
-
----
-
-### 4. Choose a Class
-
-![Choose a Class](tour-assets/class.png)
-
-Select your character's class from a dropdown menu organized by source:
-
-- Options are sorted by class name and compendium source
-- View detailed class features including hit dice, proficiencies, and equipment options
-- See complete class advancement tables showing features gained at each level
-
----
-
-### 5. Choose Abilities
+### 3. Choose Abilities
 
 ![Choose Abilities](tour-assets/abilities.png)
 
@@ -110,7 +81,7 @@ Determine your character's ability scores with multiple generation methods:
 
 ---
 
-### 6. Choose Starting Equipment
+### 4. Choose Starting Equipment
 
 ![Choose Starting Equipment](tour-assets/equipment.png)
 
@@ -118,20 +89,24 @@ Outfit your character with gear tailored to their class and background:
 
 - Equipment options dynamically update based on your class and background selections
 - Choose between starting wealth or specific equipment packages
-- Mark important items as favorites to keep them readily accessible on your character sheet
 
 ---
 
-### 7. Finalize - Player Biography
+### 5. Player Biography
 
-![Final Check](tour-assets/finalize.png)
+![Biography](tour-assets/biography.png)
 
 Complete your character with personal details and traits:
 
-- Review a summary of your character's race, class, and key attributes
 - Add physical characteristics including height, weight, eye color, and appearance
 - Define personality traits, ideals, bonds, and flaws with optional random generation
 - Set character alignment and faith to round out your hero's identity
+
+### 6. Review & Submit
+
+![Review & Submit](tour-assets/finalize.png)
+
+Do a final check before submitting your character, triggering dnd5e's advancement system. If you are a player, your character will go to your GM for final approval!
 
 ---
 
