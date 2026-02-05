@@ -1,16 +1,10 @@
-import { DOMManager, HeroMancer, HM, StatRoller } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, MODULE, StatRoller } from './index.js';
 
 /**
  * Combined class for character randomization and name generation
  */
 export class CharacterRandomizer {
-  // Flag to prevent duplicate operations
   static #isRandomizing = false;
-
-  /**
-   * Symbol sets for different name components
-   * @private
-   */
   static #nameSymbols = {
     s: [
       'ach',
@@ -374,11 +368,6 @@ export class CharacterRandomizer {
       'uzz'
     ]
   };
-
-  /**
-   * Common patterns for fantasy names
-   * @private
-   */
   static #namePatterns = ['BsV', 'BVs', 'CVcs', 'CVsC', 'VcCV', 'BsVc', 'BVsc', 'BVcv', 'BsVCs', 'CVCVs', 'BVCVs'];
 
   /**
@@ -388,30 +377,21 @@ export class CharacterRandomizer {
    */
   static async randomizeAll(form) {
     if (!form || this.#isRandomizing) return;
-
-    // Find the randomize button
     const randomizeButton = form.querySelector('button[data-action="randomize"]');
-
     try {
       this.#isRandomizing = true;
       this.#disableRandomizeButton(randomizeButton);
-
-      ui.notifications.info('hm.app.randomize.randomizing', { localize: true });
-      HM.log(3, 'Randomizing character...');
-
-      // Split randomization into stages
       await this.#randomizeBasicDetails(form);
       await this.#randomizeCharacteristics(form);
       await this.#randomizeAppearance(form);
       await this.#randomizeAbilities(form);
-
-      HM.log(3, 'Randomizing complete...');
       ui.notifications.info('hm.app.randomization-complete', { localize: true });
     } catch (error) {
       console.error('Error during randomization:', error);
       ui.notifications.error('hm.errors.randomization-failed', { localize: true });
     } finally {
-      DOMManager.updateReviewTab();
+      HeroMancerUI.updateReviewTab();
+      FormValidation.checkMandatoryFields(form);
       this.#isRandomizing = false;
       this.#enableRandomizeButton(randomizeButton);
     }
@@ -422,13 +402,8 @@ export class CharacterRandomizer {
    * @returns {string} A random fantasy name
    */
   static generateRandomName() {
-    try {
-      const pattern = this.#getRandomItem(this.#namePatterns);
-      return this.#generateNameFromPattern(pattern);
-    } catch (error) {
-      HM.log(1, 'Error generating name from pattern:', error);
-      return game.i18n.localize('hm.app.randomize.default-name');
-    }
+    const pattern = this.#getRandomItem(this.#namePatterns);
+    return this.#generateNameFromPattern(pattern);
   }
 
   /**
@@ -438,39 +413,20 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeAbilities(form) {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      ui.notifications.clear(); // Clear any notifications, we're almost done!
-
-      // Get the current roll method
-      const rollMethodSelect = form.querySelector('#roll-method');
-      if (!rollMethodSelect) {
-        HM.log(2, 'Roll method select not found');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    ui.notifications.clear();
+    const rollMethodSelect = form.querySelector('#roll-method');
+    if (!rollMethodSelect) return false;
+    const rollMethod = rollMethodSelect.value;
+    switch (rollMethod) {
+      case 'standardArray':
+        return this.#randomizeStandardArray(form);
+      case 'pointBuy':
+        return this.#randomizePointBuy(form);
+      case 'manualFormula':
+        return this.#randomizeManualFormula(form);
+      default:
         return false;
-      }
-
-      const rollMethod = rollMethodSelect.value;
-      let success = false;
-
-      switch (rollMethod) {
-        case 'standardArray':
-          success = await this.#randomizeStandardArray(form);
-          break;
-        case 'pointBuy':
-          success = await this.#randomizePointBuy(form);
-          break;
-        case 'manualFormula':
-          success = await this.#randomizeManualFormula(form);
-          break;
-        default:
-          HM.log(2, `Unknown roll method: ${rollMethod}`);
-          return false;
-      }
-
-      return success;
-    } catch (error) {
-      HM.log(1, 'Error randomizing abilities:', error);
-      return false;
     }
   }
 
@@ -481,14 +437,9 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeBasicDetails(form) {
-    try {
-      this.#randomizeName(form);
-      await this.#randomizeRace(form);
-      await this.#randomizeClass(form);
-    } catch (error) {
-      HM.log(1, 'Error randomizing basic details:', error);
-      throw new Error('Failed to randomize basic character details');
-    }
+    this.#randomizeName(form);
+    await this.#randomizeRace(form);
+    await this.#randomizeClass(form);
   }
 
   /**
@@ -498,14 +449,9 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeCharacteristics(form) {
-    try {
-      await this.#randomizeBackground(form);
-      this.#randomizeAlignment(form);
-      this.#randomizeFaith(form);
-    } catch (error) {
-      HM.log(1, 'Error randomizing characteristics:', error);
-      throw new Error('Failed to randomize character characteristics');
-    }
+    await this.#randomizeBackground(form);
+    this.#randomizeAlignment(form);
+    this.#randomizeFaith(form);
   }
 
   /**
@@ -514,9 +460,7 @@ export class CharacterRandomizer {
    * @private
    */
   static #disableRandomizeButton(button) {
-    if (button) {
-      button.disabled = true;
-    }
+    if (button) button.disabled = true;
   }
 
   /**
@@ -525,9 +469,7 @@ export class CharacterRandomizer {
    * @private
    */
   static #enableRandomizeButton(button) {
-    if (button) {
-      button.disabled = false;
-    }
+    if (button) button.disabled = false;
   }
 
   /**
@@ -537,21 +479,11 @@ export class CharacterRandomizer {
    * @private
    */
   static #randomizeName(form) {
-    try {
-      const nameInput = form.querySelector('#character-name');
-      if (!nameInput) {
-        HM.log(2, 'Could not find character name input field');
-        return false;
-      }
-
-      nameInput.value = this.generateRandomName();
-      nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-      HM.log(3, `Generated random name: ${nameInput.value}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error generating random name:', error);
-      return false;
-    }
+    const nameInput = form.querySelector('#character-name');
+    if (!nameInput) return false;
+    nameInput.value = this.generateRandomName();
+    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
   }
 
   /**
@@ -561,29 +493,14 @@ export class CharacterRandomizer {
    * @private
    */
   static #generateNameFromPattern(pattern) {
-    if (!pattern) {
-      HM.log(2, 'Invalid name pattern provided');
-      return 'Adventurer';
+    if (!pattern) return 'Adventurer';
+    let name = '';
+    for (let i = 0; i < pattern.length; i++) {
+      const c = pattern[i];
+      if (this.#nameSymbols[c]) name += this.#getRandomItem(this.#nameSymbols[c]);
+      else name += c;
     }
-
-    try {
-      let name = '';
-
-      for (let i = 0; i < pattern.length; i++) {
-        const c = pattern[i];
-
-        if (this.#nameSymbols[c]) {
-          name += this.#getRandomItem(this.#nameSymbols[c]);
-        } else {
-          name += c;
-        }
-      }
-
-      return this.#capitalize(name);
-    } catch (error) {
-      HM.log(1, 'Error generating name from pattern:', error);
-      return 'Adventurer';
-    }
+    return this.#capitalize(name);
   }
 
   /**
@@ -593,30 +510,14 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeBackground(form) {
-    try {
-      const backgroundDropdown = form.querySelector('#background-dropdown');
-      if (!backgroundDropdown) {
-        HM.log(2, 'Background dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(backgroundDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid background options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      backgroundDropdown.value = randomOption.value;
-      backgroundDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random background: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing background:', error);
-      return false;
-    }
+    const backgroundDropdown = form.querySelector('#background-dropdown');
+    if (!backgroundDropdown) return false;
+    const options = Array.from(backgroundDropdown.options).filter((opt) => !opt.disabled && opt.value);
+    if (!options.length) return false;
+    const randomOption = this.#getRandomItem(options);
+    backgroundDropdown.value = randomOption.value;
+    backgroundDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
   }
 
   /**
@@ -626,30 +527,14 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeRace(form) {
-    try {
-      const raceDropdown = form.querySelector('#race-dropdown');
-      if (!raceDropdown) {
-        HM.log(2, 'Race dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(raceDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid race options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      raceDropdown.value = randomOption.value;
-      raceDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random race: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing race:', error);
-      return false;
-    }
+    const raceDropdown = form.querySelector('#race-dropdown');
+    if (!raceDropdown) return false;
+    const options = Array.from(raceDropdown.options).filter((opt) => !opt.disabled && opt.value);
+    if (!options.length) return false;
+    const randomOption = this.#getRandomItem(options);
+    raceDropdown.value = randomOption.value;
+    raceDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
   }
 
   /**
@@ -659,30 +544,14 @@ export class CharacterRandomizer {
    * @private
    */
   static async #randomizeClass(form) {
-    try {
-      const classDropdown = form.querySelector('#class-dropdown');
-      if (!classDropdown) {
-        HM.log(2, 'Class dropdown not found');
-        return false;
-      }
-
-      const options = Array.from(classDropdown.options).filter((opt) => !opt.disabled && opt.value);
-
-      if (!options.length) {
-        HM.log(2, 'No valid class options found');
-        return false;
-      }
-
-      const randomOption = this.#getRandomItem(options);
-      classDropdown.value = randomOption.value;
-      classDropdown.dispatchEvent(new Event('change', { bubbles: true }));
-
-      HM.log(3, `Selected random class: ${randomOption.text}`);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing class:', error);
-      return false;
-    }
+    const classDropdown = form.querySelector('#class-dropdown');
+    if (!classDropdown) return false;
+    const options = Array.from(classDropdown.options).filter((opt) => !opt.disabled && opt.value);
+    if (!options.length) return false;
+    const randomOption = this.#getRandomItem(options);
+    classDropdown.value = randomOption.value;
+    classDropdown.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
   }
 
   /**
@@ -692,52 +561,26 @@ export class CharacterRandomizer {
    * @private
    */
   static #randomizeAlignment(form) {
-    try {
-      const alignmentElement = form.querySelector('select[name="alignment"], input[name="alignment"]');
-      if (!alignmentElement) {
-        HM.log(2, 'Alignment element not found');
-        return false;
-      }
-
-      // Check if it's a dropdown or input field
-      if (alignmentElement.tagName.toLowerCase() === 'select') {
-        // Handle dropdown
-        const options = Array.from(alignmentElement.options).filter((opt) => !opt.disabled && opt.value);
-
-        if (!options.length) {
-          HM.log(2, 'No valid alignment options found');
-          return false;
-        }
-
-        const randomOption = this.#getRandomItem(options);
-        alignmentElement.value = randomOption.value;
-        alignmentElement.dispatchEvent(new Event('change', { bubbles: true }));
-
-        HM.log(3, `Selected random alignment: ${randomOption.text}`);
-        return true;
-      } else {
-        // Handle input field
-        const alignments = game.settings
-          .get(HM.ID, 'alignments')
-          .split(',')
-          .map((a) => a.trim())
-          .filter((a) => a);
-
-        if (!alignments.length) {
-          HM.log(2, 'No valid alignment options found in settings');
-          return false;
-        }
-
-        const randomAlignment = this.#getRandomItem(alignments);
-        alignmentElement.value = randomAlignment;
-        alignmentElement.dispatchEvent(new Event('input', { bubbles: true }));
-
-        HM.log(3, `Selected random alignment: ${randomAlignment}`);
-        return true;
-      }
-    } catch (error) {
-      HM.log(1, 'Error randomizing alignment:', error);
-      return false;
+    const alignmentElement = form.querySelector('select[name="alignment"], input[name="alignment"]');
+    if (!alignmentElement) return false;
+    if (alignmentElement.tagName.toLowerCase() === 'select') {
+      const options = Array.from(alignmentElement.options).filter((opt) => !opt.disabled && opt.value);
+      if (!options.length) return false;
+      const randomOption = this.#getRandomItem(options);
+      alignmentElement.value = randomOption.value;
+      alignmentElement.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    } else {
+      const alignments = game.settings
+        .get(MODULE.ID, 'alignments')
+        .split(',')
+        .map((a) => a.trim())
+        .filter((a) => a);
+      if (!alignments.length) return false;
+      const randomAlignment = this.#getRandomItem(alignments);
+      alignmentElement.value = randomAlignment;
+      alignmentElement.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
     }
   }
 
@@ -748,70 +591,37 @@ export class CharacterRandomizer {
    * @private
    */
   static #randomizeFaith(form) {
-    try {
-      const faithElement = form.querySelector('select[name="faith"], input[name="faith"]');
-      if (!faithElement) {
-        HM.log(2, 'Faith element not found');
-        return false;
-      }
-
-      // Check if it's a dropdown or input field
-      if (faithElement.tagName.toLowerCase() === 'select') {
-        // Handle dropdown
-        const options = Array.from(faithElement.options).filter((opt) => !opt.disabled && opt.value);
-
-        if (!options.length) {
-          HM.log(2, 'No valid faith options found');
-          return false;
-        }
-
-        const randomOption = this.#getRandomItem(options);
-        faithElement.value = randomOption.value;
-        faithElement.dispatchEvent(new Event('change', { bubbles: true }));
-
-        HM.log(3, `Selected random faith: ${randomOption.text}`);
-        return true;
-      } else {
-        // Handle input field
-        const deities = game.settings
-          .get(HM.ID, 'deities')
-          .split(',')
-          .map((d) => d.trim())
-          .filter((d) => d);
-
-        if (!deities.length) {
-          HM.log(2, 'No valid faith options found in settings');
-          return false;
-        }
-
-        const randomFaith = this.#getRandomItem(deities);
-        faithElement.value = randomFaith;
-        faithElement.dispatchEvent(new Event('input', { bubbles: true }));
-
-        HM.log(3, `Selected random faith: ${randomFaith}`);
-        return true;
-      }
-    } catch (error) {
-      HM.log(1, 'Error randomizing faith:', error);
-      return false;
+    const faithElement = form.querySelector('select[name="faith"], input[name="faith"]');
+    if (!faithElement) return false;
+    if (faithElement.tagName.toLowerCase() === 'select') {
+      const options = Array.from(faithElement.options).filter((opt) => !opt.disabled && opt.value);
+      if (!options.length) return false;
+      const randomOption = this.#getRandomItem(options);
+      faithElement.value = randomOption.value;
+      faithElement.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    } else {
+      const deities = game.settings
+        .get(MODULE.ID, 'deities')
+        .split(',')
+        .map((d) => d.trim())
+        .filter((d) => d);
+      if (!deities.length) return false;
+      const randomFaith = this.#getRandomItem(deities);
+      faithElement.value = randomFaith;
+      faithElement.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
     }
   }
 
   /**
    * Randomize appearance fields (eyes, hair, skin, height, weight, age, gender)
    * @param {HTMLElement} form - The HeroMancer form element
-   * @returns {boolean} Success status
    * @private
    */
   static #randomizeAppearance(form) {
-    try {
-      this.#randomizeAppearanceTraits(form);
-      this.#randomizePhysicalAttributes(form);
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing appearance:', error);
-      return false;
-    }
+    this.#randomizeAppearanceTraits(form);
+    this.#randomizePhysicalAttributes(form);
   }
 
   /**
@@ -820,36 +630,30 @@ export class CharacterRandomizer {
    * @private
    */
   static #randomizeAppearanceTraits(form) {
-    // Get appearance traits from settings
     const traits = {
       eyes: game.settings
-        .get(HM.ID, 'eye-colors')
+        .get(MODULE.ID, 'eyeColors')
         .split(',')
         .map((e) => e.trim()),
       hair: game.settings
-        .get(HM.ID, 'hair-colors')
+        .get(MODULE.ID, 'hairColors')
         .split(',')
         .map((h) => h.trim()),
       skin: game.settings
-        .get(HM.ID, 'skin-tones')
+        .get(MODULE.ID, 'skinTones')
         .split(',')
         .map((s) => s.trim()),
       gender: game.settings
-        .get(HM.ID, 'genders')
+        .get(MODULE.ID, 'genders')
         .split(',')
         .map((g) => g.trim())
     };
-
-    // Set random appearance traits from settings
     for (const [trait, values] of Object.entries(traits)) {
       if (!values.length) continue;
-
       const input = form.querySelector(`input[name="${trait}"]`);
       if (!input) continue;
-
       input.value = this.#getRandomItem(values);
       input.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random ${trait}: ${input.value}`);
     }
   }
 
@@ -859,30 +663,22 @@ export class CharacterRandomizer {
    * @private
    */
   static #randomizePhysicalAttributes(form) {
-    // Set height based on metric setting
     const heightInput = form.querySelector('input[name="height"]');
     if (heightInput) {
       const useMetric = game.settings.get('dnd5e', 'metricLengthUnits') || false;
       heightInput.value = this.#generateRandomHeight(useMetric);
       heightInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random height: ${heightInput.value}`);
     }
-
-    // Set weight based on metric setting
     const weightInput = form.querySelector('input[name="weight"]');
     if (weightInput) {
       const useMetric = game.settings.get('dnd5e', 'metricWeightUnits') || false;
       weightInput.value = this.#generateRandomWeight(useMetric);
       weightInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random weight: ${weightInput.value}`);
     }
-
-    // Set random age (18-99)
     const ageInput = form.querySelector('input[name="age"]');
     if (ageInput) {
       ageInput.value = Math.floor(Math.random() * 82) + 18;
       ageInput.dispatchEvent(new Event('change', { bubbles: true }));
-      HM.log(3, `Set random age: ${ageInput.value}`);
     }
   }
 
@@ -894,12 +690,10 @@ export class CharacterRandomizer {
    */
   static #generateRandomHeight(useMetric) {
     if (useMetric) {
-      // Random height in cm (90-200)
       const heightCm = Math.floor(Math.random() * 111) + 90;
       return `${heightCm}cm`;
     } else {
-      // Random height in feet (3.0-6.5)
-      const heightInches = Math.floor(Math.random() * 43) + 36; // 36-78 inches
+      const heightInches = Math.floor(Math.random() * 43) + 36;
       const heightFeet = (heightInches / 12).toFixed(1);
       return `${heightFeet}'`;
     }
@@ -913,11 +707,9 @@ export class CharacterRandomizer {
    */
   static #generateRandomWeight(useMetric) {
     if (useMetric) {
-      // Random weight in kg (18-135)
       const weightKg = Math.floor(Math.random() * 118) + 18;
       return `${weightKg}kg`;
     } else {
-      // Random weight in lb (40-300)
       const weightLb = Math.floor(Math.random() * 261) + 40;
       return `${weightLb}lb`;
     }
@@ -930,66 +722,30 @@ export class CharacterRandomizer {
    * @returns {Promise<boolean>} Success status
    */
   static async #randomizeStandardArray(form) {
-    try {
-      // Get ability data and sort appropriately
-      const abilityData = this.#collectAbilityData(form);
-
-      if (!abilityData.availableValues.length) {
-        HM.log(2, 'No standard array values available');
-        return false;
-      }
-
-      // First assign values to primary abilities
-      await this.#assignPrimaryAbilities(abilityData);
-
-      // Then assign values to remaining abilities
-      await this.#assignRemainingAbilities(abilityData);
-
-      return true;
-    } catch (error) {
-      HM.log(1, 'Error randomizing standard array:', error);
-      return false;
-    }
+    const abilityData = this.#collectAbilityData(form);
+    if (!abilityData.availableValues.length) return false;
+    await this.#assignPrimaryAbilities(abilityData);
+    await this.#assignRemainingAbilities(abilityData);
+    return true;
   }
 
   /**
    * Collect ability data from form
    * @param {HTMLElement} form - The form element
-   * @returns {Object} Ability data information
+   * @returns {object} Ability data information
    * @private
    */
   static #collectAbilityData(form) {
-    // Get all ability blocks and their labels
     const abilityBlocks = Array.from(form.querySelectorAll('.ability-block'));
-
-    // Create an array of ability information
     const abilities = abilityBlocks.map((block, index) => {
       const dropdown = block.querySelector('.ability-dropdown');
       const label = block.querySelector('.ability-label');
-
-      return {
-        index,
-        key: dropdown?.name?.match(/\[([a-z]+)]/)?.[1] || '',
-        dropdown,
-        isPrimary: label?.classList.contains('primary-ability'),
-        label: label?.textContent.trim()
-      };
+      return { index, key: dropdown?.name?.match(/\[([a-z]+)]/)?.[1] || '', dropdown, isPrimary: label?.classList.contains('primary-ability'), label: label?.textContent.trim() };
     });
-
-    // Get available values from the first dropdown
     const availableValues = [];
     const firstDropdown = abilities[0]?.dropdown;
-    if (firstDropdown) {
-      for (const option of firstDropdown.options) {
-        if (option.value && !option.disabled) {
-          availableValues.push(option.value);
-        }
-      }
-    }
-
-    // Sort values numerically (highest first)
+    if (firstDropdown) for (const option of firstDropdown.options) if (option.value && !option.disabled) availableValues.push(option.value);
     availableValues.sort((a, b) => parseInt(b) - parseInt(a));
-
     return {
       abilities,
       primaryAbilities: abilities.filter((a) => a.isPrimary).sort((a, b) => a.label.localeCompare(b.label)),
@@ -1001,7 +757,7 @@ export class CharacterRandomizer {
 
   /**
    * Assign values to primary abilities
-   * @param {Object} abilityData - Collected ability data
+   * @param {object} abilityData - Collected ability data
    * @returns {Promise<void>}
    * @private
    */
@@ -1012,29 +768,24 @@ export class CharacterRandomizer {
         ability.dropdown.value = value;
         ability.dropdown.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Assigned ${value} to primary ability ${ability.label}`);
       }
     }
   }
 
   /**
    * Assign values to remaining abilities
-   * @param {Object} abilityData - Collected ability data
+   * @param {object} abilityData - Collected ability data
    * @returns {Promise<void>}
    * @private
    */
   static async #assignRemainingAbilities(abilityData) {
-    // Randomize the remaining abilities
     this.#shuffleArray(abilityData.remainingAbilities);
-
-    // Assign remaining values
     for (const ability of abilityData.remainingAbilities) {
       if (abilityData.valuesCopy.length && ability.dropdown) {
         const value = abilityData.valuesCopy.shift();
         ability.dropdown.value = value;
         ability.dropdown.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Assigned ${value} to ability ${ability.label}`);
       }
     }
   }
@@ -1046,159 +797,76 @@ export class CharacterRandomizer {
    * @returns {Promise<boolean>} Success status
    */
   static async #randomizePointBuy(form) {
-    try {
-      HM.log(3, 'Starting point buy randomization');
-
-      // 1. Identify abilities and collect data
-      const abilityData = this.#collectPointBuyData(form);
-      if (!abilityData.abilities.length) return false;
-
-      // 2. Prioritize primary abilities first
-      await this.#maximizePrimaryAbilities(abilityData);
-
-      // 3. Distribute remaining points to non-primary abilities
-      await this.#distributeRemainingPoints(abilityData);
-
-      HM.log(3, 'Point buy randomization complete');
-      return true;
-    } catch (error) {
-      HM.log(1, `Error during point buy randomization: ${error.message}`);
-      console.error(error);
-      return false;
-    }
+    const abilityData = this.#collectPointBuyData(form);
+    if (!abilityData.abilities.length) return false;
+    await this.#maximizePrimaryAbilities(abilityData);
+    await this.#distributeRemainingPoints(abilityData);
+    return true;
   }
 
   /**
    * Collect point buy ability data
    * @param {HTMLElement} form - The form element
-   * @returns {Object} Ability data for point buy
+   * @returns {object} Ability data for point buy
    * @private
    */
   static #collectPointBuyData(form) {
     const abilityBlocks = form.querySelectorAll('.ability-block.point-buy');
-    if (!abilityBlocks.length) {
-      HM.log(1, 'No ability blocks found for point buy');
-      return { abilities: [] };
-    }
-
-    HM.log(3, `Found ${abilityBlocks.length} ability blocks`);
-
-    const abilities = Array.from(abilityBlocks).map((block, index) => {
+    if (!abilityBlocks.length) return { abilities: [] };
+    const abilities = Array.from(abilityBlocks).map((block) => {
       const label = block.querySelector('.ability-label');
       const plusButton = block.querySelector('.plus-button');
       const currentScore = block.querySelector('.current-score');
       const isPrimary = label?.classList.contains('primary-ability');
-
-      HM.log(3, `Ability ${index}: ${label?.textContent.trim()} - isPrimary: ${isPrimary}`);
-
-      return {
-        index,
-        block,
-        isPrimary,
-        plusButton,
-        minusButton: block.querySelector('.minus-button'),
-        currentScore,
-        label: label?.textContent.trim()
-      };
+      return { block, isPrimary, plusButton, minusButton: block.querySelector('.minus-button'), currentScore, label: label?.textContent.trim() };
     });
-
-    return {
-      abilities,
-      primaryAbilities: abilities.filter((a) => a.isPrimary),
-      nonPrimaryAbilities: abilities.filter((a) => !a.isPrimary),
-      totalPoints: StatRoller.getTotalPoints()
-    };
+    return { abilities, primaryAbilities: abilities.filter((a) => a.isPrimary), nonPrimaryAbilities: abilities.filter((a) => !a.isPrimary), totalPoints: StatRoller.getTotalPoints() };
   }
 
   /**
    * Maximize primary abilities for point buy
-   * @param {Object} abilityData - Point buy ability data
+   * @param {object} abilityData - Point buy ability data
    * @returns {Promise<void>}
    * @private
    */
   static async #maximizePrimaryAbilities(abilityData) {
-    HM.log(3, 'Starting to max out primary abilities');
-
     for (const primary of abilityData.primaryAbilities) {
-      HM.log(3, `Working on primary ability index ${primary.index}`);
-
-      // Keep clicking the + button until it becomes disabled
-      let maxAttempts = 20; // More than enough to reach max score
-      let clickCount = 0;
-
+      let maxAttempts = 20;
       while (!primary.plusButton.disabled && maxAttempts > 0) {
-        clickCount++;
-        HM.log(3, `Clicking + for primary ability ${primary.index}, attempt ${20 - maxAttempts + 1}, current value: ${primary.currentScore.textContent}`);
         maxAttempts--;
         primary.plusButton.click();
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
-
-      HM.log(3, `Finished primary ability ${primary.index} after ${clickCount} clicks. Final value: ${primary.currentScore.textContent}`);
     }
   }
 
   /**
    * Distribute remaining points for point buy
-   * @param {Object} abilityData - Point buy ability data
+   * @param {object} abilityData - Point buy ability data
    * @returns {Promise<void>}
    * @private
    */
   static async #distributeRemainingPoints(abilityData) {
-    // Calculate remaining points after primaries are maxed
     let pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
     let remainingPoints = abilityData.totalPoints - pointsSpent;
-
-    HM.log(3, `After maxing primaries - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
-
-    if (remainingPoints <= 0) {
-      HM.log(3, 'No points remaining for non-primary abilities');
-      return;
-    }
-
-    HM.log(3, `Starting to distribute ${remainingPoints} remaining points to non-primary abilities`);
-
-    // Shuffle for random distribution
+    if (remainingPoints <= 0) return;
     this.#shuffleArray(abilityData.nonPrimaryAbilities);
-    HM.log(3, 'Shuffled non-primary abilities order');
-
     let distributionCounter = 0;
-    let totalClicks = 0;
-
     while (remainingPoints > 0 && distributionCounter < 100) {
-      // Safety counter
       distributionCounter++;
-
       for (const ability of abilityData.nonPrimaryAbilities) {
         if (remainingPoints <= 0) break;
-
         if (!ability.plusButton.disabled) {
-          HM.log(3, `Clicking + for non-primary ability ${ability.index}, current value: ${ability.currentScore.textContent}`);
           ability.plusButton.click();
-          totalClicks++;
           await new Promise((resolve) => setTimeout(resolve, 50));
-
-          // Recalculate points
           pointsSpent = StatRoller.calculateTotalPointsSpent(HeroMancer.selectedAbilities);
           remainingPoints = abilityData.totalPoints - pointsSpent;
-
-          HM.log(3, `After click - Points spent: ${pointsSpent}, Remaining: ${remainingPoints}`);
-
           if (remainingPoints <= 0) break;
-        } else {
-          HM.log(3, `Non-primary ability ${ability.index} button is disabled, skipping`);
         }
       }
-
-      // Check if we can still assign points to any ability
       const canStillAssign = abilityData.nonPrimaryAbilities.some((a) => !a.plusButton.disabled);
-      if (!canStillAssign) {
-        HM.log(3, 'No more abilities can be increased, breaking loop');
-        break;
-      }
+      if (!canStillAssign) break;
     }
-
-    HM.log(3, `Completed non-primary distribution. Total clicks: ${totalClicks}`);
   }
 
   /**
@@ -1208,31 +876,17 @@ export class CharacterRandomizer {
    * @returns {Promise<boolean>} Success status
    */
   static async #randomizeManualFormula(form) {
-    // Save original dice configuration
     let originalDiceConfiguration = null;
-
     try {
-      // Get the original configuration
       originalDiceConfiguration = game.settings.get('core', 'diceConfiguration');
-
       this.#setupTemporaryDiceConfiguration();
       await this.#performManualFormulaRandomization(form);
-
-      HM.log(3, 'Manual formula randomization complete');
       return true;
     } catch (error) {
-      HM.log(1, 'Error during manual formula randomization:', error);
+      console.error('Error during manual formula randomization:', error);
       return false;
     } finally {
-      // Restore original dice configuration if we saved it
-      if (originalDiceConfiguration) {
-        try {
-          game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
-          HM.log(3, 'Restored original dice configuration');
-        } catch (restoreError) {
-          HM.log(1, 'Failed to restore original dice configuration:', restoreError);
-        }
-      }
+      if (originalDiceConfiguration) game.settings.set('core', 'diceConfiguration', originalDiceConfiguration);
     }
   }
 
@@ -1241,20 +895,8 @@ export class CharacterRandomizer {
    * @private
    */
   static #setupTemporaryDiceConfiguration() {
-    // Create temporary configuration with automatic dice
-    const tempDiceConfiguration = {
-      d4: '',
-      d6: '',
-      d8: '',
-      d10: '',
-      d12: '',
-      d20: '',
-      d100: ''
-    };
-
-    // Apply temporary configuration
+    const tempDiceConfiguration = { d4: '', d6: '', d8: '', d10: '', d12: '', d20: '', d100: '' };
     game.settings.set('core', 'diceConfiguration', tempDiceConfiguration);
-    HM.log(3, 'Applied temporary dice configuration');
   }
 
   /**
@@ -1264,39 +906,25 @@ export class CharacterRandomizer {
    * @private
    */
   static async #performManualFormulaRandomization(form) {
-    // Get all ability blocks
     const abilityBlocks = form.querySelectorAll('.ability-block');
-    if (!abilityBlocks.length) {
-      HM.log(2, 'No ability blocks found');
-      throw new Error('No ability blocks found');
-    }
-
-    // 1. Randomize ability types
+    if (!abilityBlocks.length) throw new Error('No ability blocks found');
     await this.#randomizeAbilityTypes(form, abilityBlocks);
-
-    // 2. Generate roll results for all abilities
     const rollResults = await this.#generateAbilityRolls(abilityBlocks);
-
-    // 3. Create optimized ability assignments
     const finalAssignments = this.#createOptimizedAssignments(abilityBlocks, rollResults);
-
-    // 4. Apply the final assignments
     await this.#applyAbilityAssignments(abilityBlocks, finalAssignments);
   }
 
   /**
    * Randomize ability types (STR, DEX, etc.)
-   * @param {HTMLElement} form - The form element
+   * @param {HTMLElement} _form - The form element (unused)
    * @param {NodeList} abilityBlocks - Ability block elements
    * @returns {Promise<void>}
    * @private
    */
-  static async #randomizeAbilityTypes(form, abilityBlocks) {
+  static async #randomizeAbilityTypes(_form, abilityBlocks) {
     const abilities = Object.keys(CONFIG.DND5E.abilities);
     const shuffledAbilities = [...abilities];
     this.#shuffleArray(shuffledAbilities);
-
-    // Assign abilities to dropdowns
     for (let i = 0; i < abilityBlocks.length; i++) {
       const dropdown = abilityBlocks[i].querySelector('.ability-dropdown');
       if (dropdown && i < shuffledAbilities.length) {
@@ -1305,8 +933,6 @@ export class CharacterRandomizer {
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
     }
-
-    HM.log(3, 'Randomized ability types');
   }
 
   /**
@@ -1318,42 +944,25 @@ export class CharacterRandomizer {
   static async #generateAbilityRolls(abilityBlocks) {
     const rollResults = [];
     const rollFormula = await StatRoller.getAbilityScoreRollFormula();
-
-    if (!rollFormula) {
-      throw new Error('Could not get ability score roll formula');
-    }
-
+    if (!rollFormula) throw new Error('Could not get ability score roll formula');
     for (let i = 0; i < abilityBlocks.length; i++) {
       try {
         const roll = new Roll(rollFormula);
         await roll.evaluate();
-
         const input = abilityBlocks[i].querySelector('.ability-score');
         const ability = abilityBlocks[i].querySelector('.ability-dropdown')?.value;
         const isPrimary = abilityBlocks[i].querySelector('.primary-ability') !== null;
-
+        rollResults.push({ index: i, value: roll.total, ability, isPrimary, input });
+      } catch {
         rollResults.push({
           index: i,
-          value: roll.total,
-          ability,
-          isPrimary,
-          input
-        });
-
-        HM.log(3, `Rolled ${roll.total} for ${ability} (primary: ${isPrimary})`);
-      } catch (error) {
-        HM.log(1, `Error rolling for ability ${i}:`, error);
-        // Use a default value if roll fails
-        rollResults.push({
-          index: i,
-          value: 10, // Fallback value
+          value: 10,
           ability: abilityBlocks[i].querySelector('.ability-dropdown')?.value,
           isPrimary: abilityBlocks[i].querySelector('.primary-ability') !== null,
           input: abilityBlocks[i].querySelector('.ability-score')
         });
       }
     }
-
     return rollResults;
   }
 
@@ -1365,28 +974,17 @@ export class CharacterRandomizer {
    * @private
    */
   static #createOptimizedAssignments(abilityBlocks, rollResults) {
-    // Sort roll results (highest to lowest)
     rollResults.sort((a, b) => b.value - a.value);
-
-    // Identify primary abilities
     const primaryAbilities = rollResults.filter((r) => r.isPrimary);
     const nonPrimaryAbilities = rollResults.filter((r) => !r.isPrimary);
-
-    // Create array for final assignments
     const finalAssignments = new Array(abilityBlocks.length);
     let resultIndex = 0;
-
-    // Assign highest values to primary abilities first
     primaryAbilities.forEach((primary) => {
       finalAssignments[primary.index] = rollResults[resultIndex++].value;
     });
-
-    // Assign remaining values to non-primary abilities
     nonPrimaryAbilities.forEach((nonPrimary) => {
       finalAssignments[nonPrimary.index] = rollResults[resultIndex++].value;
     });
-
-    HM.log(3, 'Created optimized ability assignments', finalAssignments);
     return finalAssignments;
   }
 
@@ -1404,7 +1002,6 @@ export class CharacterRandomizer {
         input.value = finalAssignments[i];
         input.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 50));
-        HM.log(3, `Set ability ${i} to ${finalAssignments[i]}`);
       }
     }
   }
@@ -1416,10 +1013,7 @@ export class CharacterRandomizer {
    * @returns {*} Random item from the collection
    */
   static #getRandomItem(items) {
-    if (!items || !items.length) {
-      HM.log(2, 'Attempted to get random item from empty collection');
-      return null;
-    }
+    if (!items || !items.length) return null;
     return items[Math.floor(Math.random() * items.length)];
   }
 
@@ -1431,7 +1025,6 @@ export class CharacterRandomizer {
    */
   static #shuffleArray(array) {
     if (!array || !array.length) return array;
-
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];

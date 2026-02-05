@@ -1,40 +1,31 @@
 {{!-- Custom Compendiums Management Form --}}
 <form>
-  <p>{{localize 'hm.settings.custom-compendiums.description'}}</p>
+  <div class="hm-compendiums-grid">
+    {{#each columns as |col|}}
+      <div class="hm-compendiums-column" data-type="{{col.type}}">
+        <h3><i class="{{col.icon}}"></i> {{col.label}}</h3>
 
-  {{!-- Classes Section --}}
-  <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
-    <p id='class-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.classes-label'}}</p>
-    <button type='button' data-action='classes' class="whitespace-nowrap" aria-labelledby='class-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-classes"}}'>
-      <span>{{localize 'hm.settings.custom-compendiums.manage-classes'}}</span>
-    </button>
-  </div>
-
-  {{!-- Races Section --}}
-  <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
-    <p id='race-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.races-label'}}</p>
-    <button type='button' data-action='races' class="whitespace-nowrap" aria-labelledby='race-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-races"}}'>
-      <span>{{localize 'hm.settings.custom-compendiums.manage-races'}}</span>
-    </button>
-  </div>
-
-  {{!-- Backgrounds Section --}}
-  <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
-    <p id='background-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.backgrounds-label'}}</p>
-    <button type='button' data-action='backgrounds' class="whitespace-nowrap" aria-labelledby='background-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-backgrounds"}}'>
-      <span>{{localize 'hm.settings.custom-compendiums.manage-backgrounds'}}</span>
-    </button>
-  </div>
-
-  {{!-- Items Section --}}
-  <div class='hm-compendiums-popup-section flex justify-between items-center mb-md'>
-    <p id='item-label' class="m-0 flex-grow">{{localize 'hm.settings.custom-compendiums.items-label'}}</p>
-    <button type='button' data-action='items' class="whitespace-nowrap" aria-labelledby='item-label'
-      aria-label='{{localize "hm.settings.custom-compendiums.manage-items"}}'>
-      <span>{{localize 'hm.settings.custom-compendiums.manage-items'}}</span>
-    </button>
+        {{#each col.sourceGroups as |group source|}}
+          <div class="hm-compendium-group">
+            <div class="hm-compendium-group-header">
+              <label class="checkbox">
+                <input type="checkbox" class="hm-select-all" data-type="{{../col.type}}" data-source="{{source}}"
+                  {{#if group.allSelected}}checked{{/if}}>
+                <span>{{group.name}}</span>
+              </label>
+            </div>
+            <div class="hm-compendium-group-items">
+              {{#each group.packs as |pack|}}
+                <label class="checkbox hm-compendium-item">
+                  <input type="checkbox" name="{{../../col.type}}Packs" value="{{pack.value}}"
+                    data-type="{{../../col.type}}" data-source="{{../source}}" {{#if pack.selected}}checked{{/if}}>
+                  <span>{{pack.label}}</span>
+                </label>
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{/each}}
   </div>
 </form>

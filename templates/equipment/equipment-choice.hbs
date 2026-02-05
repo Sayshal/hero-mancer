@@ -1,0 +1,41 @@
+{{!-- templates/equipment/equipment-choice.hbs --}}
+{{!-- Renders equipment choices for a single section (class or background) --}}
+
+<legend>{{label}}</legend>
+
+{{#if hasWealth}}
+  <div class="form-group">
+    <label for="use-starting-wealth-{{type}}">
+      {{localize "hm.app.equipment.use-wealth"}}
+    </label>
+    <div class="form-fields">
+      <input type="checkbox" name="use-starting-wealth-{{type}}" data-wealth-checkbox data-type="{{type}}"
+        data-formula="{{wealth}}" data-modern="{{isModernRules}}" id="use-starting-wealth-{{type}}">
+    </div>
+  </div>
+  <div class="form-group wealth-roll-container" hidden>
+    <label for="starting-wealth-amount-{{type}}">
+      {{wealth}} gp
+    </label>
+    <div class="form-fields">
+      <input type="hidden" name="starting-wealth-rolled-{{type}}" value="">
+      <input type="text" id="starting-wealth-amount-{{type}}" name="starting-wealth-amount-{{type}}"
+        placeholder="{{localize "hm.app.equipment.wealth-placeholder"}}" readonly>
+      {{#unless isModernRules}}
+        <button type="button" class="wealth-roll-button" data-type="{{type}}" data-formula="{{wealth}}"
+          title="{{localize "hm.app.equipment.roll-wealth"}}">
+          <i class="fa-solid fa-dice"></i>
+        </button>
+      {{/unless}}
+    </div>
+  </div>
+{{/if}}
+
+<div class="{{type}}-equipment-entries equipment-entries">
+  {{#each entries}}
+    {{> "modules/hero-mancer/templates/equipment/equipment-entry.hbs" }}
+  {{/each}}
+  {{#unless entries.length}}
+    <p class="no-equipment">{{localize "hm.app.equipment.no-equipment"}}</p>
+  {{/unless}}
+</div>

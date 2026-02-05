@@ -1,4 +1,5 @@
-import { DOMManager, HeroMancer, HM } from './index.js';
+import { FormValidation, HeroMancer, HeroMancerUI, HM, MODULE } from './index.js';
+import { log } from './logger.mjs';
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -7,10 +8,6 @@ const { DialogV2 } = foundry.applications.api;
  * @class
  */
 export class StatRoller {
-  /* -------------------------------------------- */
-  /*  Static Properties                           */
-  /* -------------------------------------------- */
-
   static chainRollEnabled = false;
 
   static isRolling = false;
@@ -21,13 +18,9 @@ export class StatRoller {
 
   static #lastHandledChanges = new Map();
 
-  /* -------------------------------------------- */
-  /*  Getters                                     */
-  /* -------------------------------------------- */
-
   /**
    * Gets available roll methods with localized names
-   * @returns {Object} Object with roll method localizations
+   * @returns {object} Object with roll method localizations
    */
   get rollMethods() {
     return {
@@ -37,10 +30,6 @@ export class StatRoller {
     };
   }
 
-  /* -------------------------------------------- */
-  /*  Static Public Methods                       */
-  /* -------------------------------------------- */
-
   /**
    * Initiates the stat rolling process
    * @param {HTMLElement} form - The form containing the ability score input
@@ -49,24 +38,16 @@ export class StatRoller {
    * @static
    */
   static async rollAbilityScore(form) {
-    if (this.isRolling) {
-      HM.log(2, 'Rolling already in progress, please wait');
-      return;
-    }
-
+    if (this.isRolling) return;
     try {
       const rollData = this.#prepareRollData(form);
       if (!rollData) return;
-
-      if (rollData.hasExistingValue) {
-        await this.#handleExistingValue(rollData);
-      } else if (rollData.chainedRolls) {
-        await this.rollAllStats(rollData.rollFormula);
-      } else {
-        await this.rollSingleAbilityScore(rollData.rollFormula, rollData.index, rollData.input);
-      }
+      log(3, `Rolling ability score — formula: ${rollData.rollFormula}, chain: ${rollData.chainedRolls}, index: ${rollData.index}`);
+      if (rollData.hasExistingValue) await this.#handleExistingValue(rollData);
+      else if (rollData.chainedRolls) await this.rollAllStats(rollData.rollFormula);
+      else await this.rollSingleAbilityScore(rollData.rollFormula, rollData.index, rollData.input);
     } catch (error) {
-      HM.log(1, 'Error while rolling stat:', error);
+      log(1, 'Error while rolling stat:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       this.isRolling = false;
     }
@@ -75,28 +56,22 @@ export class StatRoller {
   /**
    * Prepares data needed for rolling
    * @param {HTMLElement} form - The form containing the ability score input
-   * @returns {Promise<Object|null>} Roll data or null if invalid
+   * @returns {Promise<object | null>} Roll data or null if invalid
    * @private
    * @static
    */
   static #prepareRollData(form) {
-    if (!form) {
-      HM.log(2, 'Invalid form provided to rollAbilityScore');
-      return null;
-    }
-
     const rollFormula = this.getAbilityScoreRollFormula();
-    const chainedRolls = game.settings.get(HM.ID, 'chainedRolls');
+    const chainedRolls = game.settings.get(MODULE.ID, 'chainedRolls');
     const index = form.getAttribute('data-index');
     const input = this.getAbilityInput(index);
     const hasExistingValue = !this.chainRollEnabled && input?.value?.trim() !== '';
-
     return { rollFormula, chainedRolls, index, input, hasExistingValue };
   }
 
   /**
    * Handle the case where there's an existing value in the input
-   * @param {Object} rollData - The prepared roll data
+   * @param {object} rollData - The prepared roll data
    * @returns {Promise<void>}
    * @private
    * @static
@@ -111,11 +86,10 @@ export class StatRoller {
    * @static
    */
   static getAbilityScoreRollFormula() {
-    let formula = game.settings.get(HM.ID, 'customRollFormula');
+    let formula = game.settings.get(MODULE.ID, 'customRollFormula');
     if (!formula?.trim()) {
       formula = '4d6kh3';
-      game.settings.set(HM.ID, 'customRollFormula', formula);
-      HM.log(2, 'Roll formula was empty. Resetting to default:', formula);
+      game.settings.set(MODULE.ID, 'customRollFormula', formula);
     }
     return formula;
   }
@@ -127,11 +101,7 @@ export class StatRoller {
    * @static
    */
   static getAbilityInput(index) {
-    if (!index) {
-      HM.log(2, 'Invalid ability index provided to getAbilityInput');
-      return null;
-    }
-
+    if (!index) return null;
     const block = document.getElementById(`ability-block-${index}`);
     return block?.querySelector('.ability-score');
   }
@@ -145,40 +115,23 @@ export class StatRoller {
    * @static
    */
   static async rollSingleAbilityScore(rollFormula, index, input) {
-    if (!rollFormula) {
-      HM.log(2, 'No roll formula provided for ability score roll');
-      return false;
-    }
-
-    // Update UI to show rolling status
+    if (!rollFormula) return false;
     this.#updateRollingStatus(index, true);
     this.isRolling = true;
-
     try {
-      // Add a small delay to show the animation
       await new Promise((resolve) => setTimeout(resolve, 100));
-
       const rollResult = await this.#performRoll(rollFormula);
       if (!rollResult) return false;
-
-      // Apply roll result to input
-      if (input) {
-        input.value = rollResult;
-        input.focus();
-
-        // Trigger change event
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        return true;
-      } else {
-        HM.log(2, `No input field found for ability index ${index}.`);
-        return false;
-      }
+      if (!input) return false;
+      input.value = rollResult;
+      input.focus();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
     } catch (error) {
-      HM.log(1, `Failed to roll ${rollFormula}:`, error);
+      log(1, `Failed to roll ${rollFormula}:`, error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       return false;
     } finally {
-      // Add a small delay before removing animation
       setTimeout(() => {
         this.#updateRollingStatus(index, false);
         this.isRolling = false;
@@ -196,17 +149,12 @@ export class StatRoller {
    */
   static #updateRollingStatus(index, isRolling) {
     if (!index) return;
-
     const block = document.getElementById(`ability-block-${index}`);
     if (!block) return;
-
     const diceIcon = block.querySelector('.fa-dice-d6');
     if (diceIcon) {
-      if (isRolling) {
-        diceIcon.classList.add('rolling');
-      } else {
-        diceIcon.classList.remove('rolling');
-      }
+      if (isRolling) diceIcon.classList.add('rolling');
+      else diceIcon.classList.remove('rolling');
     }
   }
 
@@ -221,24 +169,11 @@ export class StatRoller {
     try {
       const roll = new Roll(rollFormula);
       await roll.evaluate();
-
-      // Show Dice So Nice animation if available
-      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
-
-      // Apply min/max constraints to roll result
+      if (game.dice3d && game.settings.get(MODULE.ID, 'enableDiceSoNice')) await game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
-      const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
-
-      // Log original and constrained values if different
-      if (roll.total !== constrainedResult) {
-        HM.log(3, `Roll result: ${roll.total} (constrained to ${constrainedResult})`);
-      } else {
-        HM.log(3, 'Roll result:', roll.total);
-      }
-
-      return constrainedResult;
+      return Math.max(MIN, Math.min(MAX, roll.total));
     } catch (error) {
-      HM.log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
+      log(1, `Failed to evaluate roll formula "${rollFormula}":`, error);
       return null;
     }
   }
@@ -250,26 +185,19 @@ export class StatRoller {
    * @static
    */
   static async rollAllStats(rollFormula) {
-    if (!rollFormula) {
-      HM.log(2, 'No roll formula provided for ability score roll');
-      return false;
-    }
-
+    if (!rollFormula) return false;
     this.isRolling = true;
     const blocks = this.#getAbilityBlocks();
-
     if (!blocks.length) {
-      HM.log(2, 'No ability blocks found for rolling');
       this.isRolling = false;
       return false;
     }
-
     try {
       await this.#rollAbilitiesSequentially(blocks, rollFormula);
-      DOMManager.updateAbilitiesSummary();
+      HeroMancerUI.updateAbilityHighlights();
       return true;
     } catch (error) {
-      HM.log(1, 'Error in chain rolling:', error);
+      log(1, 'Error in chain rolling:', error);
       ui.notifications.error('hm.errors.roll-failed', { localize: true });
       return false;
     } finally {
@@ -297,53 +225,26 @@ export class StatRoller {
    * @static
    */
   static async #rollAbilitiesSequentially(blocks, rollFormula) {
-    const delay = game.settings.get(HM.ID, 'rollDelay') || 500;
-
+    const delay = game.settings.get(MODULE.ID, 'rollDelay') || 500;
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
       const diceIcon = block.querySelector('.fa-dice-d6');
       const input = block.querySelector('.ability-score');
-
-      // Add animation before rolling
-      if (diceIcon) {
-        diceIcon.classList.add('rolling');
-      }
-
-      // Wait a moment to show animation before performing roll
+      if (diceIcon) diceIcon.classList.add('rolling');
       await new Promise((r) => setTimeout(r, 100));
-
-      // Perform the roll with 3D animation
       const roll = new Roll(rollFormula);
       await roll.evaluate();
-
-      // Show Dice So Nice animation if available
       let diceAnimationPromise = Promise.resolve();
-      if (game.dice3d && game.settings.get(HM.ID, 'enableDiceSoNice')) {
-        diceAnimationPromise = game.dice3d.showForRoll(roll, game.user, false);
-      }
-
-      // Apply constraints while animation plays
+      if (game.dice3d && game.settings.get(MODULE.ID, 'enableDiceSoNice')) diceAnimationPromise = game.dice3d.showForRoll(roll, game.user, false);
       const { MIN, MAX } = HM.ABILITY_SCORES;
       const constrainedResult = Math.max(MIN, Math.min(MAX, roll.total));
-
-      // Wait for dice animation to complete
       await diceAnimationPromise;
-
-      // Update the input
       if (input && constrainedResult !== null) {
         input.value = constrainedResult;
         input.dispatchEvent(new Event('change', { bubbles: true }));
       }
-
-      // Remove CSS animation
-      if (diceIcon) {
-        diceIcon.classList.remove('rolling');
-      }
-
-      // Delay before next roll (minus time already spent)
-      if (i < blocks.length - 1) {
-        await new Promise((r) => setTimeout(r, Math.max(0, delay - 300)));
-      }
+      if (diceIcon) diceIcon.classList.remove('rolling');
+      if (i < blocks.length - 1) await new Promise((r) => setTimeout(r, Math.max(0, delay - 300)));
     }
   }
 
@@ -365,55 +266,30 @@ export class StatRoller {
    * @static
    */
   static validateAndSetCustomStandardArray(value) {
-    if (!value) {
-      HM.log(2, 'Empty value provided for standard array');
-      return false;
-    }
-
+    if (!value) return false;
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
-
-    // Check format: comma-separated digits
     if (!/^(\d+,)*\d+$/.test(value)) {
       ui.notifications.warn('hm.settings.custom-standard-array.invalid-format', { localize: true });
       return false;
     }
-
-    // Parse scores
     let scores = value.split(',').map((num) => {
       const parsed = parseInt(num.trim(), 10);
       return isNaN(parsed) ? 0 : parsed;
     });
-
-    // Validate count
     if (scores.length < abilitiesCount) {
-      HM.log(2, `Standard array too short: ${scores.length} values for ${abilitiesCount} abilities`);
       scores = this.getStandardArrayDefault().split(',').map(Number);
       ui.notifications.info('hm.settings.custom-standard-array.reset-default', { localize: true });
     }
-
-    // Check values against min/max
     const { MIN, MAX } = HM.ABILITY_SCORES;
     const outOfRangeValues = scores.filter((val) => val < MIN || val > MAX);
-
     if (outOfRangeValues.length > 0) {
-      // Only show the warning if there are actual values to adjust
       if (outOfRangeValues.some((val) => val !== 0 && !isNaN(val))) {
-        ui.notifications.warn(
-          game.i18n.format('hm.settings.ability-scores.standard-array-fixed', {
-            original: outOfRangeValues.join(', '),
-            min: MIN,
-            max: MAX
-          })
-        );
+        ui.notifications.warn(game.i18n.format('hm.settings.ability-scores.standard-array-fixed', { original: outOfRangeValues.join(', '), min: MIN, max: MAX }));
       }
-
-      // Adjust values to stay within constraints
       scores = scores.map((val) => Math.max(MIN, Math.min(MAX, val)));
     }
-
-    // Save the validated array
     const sortedScores = scores.sort((a, b) => b - a).join(',');
-    game.settings.set(HM.ID, 'customStandardArray', sortedScores);
+    game.settings.set(MODULE.ID, 'customStandardArray', sortedScores);
     return true;
   }
 
@@ -424,17 +300,11 @@ export class StatRoller {
    * @static
    */
   static getStandardArray(extraAbilities) {
-    // Validate input
     const extraCount = Math.max(0, parseInt(extraAbilities) || 0);
-
-    // Use default D&D 5e standard array adjusted for constraints
     const standardArray = [15, 14, 13, 12, 10, 8];
     const extraValues = Array(extraCount).fill(11);
-
-    // Apply min/max constraints
     const { MIN, MAX } = HM.ABILITY_SCORES;
     const adjustedArray = [...standardArray, ...extraValues].map((val) => Math.max(MIN, Math.min(MAX, val)));
-
     return adjustedArray.sort((a, b) => b - a);
   }
 
@@ -444,17 +314,11 @@ export class StatRoller {
    * @static
    */
   static getTotalPoints() {
-    const customTotal = game.settings.get(HM.ID, 'customPointBuyTotal');
+    const customTotal = game.settings.get(MODULE.ID, 'customPointBuyTotal');
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
     const extraPoints = Math.max(0, abilitiesCount - 6) * 3;
     const defaultTotal = 27 + extraPoints;
-
-    // Only use customTotal if it's greater than 0 (indicating it was set)
-    // and different from the default calculation
-    if (customTotal > 0 && customTotal !== defaultTotal) {
-      return customTotal;
-    }
-
+    if (customTotal > 0 && customTotal !== defaultTotal) return customTotal;
     return defaultTotal;
   }
 
@@ -465,30 +329,12 @@ export class StatRoller {
    * @static
    */
   static getPointBuyCostForScore(score) {
-    // Validate input
     const validScore = parseInt(score);
-    if (isNaN(validScore)) {
-      HM.log(2, `Invalid ability score provided: ${score}`);
-      return 0;
-    }
-
+    if (isNaN(validScore)) return 0;
     const costs = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
-
-    // Handle scores outside the standard scale but within our min/max
     const { MIN, MAX } = HM.ABILITY_SCORES;
-
-    // For scores lower than standard minimum
-    if (validScore < 8 && validScore >= MIN) {
-      // Negative costs for lower scores (saves points)
-      return -1 * (8 - validScore);
-    }
-
-    // For scores higher than standard maximum
-    if (validScore > 15 && validScore <= MAX) {
-      // Exponential cost increase for higher scores
-      return 9 + (validScore - 15) * 2;
-    }
-
+    if (validScore < 8 && validScore >= MIN) return -1 * (8 - validScore);
+    if (validScore > 15 && validScore <= MAX) return 9 + (validScore - 15) * 2;
     return costs[validScore] ?? 0;
   }
 
@@ -499,30 +345,19 @@ export class StatRoller {
    * @static
    */
   static calculateTotalPointsSpent(scores) {
-    // Validate input
-    if (!Array.isArray(scores)) {
-      HM.log(2, 'Invalid scores array provided to calculateTotalPointsSpent');
-      return 0;
-    }
-
+    if (!Array.isArray(scores)) return 0;
     const { MIN } = HM.ABILITY_SCORES;
     let total = 0;
-
     scores.forEach((score) => {
-      // Parse the score to ensure it's a number
       const validScore = parseInt(score);
       if (isNaN(validScore)) return;
-
-      // When MIN is higher than standard 8, adjust total calculation
       if (MIN > 8) {
-        // Calculate cost as if starting from standard minimum
         const standardMinCost = this.getPointBuyCostForScore(MIN) - this.getPointBuyCostForScore(8);
         total += this.getPointBuyCostForScore(validScore) - standardMinCost;
       } else {
         total += this.getPointBuyCostForScore(validScore);
       }
     });
-
     return total;
   }
 
@@ -535,24 +370,15 @@ export class StatRoller {
     return Object.entries(CONFIG.DND5E.abilities).map(([key, value]) => {
       let abbreviation = value.abbreviation;
       let fullKey = value.fullKey;
-
       if (!abbreviation) {
-        HM.log(2, `Ability "${key}" is missing 'abbreviation' property. Using key as fallback. You should report this to the developer who added ${key}.`);
+        log(2, `Ability "${key}" is missing 'abbreviation' property. Using key as fallback. You should report this to the developer who added ${key}.`);
         abbreviation = key.substr(0, 3);
       }
-
       if (!fullKey) {
-        HM.log(2, `Hero Mancer: Ability "${key}" is missing 'fullKey' property. Using label as fallback. You should report this to the developer who added ${key}.`);
+        log(2, `Hero Mancer: Ability "${key}" is missing 'fullKey' property. Using label as fallback. You should report this to the developer who added ${key}.`);
         fullKey = value.label || key;
       }
-
-      return {
-        key,
-        abbreviation: abbreviation.toUpperCase(),
-        fullKey: fullKey.toUpperCase(),
-        label: value.label.toUpperCase(),
-        currentScore: HM.ABILITY_SCORES.DEFAULT
-      };
+      return { key, abbreviation: abbreviation.toUpperCase(), fullKey: fullKey.toUpperCase(), label: value.label.toUpperCase(), currentScore: HM.ABILITY_SCORES.DEFAULT };
     });
   }
 
@@ -562,32 +388,18 @@ export class StatRoller {
    * @static
    */
   static getDiceRollingMethod() {
-    let diceRollingMethod = game.settings.get(HM.ID, 'diceRollingMethod');
-
-    // Get allowed methods configuration
-    const allowedMethods = game.settings.get(HM.ID, 'allowedMethods');
-
-    // Map settings keys to method names
-    const methodMapping = {
-      standardArray: 'standardArray',
-      pointBuy: 'pointBuy',
-      manual: 'manualFormula'
-    };
-
-    // Create array of allowed method names
+    let diceRollingMethod = game.settings.get(MODULE.ID, 'diceRollingMethod');
+    const allowedMethods = game.settings.get(MODULE.ID, 'allowedMethods');
+    const methodMapping = { standardArray: 'standardArray', pointBuy: 'pointBuy', manual: 'manualFormula' };
     const validMethods = Object.entries(allowedMethods)
-      .filter(([key, enabled]) => enabled)
+      .filter(([, enabled]) => enabled)
       .map(([key]) => methodMapping[key])
       .filter(Boolean);
-
-    // Select first allowed method if current isn't valid
     if (!diceRollingMethod || !validMethods.includes(diceRollingMethod)) {
       diceRollingMethod = validMethods[0];
-      game.settings.set(HM.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => HM.log(1, 'Failed to update diceRollingMethod setting:', err));
-
-      HM.log(3, `Invalid dice rolling method - falling back to '${diceRollingMethod}'`);
+      game.settings.set(MODULE.ID, 'diceRollingMethod', diceRollingMethod).catch((err) => log(1, 'Failed to update diceRollingMethod setting:', err));
     }
-
+    log(3, `Active roll method is "${diceRollingMethod}" (allowed: ${validMethods.join(', ')})`);
     return diceRollingMethod;
   }
 
@@ -601,18 +413,13 @@ export class StatRoller {
     const abilitiesCount = Object.keys(CONFIG.DND5E.abilities).length;
     const extraAbilities = abilitiesCount > 6 ? abilitiesCount - 6 : 0;
     const { MIN, MAX } = HM.ABILITY_SCORES;
-
-    // Only use the provided method, don't call getDiceRollingMethod again
     if (diceRollingMethod === 'standardArray') {
-      const customArray = game.settings.get(HM.ID, 'customStandardArray');
+      const customArray = game.settings.get(MODULE.ID, 'customStandardArray');
       if (customArray) {
         const parsedArray = customArray.split(',').map(Number);
-        if (parsedArray.length >= abilitiesCount) {
-          return parsedArray.map((val) => Math.max(MIN, Math.min(MAX, val)));
-        }
+        if (parsedArray.length >= abilitiesCount) return parsedArray.map((val) => Math.max(MIN, Math.min(MAX, val)));
       }
     }
-
     const standardArray = this.getStandardArray(extraAbilities);
     return standardArray.map((val) => Math.max(MIN, Math.min(MAX, val)));
   }
@@ -625,12 +432,10 @@ export class StatRoller {
    */
   static adjustScore(_event, element) {
     if (!element) return;
-
     const index = parseInt(element.getAttribute('data-ability-index'), 10);
     if (isNaN(index)) return;
-
     const adjustment = parseInt(element.getAttribute('data-adjust'), 10) || 0;
-    DOMManager.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
+    StatRoller.changeAbilityScoreValue(index, adjustment, HeroMancer.selectedAbilities);
   }
 
   /**
@@ -652,34 +457,23 @@ export class StatRoller {
    */
   static handleAbilityDropdownChange(event, diceRollingMethod) {
     if (!event?.target) return;
-
     const dropdown = event.target;
     const index = parseInt(dropdown.dataset.index, 10);
     if (isNaN(index)) return;
-
     const newValue = dropdown.value;
     const lastChange = this.#lastHandledChanges.get(index);
-
-    // Skip if this is a duplicate event (within 50ms)
     if (lastChange?.value === newValue && Date.now() - lastChange.time < 50) return;
-
-    // Track this change
     this.#lastHandledChanges.set(index, { value: newValue, time: Date.now() });
     const originalValue = this.#abilityDropdownValues.get(index) || '';
-
     const abilityDropdowns = document.querySelectorAll('.ability-dropdown');
     const selectedValues = Array.from(abilityDropdowns).map((d) => d.value);
-
-    // Handle different dice rolling methods
     if (diceRollingMethod === 'manualFormula') {
       this.#handleManualFormulaDropdown(dropdown, abilityDropdowns, selectedValues, originalValue);
     } else if (diceRollingMethod === 'standardArray') {
-      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(HM.ID, 'statGenerationSwapMode'), originalValue);
+      this.#handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, game.settings.get(MODULE.ID, 'statGenerationSwapMode'), originalValue);
     } else if (diceRollingMethod === 'pointBuy') {
-      this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, this.getTotalPoints());
+      this.#handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues);
     }
-
-    // Update stored value for future reference
     this.#abilityDropdownValues.set(index, newValue);
   }
 
@@ -696,33 +490,18 @@ export class StatRoller {
     const value = dropdown.value;
     const index = parseInt(dropdown.dataset.index, 10);
     const scoreInput = dropdown.parentElement.querySelector('.ability-score');
-
-    // Both dropdown and input should reference the selected ability
     dropdown.setAttribute('name', `abilities[${value}]`);
-    if (scoreInput) {
-      scoreInput.setAttribute('name', `abilities[${value}]-score`);
-    }
-
-    // Use the same swap logic as standard array mode
+    if (scoreInput) scoreInput.setAttribute('name', `abilities[${value}]-score`);
     if (this.#isSwapping) return;
-
     if (value) {
       const duplicateIndex = selectedValues.findIndex((val, i) => i !== index && val === value);
-
       if (duplicateIndex !== -1) {
         try {
           this.#isSwapping = true;
-
-          // Swap values - other dropdown gets the original value
           abilityDropdowns[duplicateIndex].value = originalValue;
           selectedValues[duplicateIndex] = originalValue;
-
-          // Update tracking
           this.#abilityDropdownValues.set(duplicateIndex, originalValue);
-          this.#lastHandledChanges.set(duplicateIndex, {
-            value: originalValue,
-            time: Date.now()
-          });
+          this.#lastHandledChanges.set(duplicateIndex, { value: originalValue, time: Date.now() });
         } finally {
           setTimeout(() => {
             this.#isSwapping = false;
@@ -730,8 +509,7 @@ export class StatRoller {
         }
       }
     }
-
-    DOMManager.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
+    this.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 
   /**
@@ -740,76 +518,49 @@ export class StatRoller {
    * @param {number} index - The dropdown index
    * @param {NodeList} abilityDropdowns - All ability dropdowns
    * @param {Array} selectedValues - Currently selected values
-   * @param {Boolean} swapMode - Should score swap with previously selected
+   * @param {boolean} swapMode - Should score swap with previously selected
    * @param {Map} originalValue - Index of current values before manipulation
-   * @param {}
    * @private
    * @static
    */
   static #handleStandardArrayDropdown(dropdown, index, abilityDropdowns, selectedValues, swapMode, originalValue) {
     if (this.#isSwapping) return;
-
     const newValue = dropdown.value;
-
-    // Get the standard array to count available occurrences of each value
     const standardArrayValues = this.getStandardArrayValues('standardArray');
     const availableOccurrences = {};
     standardArrayValues.forEach((val) => {
       availableOccurrences[val] = (availableOccurrences[val] || 0) + 1;
     });
-
-    // Handle swapping logic when enabled
     if (swapMode && newValue) {
       const duplicateIndex = selectedValues.findIndex((value, i) => i !== index && value === newValue);
-
       if (duplicateIndex !== -1) {
         try {
           this.#isSwapping = true;
-
-          // Swap values - other dropdown gets the original value from this one
           abilityDropdowns[duplicateIndex].value = originalValue;
           selectedValues[duplicateIndex] = originalValue;
-
-          // Update tracking
           this.#abilityDropdownValues.set(duplicateIndex, originalValue);
-          this.#lastHandledChanges.set(duplicateIndex, {
-            value: originalValue,
-            time: Date.now()
-          });
+          this.#lastHandledChanges.set(duplicateIndex, { value: originalValue, time: Date.now() });
         } finally {
           setTimeout(() => {
             this.#isSwapping = false;
           }, 0);
         }
       }
-    }
-    // If not in swap mode, only clear duplicates if we exceed available occurrences
-    else if (newValue) {
-      // Count how many times this value is already selected
+    } else if (newValue) {
       const currentSelectionCount = selectedValues.filter((v) => v === newValue).length;
       const maxAllowed = availableOccurrences[newValue] || 1;
-
-      // Only clear duplicates if we've exceeded the available occurrences
       if (currentSelectionCount > maxAllowed) {
-        // Find the first occurrence of this value that isn't the current dropdown
         const duplicateIndex = selectedValues.findIndex((value, i) => i !== index && value === newValue);
-
         if (duplicateIndex !== -1) {
           abilityDropdowns[duplicateIndex].value = '';
           selectedValues[duplicateIndex] = '';
-
           this.#abilityDropdownValues.set(duplicateIndex, '');
-          this.#lastHandledChanges.set(duplicateIndex, {
-            value: '',
-            time: Date.now()
-          });
+          this.#lastHandledChanges.set(duplicateIndex, { value: '', time: Date.now() });
         }
       }
     }
-
-    // Update selected values and UI
     selectedValues[index] = newValue;
-    DOMManager.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
+    this.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
   }
 
   /**
@@ -818,18 +569,13 @@ export class StatRoller {
    * @param {number} index - The dropdown index
    * @param {NodeList} abilityDropdowns - All ability dropdowns
    * @param {Array} selectedValues - Currently selected values
-   * @param {number} totalPoints - Total points available
    * @private
    * @static
    */
-  static #handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues, totalPoints) {
+  static #handlePointBuyDropdown(dropdown, index, abilityDropdowns, selectedValues) {
     selectedValues[index] = dropdown.value || '';
-    DOMManager.refreshAbilityDropdownsState(abilityDropdowns, selectedValues, totalPoints, 'pointBuy');
+    this.refreshAbilityDropdownsState(abilityDropdowns, selectedValues);
   }
-
-  /* -------------------------------------------- */
-  /*  Static Private Methods                      */
-  /* -------------------------------------------- */
 
   /**
    * Shows the reroll confirmation dialog
@@ -843,7 +589,6 @@ export class StatRoller {
    */
   static async #promptForAbilityScoreReroll(rollFormula, chainedRolls, index, input) {
     const dialogConfig = this.#createRerollDialogConfig(rollFormula, chainedRolls, index, input);
-
     const dialog = new DialogV2(dialogConfig);
     dialog.render(true);
   }
@@ -854,16 +599,13 @@ export class StatRoller {
    * @param {boolean} chainedRolls - Whether chained rolls are enabled
    * @param {string} index - The ability block index
    * @param {HTMLElement} input - The ability score input element
-   * @returns {Object} Dialog configuration
+   * @returns {object} Dialog configuration
    * @private
    * @static
    */
   static #createRerollDialogConfig(rollFormula, chainedRolls, index, input) {
     return {
-      window: {
-        title: game.i18n.localize('hm.dialogs.reroll.title'),
-        icon: 'fas fa-dice-d6'
-      },
+      window: { title: game.i18n.localize('hm.dialogs.reroll.title'), icon: 'fas fa-dice-d6' },
       content: this.#getRerollDialogContent(chainedRolls),
       classes: ['hm-reroll-dialog'],
       buttons: this.#getRerollDialogButtons(rollFormula, chainedRolls, index, input),
@@ -881,7 +623,6 @@ export class StatRoller {
    * @static
    */
   static #getRerollDialogContent(chainedRolls) {
-    // Only show the chain roll checkbox if chain rolls are enabled in settings
     const chainRollCheckbox = chainedRolls
       ? `
     <div class="form-group">
@@ -918,15 +659,16 @@ export class StatRoller {
         label: game.i18n.localize('hm.dialogs.reroll.confirm'),
         icon: 'fas fa-check',
         default: true,
-        async callback(event, button, dialog) {
+        /**
+         * @param {Event} _event - The triggering event
+         * @param {HTMLElement} button - The clicked button
+         * @param {object} dialog - The dialog instance
+         */
+        async callback(_event, button, dialog) {
           await StatRoller.#handleRerollConfirmation(button, dialog, rollFormula, chainedRolls, index, input);
         }
       },
-      {
-        action: 'cancel',
-        label: game.i18n.localize('hm.dialogs.reroll.cancel'),
-        icon: 'fas fa-times'
-      }
+      { action: 'cancel', label: game.i18n.localize('hm.dialogs.reroll.cancel'), icon: 'fas fa-times' }
     ];
   }
 
@@ -945,13 +687,153 @@ export class StatRoller {
   static async #handleRerollConfirmation(button, dialog, rollFormula, chainedRolls, index, input) {
     const chainRollCheckbox = button.form.elements.chainRoll;
     StatRoller.chainRollEnabled = chainRollCheckbox?.checked ?? false;
-
     dialog.close();
+    if (StatRoller.chainRollEnabled && chainedRolls) await StatRoller.rollAllStats(rollFormula);
+    else await StatRoller.rollSingleAbilityScore(rollFormula, index, input);
+  }
 
-    if (StatRoller.chainRollEnabled && chainedRolls) {
-      await StatRoller.rollAllStats(rollFormula);
-    } else {
-      await StatRoller.rollSingleAbilityScore(rollFormula, index, input);
+  /**
+   * Updates the display of remaining points in the abilities tab
+   * @param {number} remainingPoints - The number of points remaining to spend
+   * @static
+   */
+  static updateRemainingPointsDisplay(remainingPoints) {
+    const abilitiesTab = document.querySelector(".tab[data-tab='abilities']");
+    if (!abilitiesTab?.classList.contains('active')) return;
+    const remainingPointsElement = document.getElementById('remaining-points');
+    const totalPoints = this.getTotalPoints();
+    if (remainingPointsElement) {
+      remainingPointsElement.innerHTML = remainingPoints;
+      this.#updatePointsColor(remainingPointsElement, remainingPoints, totalPoints);
     }
+  }
+
+  /**
+   * Adjusts ability score up or down within valid range and point limits
+   * @param {number} index - The index of the ability score to adjust
+   * @param {number} change - The amount to change the score by (positive or negative)
+   * @param {number[]} selectedAbilities - Array of current ability scores
+   * @static
+   */
+  static changeAbilityScoreValue(index, change, selectedAbilities) {
+    if (!Array.isArray(selectedAbilities)) {
+      log(1, 'selectedAbilities must be an array');
+      return;
+    }
+    const abilityScoreElement = document.getElementById(`ability-score-${index}`);
+    const currentScore = parseInt(abilityScoreElement.innerHTML, 10);
+    const { MIN, MAX } = HM.ABILITY_SCORES;
+    const newScore = Math.min(MAX, Math.max(MIN, currentScore + change));
+    const totalPoints = this.getTotalPoints();
+    const pointsSpent = this.calculateTotalPointsSpent(selectedAbilities);
+    if (change > 0 && pointsSpent + this.getPointBuyCostForScore(newScore) - this.getPointBuyCostForScore(currentScore) > totalPoints) return;
+    if (newScore !== currentScore) {
+      abilityScoreElement.innerHTML = newScore;
+      selectedAbilities[index] = newScore;
+      const updatedPointsSpent = this.calculateTotalPointsSpent(selectedAbilities);
+      const remainingPoints = totalPoints - updatedPointsSpent;
+      this.updateRemainingPointsDisplay(remainingPoints);
+      this.updatePlusButtonState(selectedAbilities, remainingPoints);
+      this.updateMinusButtonState(selectedAbilities);
+      const form = abilityScoreElement.closest('form') || abilityScoreElement.closest('.hm-app');
+      if (form) FormValidation.checkMandatoryFields(form);
+    }
+  }
+
+  /**
+   * Updates the state of plus buttons based on available points and maximum scores
+   * @param {number[]} selectedAbilities - Array of current ability scores
+   * @param {number} remainingPoints - Points available to spend
+   * @static
+   */
+  static updatePlusButtonState(selectedAbilities, remainingPoints) {
+    const updates = [];
+    const { MAX } = HM.ABILITY_SCORES;
+    document.querySelectorAll('.plus-button').forEach((button, index) => {
+      const currentScore = selectedAbilities[index];
+      const pointCostForNextIncrease = this.getPointBuyCostForScore(currentScore + 1) - this.getPointBuyCostForScore(currentScore);
+      const shouldDisable = currentScore >= MAX || remainingPoints < pointCostForNextIncrease;
+      if (button.disabled !== shouldDisable) updates.push(() => (button.disabled = shouldDisable));
+      const inputElement = document.getElementById(`ability-${index}-input`);
+      if (inputElement && inputElement.value !== String(currentScore)) updates.push(() => (inputElement.value = currentScore));
+    });
+    if (updates.length) requestAnimationFrame(() => updates.forEach((update) => update()));
+  }
+
+  /**
+   * Updates the state of minus buttons based on minimum allowed scores
+   * @param {number[]} selectedAbilities - Array of current ability scores
+   * @static
+   */
+  static updateMinusButtonState(selectedAbilities) {
+    const updates = [];
+    const { MIN } = HM.ABILITY_SCORES;
+    document.querySelectorAll('.minus-button').forEach((button, index) => {
+      const currentScore = selectedAbilities[index];
+      const shouldDisable = currentScore <= MIN;
+      if (button.disabled !== shouldDisable) updates.push(() => (button.disabled = shouldDisable));
+      const inputElement = document.getElementById(`ability-${index}-input`);
+      if (inputElement && inputElement.value !== String(currentScore)) updates.push(() => (inputElement.value = currentScore));
+    });
+    if (updates.length) requestAnimationFrame(() => updates.forEach((update) => update()));
+  }
+
+  /**
+   * Updates the visual state of ability dropdowns based on selected values
+   * @param {NodeList} abilityDropdowns - Ability dropdown elements
+   * @param {string[]} selectedValues - Currently selected values
+   * @static
+   */
+  static updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues) {
+    const valueOccurrences = {};
+    if (abilityDropdowns.length > 0) {
+      const firstDropdown = abilityDropdowns[0];
+      Array.from(firstDropdown.options).forEach((option) => {
+        if (option.value) valueOccurrences[option.value] = (valueOccurrences[option.value] || 0) + 1;
+      });
+    }
+    const selectedCounts = {};
+    selectedValues.forEach((value) => {
+      if (!value) return;
+      selectedCounts[value] = (selectedCounts[value] || 0) + 1;
+    });
+    abilityDropdowns.forEach((dropdown) => {
+      Array.from(dropdown.options).forEach((option) => {
+        option.disabled = false;
+        option.classList.remove('hm-used-elsewhere');
+        if (!option.value) return;
+        const value = option.value;
+        const maxOccurrences = valueOccurrences[value] || 0;
+        const selectedCount = selectedCounts[value] || 0;
+        const isUsedUp = selectedCount >= maxOccurrences;
+        const isSelectedHere = dropdown.value === value;
+        if (isUsedUp && !isSelectedHere) option.classList.add('hm-used-elsewhere');
+      });
+    });
+  }
+
+  /**
+   * Refreshes the ability dropdown state for point buy method
+   * @param {NodeList} abilityDropdowns - Ability dropdown elements
+   * @param {string[]} selectedValues - Currently selected values
+   * @static
+   */
+  static refreshAbilityDropdownsState(abilityDropdowns, selectedValues) {
+    this.updateAbilityDropdownsVisualState(abilityDropdowns, selectedValues);
+  }
+
+  /**
+   * Updates the color of the remaining points display based on percentage remaining
+   * @param {HTMLElement} element - The element to update
+   * @param {number} remainingPoints - Current remaining points
+   * @param {number} totalPoints - Total available points
+   * @private
+   * @static
+   */
+  static #updatePointsColor(element, remainingPoints, totalPoints) {
+    if (!element) return;
+    const percentage = (remainingPoints / totalPoints) * 100;
+    const hue = Math.max(0, Math.min(120, (percentage * 120) / 100));
+    element.style.color = `hsl(${hue}, 100%, 35%)`;
   }
 }

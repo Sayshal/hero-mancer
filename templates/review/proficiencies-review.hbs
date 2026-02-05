@@ -1,0 +1,13 @@
+{{!-- templates/review/proficiencies-review.hbs --}}
+{{!-- Renders proficiency list for the review tab --}}
+{{#if categories.length}}
+  {{#each categories}}
+    <div class="proficiency-category">
+      <span class="proficiency-category-label"><i class="{{this.icon}}"></i> {{this.label}}:</span>
+      {{#each this.items}}<span class="proficiency-item"
+          data-tooltip="{{this.tooltip}}">{{this.name}}</span>{{#unless @last}}, {{/unless}}{{/each}}
+    </div>
+  {{/each}}
+{{else}}
+  <div class="no-proficiencies">{{localize "hm.app.finalize.review.no-proficiencies"}}</div>
+{{/if}}

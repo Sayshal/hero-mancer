@@ -1,0 +1,8 @@
+{{!-- templates/review/abilities-review.hbs --}}
+{{!-- Renders ability scores with modifiers for the review tab --}}
+{{#each abilities}}
+  <div class="ability-item">
+    <span class="ability-label">{{abbreviation}}</span>
+    <span class="ability-score">{{score}} ({{modSign}}{{mod}})</span>
+  </div>
+{{/each}}

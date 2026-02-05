@@ -46,7 +46,7 @@
         <span id='reset-description' class='sr-only'>{{localize 'hm.app.reset-description'}}</span>
 
         {{!-- Cancel Button --}}
-        <button type='cancel' data-action='nosubmit' class='hm-app-footer-cancel'
+        <button type='button' data-action='nosubmit' class='hm-app-footer-cancel'
           data-tooltip='{{localize "hm.app.cancel-description"}}' aria-label='{{localize "hm.app.cancel"}}'
           aria-describedby='cancel-description'>
           <span>{{localize 'hm.app.cancel'}}</span>
@@ -68,8 +68,8 @@
           <span id='submit-description' class='sr-only'>{{localize 'hm.app.submit-description'}}</span>
         {{else}}
           <button type='submit' data-action="submit" class='hm-app-footer-submit hm-submit-approval'
-            data-tooltip='{{localize "hm.approval.submit-description"}}' aria-label='{{localize "hm.approval.submit-for-approval"}}'
-            aria-describedby='submit-description'>
+            data-tooltip='{{localize "hm.approval.submit-description"}}'
+            aria-label='{{localize "hm.approval.submit-for-approval"}}' aria-describedby='submit-description'>
             <span>{{localize 'hm.approval.submit-for-approval'}}</span>
           </button>
           <span id='submit-description' class='sr-only'>{{localize 'hm.approval.submit-description'}}</span>
