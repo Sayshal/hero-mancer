@@ -314,7 +314,7 @@
   "hm.unknown-plain": "desconhecido(a)",
   "hm.unknown": "{type} desconhecido(a)",
   "hm.validation.item-mismatch": "Incompatibilidade de nome de item {type}: Esperado '{expected}', mas encontrado '{actual}'",
-  "hm.validation.missing-background": "Item de Passado ausente: Esperado '{expected}', mas não encontrado",
+  "hm.validation.missing-background": "Item de Antecedente ausente: Esperado '{expected}', mas não encontrado",
   "hm.validation.missing-class": "Item de Classe ausente: Esperado '{expected}', mas não encontrado",
   "hm.validation.missing-race": "Item de Raça ausente: Esperado '{expected}' mas não encontrado",
   "hm.validation.multiple-items": "Vários itens {type} encontrados: {items}",
