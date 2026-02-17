@@ -11,6 +11,7 @@ export class HM {
   static COMPAT = {};
   static ABILITY_SCORES = {};
   static SELECTED = { class: { value: '', id: '', uuid: '' }, race: { value: '', id: '', uuid: '' }, background: { value: '', id: '', uuid: '' } };
+  static documents = {};
   static API = API;
 
   /**

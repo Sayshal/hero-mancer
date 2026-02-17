@@ -390,7 +390,7 @@ export class ActorCreationService {
       const abilityMatch = key.match(/^abilities\[(\w+)]-score$/) || key.match(/^abilities\[(\w+)]$/);
       if (abilityMatch) {
         const abilityKey = abilityMatch[1];
-        abilities[abilityKey] = formData[key] || game.settings.get(MODULE.ID, 'abilityScoreDefault');
+        abilities[abilityKey] = parseInt(formData[key], 10) || game.settings.get(MODULE.ID, 'abilityScoreDefault');
       }
     }
     return abilities;

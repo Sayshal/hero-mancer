@@ -86,9 +86,9 @@ export class HeroMancer extends HandlebarsApplicationMixin(ApplicationV2) {
     if (HM.COMPAT?.ELKAN) options.parts = options.parts.filter((part) => part !== 'equipment');
     return {
       ...context,
-      raceDocs: HM.documents.race || [],
-      classDocs: HM.documents.class || [],
-      backgroundDocs: HM.documents.background || [],
+      raceDocs: HM.documents?.race || [],
+      classDocs: HM.documents?.class || [],
+      backgroundDocs: HM.documents?.background || [],
       tabs: this._getTabs(HeroMancer.getTabOrder()),
       players: game.users.map((user) => ({ id: user.id, name: user.name, color: user.color.css }))
     };
