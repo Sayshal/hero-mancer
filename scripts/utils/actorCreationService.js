@@ -315,7 +315,7 @@ export class ActorCreationService {
   }
 
   /**
-   * Creates equipment items on the actor
+   * Creates equipment items on the actor, including container contents.
    * @param {object} actor - The actor to update
    * @param {Array<object>} equipment - Equipment data to create
    * @returns {Promise<Array<object>>} Created items
@@ -324,19 +324,44 @@ export class ActorCreationService {
    */
   static async #createEquipmentItems(actor, equipment) {
     if (!equipment.length) return [];
-    const fullyLoadedEquipment = await Promise.all(
-      equipment.map(async (item) => {
-        if (item.pack && (!item.system?.activities || Object.keys(item.system).length < 5)) {
-          const pack = game.packs.get(item.pack);
-          if (pack) {
-            const fullItem = await pack.getDocument(item._id);
-            if (fullItem) return { ...fullItem.toObject(), system: { ...fullItem.system, quantity: item.system?.quantity || 1, equipped: item.system?.equipped || true } };
-          }
-        }
-        return item;
-      })
-    );
-    return await actor.createEmbeddedDocuments('Item', fullyLoadedEquipment, { keepId: true });
+    const containerItems = [];
+    const regularItems = [];
+    for (const item of equipment) {
+      const sourceDoc = await fromUuid(item.uuid);
+      if (sourceDoc?.type === 'container') containerItems.push({ item, sourceDoc });
+      else regularItems.push(item);
+    }
+    const createdItems = [];
+    if (regularItems.length) {
+      const created = await actor.createEmbeddedDocuments('Item', regularItems.map((i) => this.#buildEquipmentData(i)));
+      createdItems.push(...created);
+    }
+    for (const { item, sourceDoc } of containerItems) {
+      const [createdContainer] = await actor.createEmbeddedDocuments('Item', [this.#buildEquipmentData(item)]);
+      createdItems.push(createdContainer);
+      const contents = await sourceDoc.system.contents;
+      if (contents?.size) {
+        const childData = contents.map((child) => {
+          const data = child.toObject();
+          data.system.container = createdContainer.id;
+          return data;
+        });
+        const createdChildren = await actor.createEmbeddedDocuments('Item', childData);
+        createdItems.push(...createdChildren);
+      }
+    }
+    return createdItems;
+  }
+
+  /**
+   * Build equipment item data for actor creation.
+   * @param {object} item - Equipment item data
+   * @returns {object} Item data ready for createEmbeddedDocuments
+   * @private
+   * @static
+   */
+  static #buildEquipmentData(item) {
+    return { name: item.name, img: item.img, type: item.type, system: { ...item.system, quantity: item.system?.quantity || 1 } };
   }
 
   /**
