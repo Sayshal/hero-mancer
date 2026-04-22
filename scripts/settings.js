@@ -370,7 +370,6 @@ export function registerSettings() {
       type: new BooleanField({ initial: true })
     });
   }
-
 }
 
 export const RELOAD = new Set(['enable', 'classPacks', 'racePacks', 'backgroundPacks', 'itemPacks', 'elkanCompatibility', 'tokenizerCompatibility']);
@@ -439,15 +438,25 @@ const SETTING_KEY_MIGRATIONS = { 'eye-colors': 'eyeColors', 'hair-colors': 'hair
 export async function migrateSettingKeys() {
   const storage = game.settings.storage.get('world');
   for (const [oldKey, newKey] of Object.entries(SETTING_KEY_MIGRATIONS)) {
+    const fullOldKey = `${MODULE.ID}.${oldKey}`;
+    const oldEntry = storage.find((s) => s.key === fullOldKey);
+    if (!oldEntry) continue;
+    let value;
     try {
-      const fullOldKey = `${MODULE.ID}.${oldKey}`;
-      const oldEntry = storage.find((s) => s.key === fullOldKey);
-      if (!oldEntry) continue;
-      const value = JSON.parse(oldEntry.value);
+      value = JSON.parse(oldEntry.value);
+    } catch {
+      value = oldEntry.value;
+    }
+    try {
       await game.settings.set(MODULE.ID, newKey, value);
       await oldEntry.delete();
     } catch (error) {
-      log(1, `Failed to migrate setting '${oldKey}' → '${newKey}':`, error);
+      log(1, `Failed to migrate setting '${oldKey}' → '${newKey}', clearing stale entry:`, error);
+      try {
+        await oldEntry.delete();
+      } catch (deleteError) {
+        log(1, `Failed to delete stale setting '${oldKey}':`, deleteError);
+      }
     }
   }
 }
