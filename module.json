@@ -13,7 +13,7 @@
     "minimum": "14",
     "verified": "14.363"
   },
-  "description": "The one stop shop for creating your heroes in D&D 5e.",
+  "description": "Because rolling up a character shouldn't eat the whole first session.",
   "download": "",
   "esmodules": [
     "hero-mancer.mjs"
