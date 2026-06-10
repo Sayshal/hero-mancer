@@ -1,0 +1,24 @@
+{{#if hasReview}}
+  {{#if items.length}}
+    <ul class="hm-review-eq-items">
+      {{#each items}}
+        <li class="hm-review-eq-item" data-item-link data-uuid="{{this.uuid}}" role="button" tabindex="0">
+          <div class="hm-review-eq-row">
+            {{#if this.img}}<img src="{{this.img}}" alt="" class="hm-review-eq-icon">{{/if}}
+            <span class="hm-review-eq-link">{{this.name}}</span>
+            {{#if (gte this.qty 2)}}<span
+                class="hm-review-eq-qty">{{localize "HEROMANCER.App.Finalize.Review.Qty" qty=this.qty}}</span>{{/if}}
+          </div>
+          <span class="hm-review-eq-source">{{this.source}}</span>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+  {{#if goldFormatted}}
+    <p class="hm-review-eq-gold"><i class="fas fa-coins" aria-hidden="true"></i>
+      {{localize "HEROMANCER.App.Finalize.Review.Gold" amount=goldFormatted}}
+    </p>
+  {{/if}}
+{{else}}
+  <p class="hm-review-eq-empty">{{localize "HEROMANCER.App.Finalize.Review.NoEquipment"}}</p>
+{{/if}}

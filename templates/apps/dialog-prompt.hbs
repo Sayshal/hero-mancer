@@ -1,0 +1,18 @@
+<section class="hm-dialog-body hm-prompt-body">
+  <div class="hm-prompt-content">{{#if body}}
+      <p>
+
+        {{body}}
+      </p>
+    {{else}}{{{content}}}
+    {{/if}}</div>
+  {{#if buttons.length}}
+    <footer class="hm-dialog-footer hm-prompt-footer">
+      {{#each buttons}}
+        <button type="button" class="{{this.cssClass}}" data-action="promptButton" data-button-id="{{this.id}}">
+          {{#if this.icon}}<i class="{{this.icon}}" aria-hidden="true"></i> {{/if}}{{localize this.label}}
+        </button>
+      {{/each}}
+    </footer>
+  {{/if}}
+</section>

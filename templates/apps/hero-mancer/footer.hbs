@@ -1,0 +1,50 @@
+<footer class="hm-wizard-footer{{#unless reviewMode}} hm-wizard-footer--nav{{/unless}}">
+  {{#unless reviewMode}}
+    <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--back" data-action="navBack" data-nav-back>
+      <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.Wizard.Footer.Back'}}
+    </button>
+  {{/unless}}
+  <div class="hm-wizard-footer-progress">{{> hmProgressBar globalProgress}}</div>
+  {{#if reviewMode}}
+    <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--reject" data-action="rejectReview">
+      <i class="fas fa-circle-xmark" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.Wizard.Footer.Reject'}}
+    </button>
+    <button type="submit" class="hm-wizard-footer-btn hm-wizard-footer-btn--approve"
+      {{#unless canSubmit}}disabled{{/unless}}>
+      <i class="fas fa-circle-check" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.Wizard.Footer.Approve'}}
+    </button>
+  {{else}}
+    <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--cancel" data-action="close">
+      <i class="fas fa-xmark" aria-hidden="true"></i>
+      {{localize 'COMMON.Cancel'}}
+    </button>
+    {{#if canRandomize}}
+      <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--randomize" data-action="randomizeAll">
+        <i class="fas fa-dice" aria-hidden="true"></i>
+        {{localize 'HEROMANCER.App.Randomize.All'}}
+      </button>
+    {{/if}}
+    <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--draft" data-action="saveDraft">
+      <i class="fas fa-floppy-disk" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.Wizard.Footer.SaveDraft'}}
+    </button>
+    <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--submit" data-action="navNext" data-nav-next>
+      {{localize 'HEROMANCER.Wizard.Footer.Next'}}
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
+    <button type="submit" class="hm-wizard-footer-btn hm-wizard-footer-btn--submit" data-nav-create
+      {{#unless canSubmit}}disabled{{/unless}} hidden>
+      <i class="fas fa-check" aria-hidden="true"></i>
+      {{#if (eq mode 'level_up')}}
+        {{localize 'HEROMANCER.Wizard.Footer.ConfirmLevelUp'}}
+      {{else if requireApproval}}
+        {{localize 'HEROMANCER.Wizard.Footer.SubmitApproval'}}
+      {{else}}
+        {{localize 'HEROMANCER.Wizard.Footer.Create'}}
+      {{/if}}
+    </button>
+  {{/if}}
+</footer>

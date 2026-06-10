@@ -1,0 +1,69 @@
+<section class="hm-dialog-body hm-welcome-body">
+  <p class="hm-welcome-lede"><em>{{localize "HEROMANCER.App.Welcome.Lede"}}</em></p>
+
+  {{#if isGM}}
+    <section class="hm-welcome-section">
+      <h3><i class="fa-solid fa-user-tie" aria-hidden="true"></i> {{localize "HEROMANCER.App.Welcome.GM.Heading"}}</h3>
+      <ol>
+        <li>{{{localize "HEROMANCER.App.Welcome.GM.StepSources"}}}</li>
+        <li>{{{localize "HEROMANCER.App.Welcome.GM.StepSettings"}}}</li>
+        <li>{{{localize "HEROMANCER.App.Welcome.GM.StepApprovals"}}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.GM.StepOnBehalf"}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.GM.StepLevelUp"}}</li>
+      </ol>
+    </section>
+
+    <section class="hm-welcome-section">
+      <h3><i class="fa-solid fa-user" aria-hidden="true"></i> {{localize "HEROMANCER.App.Welcome.Player.HeadingForGM"}}</h3>
+      <ol>
+        <li>{{{localize "HEROMANCER.App.Welcome.Player.StepLaunch"}}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepTabs"}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepSubmit"}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepLevelUp"}}</li>
+      </ol>
+    </section>
+  {{else}}
+    <section class="hm-welcome-section">
+      <h3><i class="fa-solid fa-user" aria-hidden="true"></i> {{localize "HEROMANCER.App.Welcome.Player.Heading"}}</h3>
+      <ol>
+        <li>{{{localize "HEROMANCER.App.Welcome.Player.StepLaunch"}}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepTabs"}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepSubmit"}}</li>
+        <li>{{localize "HEROMANCER.App.Welcome.Player.StepLevelUp"}}</li>
+      </ol>
+    </section>
+  {{/if}}
+
+  <footer class="hm-welcome-footer">
+    <label class="hm-welcome-hide">
+      <input type="checkbox" name="hideForever">
+      {{localize "HEROMANCER.App.Welcome.HideForever"}}
+    </label>
+    <div class="hm-welcome-socials">
+      <a href="{{links.PATREON}}" target="_blank" rel="noopener" data-tooltip
+        aria-label="{{localize 'HEROMANCER.App.Welcome.Links.Patreon'}}">
+        <i class="fa-brands fa-patreon" aria-hidden="true"></i>
+      </a>
+      <a href="{{links.KOFI}}" target="_blank" rel="noopener" data-tooltip
+        aria-label="{{localize 'HEROMANCER.App.Welcome.Links.Kofi'}}">
+        <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
+      </a>
+      <a href="{{links.DISCORD}}" target="_blank" rel="noopener" data-tooltip
+        aria-label="{{localize 'HEROMANCER.App.Welcome.Links.Discord'}}">
+        <i class="fa-brands fa-discord" aria-hidden="true"></i>
+      </a>
+      <a href="{{links.GITHUB}}" target="_blank" rel="noopener" data-tooltip
+        aria-label="{{localize 'HEROMANCER.App.Welcome.Links.Github'}}">
+        <i class="fa-brands fa-github" aria-hidden="true"></i>
+      </a>
+      <a href="{{links.BUGS}}" target="_blank" rel="noopener" data-tooltip
+        aria-label="{{localize 'HEROMANCER.App.Welcome.Links.Bugs'}}">
+        <i class="fa-solid fa-bug" aria-hidden="true"></i>
+      </a>
+    </div>
+    <button type="button" data-action="dismiss" class="hm-welcome-dismiss hm-primary">
+      <i class="fa-solid fa-check" aria-hidden="true"></i>
+      {{localize "HEROMANCER.App.Welcome.Dismiss"}}
+    </button>
+  </footer>
+</section>

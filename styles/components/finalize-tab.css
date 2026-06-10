@@ -1,0 +1,337 @@
+.hm-tab-finalize.active {
+  gap: 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-finalize-section {
+  gap: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hm-finalize-top-row {
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  display: grid;
+  align-items: stretch;
+}
+
+.hm-finalize-section dl {
+  gap: 0.35rem 0.9rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  display: grid;
+  align-items: baseline;
+  margin: 0;
+}
+
+.hm-finalize-section dt {
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.8em;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hm-finalize-section dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--hero-mancer-fg);
+  overflow-wrap: break-word;
+}
+
+.hm-finalize-basic {
+  gap: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.hm-finalize-portrait {
+  aspect-ratio: 1;
+  display: flex;
+  flex: 0 0 5rem;
+  justify-content: center;
+  align-items: center;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-md);
+  color: var(--hero-mancer-fg-muted);
+  font-size: 1.6em;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-finalize-basic .hm-finalize-basic-list {
+  gap: 0.35rem 0.75rem;
+  grid-template-columns: max-content minmax(0, 1fr);
+  flex: 1;
+}
+
+.hm-finalize-portrait img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.hm-finalize-classes {
+  gap: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-finalize-class-row {
+  gap: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.hm-finalize-class-subclass {
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+}
+
+.hm-finalize-abilities {
+  gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hm-finalize-ability {
+  gap: 0.15rem;
+  display: flex;
+  position: relative;
+  flex: 1 1 4rem;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4rem;
+  padding: 0.5rem 0.4rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-md);
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-finalize-ability-abbr {
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hm-finalize-ability-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.5em;
+  line-height: 1;
+}
+
+.hm-finalize-ability-bonus {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.45rem;
+  color: var(--hero-mancer-success-fg);
+  font-weight: 600;
+  font-size: 0.7em;
+}
+
+.hm-finalize-ability-mod {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.9em;
+}
+
+.hm-finalize-prof-grid {
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  display: grid;
+}
+
+.hm-finalize-prof {
+  gap: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.6rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-finalize-prof h3 {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  border: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hm-finalize-prof h3 i {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-finalize-prof ul {
+  gap: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9em;
+}
+
+.hm-finalize-empty {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-review-eq-items {
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-review-eq-item {
+  gap: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  cursor: pointer;
+  background: var(--hero-mancer-bg-inset);
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.hm-review-eq-item:hover {
+  border-color: var(--hero-mancer-accent);
+  background: var(--hero-mancer-accent-faint);
+}
+
+.hm-review-eq-row {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.hm-review-eq-source {
+  padding-top: 0.25rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hm-review-eq-icon {
+  object-fit: contain;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--hero-mancer-radius-sm);
+}
+
+.hm-review-eq-link {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-review-eq-qty {
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+}
+
+.hm-review-eq-gold {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0 0;
+  color: var(--hero-mancer-fg);
+}
+
+.hm-review-eq-gold i {
+  color: var(--hero-mancer-currency-gold);
+}
+
+.hm-review-eq-empty {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-finalize-bio-grid {
+  gap: 0.5rem 0.9rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: grid;
+}
+
+.hm-finalize-bio-field {
+  gap: 0.15rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-finalize-bio-label {
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hm-finalize-bio-value {
+  color: var(--hero-mancer-fg);
+  white-space: pre-wrap;
+}
+
+.hm-finalize-bio-long {
+  gap: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.6rem;
+}
+
+.hm-finalize-bio-long .hm-finalize-bio-field {
+  padding-top: 0.6rem;
+  border-top: 0.0625rem dotted var(--hero-mancer-border);
+}
+
+.hm-finalize-backstory {
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.hm-finalize-backstory p:first-child {
+  margin-top: 0;
+}
+
+.hm-finalize-skip-spell {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.hm-finalize-skip-spell-hint {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+}

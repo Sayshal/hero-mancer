@@ -1,0 +1,12 @@
+<p>{{localize 'HEROMANCER.LevelUp.Dialog.GrantGroupBody'}}</p>
+<ul class="hm-level-up-grant-list">
+  {{#each members}}
+    {{#if this.eligible}}
+      <li class="hm-grant-row"><label><input type="checkbox" name="actorId" value="{{this.id}}" checked><img
+            src="{{this.img}}" alt=""><span>{{this.name}}</span></label></li>
+    {{else}}
+      <li class="hm-grant-row is-ineligible"><span><img src="{{this.img}}"
+            alt=""><span>{{this.name}}</span><em>{{this.reason}}</em></span></li>
+    {{/if}}
+  {{/each}}
+</ul>

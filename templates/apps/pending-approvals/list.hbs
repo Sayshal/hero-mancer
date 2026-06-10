@@ -1,0 +1,70 @@
+<section class="hm-dialog-body hm-pending-approvals-body">
+  {{#if rows.length}}
+    <table class="hm-pending-approvals-table">
+      <thead>
+        <tr>
+          <th>{{localize "HEROMANCER.Approval.Queue.Column.Character"}}</th>
+          <th>{{localize "HEROMANCER.Approval.Queue.Column.Submitter"}}</th>
+          <th>{{localize "DND5E.Level"}}</th>
+          <th>
+            {{#if showArchive}}{{localize "HEROMANCER.Approval.Queue.Column.ResolvedAt"}}{{else}}{{localize "HEROMANCER.Approval.Queue.Column.SubmittedAt"}}{{/if}}
+          </th>
+          {{#if showArchive}}
+            <th>{{localize "HEROMANCER.Approval.Queue.Column.Outcome"}}</th>
+          {{/if}}
+          <th>{{localize "DND5E.ActionPl"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr data-page-id="{{this.id}}">
+            <td>{{this.characterName}}</td>
+            <td>{{this.submitterUserName}}</td>
+            <td>{{this.level}}</td>
+            <td>{{this.timestamp}}</td>
+            {{#if ../showArchive}}
+              <td>
+                <span class="hm-pending-approvals-outcome hm-pending-approvals-outcome-{{this.outcome}}">
+                  {{this.outcomeLabel}}
+                </span>
+              </td>
+            {{/if}}
+            <td class="hm-pending-approvals-row-actions">
+              {{#if ../showArchive}}
+                <button type="button" data-action="restoreArchive" data-tooltip
+                  aria-label="{{localize 'HEROMANCER.Approval.Queue.Restore'}}">
+                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                </button>
+              {{else}}
+                <button type="button" data-action="quickApprove" data-tooltip
+                  aria-label="{{localize 'HEROMANCER.Approval.Queue.QuickApprove'}}">
+                  <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-action="quickReject" data-tooltip
+                  aria-label="{{localize 'HEROMANCER.Approval.Queue.QuickReject'}}">
+                  <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-action="review" data-tooltip
+                  aria-label="{{localize 'HEROMANCER.Approval.Queue.Review'}}">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="hm-empty">
+      {{#if showArchive}}{{localize "HEROMANCER.Approval.Queue.EmptyArchive"}}{{else}}{{localize "HEROMANCER.Approval.Queue.Empty"}}{{/if}}
+    </p>
+  {{/if}}
+  {{#if canClearArchive}}
+    <footer class="hm-pending-approvals-footer">
+      <button type="button" data-action="clearArchive" class="hm-pending-approvals-clear">
+        <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        {{localize "HEROMANCER.Approval.Queue.ClearArchive.Action"}}
+      </button>
+    </footer>
+  {{/if}}
+</section>

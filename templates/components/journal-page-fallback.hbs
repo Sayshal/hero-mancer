@@ -1,0 +1,8 @@
+<h2>{{name}}</h2>
+{{#if image}}
+  <img src="{{image.src}}" alt="{{image.alt}}">
+{{else if content}}
+  <div>{{{content}}}</div>
+{{else}}
+  <div class="notification warning">{{emptyMessage}}</div>
+{{/if}}

@@ -1,0 +1,7 @@
+<nav class="tabs sheet-tabs hm-dialog-nav" data-group="primary">
+  {{#each tabs}}
+    <a class="item {{#if active}}active{{/if}}" data-action="tab" data-group="primary" data-tab="{{id}}">
+      <i class="{{icon}}" aria-hidden="true"></i> {{localize label}}
+    </a>
+  {{/each}}
+</nav>

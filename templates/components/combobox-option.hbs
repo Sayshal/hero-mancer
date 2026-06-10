@@ -1,0 +1,22 @@
+<li role="option"
+  class="hm-combobox-option{{#if opt.disabled}} is-disabled{{/if}}{{#if opt.used}} is-used{{/if}}{{#if opt.pinned}} is-pinned{{/if}}"
+  id="{{id}}-opt-{{gIdx}}-{{oIdx}}" data-value="{{opt.value}}" data-label="{{opt.label}}"
+  data-keywords="{{opt.label}}{{#each opt.tags}} {{this}}{{/each}}{{#each opt.keywords}} {{this}}{{/each}}"
+  {{#if (eq opt.value selected)}}aria-selected="true" data-selected{{else}}aria-selected="false" {{/if}}
+  {{#if opt.disabled}}aria-disabled="true" {{/if}} {{#if opt.description}}data-tooltip="{{opt.description}}" {{/if}}>
+  <span class="hm-combobox-option-icon">
+    {{#if opt.icon}}<img src="{{opt.icon}}" alt="">{{else if opt.iconClass}}<i class="{{opt.iconClass}}"
+        aria-hidden="true"></i>{{/if}}
+  </span>
+  <span class="hm-combobox-option-label">{{opt.label}}</span>
+  {{#if opt.tags.length}}<span class="hm-combobox-option-tags">{{#each opt.tags}}<span
+          class="hm-combobox-option-tag">{{this}}</span>{{/each}}</span>{{/if}}
+  {{#if opt.badge}}<span class="hm-combobox-option-badge">{{opt.badge}}</span>{{/if}}
+  {{#if pinning.enabled}}
+    <button type="button" class="hm-combobox-option-pin {{#if opt.pinned}}is-pinned{{/if}}" data-pin-toggle
+      data-action="togglePin" data-category="{{pinning.category}}" data-uuid="{{opt.value}}" data-tooltip=""
+      aria-label="{{#if opt.pinned}}{{pinning.unpinTooltip}}{{else}}{{pinning.pinTooltip}}{{/if}}" tabindex="-1">
+      <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+    </button>
+  {{/if}}
+</li>

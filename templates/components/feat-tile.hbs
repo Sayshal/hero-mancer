@@ -1,0 +1,30 @@
+<li class="hm-feat-browser-tile{{#if isPicked}} is-picked{{/if}}{{#if levelGated}} is-level-gated{{/if}}"
+  data-action="selectFeat" data-uuid="{{uuid}}" role="button" tabindex="0">
+  <header class="hm-feat-browser-tile-header">
+    {{#if img}}<img src="{{img}}" alt="" class="hm-feat-browser-tile-icon" data-item-link data-uuid="{{uuid}}"
+        role="button" tabindex="0">{{/if}}
+    <div class="hm-feat-browser-tile-title">
+      <span class="hm-feat-browser-tile-name" data-item-link data-uuid="{{uuid}}" role="button"
+        tabindex="0">{{name}}</span>
+      <div class="hm-feat-browser-tile-meta">
+        {{#if subtypeLabel}}<span class="hm-feat-browser-tile-chip is-subtype">{{subtypeLabel}}</span>{{/if}}
+        {{#if book}}<span class="hm-feat-browser-tile-chip is-book" data-tooltip
+            aria-label="{{bookTooltip}}">{{book}}</span>{{/if}}
+        {{#if prereqLabel}}<span class="hm-feat-browser-tile-chip is-prereq{{#if levelGated}} is-warning{{/if}}"
+            {{#if prereqLevelWarning}}data-tooltip aria-label="{{prereqLevelWarning}}" {{/if}}>{{#if levelGated}}<i
+                class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>{{/if}}{{prereqLabel}}</span>{{/if}}
+        {{#if grantsSpell}}<span class="hm-feat-browser-tile-chip is-grants-spell" data-tooltip
+            aria-label="{{grantsSpellTooltip}}"><i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i>
+            {{localize 'TYPES.Item.spell'}}</span>{{/if}}
+      </div>
+    </div>
+  </header>
+  {{#if descriptionHtml}}
+    <div class="hm-feat-browser-tile-description">{{{descriptionHtml}}}</div>
+  {{/if}}
+  {{#if isPicked}}<span class="hm-feat-browser-tile-picked-chip"><i class="fa-solid fa-check" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.App.Advancements.FeatBrowser.Picked'}}</span>{{/if}}
+  <button type="button" class="hm-feat-browser-tile-pin{{#if isPinned}} is-pinned{{/if}}" data-action="togglePin"
+    data-category="feat" data-source="feat-browser" data-uuid="{{uuid}}" data-tooltip aria-label="{{pinTooltip}}"><i
+      class="fa-solid fa-scale-balanced" aria-hidden="true"></i></button>
+</li>

@@ -1,0 +1,29 @@
+<div class="hero-mancer hm-approval-card hm-approval-{{variant}}" data-hm-approval>
+  <div class="hm-approval-header">
+    <i class="fa-solid {{icon}} hm-approval-icon" aria-hidden="true"></i>
+    <strong>{{{headline}}}</strong>
+  </div>
+  {{#if reason}}
+    <blockquote class="hm-approval-reason">{{reason}}</blockquote>
+  {{/if}}
+  {{#if review}}
+    <footer class="hm-approval-actions">
+      <button type="button" class="hm-primary hm-approval-gm-only" data-hm-action="review-queue">
+        <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> {{localize "HEROMANCER.Chat.Approval.review"}}
+      </button>
+      <span class="hm-approval-awaiting hm-approval-player-only">
+        <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> {{localize "HEROMANCER.Chat.Approval.awaiting"}}
+      </span>
+    </footer>
+  {{/if}}
+  {{#if rejected}}
+    <footer class="hm-approval-actions">
+      <button type="button" class="hm-primary hm-approval-player-only" data-hm-action="open-wizard">
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> {{localize "HEROMANCER.Chat.Approval.reopen"}}
+      </button>
+    </footer>
+  {{/if}}
+  {{#if actorAnchorHtml}}
+    <footer class="hm-approval-actions">{{{actorAnchorHtml}}}</footer>
+  {{/if}}
+</div>

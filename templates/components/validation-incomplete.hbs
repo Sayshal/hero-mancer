@@ -1,0 +1,9 @@
+<p>{{localize 'HEROMANCER.App.Validation.ConfirmIncomplete.Body'}}</p>
+<ul class="hm-validation-list">
+  {{#each missing}}
+    <li>{{localize this}}</li>
+  {{/each}}
+</ul>
+<p class="hm-validation-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+  {{localize 'HEROMANCER.App.Validation.ConfirmIncomplete.Warning'}}
+</p>

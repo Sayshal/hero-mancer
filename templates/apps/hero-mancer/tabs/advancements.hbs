@@ -1,0 +1,176 @@
+<section class="tab hm-tab hm-tab-advancements standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  {{#unless className}}
+    <p class="hm-empty">{{localize 'HEROMANCER.App.Advancements.Empty'}}</p>
+  {{else}}
+    {{#unless hasRows}}
+      <p class="hm-empty">{{localize 'HEROMANCER.App.Advancements.None'}}</p>
+    {{else}}
+      {{#*inline "grantedList"}}
+        {{#if granted.length}}
+          <div class="hm-granted">
+            <span class="hm-section-label">{{localize 'HEROMANCER.App.Advancements.GrantedLabel'}}</span>
+            <div class="hm-granted-buckets">
+              {{#each granted as |bucket|}}
+                <span class="hm-granted-bucket-label" data-bucket="{{bucket.key}}">{{bucket.label}}</span>
+                <span class="hm-granted-items">
+                  {{~#each bucket.items as |item|~}}
+                    <span class="hm-granted-item" {{#if item.uuid}}data-item-tooltip data-uuid="{{item.uuid}}"
+                      data-item-link role="button" tabindex="0" {{/if}}>{{item.label}}</span>{{~#unless @last~}}<span
+                        class="hm-granted-sep">, </span>{{~/unless~}}
+                      {{~/each~}}
+                </span>
+              {{/each}}
+            </div>
+          </div>
+        {{/if}}
+      {{/inline}}
+
+      {{#*inline "chooseGrid"}}
+        {{#if choiceRows.length}}
+          <span class="hm-section-label">{{localize 'HEROMANCER.App.Advancements.ChooseLabel'}}</span>
+          <div class="hm-advancements-grid">
+            {{#each choiceRows as |row|}}
+              <div class="hm-advancement-row" data-advancement-row data-advancement-id="{{row.advancementId}}"
+                data-level="{{row.level}}" data-type="{{row.type}}" data-state="{{row.state}}"
+                data-origin="{{row.origin}}" {{#if row.error}}data-error="partial" {{/if}}
+                {{#if row.requiredCount}}data-required-count="{{row.requiredCount}}" {{/if}}
+                {{#if row.auto}}data-auto{{/if}}>
+                {{#each row.visibleTiles as |tile|}}
+                  {{#if tile.isError}}
+                    <div class="hm-tile hm-advancement-tile hm-advancement-tile-error" data-state="error"
+                      data-foot="error">
+                      <span class="hm-tile-ribbon"
+                        aria-hidden="true">{{localize 'HEROMANCER.App.Advancements.Chip.error'}}</span>
+                      <span class="hm-tile-head">
+                        <span class="hm-tile-icon"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></span>
+                        <span class="hm-tile-name">
+                          <span class="hm-tile-name-text">{{tile.label}}</span>
+                        </span>
+                      </span>
+                      <span class="hm-tile-foot">
+                        <span class="hm-tile-foot-text">{{tile.foot.label}}</span>
+                      </span>
+                    </div>
+                  {{else if tile.isAsiTile}}
+                    <div class="hm-tile hm-advancement-tile hm-advancement-tile-asi" data-state="{{tile.state}}"
+                      data-foot="{{tile.foot.kind}}" data-asi-payload="{{tile.asiPayload}}" {{#if
+                    tile.featUuid}}data-item-tooltip data-uuid="{{tile.featUuid}}" {{/if}}
+                      {{#if tile.selected}}data-selected{{/if}}>
+                      <span class="hm-tile-ribbon"
+                        aria-hidden="true">{{#if tile.ribbonLabel}}{{tile.ribbonLabel}}{{else}}{{localize (concat
+                      'HEROMANCER.App.Advancements.Chip.' tile.state)}}{{/if}}</span>
+                      <span class="hm-tile-head">
+                        <span class="hm-tile-icon" {{#if tile.featUuid}}data-item-link data-uuid="{{tile.featUuid}}"
+                          role="button" tabindex="0" {{/if}}>
+                          {{#if tile.icon}}<img src="{{tile.icon}}" alt="">
+                          {{else}}<i class="fas fa-shield-halved" aria-hidden="true"></i>{{/if}}
+                        </span>
+                        {{#if tile.asiCommitted}}
+                          <span class="hm-advancement-asi-summary">{{tile.label}}</span>
+                          <button type="button" class="hm-advancement-asi-undo" data-asi-undo data-tooltip
+                            aria-label="{{localize 'HEROMANCER.App.Advancements.ASIDialog.Undo'}}">
+                            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                          </button>
+                        {{else}}
+                          <div class="hm-advancement-asi-mode-buttons{{#unless tile.allowFeat}} is-single{{/unless}}">
+                            <button type="button"
+                              class="hm-advancement-asi-mode-btn{{#if (eq tile.asiMode 'asi')}} is-active{{/if}}"
+                              data-asi-mode-btn="asi">{{localize 'HEROMANCER.App.Advancements.ASIModeASIBtn'}}</button>
+                            {{#if tile.allowFeat}}
+                              <button type="button"
+                                class="hm-advancement-asi-mode-btn{{#if (eq tile.asiMode 'feat')}} is-active{{/if}}"
+                                data-asi-mode-btn="feat">{{localize 'HEROMANCER.App.Advancements.ASIModeFeatBtn'}}</button>
+                            {{/if}}
+                          </div>
+                        {{/if}}
+                      </span>
+                      <span class="hm-tile-foot">
+                        <span class="hm-tile-foot-text">{{tile.foot.label}}</span>
+                      </span>
+                    </div>
+                  {{else if tile.browseDone}}
+                    <div class="hm-tile hm-advancement-tile is-selected" data-state="{{tile.state}}"
+                      data-foot="{{tile.foot.kind}}" {{#if tile.uuid}}data-item-tooltip data-uuid="{{tile.uuid}}"
+                      {{/if}} data-selected>
+                      <input type="hidden" name="{{tile.inputName}}" value="{{tile.inputValue}}">
+                      <span class="hm-tile-ribbon"
+                        aria-hidden="true">{{localize (concat 'HEROMANCER.App.Advancements.Chip.' tile.state)}}</span>
+                      <span class="hm-tile-head">
+                        <span class="hm-tile-icon" {{#if tile.uuid}}data-item-link data-uuid="{{tile.uuid}}"
+                          role="button" tabindex="0" {{/if}}>
+                          {{#if tile.icon}}<img src="{{tile.icon}}" alt="">
+                          {{else}}<i class="fas fa-shield-halved" aria-hidden="true"></i>{{/if}}
+                        </span>
+                        <span class="hm-advancement-asi-summary">{{tile.label}}</span>
+                        <button type="button" class="hm-advancement-asi-undo" data-action="choiceUndo" data-tooltip
+                          aria-label="{{localize 'HEROMANCER.App.Advancements.ASIDialog.Undo'}}">
+                          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                        </button>
+                      </span>
+                      <span class="hm-tile-foot">
+                        <span class="hm-tile-foot-text">{{tile.foot.label}}</span>
+                      </span>
+                    </div>
+                  {{else}}
+                    <button type="button" class="hm-tile hm-advancement-tile{{#if tile.selected}} is-selected{{/if}}"
+                      data-state="{{tile.state}}" data-foot="{{tile.foot.kind}}" {{#if tile.uuid}}data-item-tooltip
+                      data-uuid="{{tile.uuid}}" {{/if}} {{#if tile.picker}} data-picker-trigger
+                      data-picker-name="{{tile.picker.name}}" data-picker-label="{{tile.picker.label}}"
+                      data-picker-options="{{tile.picker.optionsJson}}" data-picker-max="{{tile.picker.max}}" {{/if}}
+                      {{#if tile.browse}} data-action="browseAdvancementItems" data-browse="{{tile.browse}}" {{/if}}
+                      {{#if tile.selected}}data-selected{{/if}}>
+                      {{#if tile.inputName}}
+                        <input type="hidden" name="{{tile.inputName}}" value="{{tile.inputValue}}">
+                      {{/if}}
+                      <span class="hm-tile-ribbon"
+                        aria-hidden="true">{{#if tile.ribbonLabel}}{{tile.ribbonLabel}}{{else}}{{localize (concat
+                      'HEROMANCER.App.Advancements.Chip.' tile.state)}}{{/if}}</span>
+                      <span class="hm-tile-head">
+                        <span class="hm-tile-icon" {{#if tile.picker}}data-trigger-icon{{/if}} {{#if tile.uuid}}
+                          data-item-link data-uuid="{{tile.uuid}}" role="button" tabindex="0" {{/if}}>
+                          {{#if tile.icon}}<img src="{{tile.icon}}" alt="">
+                          {{else}}<i class="fas fa-shield-halved" aria-hidden="true"></i>{{/if}}
+                        </span>
+                        <span class="hm-tile-name">
+                          <span class="hm-tile-name-text{{#if tile.isPlaceholder}} is-placeholder{{/if}}"
+                            {{#if tile.picker}}data-trigger-label{{/if}}>{{tile.label}}</span>
+                        </span>
+                      </span>
+                      <span class="hm-tile-foot">
+                        <span class="hm-tile-foot-text">{{tile.foot.label}}</span>
+                      </span>
+                    </button>
+                  {{/if}}
+                {{/each}}
+                {{#if row.spec.kind}}
+                  <div class="hm-advancement-body" data-advancement-body data-kind="{{row.spec.kind}}" hidden>
+                    <input type="hidden" data-advancement-hidden name="{{row.fieldName}}" value="{{row.fieldValue}}">
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{/if}}
+      {{/inline}}
+
+      {{#each groups as |group|}}
+        <fieldset class="hm-fieldset hm-advancements-fieldset" data-advancement-group="{{group.id}}">
+          <legend>{{group.legend}}</legend>
+          {{#each group.blocks as |block|}}
+            {{#if block.hasContent}}
+              <div class="hm-advancement-block">
+                {{#if block.levelLabel}}
+                  <div class="hm-level-divider"><span>{{block.levelLabel}}</span></div>
+                {{/if}}
+                {{> grantedList granted=block.granted}}
+                {{> chooseGrid choiceRows=block.choiceRows}}
+              </div>
+            {{/if}}
+          {{/each}}
+        </fieldset>
+      {{/each}}
+
+    {{/unless}}
+  {{/unless}}
+</section>

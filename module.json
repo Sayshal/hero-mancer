@@ -10,15 +10,13 @@
   "bugs": "https://github.com/Sayshal/hero-mancer/issues",
   "changelog": "https://github.com/Sayshal/hero-mancer/releases",
   "compatibility": {
-    "minimum": "13.351",
-    "verified": "14.359"
+    "minimum": "14",
+    "verified": "14.363"
   },
   "description": "The one stop shop for creating your heroes in D&D 5e.",
   "download": "",
   "esmodules": [
-    "scripts/app/HeroMancer.js",
-    "scripts/hero-mancer.js",
-    "scripts/settings.js"
+    "hero-mancer.mjs"
   ],
   "flags": {
     "hotReload": {
@@ -42,55 +40,51 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
-    },
-    {
-      "lang": "de",
-      "name": "Deutsch",
-      "path": "lang/de.json"
-    },
-    {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "lang/pt-BR.json"
-    },
-    {
-      "lang": "fr",
-      "name": "Français",
-      "path": "lang/fr.json"
-    },
-    {
-      "lang": "ko",
-      "name": "한국어",
-      "path": "lang/ko.json"
     }
   ],
   "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
   "manifest": "https://github.com/Sayshal/hero-mancer/releases/latest/download/module.json",
   "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
   "relationships": {
-    "optional": [
+    "recommends": [
       {
+        "id": "spell-book",
+        "type": "module",
         "compatibility": {
-          "minimum": "1.0.16",
-          "verified": "1.0.16"
+          "minimum": "2.0.0",
+          "verified": "2.0.3"
         },
-        "id": "chris-premades",
-        "type": "module"
+        "reason": "Hero Mancer 2 hands spell selection off to Spell Book after character creation."
       },
       {
+        "id": "dice-so-nice",
+        "type": "module",
         "compatibility": {
-          "verified": "v1.12.18.2"
+          "minimum": "5.3.0",
+          "verified": "6.2.3"
         },
-        "id": "elkan5e",
-        "type": "module"
+        "reason": "Hero Mancer 2 integrates with Dice So Nice for per-character 3D dice appearance set during creation."
+      },
+      {
+        "id": "tokenizer-2",
+        "type": "module",
+        "compatibility": {
+          "minimum": "1.1.0",
+          "verified": "1.1.0"
+        },
+        "reason": "Hero Mancer 2 uses Tokenizer 2's editor for character portrait and token art during creation."
+      },
+      {
+        "id": "calendaria",
+        "type": "module",
+        "reason": "Hero Mancer 2 adds a birthday picker and a recurring birthday note when Calendaria is active."
       }
     ],
     "systems": [
       {
         "compatibility": {
-          "maximum": "5.3.9",
-          "minimum": "5.2.4",
-          "verified": "5.3.0"
+          "minimum": "5.3.0",
+          "verified": "5.3.3"
         },
         "id": "dnd5e",
         "type": "system"
@@ -100,7 +94,7 @@
   "styles": [
     "styles/hero-mancer.css"
   ],
-  "title": "Hero Mancer",
+  "title": "Hero Mancer 2",
   "url": "https://github.com/Sayshal/hero-mancer",
   "version": ""
 }

@@ -1,0 +1,18 @@
+<i class="{{icon}} hm-banner-icon" aria-hidden="true"></i>
+<div class="hm-banner-body">
+  <strong>{{title}}</strong>
+  {{#if reason}}
+    <blockquote>{{reason}}</blockquote>
+  {{else if noReason}}
+    <p>{{localize 'HEROMANCER.Approval.RejectionNotice.NoReason'}}</p>
+  {{/if}}
+</div>
+{{#if open}}
+  <button type="button" class="hm-banner-open hm-primary">
+    <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+    <span>{{localize 'HEROMANCER.Approval.BannerOpen'}}</span>
+  </button>
+{{/if}}
+<button type="button" class="hm-banner-dismiss hm-icon-btn" aria-label="{{localize 'CHAT.Dismiss'}}">
+  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+</button>

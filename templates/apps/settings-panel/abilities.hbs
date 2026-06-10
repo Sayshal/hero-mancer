@@ -1,0 +1,7 @@
+<section class="tab hm-dialog-tab standard-form {{#if tabs.abilities.active}}active{{/if}}" data-group="primary"
+  data-tab="abilities">
+  {{#each abilities.groups}}
+    {{#if this.label}}<h3 class="hm-sp-group-title">{{localize this.label}}</h3>{{/if}}
+    {{#each this.settings}}{{> hmSettingsPanelField}}{{/each}}
+  {{/each}}
+</section>

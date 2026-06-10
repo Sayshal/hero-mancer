@@ -1,0 +1,99 @@
+<aside class="hm-wizard-sidebar" aria-label="{{localize 'HEROMANCER.Wizard.Sidebar.Label'}}">
+  <section class="hm-hud" data-hm-hud aria-label="{{localize 'HEROMANCER.Wizard.Hud.Label'}}">
+    <div class="hm-hud-portrait-frame">
+      <div class="hm-hud-portrait" data-hm-hud-portrait></div>
+    </div>
+    <div class="hm-hud-banner" data-hm-hud-banner hidden>
+      <img class="hm-hud-token" data-hm-hud-token src="systems/dnd5e/icons/svg/actors/character.svg" alt="">
+      <div class="hm-hud-chip-row" data-hm-hud-overlay>
+        <div class="hm-hud-chip hm-hud-chip-ac" data-hm-hud-ac-chip data-tooltip="{{localize 'DND5E.ArmorClass'}}"
+          hidden>
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          <span data-hm-hud-ac>—</span>
+        </div>
+        <div class="hm-hud-chip hm-hud-chip-hp" data-hm-hud-hp-chip data-tooltip="{{localize 'DND5E.HitPoints'}}"
+          hidden>
+          <i class="fa-solid fa-heart" aria-hidden="true"></i>
+          <span data-hm-hud-hp-value>—</span>
+        </div>
+        <div class="hm-hud-chip hm-hud-chip-gold" data-hm-hud-currency-chip
+          data-tooltip="{{localize 'HEROMANCER.Wizard.Hud.CurrencyTooltip'}}" hidden>
+          <i class="fa-solid fa-coins" aria-hidden="true"></i>
+          <span class="hm-hud-currency" data-hm-hud-currency>—</span>
+        </div>
+      </div>
+      <div class="hm-hud-body" data-hm-hud-body>
+        <h3 class="hm-hud-name-row" data-hm-hud-name-row hidden>
+          <span class="hm-hud-name" data-hm-hud-name></span>
+        </h3>
+        <p class="hm-hud-line hm-hud-class-line" data-hm-hud-class hidden>
+          <span class="hm-hud-class-level" data-hm-hud-class-level hidden></span>
+          <span class="hm-hud-class-name" data-hm-hud-class-name></span>
+        </p>
+        <p class="hm-hud-line" data-hm-hud-origin hidden></p>
+        <dl class="hm-hud-abilities" data-hm-hud-abilities hidden></dl>
+        <dl class="hm-hud-grid" data-hm-hud-grid>
+          <div class="hm-hud-grid-row" data-hm-hud-row="initiative" hidden>
+            <dt>{{localize 'DND5E.InitiativeAbbr'}}</dt>
+            <dd data-hm-hud-initiative>—</dd>
+          </div>
+          <div class="hm-hud-grid-row" data-hm-hud-row="speed" hidden>
+            <dt>{{localize 'DND5E.Speed'}}</dt>
+            <dd data-hm-hud-speed>—</dd>
+          </div>
+          <div class="hm-hud-grid-row" data-hm-hud-row="prof" hidden>
+            <dt>{{localize 'HEROMANCER.Wizard.Hud.Prof'}}</dt>
+            <dd data-hm-hud-prof>—</dd>
+          </div>
+          <div class="hm-hud-grid-row" data-hm-hud-row="hit-die" hidden>
+            <dt>{{localize 'DND5E.HitDie'}}</dt>
+            <dd data-hm-hud-hit-die>—</dd>
+          </div>
+          <div class="hm-hud-grid-row hm-hud-grid-row-wide" data-hm-hud-row="saves" hidden>
+            <dt>{{localize 'HEROMANCER.Wizard.Hud.Saves'}}</dt>
+            <dd data-hm-hud-saves>—</dd>
+          </div>
+          <div class="hm-hud-grid-row hm-hud-grid-row-wide" data-hm-hud-row="senses" hidden>
+            <dt>{{localize 'DND5E.Senses'}}</dt>
+            <dd data-hm-hud-senses>—</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+  <nav class="hm-wizard-nav" aria-label="{{localize 'HEROMANCER.Wizard.Nav.Label'}}">
+    <ul class="hm-wizard-nav-list tabs" role="tablist">
+      {{#each tabs}}
+        <li role="presentation" class="hm-wizard-nav-item{{#if this.active}} is-active{{/if}}">
+          <button type="button" role="tab" id="{{this.id}}-tab" aria-controls="{{this.id}}"
+            class="hm-wizard-nav-btn{{#if this.active}} active{{/if}}"
+            aria-selected="{{#if this.active}}true{{else}}false{{/if}}" tabindex="{{#if this.active}}0{{else}}-1{{/if}}"
+            data-action="tab" data-tab="{{this.id}}" data-group="primary">
+            <i class="{{this.icon}}" aria-hidden="true"></i>
+            <span class="hm-wizard-nav-label">{{this.label}}</span>
+            <span class="hm-wizard-nav-badge" data-tab-badge="{{this.id}}" data-tooltip
+              aria-label="{{localize 'HEROMANCER.Wizard.Nav.BadgeTooltip'}}" hidden>0</span>
+          </button>
+          {{> hmProgressBar this.progress}}
+          {{#if this.children.length}}
+            <ul class="hm-wizard-nav-children tabs" role="tablist">
+              {{#each this.children}}
+                <li role="presentation" class="hm-wizard-nav-child{{#if this.active}} is-active{{/if}}"
+                  data-summary="{{this.summaryFor}}">
+                  <button type="button" role="tab" id="{{this.id}}-tab" aria-controls="{{this.id}}"
+                    class="hm-wizard-nav-child-btn{{#if this.active}} active{{/if}}"
+                    aria-selected="{{#if this.active}}true{{else}}false{{/if}}"
+                    tabindex="{{#if this.active}}0{{else}}-1{{/if}}" data-action="tab" data-tab="{{this.id}}"
+                    data-group="{{this.group}}">
+                    <i class="{{this.icon}}" aria-hidden="true"></i>
+                    <span class="hm-wizard-nav-label" data-child-label>{{this.label}}</span>
+                  </button>
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  </nav>
+</aside>

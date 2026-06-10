@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint: ESLint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "group": { "kind": "test", "isDefault": false }
+    },
+    {
+      "label": "Lint: ESLint (Fix)",
+      "type": "npm",
+      "script": "lint:fix",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Lint: Stylelint",
+      "type": "npm",
+      "script": "stylelint",
+      "problemMatcher": []
+    },
+    {
+      "label": "Format: Prettier",
+      "type": "npm",
+      "script": "format",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Watch",
+      "type": "npm",
+      "script": "build:watch",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate All",
+      "type": "npm",
+      "script": "validate",
+      "problemMatcher": ["$eslint-stylish"],
+      "group": { "kind": "test", "isDefault": true }
+    }
+  ]
+}

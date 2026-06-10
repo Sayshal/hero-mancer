@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@client/*": ["./foundry/client/*"],
+      "@common/*": ["./foundry/common/*"]
+    },
+    "checkJs": false,
+    "noEmit": true
+  },
+  "include": ["./foundry/client/**/*", "./foundry/common/**/*", "./scripts/**/*", "./hero-mancer.mjs"],
+  "exclude": ["node_modules", "coverage", "dist"]
+}

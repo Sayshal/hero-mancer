@@ -1,0 +1,185 @@
+<section class="tab hm-tab hm-tab-start standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  <fieldset class="hm-fieldset">
+    <legend>{{localize 'HEROMANCER.App.Start.PlayerSettings'}}</legend>
+    <div class="form-group">
+      <label for="character-name">{{localize 'DND5E.Name'}}</label>
+      <div class="form-fields">
+        <input id="character-name" type="text" name="character-name" value="{{value.characterName}}"
+          placeholder="{{localize 'HEROMANCER.App.Start.NamePlaceholder'}}" aria-required="true">
+        <select id="random-name-style" data-tooltip
+          aria-label="{{localize 'HEROMANCER.App.Start.RandomNameStyle.label'}}">
+          {{#each randomNameStyles}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+        <select id="random-name-culture" data-tooltip
+          aria-label="{{localize 'HEROMANCER.App.Start.RandomNameCulture.label'}}">
+          {{#each randomNameCultures}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+        <button type="button" class="hm-icon-btn" data-action="randomizeCharacterName" data-tooltip
+          aria-label="{{localize 'HEROMANCER.App.Start.GenerateRandomName'}}">
+          <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.Name'}}</p>
+    </div>
+    {{#if birthday}}
+      <div class="form-group" data-birthday-row>
+        <label for="birthday-month">{{localize 'HEROMANCER.App.Start.Birthday.Label'}}</label>
+        <div class="form-fields">
+          <select id="birthday-month" name="birthday.month" data-birthday-month
+            aria-label="{{localize 'HEROMANCER.App.Start.Birthday.Month'}}">
+            {{#each birthday.months}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+            {{/each}}
+          </select>
+          <select id="birthday-day" name="birthday.day" data-birthday-day
+            aria-label="{{localize 'HEROMANCER.App.Start.Birthday.Day'}}">
+            {{#each birthday.days}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+            {{/each}}
+          </select>
+          <input id="birthday-year" type="number" name="birthday.year" value="{{birthday.yearValue}}" step="1"
+            data-birthday-year aria-label="{{localize 'HEROMANCER.App.Start.Birthday.Year'}}">
+          <span class="hm-birthday-age" data-birthday-age>{{birthday.agePreview}}</span>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.Birthday'}}</p>
+      </div>
+    {{/if}}
+    {{#if isGM}}
+      <div class="form-group">
+        <label for="player-assignment-trigger">{{localize 'HEROMANCER.App.Start.PlayerAssignmentLabel'}}</label>
+        <div class="form-fields">
+          {{> hmCombobox playerAssignment}}
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.PlayerAssignment'}}</p>
+      </div>
+    {{/if}}
+    <div class="form-group">
+      <label for="character-level">{{localize 'HEROMANCER.App.Start.LevelLabel'}}</label>
+      <div class="form-fields">
+        {{#if level.editable}}
+          <input id="character-level" type="number" name="level" min="1" max="20" step="1" value="{{level.value}}"
+            aria-required="true">
+        {{else}}
+          <input id="character-level" type="text" name="level" value="{{level.value}}" readonly data-tooltip
+            aria-label="{{localize 'HEROMANCER.App.Start.LevelTileHint'}}">
+        {{/if}}
+      </div>
+      <p class="hint">
+        {{#if level.editable}}{{localize 'HEROMANCER.App.Start.Hints.Level'}}{{else}}{{localize 'HEROMANCER.App.Start.Hints.LevelLocked'}}{{/if}}
+      </p>
+    </div>
+    <div class="form-group">
+      <label for="character-art-path">{{localize 'HEROMANCER.App.Start.CharacterArtLabel'}}</label>
+      <div class="form-fields">
+        <input id="character-art-path" type="text" name="character-art" readonly value="{{value.characterArt}}"
+          placeholder="{{localize 'HEROMANCER.App.Start.CharacterArtPlaceholder'}}"
+          {{#unless canPickArt}}disabled{{/unless}}>
+        <button type="button" data-action="selectCharacterArt"
+          {{#unless canPickArt}}disabled{{/unless}}>{{localize 'CONTROLS.CommonSelect'}}</button>
+        {{#if canTokenize}}
+          <button type="button" data-action="tokenize">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+            <span>{{localize 'HEROMANCER.App.Start.Tokenize'}}</span>
+          </button>
+        {{/if}}
+      </div>
+      <input type="hidden" name="tokenizer-prototype" value="{{value.tokenizerPrototype}}" data-tokenizer-prototype>
+      <input type="hidden" name="tokenizer-layers" value="{{value.tokenizerLayers}}" data-tokenizer-layers>
+      <p class="hint{{#unless canPickArt}} hm-hint-danger{{/unless}}">{{#if canPickArt}}{{localize
+        'HEROMANCER.App.Start.Hints.CharacterArt'}}
+        {{else}}{{localize 'HEROMANCER.App.Start.Hints.ArtNoPermission'}}{{/if}}</p>
+    </div>
+    <div class="form-group" data-token-art-row>
+      <label for="token-art-path">{{localize 'HEROMANCER.App.Start.TokenArtLabel'}}</label>
+      <div class="form-fields">
+        <input id="token-art-path" type="text" name="token-art" readonly value="{{value.tokenArt}}"
+          placeholder="{{localize 'HEROMANCER.App.Start.TokenArtPlaceholder'}}"
+          {{#if value.linkTokenArt}}disabled{{else}}{{#unless canPickArt}}disabled{{/unless}}{{/if}}>
+        <button type="button" data-action="selectTokenArt"
+          {{#if value.linkTokenArt}}disabled{{else}}{{#unless canPickArt}}disabled{{/unless}}{{/if}}>{{localize
+          'CONTROLS.CommonSelect'}}</button>
+      </div>
+      <p class="hint{{#unless canPickArt}} hm-hint-danger{{/unless}}">{{#if canPickArt}}{{localize
+        'HEROMANCER.App.Start.Hints.TokenArt'}}
+        {{else}}{{localize 'HEROMANCER.App.Start.Hints.ArtNoPermission'}}{{/if}}</p>
+    </div>
+    <div class="form-group">
+      <label for="link-token-art">{{localize 'HEROMANCER.App.Start.TokenSameAsCharacter'}}</label>
+      <div class="form-fields">
+        <input id="link-token-art" type="checkbox" name="link-token-art" {{checked value.linkTokenArt}}>
+      </div>
+      <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.LinkTokenArt'}}</p>
+    </div>
+    {{#if playerCustomizationEnabled}}
+      <div class="form-group">
+        <label for="player-color">{{localize 'HEROMANCER.App.Start.PlayerColor'}}</label>
+        <div class="form-fields">
+          <color-picker id="player-color" name="player-color" value="{{value.playerColor}}"
+            aria-label="{{localize 'HEROMANCER.App.Start.PlayerColor'}}"></color-picker>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.PlayerColor'}}</p>
+      </div>
+      <div class="form-group">
+        <label for="player-pronouns">{{localize 'HEROMANCER.App.Start.PlayerPronouns'}}</label>
+        <div class="form-fields">
+          <input id="player-pronouns" type="text" name="player-pronouns" value="{{value.playerPronouns}}"
+            placeholder="{{localize 'HEROMANCER.App.Start.PlayerPronounsPlaceholder'}}">
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.PlayerPronouns'}}</p>
+      </div>
+    {{/if}}
+  </fieldset>
+  {{#if diceAppearance}}
+    <fieldset class="hm-fieldset hm-dice-appearance">
+      <legend>{{localize 'HEROMANCER.App.Start.DiceAppearance.Legend'}}</legend>
+      <input type="hidden" name="dice-appearance" value="{{diceAppearance.appearanceJson}}" data-dice-appearance>
+      <div class="form-group">
+        <label>{{localize 'HEROMANCER.App.Start.DiceAppearance.Label'}}</label>
+        <div class="form-fields hm-dice-appearance-row">
+          <button type="button" data-action="openDsnConfig">
+            <i class="fa-solid fa-dice-d20" aria-hidden="true"></i>
+            <span>{{diceAppearance.buttonLabel}}</span>
+          </button>
+          <span class="hm-dice-status {{#if diceAppearance.hasCustom}}is-custom{{/if}}" data-dice-status>
+            {{#if diceAppearance.hasCustom}}<i class="fa-solid fa-check" aria-hidden="true"></i>{{/if}}
+            {{diceAppearance.customLabel}}
+          </span>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.DiceAppearance'}}</p>
+      </div>
+    </fieldset>
+  {{/if}}
+  {{#if tokenCustomizationEnabled}}
+    <fieldset class="hm-fieldset">
+      <legend>{{localize 'HEROMANCER.App.Start.TokenSettings'}}</legend>
+      <div class="form-group">
+        <label for="ring-enabled">{{localize 'TOKEN.FIELDS.ring.enabled.label'}}</label>
+        <div class="form-fields">
+          <input id="ring-enabled" type="checkbox" name="ring.enabled" {{checked value.ringEnabled}}>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.RingEnabled'}}</p>
+      </div>
+      <div class="form-group">
+        <label for="ring-color">{{localize 'TOKEN.FIELDS.ring.colors.ring.label'}}</label>
+        <div class="form-fields">
+          <color-picker id="ring-color" name="ring.color" value="{{value.ringColor}}"
+            aria-label="{{localize 'TOKEN.FIELDS.ring.colors.ring.label'}}"></color-picker>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.RingColor'}}</p>
+      </div>
+      <div class="form-group">
+        <label for="background-color">{{localize 'TOKEN.FIELDS.ring.colors.background.label'}}</label>
+        <div class="form-fields">
+          <color-picker id="background-color" name="backgroundColor" value="{{value.backgroundColor}}"
+            aria-label="{{localize 'TOKEN.FIELDS.ring.colors.background.label'}}"></color-picker>
+        </div>
+        <p class="hint">{{localize 'HEROMANCER.App.Start.Hints.BackgroundColor'}}</p>
+      </div>
+    </fieldset>
+  {{/if}}
+</section>

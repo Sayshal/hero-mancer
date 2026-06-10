@@ -1,0 +1,155 @@
+<section class="tab hm-tab hm-tab-identity standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  <nav class="hm-tab-subtabs tabs" role="tablist" aria-label="{{localize 'HEROMANCER.Wizard.Identity.SubnavLabel'}}">
+    {{#each sections as |section|}}
+      <button type="button" class="hm-tab-subtab-btn {{#if (eq ../activeSubTab section.id)}}active{{/if}}"
+        data-action="tab" data-tab="{{section.id}}" data-group="identity" role="tab"
+        aria-selected="{{#if (eq ../activeSubTab section.id)}}true{{else}}false{{/if}}" data-tooltip
+        aria-label="{{section.label}}">
+        <i class="{{section.icon}}" aria-hidden="true"></i>
+        <span class="hm-tab-subtab-label" data-subtab-label data-default-label="{{section.label}}">{{#if
+          section.selectedLabel}}{{section.selectedLabel}}
+          {{else}}{{section.label}}{{/if}}</span>
+        <span class="hm-wizard-nav-badge hm-tab-subtab-badge" data-tab-badge data-tooltip
+          aria-label="{{localize 'HEROMANCER.Wizard.Nav.BadgeTooltip'}}"
+          {{#unless section.badge}}hidden{{/unless}}>{{section.badge}}</span>
+      </button>
+    {{/each}}
+  </nav>
+
+  {{#each sections as |section|}}
+    <section class="tab hm-tab-subtab-panel hm-identity-section {{#if (eq ../activeSubTab section.id)}}active{{/if}}"
+      data-tab="{{section.id}}" data-group="identity" id="identity-sub-{{section.id}}-panel"
+      data-identity-section="{{section.id}}" role="tabpanel" aria-labelledby="identity-sub-{{section.id}}-tab">
+
+      {{#if section.classRoster}}
+        {{> hmIdentityClassRoster classRoster=section.classRoster}}
+        {{#if section.classRoster.showPills}}
+          <nav class="hm-mc-desc-pills" data-mc-desc-pills role="tablist"
+            aria-label="{{localize 'HEROMANCER.App.Identity.Multiclass.DescriptionNavLabel'}}">
+            {{#each section.classRoster.pills as |pill|}}
+              <button type="button" class="hm-mc-desc-pill {{#if pill.active}}is-active{{/if}}"
+                data-action="setActiveClassDescription" data-slot-id="{{pill.slotId}}" role="tab"
+                aria-selected="{{#if pill.active}}true{{else}}false{{/if}}">
+                {{pill.label}}
+              </button>
+            {{/each}}
+          </nav>
+        {{/if}}
+        <div class="hm-identity-description content-embed dnd5e2-journal" data-description="class"
+          data-uuid="{{section.classRoster.activeUuid}}" data-active-slot-id="{{section.classRoster.activeSlotId}}"
+          role="region" aria-live="polite"></div>
+      {{else if section.subclassPickers}}
+        {{> hmIdentitySubclassList pickers=section.subclassPickers}}
+        {{#if section.showPills}}
+          <nav class="hm-mc-desc-pills" data-mc-desc-pills role="tablist"
+            aria-label="{{localize 'HEROMANCER.App.Identity.Subclass.DescriptionNavLabel'}}">
+            {{#each section.pills as |pill|}}
+              <button type="button" class="hm-mc-desc-pill {{#if pill.active}}is-active{{/if}}"
+                data-action="setActiveSubclassDescription" data-slot-id="{{pill.slotId}}" role="tab"
+                aria-selected="{{#if pill.active}}true{{else}}false{{/if}}">
+                {{pill.label}}
+              </button>
+            {{/each}}
+          </nav>
+        {{/if}}
+        <div class="hm-identity-description content-embed dnd5e2-journal" data-description="subclass"
+          data-uuid="{{section.activeUuid}}" data-active-slot-id="{{section.activeSlotId}}" role="region"
+          aria-live="polite"></div>
+      {{else}}
+        <div class="form-group">
+          <div class="form-fields">{{> hmCombobox section.combo}}</div>
+        </div>
+        <div class="hm-identity-description content-embed dnd5e2-journal" data-description="{{section.id}}"
+          data-uuid="{{section.combo.value}}" role="region" aria-live="polite"></div>
+      {{/if}}
+    </section>
+  {{/each}}
+  <button type="button" class="hm-identity-fab" data-action="scrollIdentityTop" data-tooltip
+    aria-label="{{localize 'HEROMANCER.App.Identity.ScrollTop'}}" hidden>
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+  </button>
+</section>
+
+{{#*inline "hmIdentityClassRoster"}}
+  <div class="hm-mc-roster" data-mc-roster data-multiclass="{{classRoster.showSteppers}}">
+    {{#each classRoster.rows as |row|}}
+      <div class="hm-mc-row" data-mc-row data-slot-id="{{row.slotId}}" data-idx="{{row.idx}}"
+        data-primary="{{row.primary}}">
+        <div class="hm-mc-row-combo">
+          {{> hmCombobox row.combo}}
+        </div>
+        {{#if ../classRoster.showSteppers}}
+          <div class="hm-mc-row-level">
+            <label for="mc-level-{{row.slotId}}" class="hm-mc-row-level-label">{{localize 'DND5E.Level'}}</label>
+            <div class="hm-mc-row-level-stepper">
+              <button type="button" class="hm-mc-row-level-step" data-action="mcLevelAdjust"
+                data-slot-id="{{row.slotId}}" data-delta="-1" data-tooltip
+                {{#unless row.canDecrement}}disabled{{/unless}}
+                aria-label="{{localize 'HEROMANCER.App.Identity.Multiclass.Decrement'}}">
+                <i class="fas fa-minus" aria-hidden="true"></i>
+              </button>
+              <input type="number" id="mc-level-{{row.slotId}}" name="identity.classes.{{row.slotId}}.level"
+                value="{{row.level}}" min="0" max="{{../classRoster.effectiveLevel}}" step="1" data-mc-level
+                data-slot-id="{{row.slotId}}">
+              <button type="button" class="hm-mc-row-level-step" data-action="mcLevelAdjust"
+                data-slot-id="{{row.slotId}}" data-delta="1" data-tooltip
+                {{#unless row.canIncrement}}disabled{{/unless}}
+                aria-label="{{localize 'HEROMANCER.App.Identity.Multiclass.Increment'}}">
+                <i class="fas fa-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          {{#if row.primary}}
+            <span class="hm-mc-row-primary-marker" data-tooltip
+              aria-label="{{localize 'HEROMANCER.App.Identity.Multiclass.PrimaryTooltip'}}">
+              <i class="fas fa-star" aria-hidden="true"></i>
+            </span>
+          {{else}}
+            <button type="button" class="hm-mc-row-remove" data-action="removeMulticlass" data-slot-id="{{row.slotId}}"
+              data-tooltip="" aria-label="{{localize 'HEROMANCER.App.Identity.Multiclass.RemoveTooltip'}}"
+              {{#unless row.removable}}disabled aria-hidden="true" {{/unless}}>
+              <i class="fas fa-xmark" aria-hidden="true"></i>
+            </button>
+          {{/if}}
+        {{else}}
+          <input type="hidden" name="identity.classes.{{row.slotId}}.level" value="{{row.level}}" data-mc-level
+            data-slot-id="{{row.slotId}}">
+        {{/if}}
+        {{#if row.prereqChip}}
+          <div class="hm-mc-row-prereq is-fail" data-tooltip="{{row.prereqChip.tooltip}}" role="status">
+            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+            <span>{{row.prereqChip.label}}</span>
+          </div>
+        {{/if}}
+      </div>
+    {{/each}}
+  </div>
+  {{#if classRoster.showSteppers}}
+    {{#if classRoster.canAddMore}}
+      <div class="hm-mc-roster-footer">
+        <button type="button" class="hm-mc-add" data-action="addMulticlass">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <span>{{localize 'HEROMANCER.App.Identity.Multiclass.Add'}}</span>
+        </button>
+      </div>
+    {{/if}}
+    {{#unless (eq classRoster.balance.state 'ok')}}
+      <div class="hm-mc-balance-banner is-{{classRoster.balance.state}}" role="status" aria-live="polite">
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+        <span>{{classRoster.balance.label}}</span>
+      </div>
+    {{/unless}}
+  {{/if}}
+{{/inline}}
+
+{{#*inline "hmIdentitySubclassList"}}
+  <div class="hm-mc-subclass-list">
+    {{#each pickers as |picker|}}
+      <div class="form-group hm-mc-subclass-row" data-mc-subclass-row data-slot-id="{{picker.slotId}}">
+        <label for="{{picker.combo.id}}-trigger" class="hm-mc-subclass-class-name">{{picker.className}}</label>
+        <div class="form-fields">{{> hmCombobox picker.combo}}</div>
+      </div>
+    {{/each}}
+  </div>
+{{/inline}}

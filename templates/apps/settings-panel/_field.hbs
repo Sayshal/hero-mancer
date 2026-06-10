@@ -1,0 +1,138 @@
+{{#if (eq type "advancementOrder")}}
+  <fieldset class="hm-fieldset hm-sp-field hm-sp-field-reorder" data-setting="{{key}}">
+    <legend>{{localize name}}</legend>
+    {{#if hint}}
+      <p class="hint">{{localize hint}}</p>
+    {{/if}}
+    <ol class="hm-sp-reorder" data-reorder="{{key}}">
+      {{#each rows}}
+        <li class="hm-sp-reorder-row" draggable="true" data-row-id="{{id}}">
+          <span class="hm-sp-reorder-label">{{localize label}}</span>
+          <button type="button" data-action="reorderUp" data-tooltip
+            aria-label="{{localize 'HEROMANCER.Settings.SettingsPanel.AdvancementOrder.RowUp'}}">
+            <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+          </button>
+          <button type="button" data-action="reorderDown" data-tooltip
+            aria-label="{{localize 'HEROMANCER.Settings.SettingsPanel.AdvancementOrder.RowDown'}}">
+            <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+          </button>
+          <input type="hidden" name="advancementOrder.{{@index}}.id" value="{{id}}">
+          <input type="hidden" name="advancementOrder.{{@index}}.label" value="{{label}}">
+        </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+{{else if (eq type "costMap")}}
+  <fieldset class="hm-fieldset hm-sp-field hm-sp-field-cost-map" data-setting="{{key}}">
+    <legend>{{localize name}}</legend>
+    {{#if hint}}
+      <p class="hint">{{localize hint}}</p>
+    {{/if}}
+    <ol class="hm-sp-cost-map-list" data-cost-map-list="{{key}}">
+      {{#each rows}}
+        {{> hmSettingsPanelCostRow index=@index}}
+      {{/each}}
+    </ol>
+    <button type="button" class="hm-sp-cost-add" data-action="addCostRow">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      {{localize 'HEROMANCER.Settings.SettingsPanel.PointBuyCostMap.Add'}}
+    </button>
+  </fieldset>
+{{else if (eq type "focusItems")}}
+  <fieldset class="hm-fieldset hm-sp-field hm-sp-field-focus-items" data-setting="{{key}}">
+    <legend>{{localize name}}</legend>
+    {{#if hint}}
+      <p class="hint">{{localize hint}}</p>
+    {{/if}}
+    {{#each focusTypes}}
+      <details class="hm-sp-focus-type" data-focus-type="{{key}}" open>
+        <summary>
+          <span class="hm-sp-focus-label">{{label}}</span>
+          <button type="button" class="hm-icon-btn" data-action="pickFocusItem" data-focus-type="{{key}}" data-tooltip
+            aria-label="{{localize 'HEROMANCER.Settings.SettingsPanel.CustomFocusItems.Add'}}">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+          <span class="hm-sp-focus-count">{{items.length}}</span>
+        </summary>
+        <ol class="hm-sp-focus-list" data-focus-list="{{key}}">
+          {{#each items}}
+            {{> hmSettingsPanelFocusRow}}
+          {{/each}}
+        </ol>
+      </details>
+    {{/each}}
+  </fieldset>
+{{else if (eq type "exclusions")}}
+  <div class="hm-sp-field hm-sp-field-exclusions" data-setting="{{key}}">
+    {{#each rows}}
+      <h3 class="hm-sp-group-title"><i class="{{this.icon}}" aria-hidden="true"></i> {{this.label}}</h3>
+      <div class="hm-sp-exclusion-row">
+        <span class="hm-sp-exclusion-count">{{this.countLabel}}</span>
+        <button type="button" data-action="browseExclusion" data-bucket="{{this.bucket}}">
+          <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+          <span>{{localize 'HEROMANCER.Settings.CompendiumExclusionList.Browse'}}</span>
+        </button>
+      </div>
+    {{/each}}
+  </div>
+{{else if (eq type "menu")}}
+  <div class="form-group hm-sp-field hm-sp-field-menu" data-setting="{{key}}">
+    <label>{{localize name}}</label>
+    <div class="form-fields">
+      <button type="button" data-action="openMenu" data-menu-key="{{key}}">
+        <i class="fa-solid {{icon}}" aria-hidden="true"></i>
+        {{localize buttonLabel}}
+      </button>
+    </div>
+    {{#if hint}}
+      <p class="hint">{{localize hint}}</p>
+    {{/if}}
+  </div>
+{{else}}
+  <div class="form-group hm-sp-field" data-setting="{{key}}">
+    <label for="hm-sp-{{key}}">{{localize name}}</label>
+    <div class="form-fields">
+      {{#if (eq type "boolean")}}
+        <input id="hm-sp-{{key}}" type="checkbox" name="{{key}}" {{checked value}}>
+      {{else if (eq type "number")}}
+        <input id="hm-sp-{{key}}" type="number" name="{{key}}" value="{{value}}" min="{{min}}" max="{{max}}"
+          step="{{step}}">
+      {{else if (eq type "string")}}
+        <input id="hm-sp-{{key}}" type="text" name="{{key}}" value="{{value}}" placeholder="{{placeholder}}">
+      {{else if (eq type "select")}}
+        <select id="hm-sp-{{key}}" name="{{key}}">
+          {{#each choices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+          {{/each}}
+        </select>
+      {{else if (eq type "allowedMethods")}}
+        <div class="hm-sp-checkgroup" role="group" aria-labelledby="hm-sp-{{key}}-label">
+          {{#each methods}}
+            <label class="hm-sp-check">
+              <input type="checkbox" name="allowedMethods.{{key}}" {{checked checked}}>
+              {{localize label}}
+            </label>
+          {{/each}}
+        </div>
+      {{else if (eq type "allowedHpMethods")}}
+        <div class="hm-sp-checkgroup" role="group" aria-labelledby="hm-sp-{{key}}-label">
+          {{#each methods}}
+            <label class="hm-sp-check">
+              <input type="checkbox" name="allowedHpMethods.{{key}}" {{checked checked}}>
+              {{localize label}}
+            </label>
+          {{/each}}
+        </div>
+      {{else if (eq type "filePicker")}}
+        <input id="hm-sp-{{key}}" type="text" name="{{key}}" value="{{value}}" readonly>
+        <button type="button" data-action="pickFolder" data-target="{{key}}">
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+          {{localize "HEROMANCER.Settings.SettingsPanel.ArtPickerRoot.Browse"}}
+        </button>
+      {{/if}}
+    </div>
+    {{#if hint}}
+      <p class="hint">{{localize hint}}</p>
+    {{/if}}
+  </div>
+{{/if}}

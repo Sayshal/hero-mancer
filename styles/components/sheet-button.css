@@ -1,0 +1,67 @@
+.hm-sheet-level-up-button.is-glowing {
+  animation: hm-level-up-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes hm-level-up-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--hero-mancer-warn) 55%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0.5rem 0.125rem color-mix(in srgb, var(--hero-mancer-warn) 85%, transparent),
+      0 0 0.75rem 0.25rem color-mix(in srgb, var(--hero-mancer-warn) 35%, transparent);
+  }
+}
+
+.hm-level-up-grant-list {
+  gap: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-level-up-grant-list .hm-grant-row {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.hm-level-up-grant-list .hm-grant-row label {
+  gap: 0.5rem;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  cursor: pointer;
+}
+
+.hm-level-up-grant-list .hm-grant-row img {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 0.125rem;
+}
+
+.hm-level-up-grant-list .hm-grant-row > span {
+  gap: 0.5rem;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+}
+
+.hm-level-up-grant-list .hm-grant-row.is-ineligible {
+  opacity: 0.55;
+}
+
+.hm-level-up-grant-list .hm-grant-row.is-ineligible em {
+  margin-left: auto;
+  color: var(--hero-mancer-fg-muted);
+  font-style: normal;
+  font-size: 0.85em;
+}

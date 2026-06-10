@@ -1,0 +1,215 @@
+.hm-sp-group-title {
+  border-bottom: 0.0625rem solid var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-accent);
+  font-weight: 700;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hm-sp-checkgroup {
+  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.hm-sp-check {
+  gap: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.hm-sp-reorder {
+  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-sp-reorder-row {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.25rem;
+  cursor: grab;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-sp-reorder-row.is-dragging {
+  opacity: 0.5;
+}
+
+.hm-sp-reorder-row.is-drag-over {
+  border-color: var(--hero-mancer-border-strong);
+}
+
+.hm-sp-reorder-label {
+  flex: 1;
+  font-size: 0.9em;
+}
+
+.hm-sp-reorder-row button {
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.hm-sp-filepicker {
+  gap: 0.35rem;
+  display: flex;
+  align-items: center;
+}
+
+.hm-sp-filepicker input {
+  flex: 1;
+}
+
+.hm-sp-reset {
+  margin-right: auto;
+}
+
+.hm-sp-focus-type {
+  margin: 0.4rem 0 0;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.25rem;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-sp-focus-type > summary {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hm-sp-focus-label {
+  flex: 1;
+}
+
+.hm-sp-focus-count {
+  min-width: 1.6rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 1rem;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.8em;
+  text-align: center;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-sp-focus-list {
+  gap: 0.3rem;
+  display: flex;
+  flex-flow: row wrap;
+  max-height: 9rem;
+  margin: 0;
+  padding: 0 0.6rem 0.5rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.hm-sp-focus-list:not(:has(.hm-sp-focus-row)) {
+  height: 0;
+  padding: 0;
+}
+
+.hm-sp-focus-row {
+  gap: 0.4rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.25rem;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-sp-focus-row img {
+  object-fit: cover;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 0.2rem;
+}
+
+.hm-sp-focus-name {
+  font-size: 0.9em;
+}
+
+.hm-sp-focus-missing {
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-sp-cost-map-list {
+  gap: 0.4rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: grid;
+  margin: 0 0 0.4rem;
+  padding: 0 0.4rem;
+  list-style: none;
+}
+
+.hm-sp-cost-row {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0.1rem 0.5rem 0.1rem 0.1rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 999rem;
+  overflow: hidden;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-sp-cost-row:focus-within {
+  border-color: var(--hero-mancer-border-strong);
+}
+
+.hero-mancer .hm-sp-cost-row input[type='number'] {
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.15rem 0.5rem;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  text-align: center;
+  background: transparent;
+}
+
+.hero-mancer .hm-sp-cost-row input[type='number']:first-of-type {
+  border-right: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-sp-cost-add {
+  width: auto;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85em;
+}
+
+.hm-sp-exclusion-row {
+  gap: 0.6rem;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem 1rem;
+}
+
+.hm-sp-exclusion-count {
+  flex: 1;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+}

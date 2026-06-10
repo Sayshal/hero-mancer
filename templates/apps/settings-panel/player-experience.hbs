@@ -1,0 +1,7 @@
+<section class="tab hm-dialog-tab standard-form {{#if tabs.player-experience.active}}active{{/if}}" data-group="primary"
+  data-tab="player-experience">
+  {{#each playerExperience.groups}}
+    {{#if this.label}}<h3 class="hm-sp-group-title">{{localize this.label}}</h3>{{/if}}
+    {{#each this.settings}}{{> hmSettingsPanelField}}{{/each}}
+  {{/each}}
+</section>

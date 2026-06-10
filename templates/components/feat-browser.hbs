@@ -1,0 +1,147 @@
+<div class="hm-feat-browser" data-feat-browser>
+  {{#unless hasFeats}}
+    <p class="hm-empty">{{localize 'HEROMANCER.App.Advancements.FeatBrowser.Empty'}}</p>
+  {{else}}
+    {{#*inline "featSubtypeChips"}}
+      <button type="button" class="hm-feat-browser-filter-chip {{#if allFilterActive}}is-active{{/if}}"
+        data-feat-browser-filter="all">
+        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+      </button>
+      {{#each subtypes}}
+        <button type="button" class="hm-feat-browser-filter-chip {{#if this.active}}is-active{{/if}}"
+          data-feat-browser-filter="{{this.value}}">
+          {{this.label}}
+        </button>
+      {{/each}}
+    {{/inline}}
+    {{#*inline "featRulesChips"}}
+      <button type="button" class="hm-feat-browser-filter-chip {{#if allRulesActive}}is-active{{/if}}"
+        data-feat-browser-rules="all">
+        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.RulesAll'}}
+      </button>
+      {{#each rulesOptions}}
+        <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
+          data-feat-browser-rules="{{this.value}}">
+          {{this.label}}
+        </button>
+      {{/each}}
+    {{/inline}}
+    {{#*inline "featActionChips"}}
+      <button type="button" class="hm-feat-browser-filter-chip {{#if allActionActive}}is-active{{/if}}"
+        data-feat-browser-action="all">
+        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+      </button>
+      {{#each actionOptions}}
+        <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
+          data-feat-browser-action="{{this.value}}">
+          {{this.label}}
+        </button>
+      {{/each}}
+    {{/inline}}
+    {{#*inline "featGrantsToggles"}}
+      <label class="hm-feat-browser-qualify">
+        <input type="checkbox" data-feat-browser-grants-asi {{#if filters.grantsAsi}}checked{{/if}}>
+        <span>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.GrantsASIOnly'}}</span>
+      </label>
+      <label class="hm-feat-browser-qualify">
+        <input type="checkbox" data-feat-browser-grants-spell {{#if filters.grantsSpell}}checked{{/if}}>
+        <span>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.GrantsSpellOnly'}}</span>
+      </label>
+      {{#if supportsQualifying}}
+        <label class="hm-feat-browser-qualify">
+          <input type="checkbox" data-feat-browser-qualify {{#if filters.qualify}}checked{{/if}}>
+          <span>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.QualifyingOnly'}}</span>
+        </label>
+      {{/if}}
+    {{/inline}}
+    <header class="hm-feat-browser-header">
+      <input type="search" class="hm-feat-browser-search-input"
+        placeholder="{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SearchPlaceholder'}}" data-feat-browser-search
+        value="{{filters.search}}" aria-label="{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SearchLabel'}}">
+      <details class="hm-feat-browser-popover" data-feat-browser-filter-menu>
+        <summary class="hm-feat-browser-popover-trigger"
+          aria-label="{{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+        </summary>
+        <div class="hm-feat-browser-popover-panel">
+          {{#if subtypes.length}}
+            <section class="hm-feat-browser-filter-section" data-popover-section="type" hidden>
+              <span class="hm-feat-browser-filter-section-title">{{localize 'DND5E.Type'}}</span>
+              <div class="hm-feat-browser-filter-group" role="group">{{> featSubtypeChips}}</div>
+            </section>
+          {{/if}}
+          {{#if rulesOptions.length}}
+            <section class="hm-feat-browser-filter-section" data-popover-section="rules" hidden>
+              <span class="hm-feat-browser-filter-section-title">{{localize
+                'HEROMANCER.App.Advancements.FeatBrowser.SectionRulesets'}}</span>
+              <div class="hm-feat-browser-filter-group" role="group">{{> featRulesChips}}</div>
+            </section>
+          {{/if}}
+          {{#if actionOptions.length}}
+            <section class="hm-feat-browser-filter-section" data-popover-section="action" hidden>
+              <span class="hm-feat-browser-filter-section-title">{{localize
+                'HEROMANCER.App.Advancements.FeatBrowser.SectionAction'}}</span>
+              <div class="hm-feat-browser-filter-group" role="group">{{> featActionChips}}</div>
+            </section>
+          {{/if}}
+          <section class="hm-feat-browser-filter-section" data-popover-section="grants" hidden>
+            <span class="hm-feat-browser-filter-section-title">{{localize
+              'HEROMANCER.App.Advancements.FeatBrowser.SectionGrants'}}</span>
+            {{> featGrantsToggles}}
+          </section>
+          {{#if bookOptions.length}}
+            <section class="hm-feat-browser-filter-section hm-feat-browser-filter-section-sources">
+              <span class="hm-feat-browser-filter-section-title">{{localize
+                'HEROMANCER.App.Advancements.FeatBrowser.SectionSources'}}</span>
+              <div class="hm-feat-browser-filter-group" role="group">
+                <button type="button" class="hm-feat-browser-filter-chip {{#if allBookActive}}is-active{{/if}}"
+                  data-feat-browser-book="all">
+                  {{localize 'HEROMANCER.App.Advancements.FeatBrowser.BookAll'}}
+                </button>
+                {{#each bookOptions}}
+                  <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
+                    data-feat-browser-book="{{this.value}}" data-tooltip="" aria-label="{{this.tooltip}}">
+                    {{this.label}}
+                  </button>
+                {{/each}}
+              </div>
+            </section>
+          {{/if}}
+        </div>
+      </details>
+      <button type="button" class="hm-feat-browser-compare" data-action="openCompare" data-category="feat"
+        {{#unless compare.canCompare}}disabled{{/unless}} data-tooltip="" aria-label="{{compare.compareLabel}}">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+      </button>
+      <div class="hm-feat-browser-inline-filters" data-feat-browser-inline>
+        {{#if subtypes.length}}
+          <fieldset class="hm-feat-browser-inline-group" data-inline-group="type">
+            <legend>{{localize 'DND5E.Type'}}</legend>
+            <div class="hm-feat-browser-filter-group" role="group">{{> featSubtypeChips}}</div>
+          </fieldset>
+        {{/if}}
+        {{#if rulesOptions.length}}
+          <fieldset class="hm-feat-browser-inline-group" data-inline-group="rules">
+            <legend>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SectionRulesets'}}</legend>
+            <div class="hm-feat-browser-filter-group" role="group">{{> featRulesChips}}</div>
+          </fieldset>
+        {{/if}}
+        {{#if actionOptions.length}}
+          <fieldset class="hm-feat-browser-inline-group" data-inline-group="action">
+            <legend>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SectionAction'}}</legend>
+            <div class="hm-feat-browser-filter-group" role="group">{{> featActionChips}}</div>
+          </fieldset>
+        {{/if}}
+        <fieldset class="hm-feat-browser-inline-group" data-inline-group="grants">
+          <legend>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SectionGrants'}}</legend>
+          <div class="hm-feat-browser-filter-group" role="group">{{> featGrantsToggles}}</div>
+        </fieldset>
+      </div>
+    </header>
+
+    <ul class="hm-feat-browser-tiles" data-feat-browser-tiles></ul>
+    <p class="hm-empty" data-feat-browser-empty hidden>
+      {{localize 'HEROMANCER.App.Advancements.FeatBrowser.EmptyFilter'}}
+    </p>
+  {{/unless}}
+</div>

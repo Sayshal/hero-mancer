@@ -1,0 +1,48 @@
+{
+  "name": "hero-mancer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hero Mancer — D&D 5e character creation wizard for FoundryVTT",
+  "license": "MIT",
+  "scripts": {
+    "setup": "node dev/tools/setup-links.mjs",
+    "lint": "eslint . --ext .js,.mjs,.cjs",
+    "lint:fix": "eslint . --ext .js,.mjs,.cjs --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "stylelint": "stylelint \"**/*.css\"",
+    "stylelint:fix": "stylelint \"**/*.css\" --fix",
+    "validate": "npm run lint && npm run format:check && npm run stylelint",
+    "build": "rollup -c rollup.config.mjs",
+    "build:watch": "rollup -c rollup.config.mjs --watch",
+    "dev": "rollup -c rollup.config.mjs --environment BUILD:development",
+    "clean": "node -e \"import('fs').then(f=>f.rmSync('dist',{recursive:true,force:true}))\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.css": [
+      "prettier --write",
+      "stylelint --fix"
+    ],
+    "*.{yml,yaml}": "prettier --write"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@rollup/plugin-terser": "^1.0.0",
+    "eslint": "^9.27.0",
+    "eslint-plugin-jsdoc": "^50.8.0",
+    "globals": "^15.15.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.3.3",
+    "rollup": "^4.59.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "stylelint": "^16.19.1",
+    "stylelint-config-standard": "^37.0.0"
+  }
+}

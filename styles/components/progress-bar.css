@@ -1,0 +1,54 @@
+.hm-progress {
+  --hero-mancer-pb-max: 1;
+  --hero-mancer-pb-value: 0;
+
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.hm-progress--tab {
+  --hero-mancer-pb-height: 0.25rem;
+}
+
+.hm-progress--global {
+  --hero-mancer-pb-height: 0.65rem;
+}
+
+.hm-progress-track {
+  flex: 1;
+  height: var(--hero-mancer-pb-height);
+  border-radius: var(--hero-mancer-radius-pill);
+  overflow: hidden;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-progress-fill {
+  width: calc(var(--hero-mancer-pb-value) / var(--hero-mancer-pb-max) * 100%);
+  height: 100%;
+  border-radius: inherit;
+  transition:
+    width 200ms ease-out,
+    background-color 160ms ease-out;
+}
+
+.hm-progress.is-incomplete .hm-progress-fill {
+  background: var(--hero-mancer-border-strong);
+}
+
+.hm-progress.is-complete .hm-progress-fill {
+  background: var(--hero-mancer-success);
+}
+
+.hm-progress.is-invalid .hm-progress-fill {
+  background: var(--hero-mancer-danger);
+}
+
+.hm-progress-percent {
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+  text-align: right;
+}

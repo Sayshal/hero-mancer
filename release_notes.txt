@@ -1,0 +1,21 @@
+A complete, ground-up rewrite.
+
+**Breaking**
+- Requires Foundry VTT v14+.
+- Most 2.x settings aren't carried forward; removed keys are purged and a few migrated on first load.
+- Localization keys restructured; non-English translations dropped pending retranslation.
+
+**New**
+- Rebuilt frameless wizard: drag/resize, per-user position, live progress bars and missing-field badges, and a one-click Randomize.
+- Reworked Identity, Abilities, HP, Advancements, and Equipment tabs with searchable pickers and live validation.
+- Interactive Advancements (ability, proficiency, and item/feature choices) with a Granted summary; auto-grants applied at creation.
+- Equipment tab with a shop, gold budget, "take wealth instead" toggles, and GM bonus-gold formulas.
+- Level-Up mode: multiclassing, prerequisite checks, and a live preview of HP, features, and subclasses.
+- Optional GM approval queue: players submit, GMs review/approve/reject in-wizard.
+- Compare and pin, a feat browser, and a live sidebar HUD.
+- Integrations: Tokenizer 2, Spell Book, Calendaria, and Dice So Nice.
+
+**Removed**
+- The Enable toggle, Mandatory Fields configurator, character-detail CSV pools, roll-table biography, and CPR integration.
+
+Full changelog: https://github.com/Sayshal/hero-mancer/releases

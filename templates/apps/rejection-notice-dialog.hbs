@@ -1,0 +1,7 @@
+<p>{{localize 'HEROMANCER.Approval.RejectionNotice.Body'}}</p>
+{{#if reason}}
+  <p>{{localize 'HEROMANCER.Approval.RejectionNotice.ReasonLabel'}}</p>
+  <blockquote>{{reason}}</blockquote>
+{{else}}
+  <p>{{localize 'HEROMANCER.Approval.RejectionNotice.NoReason'}}</p>
+{{/if}}

@@ -1,0 +1,52 @@
+<div class="hm-combobox{{#if disabled}} is-disabled{{/if}}" data-combobox data-name="{{name}}" data-value="{{value}}"
+  {{#unless searchable}}data-searchable="false" {{/unless}} {{#if pinning.enabled}}data-pinning="{{pinning.category}}"
+  {{/if}}>
+  <input type="hidden" name="{{name}}" value="{{value}}">
+  <button type="button" class="hm-combobox-trigger" id="{{id}}-trigger" role="combobox" aria-haspopup="listbox"
+    aria-expanded="false" aria-controls="{{id}}-listbox" {{#if labelledBy}}aria-labelledby="{{labelledBy}}" {{/if}}
+    {{#if required}}aria-required="true" {{/if}} {{#if disabled}}disabled{{/if}}>
+    <span class="hm-combobox-trigger-icon" data-trigger-icon></span>
+    <span class="hm-combobox-trigger-label" data-trigger-label>{{placeholder}}</span>
+    <span class="hm-combobox-trigger-tags" data-trigger-tags></span>
+    <i class="fas fa-chevron-down hm-combobox-caret" aria-hidden="true"></i>
+  </button>
+  <div class="hm-combobox-panel" data-panel popover="manual" hidden>
+    {{#if pinning.enabled}}
+      <div class="hm-combobox-panel-header">
+        <button type="button" class="hm-combobox-compare-btn" data-action="openCompare"
+          data-category="{{pinning.category}}" {{#unless pinning.canCompare}}disabled{{/unless}} data-tooltip=""
+          aria-label="{{pinning.compareLabel}}">
+          <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+          <span>{{pinning.compareLabel}}</span>
+        </button>
+      </div>
+    {{/if}}
+    {{#if searchable}}
+      <div class="hm-combobox-search">
+        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" class="hm-combobox-search-input" data-search autocomplete="off" spellcheck="false"
+          aria-label="{{localize 'HEROMANCER.Components.Combobox.SearchLabel'}}">
+      </div>
+    {{/if}}
+    <ul class="hm-combobox-listbox" id="{{id}}-listbox" role="listbox" tabindex="-1"
+      {{#if labelledBy}}aria-labelledby="{{labelledBy}}" {{/if}}>
+      {{#if groups.length}}
+        {{#each groups as |group gIdx|}}
+          <li class="hm-combobox-group-label" role="presentation" id="{{../id}}-grp-{{gIdx}}">{{group.label}}</li>
+          <li role="group" aria-labelledby="{{../id}}-grp-{{gIdx}}" class="hm-combobox-group">
+            <ul role="presentation" class="hm-combobox-group-list">
+              {{#each group.options as |opt oIdx|}}
+                {{> hmComboboxOption id=../../id gIdx=../gIdx oIdx=oIdx opt=opt selected=../../value pinning=../../pinning}}
+              {{/each}}
+            </ul>
+          </li>
+        {{/each}}
+      {{else}}
+        {{#each options as |opt oIdx|}}
+          {{> hmComboboxOption id=../id gIdx=-1 oIdx=oIdx opt=opt selected=../value pinning=../pinning}}
+        {{/each}}
+      {{/if}}
+      <li class="hm-combobox-empty" role="presentation" hidden>{{localize 'HEROMANCER.Components.Combobox.NoResults'}}</li>
+    </ul>
+  </div>
+</div>
