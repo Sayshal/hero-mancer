@@ -1,0 +1,273 @@
+.hm-dialog {
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  max-width: 100vw;
+  max-height: 100vh;
+  border: 0.0625rem solid var(--hero-mancer-border-strong);
+  border-radius: var(--hero-mancer-radius-lg);
+  overflow: hidden;
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg);
+  box-shadow: 0 0.75rem 2rem var(--hero-mancer-shadow);
+  transition: opacity 200ms ease;
+}
+
+.hm-dialog.is-closing {
+  opacity: 0;
+}
+
+.hm-dialog-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+.hm-dialog-header {
+  gap: 0.5rem;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 2.6rem;
+  padding: 0 0.45rem 0 0.85rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg) var(--hero-mancer-radius-lg) 0 0;
+  cursor: grab;
+  user-select: none;
+  background: linear-gradient(180deg, var(--hero-mancer-bg-elev), var(--hero-mancer-bg));
+}
+
+.hm-dialog-header:active {
+  cursor: grabbing;
+}
+
+.hm-dialog-header-icon {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-dialog-header-title {
+  flex: 1;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+  color: var(--hero-mancer-fg);
+  font-weight: 500;
+  font-size: 1em;
+  line-height: 1.5;
+  font-family: var(--hero-mancer-font-header);
+  text-overflow: ellipsis;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.hm-dialog-header-actions {
+  gap: 0.2rem;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.hero-mancer button.hm-dialog-header-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.8rem;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 0.0625rem solid transparent;
+  border-radius: 0.25rem;
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: transparent;
+}
+
+.hero-mancer button.hm-dialog-header-btn:hover:not(:disabled),
+.hero-mancer button.hm-dialog-header-btn:focus-visible {
+  border-color: var(--hero-mancer-border);
+  outline: none;
+  color: var(--hero-mancer-fg);
+}
+
+.hero-mancer button.hm-dialog-header-btn.is-active {
+  border-color: var(--hero-mancer-border);
+  color: var(--hero-mancer-accent);
+}
+
+.hero-mancer button.hm-primary {
+  border-color: var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-fg-on-accent);
+  font-weight: 600;
+  background: var(--hero-mancer-border-strong);
+}
+
+.hero-mancer button.hm-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  border-color: var(--hero-mancer-border-strong);
+}
+
+.hm-dialog-nav {
+  gap: 0.25rem;
+  display: flex;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0.4rem 0.6rem 0;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-dialog-nav .item {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.85rem;
+  border: 0.0625rem solid transparent;
+  border-bottom: none;
+  border-radius: var(--hero-mancer-radius-sm) var(--hero-mancer-radius-sm) 0 0;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.9em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hm-dialog-nav .item i {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-dialog-nav .item:hover {
+  color: var(--hero-mancer-fg);
+}
+
+.hm-dialog-nav .item.active {
+  border-color: var(--hero-mancer-border);
+  border-bottom-color: var(--hero-mancer-bg);
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg);
+}
+
+.hm-dialog-tab {
+  flex: 1;
+  padding: 0.85rem;
+  overflow-y: auto;
+}
+
+.hm-dialog h3 {
+  margin: 0;
+}
+
+.hm-dialog-footer {
+  gap: 0.5rem;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-prompt-body {
+  overflow: hidden;
+}
+
+.hm-prompt-content {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  overflow-y: auto;
+}
+
+.hm-prompt-footer {
+  justify-content: flex-end;
+}
+
+.hm-prompt-backdrop {
+  inset: 0;
+  position: fixed;
+  background: rgb(0 0 0 / 45%);
+}
+
+.hm-validation-list {
+  margin: 0.4rem 0;
+  padding-left: 1.4rem;
+}
+
+.hm-validation-warning {
+  gap: 0.4rem;
+  display: flex;
+  align-items: baseline;
+  margin-top: 0.6rem;
+  color: var(--hero-mancer-danger);
+  font-weight: 600;
+}
+
+.hm-dialog .hint {
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.8em;
+}
+
+.hm-dialog fieldset > legend {
+  margin: 0 0 0 0.4rem;
+  padding: 0 0.5rem;
+  color: var(--hero-mancer-accent);
+  font-weight: 500;
+  font-size: 0.9em;
+  font-family: var(--hero-mancer-font-header);
+  letter-spacing: 0.04em;
+}
+
+.hero-mancer .hm-icon-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  color: var(--hero-mancer-fg-muted);
+  line-height: 1;
+  cursor: pointer;
+  background: none;
+  box-shadow: none;
+}
+
+.hero-mancer .hm-icon-btn:hover {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-dialog table {
+  border-collapse: collapse;
+  color: var(--hero-mancer-fg);
+}
+
+.hm-dialog th,
+.hm-dialog td {
+  padding: 0.45rem 0.7rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+  text-align: left;
+}
+
+.hm-dialog thead th {
+  border-bottom-color: var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-dialog tbody tr:hover {
+  background: var(--hero-mancer-accent-soft);
+}
+
+.hm-dialog-resize-handle {
+  z-index: 6;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1em;
+  height: 1em;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 0%, transparent 50%, var(--hero-mancer-border-strong) 50%, var(--hero-mancer-border-strong) 100%);
+}

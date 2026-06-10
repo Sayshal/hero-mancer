@@ -1,0 +1,13 @@
+<div
+  class="hm-progress hm-progress--{{#if variant}}{{variant}}{{else}}tab{{/if}} is-{{#if state}}{{state}}{{else}}incomplete{{/if}}"
+  {{#if id}}id="{{id}}" {{/if}} data-progress role="progressbar" aria-valuenow="{{value}}" aria-valuemin="0"
+  aria-valuemax="{{#if max}}{{max}}{{else}}1{{/if}}" {{#if labelledBy}}aria-labelledby="{{labelledBy}}"
+  {{else if label}}aria-label="{{label}}" {{/if}}>
+  <div class="hm-progress-track">
+    <div class="hm-progress-fill" data-fill
+      style="--hm-pb-value: {{value}}; --hm-pb-max: {{#if max}}{{max}}{{else}}1{{/if}}"></div>
+  </div>
+  {{#if showPercent}}
+    <span class="hm-progress-percent" data-percent></span>
+  {{/if}}
+</div>

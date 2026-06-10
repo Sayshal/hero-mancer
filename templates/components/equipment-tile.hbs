@@ -1,0 +1,70 @@
+<div class="hm-tile-group hm-tile-group--{{#if mode}}{{mode}}{{else}}radio{{/if}}{{#if disabled}} is-disabled{{/if}}"
+  data-equipment-tile-group data-mode="{{#if mode}}{{mode}}{{else}}radio{{/if}}" {{#if max}}data-max="{{max}}" {{/if}}
+  role="{{#if (eq mode 'check')}}group{{else}}radiogroup{{/if}}" {{#if labelledBy}}aria-labelledby="{{labelledBy}}"
+  {{else if label}}aria-label="{{label}}" {{/if}} {{#if required}}aria-required="true" {{/if}} data-name="{{name}}"
+  data-value="{{value}}">
+  <input type="hidden" name="{{name}}" value="{{value}}">
+  {{#if label}}
+    <div class="hm-tile-group-label" id="{{id}}-label">{{label}}</div>
+  {{/if}}
+  <div class="hm-tile-grid">
+    {{#each tiles as |tile tIdx|}}
+      <button type="button" class="hm-tile hm-tile--{{tile.type}}{{#if tile.disabled}} is-disabled{{/if}}"
+        id="{{../id}}-tile-{{tIdx}}" role="{{#if (eq ../mode 'check')}}button{{else}}radio{{/if}}" data-equipment-tile
+        data-value="{{tile.value}}" data-type="{{tile.type}}" {{#if tile.uuid}} data-item-tooltip
+        data-uuid="{{tile.uuid}}" {{else if tile.tooltipHtml}} data-tooltip="{{tile.tooltipHtml}}"
+        data-tooltip-class="hm-bundle-tip-frame" data-tooltip-direction="LEFT" {{/if}} {{#if tile.picker}}
+        data-picker-trigger data-picker-name="{{tile.picker.name}}" data-picker-label="{{tile.picker.label}}"
+        data-picker-options="{{tile.picker.optionsJson}}" {{#if tile.picker.max}}data-picker-max="{{tile.picker.max}}"
+        {{/if}} {{/if}} {{#if tile.multiSection}} data-picker-trigger data-picker-label="{{tile.label}}"
+        data-picker-sections="{{tile.multiSection.sectionsJson}}" {{/if}} {{#if (eq ../mode 'check')}}
+        aria-pressed="{{#if tile.selected}}true{{else}}false{{/if}}" {{else}}
+        aria-checked="{{#if tile.selected}}true{{else}}false{{/if}}" {{/if}} {{#if tile.selected}}data-selected{{/if}}
+        tabindex="{{#if tile.selected}}0{{else}}-1{{/if}}" {{#if tile.disabled}}disabled aria-disabled="true" {{/if}}>
+        {{#if tile.picker}}
+          <input type="hidden" name="{{tile.picker.name}}" value="{{tile.picker.value}}" data-and-picker
+            data-category-type="{{tile.picker.categoryType}}">
+          {{#if tile.picker.linkName}}
+            <input type="hidden" name="{{tile.picker.linkName}}" value="{{tile.picker.linkValue}}" data-eq-adv-link>
+          {{/if}}
+        {{/if}}
+        {{#if tile.multiSection}}
+          {{#each tile.multiSection.sectionInputs}}
+            <input type="hidden" name="{{this.name}}" value="{{this.value}}" data-and-picker>
+          {{/each}}
+        {{/if}}
+        <span class="hm-tile-ribbon" aria-hidden="true">{{tile.typeLabel}}</span>
+        <span class="hm-tile-stamp" aria-hidden="true"><i class="fas fa-check"></i></span>
+        <span class="hm-tile-head">
+          <span class="hm-tile-icon" {{#if tile.isPicker}}data-trigger-icon{{/if}} {{#if tile.uuid}} data-item-link
+            data-uuid="{{tile.uuid}}" role="button" tabindex="0" {{/if}}>
+            {{#if tile.icon}}<img src="{{tile.icon}}" alt="">{{else if (eq tile.type 'none')}}<i class="fas fa-coins"
+                aria-hidden="true"></i>
+            {{else}}<i class="fas fa-shield-halved" aria-hidden="true"></i>{{/if}}
+          </span>
+          <span class="hm-tile-name">
+            <span class="hm-tile-name-text{{#if tile.isPlaceholder}} is-placeholder{{/if}}"
+              {{#if tile.isPicker}}data-trigger-label{{/if}} {{#if tile.uuid}} data-item-link data-uuid="{{tile.uuid}}"
+              role="button" tabindex="0" {{/if}}>{{tile.label}}</span>
+          </span>
+          {{#if tile.count}}<span class="hm-tile-count"
+              aria-label="{{localize 'DND5E.Quantity'}}">×{{tile.count}}</span>{{/if}}
+        </span>
+        <span class="hm-tile-foot">
+          {{#if tile.foot.icon}}<i class="fas {{tile.foot.icon}}" aria-hidden="true"></i>{{/if}}
+          <span class="hm-tile-foot-text">{{tile.foot.text}}</span>
+        </span>
+        {{#if tile.badges.length}}
+          <span class="hm-tile-badges">
+            {{#each tile.badges}}
+              <span class="hm-tile-badge hm-tile-badge--{{this.kind}}">
+                {{#if this.label}}<span class="hm-tile-badge-label">{{this.label}}</span>{{/if}}
+                <span class="hm-tile-badge-value">{{this.value}}</span>
+              </span>
+            {{/each}}
+          </span>
+        {{/if}}
+      </button>
+    {{/each}}
+  </div>
+</div>

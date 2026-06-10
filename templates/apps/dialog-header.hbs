@@ -1,0 +1,20 @@
+<header class="hm-dialog-header" data-drag-handle>
+  {{#if icon}}<i class="{{icon}} hm-dialog-header-icon" aria-hidden="true"></i>{{/if}}
+  <h2 class="hm-dialog-header-title" data-title>{{title}}</h2>
+  <nav class="hm-dialog-header-actions" aria-label="{{localize 'HEROMANCER.Dialog.HeaderActions'}}">
+    {{#each headerControls}}
+      <button type="button" class="hm-dialog-header-btn{{#if this.active}} is-active{{/if}}"
+        data-action="{{this.action}}" data-tooltip aria-label="{{localize this.label}}">
+        <i class="{{this.icon}}" aria-hidden="true"></i>
+      </button>
+    {{/each}}
+    <button type="button" class="hm-dialog-header-btn" data-action="detach" data-tooltip
+      aria-label="{{localize 'APPLICATION.ACTIONS.Detach'}}">
+      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="hm-dialog-header-btn" data-action="close" data-tooltip
+      aria-label="{{localize 'APPLICATION.ACTIONS.Close'}}">
+      <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+  </nav>
+</header>

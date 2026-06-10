@@ -1,0 +1,104 @@
+<section class="tab hm-tab hm-tab-hp standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  {{#unless available}}
+    <p class="hm-empty">{{localize 'HEROMANCER.App.HP.empty'}}</p>
+  {{else}}
+    <header class="hm-hp-tab-summary">
+      <label class="hm-hp-summary-chip hm-hp-summary-method">
+        <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.method'}}</span>
+        <select name="hp.method" data-hp-method>
+          {{#each methodOptions}}
+            <option value="{{value}}" {{#if active}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+        <i class="fas fa-chevron-down hm-hp-summary-method-caret" aria-hidden="true"></i>
+      </label>
+      <span class="hm-hp-summary-chip hm-hp-summary-con">
+        <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.con-mod'}}</span>
+        <strong>{{#if (gte conMod 0)}}+{{/if}}{{conMod}}</strong>
+      </span>
+      <span class="hm-hp-summary-chip hm-hp-summary-total" data-hp-total>
+        <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.total'}}</span>
+        <strong>{{total}}</strong>
+      </span>
+      {{#if hitDieGroups.length}}
+        <span class="hm-hp-summary-chip hm-hp-summary-hd">
+          <span class="hm-hp-summary-label">{{localize 'DND5E.HitDie'}}</span>
+          <span class="hm-hp-hd-groups">
+            {{#each hitDieGroups as |group|}}
+              {{#unless @first}}<span class="hm-hp-hd-sep" aria-hidden="true">|</span>{{/unless}}
+              <span class="hm-hp-hd-group" data-die="{{group.die}}" data-tooltip
+                aria-label="{{group.className}} ({{group.count}}&times;{{group.dieLabel}})">
+                {{#each group.icons as |icon|}}
+                  <i class="fa-solid fa-dice-d{{icon.die}} hm-hp-hd-icon"></i>
+                {{/each}}
+              </span>
+            {{/each}}
+          </span>
+        </span>
+      {{/if}}
+    </header>
+
+    <ol class="hm-hp-grid" style="--hm-hp-cols: {{gridCols}};">
+      {{#each cards as |card|}}
+        <li class="hm-hp-card {{#if card.isLocked}}is-locked{{/if}}" data-hp-card data-slot-id="{{card.slotId}}"
+          data-level="{{card.level}}" data-mode="{{card.mode}}" data-die="{{card.die}}">
+          <header class="hm-hp-card-header">
+            <span class="hm-hp-card-level">{{localize 'HEROMANCER.App.HP.level'}} {{card.characterLevel}}</span>
+            {{#if card.classImg}}
+              <img class="hm-hp-card-img" src="{{card.classImg}}" alt="{{card.className}}" data-tooltip
+                aria-label="{{card.className}} ({{card.dieLabel}})">
+            {{/if}}
+            <span class="hm-hp-card-class">{{card.className}}</span>
+          </header>
+
+          {{#if card.showRollBtn}}
+            <button type="button" class="hm-hp-roll-btn" data-action="rollHp" data-slot-id="{{card.slotId}}"
+              data-level="{{card.level}}" {{#if card.rollDisabled}}disabled{{/if}} data-tooltip
+              aria-label="{{#if card.rollDisabled}}{{localize 'HEROMANCER.App.HP.roll-locked'}}{{else if card.hasValue}}{{localize 'HEROMANCER.App.HP.reroll-btn'}}{{else}}{{localize 'HEROMANCER.App.HP.roll-btn'}}{{/if}}">
+              <i class="fa-solid fa-dice-d20" aria-hidden="true"></i>
+              <span>{{#if card.hasValue}}{{localize 'HEROMANCER.App.HP.reroll'}}{{else}}{{localize 'DND5E.Roll'}}{{/if}}</span>
+            </button>
+          {{else}}
+            <span class="hm-hp-card-mode-tag">{{localize (concat 'HEROMANCER.App.HP.' card.label)}}</span>
+          {{/if}}
+
+          <input type="hidden" name="hp.rolls.{{card.slotId}}.{{card.level}}" value="{{card.value}}" data-hp-card-value>
+          <input type="hidden" name="hp.attempts.{{card.slotId}}.{{card.level}}" value="{{card.attempts}}"
+            data-hp-card-attempts>
+
+          <div class="hm-hp-hearts" aria-hidden="true">
+            {{#each card.heartRows as |row|}}
+              <div class="hm-hp-heart-row">
+                {{#each row as |heart|}}
+                  <i class="fa-solid fa-heart hm-hp-heart {{#if heart.filled}}is-filled{{/if}}"></i>
+                {{/each}}
+              </div>
+            {{/each}}
+          </div>
+
+          <footer class="hm-hp-card-footer">
+            {{#if card.hasValue}}
+              <span class="hm-hp-card-readout">
+                <span class="hm-hp-card-value">{{card.value}}</span>
+                <span class="hm-hp-card-source">({{card.dieLabel}})</span>
+                <span class="hm-hp-card-op">{{card.conSign}}</span>
+                <span class="hm-hp-card-conmod">{{card.conAbs}}</span>
+                <span class="hm-hp-card-source">({{localize 'HEROMANCER.App.HP.con-short'}})</span>
+                <span class="hm-hp-card-eq">=</span>
+                <strong class="hm-hp-card-total">{{card.total}}</strong>
+              </span>
+            {{else}}
+              <span class="hm-hp-card-readout is-empty">&mdash;</span>
+            {{/if}}
+            {{#if card.attemptsCapped}}
+              <span class="hm-hp-card-attempt-badge" data-tooltip aria-label="{{localize 'HEROMANCER.App.HP.roll-locked'}}">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+              </span>
+            {{/if}}
+          </footer>
+        </li>
+      {{/each}}
+    </ol>
+  {{/unless}}
+</section>

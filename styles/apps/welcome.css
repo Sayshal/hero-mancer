@@ -1,0 +1,82 @@
+.hm-welcome-body {
+  gap: 0.85rem;
+  padding: 0.75rem 1rem 0.5rem;
+}
+
+.hm-welcome-lede {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+}
+
+.hm-welcome-section h3 {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+  font-size: 1.05em;
+}
+
+.hm-welcome-section ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.hm-welcome-section li {
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+
+.hm-welcome-link {
+  color: var(--hero-mancer-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.hm-welcome-link:hover {
+  text-shadow: 0 0 0.5em var(--hero-mancer-accent-glow);
+}
+
+.hm-welcome-footer {
+  gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-welcome-hide {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.hm-welcome-socials {
+  gap: 0.35rem;
+  display: flex;
+  flex: 1;
+}
+
+.hm-welcome-socials a {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 1.05em;
+  text-decoration: none;
+}
+
+.hm-welcome-socials a:hover {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-welcome-dismiss {
+  gap: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}

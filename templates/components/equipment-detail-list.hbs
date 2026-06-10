@@ -1,0 +1,21 @@
+{{#each sections}}
+  {{#if this.header}}
+    <li class="hm-detail-section-header" role="separator" {{#if this.sectionIdx}} data-section-idx="{{this.sectionIdx}}"
+      {{/if}}>{{this.header}}</li>
+  {{/if}}
+  {{#each this.options}}
+    <li class="hm-detail-option">
+      <button type="button" class="hm-detail-option-btn" data-detail-option data-value="{{this.value}}"
+        data-label="{{this.searchLabel}}" {{#if this.sectionIdx}} data-section-idx="{{this.sectionIdx}}"
+        {{/if}}{{#if this.tooltipUuid}} data-item-tooltip data-uuid="{{this.tooltipUuid}}" {{/if}} role="option"
+        {{#if this.selected}} aria-selected="true" data-selected{{/if}}{{#if this.disabled}} aria-disabled="true"
+        {{/if}}>
+        <span class="hm-detail-option-icon" {{#if this.hasItemLink}} data-item-link data-uuid="{{this.tooltipUuid}}"
+          role="button" tabindex="0" {{/if}}>
+          {{#if this.icon}}<img src="{{this.icon}}" alt="">{{/if}}
+        </span>
+        <span class="hm-detail-option-label">{{this.label}}</span>
+      </button>
+    </li>
+  {{/each}}
+{{/each}}

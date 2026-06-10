@@ -1,0 +1,126 @@
+<div class="hm-eq-shop" data-eq-shop>
+  {{#unless hasShop}}
+    <p class="hm-empty">{{localize 'HEROMANCER.App.Equipment.Shop.EmptyNoWealth'}}</p>
+  {{else}}
+    <div class="hm-eq-shop-body">
+      <fieldset class="hm-fieldset hm-eq-shop-catalogue">
+        <legend>{{localize 'HEROMANCER.App.Equipment.Shop.CatalogueHeading'}}</legend>
+        <div class="hm-eq-shop-controls">
+          <input type="search" class="hm-eq-shop-search-input"
+            placeholder="{{localize 'HEROMANCER.App.Equipment.Shop.SearchPlaceholder'}}" data-eq-shop-search />
+          <details class="hm-eq-shop-popover" data-eq-shop-filter-menu>
+            <summary class="hm-eq-shop-popover-trigger" aria-label="{{localize 'DND5E.Filter'}}">
+              <i class="fas fa-filter" aria-hidden="true"></i>
+            </summary>
+            <div class="hm-eq-shop-popover-panel hm-eq-shop-filter-panel" role="group">
+              <button type="button" class="hm-eq-shop-filter-chip is-active" data-eq-shop-filter="all">
+                {{localize 'HEROMANCER.App.Equipment.Shop.FilterAll'}}
+              </button>
+              {{#each filters}}
+                <button type="button" class="hm-eq-shop-filter-chip" data-eq-shop-filter="{{this.bucket}}">
+                  {{this.label}}
+                  <span class="hm-eq-shop-filter-count">{{this.count}}</span>
+                </button>
+              {{/each}}
+            </div>
+          </details>
+          <details class="hm-eq-shop-popover" data-eq-shop-sort-menu>
+            <summary class="hm-eq-shop-popover-trigger"
+              aria-label="{{localize 'HEROMANCER.App.Equipment.Shop.SortLabel'}}">
+              <i class="fas fa-arrow-down-a-z" aria-hidden="true"></i>
+            </summary>
+            <div class="hm-eq-shop-popover-panel hm-eq-shop-sort-panel" role="group">
+              <button type="button" class="hm-eq-shop-sort-chip is-active" data-eq-shop-sort="name-asc">
+                {{localize 'HEROMANCER.App.Equipment.Shop.SortNameAsc'}}
+              </button>
+              <button type="button" class="hm-eq-shop-sort-chip" data-eq-shop-sort="name-desc">
+                {{localize 'HEROMANCER.App.Equipment.Shop.SortNameDesc'}}
+              </button>
+              <button type="button" class="hm-eq-shop-sort-chip" data-eq-shop-sort="cost-asc">
+                {{localize 'HEROMANCER.App.Equipment.Shop.SortCostAsc'}}
+              </button>
+              <button type="button" class="hm-eq-shop-sort-chip" data-eq-shop-sort="cost-desc">
+                {{localize 'HEROMANCER.App.Equipment.Shop.SortCostDesc'}}
+              </button>
+              <button type="button" class="hm-eq-shop-sort-chip" data-eq-shop-sort="bucket">
+                {{localize 'HEROMANCER.App.Equipment.Shop.SortBucket'}}
+              </button>
+            </div>
+          </details>
+        </div>
+
+        <ul class="hm-eq-shop-grid">
+          {{#each items}}
+            <li
+              class="hm-tile hm-tile--{{this.bucket}} hm-eq-shop-tile{{#if this.inCart}} is-in-cart{{/if}}{{#unless this.affordable}} is-unaffordable{{/unless}}"
+              data-eq-shop-tile data-uuid="{{this.uuid}}" data-bucket="{{this.bucket}}" data-name="{{this.name}}"
+              data-cost-gp="{{this.costGp}}" {{#if this.costTier}}data-cost-tier="{{this.costTier}}" {{/if}}
+              data-item-tooltip role="button" tabindex="0" {{#if this.inCart}}data-selected{{/if}}
+              {{#unless this.affordable}}aria-disabled="true" {{/unless}}>
+              <input type="hidden" name="equipment.shop.cart.{{this.uuid}}" value="{{#if this.inCart}}1{{else}}0{{/if}}"
+                data-eq-cart-qty data-uuid="{{this.uuid}}" />
+              <span class="hm-tile-ribbon" aria-hidden="true">{{this.typeLabel}}</span>
+              <span class="hm-tile-stamp" aria-hidden="true"><i class="fas fa-check"></i></span>
+              <span class="hm-tile-head">
+                <span class="hm-tile-icon">
+                  {{#if this.img}}<img src="{{this.img}}" alt="">{{else}}<i class="fas fa-shield-halved"
+                      aria-hidden="true"></i>{{/if}}
+                </span>
+                <span class="hm-tile-name">
+                  <span class="hm-tile-name-text">{{this.name}}</span>
+                </span>
+              </span>
+              <span class="hm-tile-foot">
+                <i class="fas fa-coins" aria-hidden="true"></i>
+                <span class="hm-tile-foot-text">{{this.priceLabel}}</span>
+              </span>
+            </li>
+          {{/each}}
+        </ul>
+      </fieldset>
+
+      <fieldset class="hm-fieldset hm-eq-shop-cart">
+        <legend>{{localize 'HEROMANCER.App.Equipment.Shop.CartHeading'}}</legend>
+        <dl class="hm-eq-shop-pool">
+          <div class="hm-eq-shop-pool-cell hm-eq-shop-pool-remaining">
+            <dt>{{localize 'DND5E.Remaining'}}</dt>
+            <dd data-eq-remaining><i class="fas fa-coins" aria-hidden="true"></i> {{remainingFormatted}}</dd>
+          </div>
+          <div class="hm-eq-shop-pool-cell">
+            <dt>{{localize 'DND5E.Spent'}}</dt>
+            <dd data-eq-spent><i class="fas fa-coins" aria-hidden="true"></i> {{spentFormatted}}</dd>
+          </div>
+        </dl>
+        {{#unless cart.length}}
+          <p class="hm-empty">{{localize 'HEROMANCER.App.Equipment.Shop.CartEmpty'}}</p>
+        {{else}}
+          <ul class="hm-eq-shop-cart-list" data-eq-cart-list>
+            {{#each cart}}
+              <li class="hm-eq-shop-cart-line" data-eq-cart-line="{{this.uuid}}" data-item-tooltip
+                data-uuid="{{this.uuid}}">
+                {{#if this.img}}<img src="{{this.img}}" alt="" data-item-link data-uuid="{{this.uuid}}" role="button"
+                    tabindex="0" />{{/if}}
+                <span class="hm-eq-shop-cart-name-wrap">
+                  <span class="hm-eq-shop-cart-name" data-item-link data-uuid="{{this.uuid}}" role="button"
+                    tabindex="0">{{this.name}}</span>
+                  <span class="hm-eq-shop-line-gp" data-eq-line-gp aria-hidden="true"><i class="fas fa-coins"></i>
+                    {{this.lineFormatted}}</span>
+                </span>
+                <select class="hm-eq-shop-qty-select" data-eq-cart-qty-select data-uuid="{{this.uuid}}"
+                  aria-label="{{localize 'DND5E.Quantity'}}">
+                  {{#each this.qtyOptions}}
+                    <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.value}}</option>
+                  {{/each}}
+                </select>
+                <button type="button" class="hm-eq-shop-remove" data-eq-cart-remove data-uuid="{{this.uuid}}"
+                  data-tooltip aria-label="{{localize 'HEROMANCER.App.Equipment.Shop.Remove'}}">
+                  <i class="fas fa-xmark"></i>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        {{/unless}}
+      </fieldset>
+    </div>
+  {{/unless}}
+</div>

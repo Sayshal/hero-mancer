@@ -1,0 +1,188 @@
+.hm-tab-level-up {
+  --hero-mancer-mci-width: 24rem;
+}
+
+.hm-mc-impact-mount {
+  z-index: 5;
+  position: sticky;
+  top: -1rem;
+  align-self: flex-end;
+  width: var(--hero-mancer-mci-width);
+  max-width: 100%;
+  height: 0;
+  margin-top: -1rem;
+  margin-right: -1.2rem;
+}
+
+.hm-mc-impact-panel {
+  gap: 0.75rem;
+  display: flex;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100vh - 8rem);
+  padding: 0.9rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+  border-left: 0.0625rem solid var(--hero-mancer-border);
+  border-bottom-left-radius: var(--hero-mancer-radius-lg);
+  overflow-y: auto;
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg);
+  box-shadow: -0.5rem 0 1rem var(--hero-mancer-shadow);
+  transition:
+    transform 200ms ease-out,
+    opacity 200ms ease-out;
+  transform: translateX(100%);
+}
+
+.hm-mc-impact-panel.is-open {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hm-mc-impact-header {
+  gap: 0.6rem;
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-mc-impact-icon {
+  object-fit: contain;
+  flex-shrink: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-mc-impact-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.hm-mc-impact-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.hm-mc-impact-sub {
+  margin: 0.1rem 0 0;
+  overflow: hidden;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.85em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-mc-impact-close {
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-mc-impact-close:hover {
+  border-color: var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-fg);
+}
+
+.hm-mc-impact-body {
+  gap: 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-mc-impact-row {
+  gap: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0.7rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-mc-impact-row-head {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  color: var(--hero-mancer-fg);
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.hm-mc-impact-row-head i {
+  color: var(--hero-mancer-border-strong);
+}
+
+.hm-mc-impact-note {
+  margin: 0;
+  color: var(--hero-mancer-fg);
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.hm-mc-impact-slot-list {
+  gap: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-mc-impact-slot {
+  gap: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.3rem;
+  color: var(--hero-mancer-fg);
+  font-size: 0.8em;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-mc-impact-slot.is-new {
+  border-color: var(--hero-mancer-border-strong);
+  background: color-mix(in srgb, var(--hero-mancer-border-strong) 18%, var(--hero-mancer-bg));
+}
+
+.hm-mc-impact-slot-count {
+  font-weight: 700;
+}
+
+.hm-mc-impact-slot-label {
+  color: var(--hero-mancer-fg-muted);
+}
+
+.hm-mc-impact-pact {
+  margin: 0.2rem 0 0;
+  color: var(--hero-mancer-fg);
+  font-size: 0.85em;
+}
+
+.hm-mc-impact-existing-list {
+  gap: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0.2rem 0 0;
+  padding: 0 0 0 1.1rem;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.8em;
+}

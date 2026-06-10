@@ -1,0 +1,87 @@
+.hero-mancer prose-mirror {
+  --dialog-background: var(--hero-mancer-bg);
+  --dialog-border: var(--hero-mancer-border);
+  --dropdown-background: var(--hero-mancer-bg-elev);
+  --dropdown-border: var(--hero-mancer-border);
+  --menu-background: transparent;
+}
+
+.hero-mancer prose-mirror menu {
+  padding: 0;
+}
+
+.hero-mancer prose-mirror menu .pm-dropdown ul {
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hero-mancer prose-mirror menu .pm-dropdown ul li:hover {
+  color: var(--hero-mancer-accent);
+  background: var(--hero-mancer-accent-soft);
+}
+
+.hero-mancer prose-mirror menu .pm-dropdown ul li.divider {
+  border-color: var(--hero-mancer-border);
+}
+
+.hero-mancer prose-mirror menu [data-action='save'] {
+  display: none;
+}
+
+.hero-mancer prose-mirror .editor-container {
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hero-mancer prose-mirror .editor-container:focus-within {
+  border-color: var(--hero-mancer-border-strong);
+}
+
+.hero-mancer prose-mirror .editor-content {
+  padding-left: 0.6rem;
+  color: var(--hero-mancer-fg);
+}
+
+body:has(.hero-mancer) #prosemirror-dropdown,
+body:has(.hero-mancer) dialog.prosemirror.menu-dialog {
+  --color-form-hint: var(--hero-mancer-fg-muted);
+  --color-form-hint-hover: var(--hero-mancer-fg);
+  --dialog-background: var(--hero-mancer-bg-elev);
+  --dialog-border: var(--hero-mancer-border);
+  --dropdown-background: var(--hero-mancer-bg-elev);
+  --dropdown-border: var(--hero-mancer-border);
+
+  color: var(--hero-mancer-fg);
+}
+
+body:has(.hero-mancer) #prosemirror-dropdown :is(input, select, textarea, color-picker, file-picker, code-mirror),
+body:has(.hero-mancer) dialog.prosemirror.menu-dialog :is(input, select, textarea, color-picker, file-picker, code-mirror),
+body:has(.hero-mancer) .hero-mancer prose-mirror code-mirror,
+body:has(.hero-mancer) dialog.prosemirror.menu-dialog color-picker > input {
+  --active-line-color: var(--hero-mancer-accent-faint);
+  --gutter-background-color: var(--hero-mancer-bg);
+  --gutter-border-color: var(--hero-mancer-border);
+  --gutter-text-color: var(--hero-mancer-fg-muted);
+  --input-background-color: var(--hero-mancer-bg);
+  --input-border-color: var(--hero-mancer-border);
+  --input-focus-outline-color: var(--hero-mancer-border-strong);
+  --input-placeholder-color: var(--hero-mancer-fg-muted);
+  --input-text-color: var(--hero-mancer-fg);
+
+  outline-color: var(--hero-mancer-border);
+}
+
+body:has(.hero-mancer) dialog.prosemirror.menu-dialog form label {
+  color: var(--hero-mancer-fg);
+}
+
+body:has(.hero-mancer) #prosemirror-dropdown button,
+body:has(.hero-mancer) dialog.prosemirror.menu-dialog button {
+  --button-border-color: var(--hero-mancer-border);
+  --button-hover-background-color: var(--button-background-color);
+  --button-hover-border-color: var(--hero-mancer-border-strong);
+  --button-hover-text-color: var(--button-text-color);
+}

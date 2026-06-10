@@ -1,0 +1,28 @@
+<header class="hm-wizard-header" data-drag-handle>
+  <div class="hm-wizard-header-row">
+    <i class="fa-solid fa-egg hm-wizard-header-icon" aria-hidden="true"></i>
+    <h1 class="hm-wizard-header-title" data-title>{{title}}</h1>
+    <nav class="hm-wizard-header-actions" aria-label="{{localize 'HEROMANCER.Wizard.Header.Actions'}}">
+      {{#each settingsMenus}}
+        <button type="button" class="hm-wizard-header-btn" data-action="openSettingsMenu" data-menu="{{this.key}}"
+          data-tooltip aria-label="{{this.label}}">
+          <i class="fas {{this.icon}}" aria-hidden="true"></i>
+        </button>
+      {{/each}}
+      <button type="button" class="hm-wizard-header-btn" data-action="detach" data-tooltip
+        aria-label="{{localize 'APPLICATION.ACTIONS.Detach'}}">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="hm-wizard-header-btn hm-wizard-header-close" data-action="close" data-tooltip
+        aria-label="{{localize 'HEROMANCER.Wizard.Header.Close'}}">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+    </nav>
+  </div>
+  {{#if pendingSubmission}}
+    <div class="hm-wizard-lock-banner" role="status">
+      <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+      <span>{{localize "HEROMANCER.Approval.SubmissionLock.Banner"}}</span>
+    </div>
+  {{/if}}
+</header>

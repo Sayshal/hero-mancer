@@ -1,0 +1,117 @@
+<section class="tab hm-tab hm-tab-biography standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  <fieldset class="hm-fieldset">
+    <legend>{{localize 'DND5E.Description'}}</legend>
+    <div class="hm-biography-grid hm-biography-grid-3">
+      <div class="form-group stacked">
+        <label for="bio-gender">{{localize 'DND5E.Gender'}}</label>
+        <div class="form-fields">
+          <input id="bio-gender" type="text" name="biography.gender" value="{{value.gender}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.GenderPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-age">{{localize 'DND5E.Age'}}</label>
+        <div class="form-fields">
+          <input id="bio-age" type="text" name="biography.age" value="{{value.age}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.AgePlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-height">{{localize 'DND5E.Height'}}</label>
+        <div class="form-fields">
+          <input id="bio-height" type="text" name="biography.height" value="{{value.height}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.HeightPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-weight">{{localize 'DND5E.Weight'}}</label>
+        <div class="form-fields">
+          <input id="bio-weight" type="text" name="biography.weight" value="{{value.weight}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.WeightPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-eyes">{{localize 'DND5E.Eyes'}}</label>
+        <div class="form-fields">
+          <input id="bio-eyes" type="text" name="biography.eyes" value="{{value.eyes}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.EyesPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-hair">{{localize 'DND5E.Hair'}}</label>
+        <div class="form-fields">
+          <input id="bio-hair" type="text" name="biography.hair" value="{{value.hair}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.HairPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-skin">{{localize 'DND5E.Skin'}}</label>
+        <div class="form-fields">
+          <input id="bio-skin" type="text" name="biography.skin" value="{{value.skin}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.SkinPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-faith">{{localize 'DND5E.Faith'}}</label>
+        <div class="form-fields">
+          <input id="bio-faith" type="text" name="biography.faith" value="{{value.faith}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.FaithPlaceholder'}}">
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-alignment">{{localize 'DND5E.Alignment'}}</label>
+        <div class="form-fields">
+          <input id="bio-alignment" type="text" name="biography.alignment" value="{{value.alignment}}"
+            placeholder="{{localize 'HEROMANCER.App.Biography.AlignmentPlaceholder'}}">
+        </div>
+      </div>
+    </div>
+    <div class="form-group stacked hm-biography-appearance">
+      <label for="bio-appearance">{{localize 'DND5E.Appearance'}}</label>
+      <div class="form-fields">
+        <textarea id="bio-appearance" name="biography.appearance" rows="3"
+          placeholder="{{localize 'HEROMANCER.App.Biography.AppearancePlaceholder'}}">{{value.appearance}}</textarea>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset class="hm-fieldset">
+    <legend>{{localize 'HEROMANCER.App.Biography.Personality'}}</legend>
+    <div class="hm-biography-grid hm-biography-grid-2">
+      <div class="form-group stacked">
+        <label for="bio-traits">{{localize 'DND5E.Traits'}}</label>
+        <div class="form-fields">
+          <textarea id="bio-traits" name="biography.traits" rows="3"
+            placeholder="{{localize 'HEROMANCER.App.Biography.TraitsPlaceholder'}}">{{value.traits}}</textarea>
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-ideals">{{localize 'DND5E.Ideals'}}</label>
+        <div class="form-fields">
+          <textarea id="bio-ideals" name="biography.ideals" rows="3"
+            placeholder="{{localize 'HEROMANCER.App.Biography.IdealsPlaceholder'}}">{{value.ideals}}</textarea>
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-bonds">{{localize 'DND5E.Bonds'}}</label>
+        <div class="form-fields">
+          <textarea id="bio-bonds" name="biography.bonds" rows="3"
+            placeholder="{{localize 'HEROMANCER.App.Biography.BondsPlaceholder'}}">{{value.bonds}}</textarea>
+        </div>
+      </div>
+      <div class="form-group stacked">
+        <label for="bio-flaws">{{localize 'DND5E.Flaws'}}</label>
+        <div class="form-fields">
+          <textarea id="bio-flaws" name="biography.flaws" rows="3"
+            placeholder="{{localize 'HEROMANCER.App.Biography.FlawsPlaceholder'}}">{{value.flaws}}</textarea>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset class="hm-fieldset hm-biography-backstory">
+    <legend>{{localize 'DND5E.Biography'}}</legend>
+    <p class="hint">{{localize 'HEROMANCER.App.Biography.Hints.Backstory'}}</p>
+    <prose-mirror id="bio-backstory" name="biography.backstory" value="{{value.backstory}}"
+      aria-label="{{localize 'DND5E.Biography'}}"></prose-mirror>
+  </fieldset>
+</section>

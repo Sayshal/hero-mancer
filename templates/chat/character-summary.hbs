@@ -1,0 +1,105 @@
+<div class="hero-mancer hm-chat-summary"
+  style="--hm-hud-primary: {{palette.primary}}; --hm-hud-secondary: {{palette.secondary}};">
+  <section class="hm-hud">
+    <div class="hm-hud-portrait-frame">
+      <div class="hm-hud-portrait">
+        <img class="hm-hud-portrait-img" src="{{snapshot.portraitImg}}" alt="">
+      </div>
+    </div>
+    <div class="hm-hud-banner">
+      <img class="hm-hud-token" src="{{snapshot.tokenImg}}" alt="">
+      <div class="hm-hud-chip-row">
+        {{#if snapshot.ac.value}}
+          <div class="hm-hud-chip hm-hud-chip-ac" data-tooltip="{{localize 'DND5E.ArmorClass'}}">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            <span>{{snapshot.ac.value}}</span>
+          </div>
+        {{/if}}
+        {{#if snapshot.hp.available}}
+          <div class="hm-hud-chip hm-hud-chip-hp" data-tooltip="{{localize 'DND5E.HitPoints'}}">
+            <i class="fa-solid fa-heart" aria-hidden="true"></i>
+            <span>{{snapshot.hp.max}}</span>
+          </div>
+        {{/if}}
+        {{#if snapshot.currency.available}}
+          <div class="hm-hud-chip hm-hud-chip-gold" data-tooltip="{{localize 'HEROMANCER.Wizard.Hud.CurrencyTooltip'}}">
+            <i class="fa-solid fa-coins" aria-hidden="true"></i>
+            <span class="hm-hud-currency">{{snapshot.currency.formatted}}</span>
+          </div>
+        {{/if}}
+      </div>
+      <div class="hm-hud-body">
+        {{#if snapshot.name}}
+          <h3 class="hm-hud-name-row">
+            <span class="hm-hud-name">{{snapshot.name}}</span>
+          </h3>
+        {{/if}}
+        {{#if snapshot.classes.length}}
+          <p class="hm-hud-line hm-hud-class-line">
+            <span class="hm-hud-class-level">{{localize 'DND5E.LevelNumber' level=snapshot.totalLevel}}</span>
+            <span class="hm-hud-class-name">{{snapshot.classLineText}}</span>
+          </p>
+        {{/if}}
+        {{#if originLine}}
+          <p class="hm-hud-line">{{originLine}}</p>
+        {{/if}}
+        {{#if snapshot.stats.abilities}}
+          <dl class="hm-hud-abilities">
+            {{#each snapshot.stats.abilities}}
+              <div class="hm-hud-ability" data-ability="{{this.key}}">
+                <dt>{{this.label}}</dt>
+                <dd class="hm-hud-ability-score">{{this.score}}</dd>
+                <dd class="hm-hud-ability-mod">{{this.mod}}</dd>
+              </div>
+            {{/each}}
+          </dl>
+        {{/if}}
+        <dl class="hm-hud-grid">
+          {{#if snapshot.stats.initiative}}
+            <div class="hm-hud-grid-row">
+              <dt>{{localize 'DND5E.InitiativeAbbr'}}</dt>
+              <dd>{{snapshot.stats.initiative}}</dd>
+            </div>
+          {{/if}}
+          {{#if snapshot.stats.speed}}
+            <div class="hm-hud-grid-row">
+              <dt>{{localize 'DND5E.Speed'}}</dt>
+              <dd>{{snapshot.stats.speed}}</dd>
+            </div>
+          {{/if}}
+          {{#if snapshot.stats.profBonus}}
+            <div class="hm-hud-grid-row">
+              <dt>{{localize 'HEROMANCER.Wizard.Hud.Prof'}}</dt>
+              <dd>{{snapshot.stats.profBonus}}</dd>
+            </div>
+          {{/if}}
+          {{#if snapshot.stats.hitDie}}
+            <div class="hm-hud-grid-row">
+              <dt>{{localize 'DND5E.HitDie'}}</dt>
+              <dd>{{snapshot.stats.hitDie}}</dd>
+            </div>
+          {{/if}}
+          {{#if snapshot.stats.saves}}
+            <div class="hm-hud-grid-row hm-hud-grid-row-wide">
+              <dt>{{localize 'HEROMANCER.Wizard.Hud.Saves'}}</dt>
+              <dd>{{snapshot.stats.saves}}</dd>
+            </div>
+          {{/if}}
+          {{#if snapshot.stats.senses}}
+            <div class="hm-hud-grid-row hm-hud-grid-row-wide">
+              <dt>{{localize 'DND5E.Senses'}}</dt>
+              <dd>{{snapshot.stats.senses}}</dd>
+            </div>
+          {{/if}}
+        </dl>
+      </div>
+    </div>
+  </section>
+  {{#if equipmentLinks}}
+    <section class="hm-chat-summary-equipment">
+      <h4>{{localize 'HEROMANCER.Chat.CharacterSummary.EquipmentHeading'}}</h4>
+      <p class="hm-chat-summary-equipment-list">{{{equipmentLinks}}}</p>
+    </section>
+  {{/if}}
+  <footer class="hm-chat-summary-actions">{{{actorAnchorHtml}}}</footer>
+</div>

@@ -1,0 +1,247 @@
+.hm-wizard > [data-application-part='detail-panel'] {
+  z-index: 6;
+  bottom: var(--hero-mancer-w-footer-h);
+  padding: 0.8rem;
+  overflow: visible;
+}
+
+.hm-tab-equipment-body {
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-eq-section {
+  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-eq-wealth-toggle {
+  gap: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95em;
+  user-select: none;
+}
+
+.hm-eq-wealth-toggle .hm-eq-wealth-summary {
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-eq-wealth-active {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-eq-wealth-roll {
+  gap: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  padding: 0.3rem 0.7rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.3rem;
+  color: var(--hero-mancer-fg);
+  font-size: 0.85em;
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-eq-wealth-roll:hover {
+  border-color: var(--hero-mancer-accent);
+  color: var(--hero-mancer-accent);
+}
+
+.hm-eq-bonus-gold-row {
+  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hm-eq-bonus-gold-formula {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+}
+
+.hm-eq-bonus-gold-amount {
+  font-variant-numeric: tabular-nums;
+  gap: 0.3rem;
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--hero-mancer-accent);
+  font-weight: 600;
+}
+
+.hm-detail-panel {
+  --hero-mancer-dp-width: 22rem;
+
+  gap: 0.6rem;
+  display: flex;
+  opacity: 0;
+  z-index: 5;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  flex-direction: column;
+  width: var(--hero-mancer-dp-width);
+  max-width: 100%;
+  padding: 0.8rem;
+  border-left: 0.0625rem solid var(--hero-mancer-border);
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg);
+  box-shadow: -0.5rem 0 1rem var(--hero-mancer-shadow);
+  transition:
+    transform 200ms ease-out,
+    opacity 200ms ease-out;
+  transform: translateX(100%);
+}
+
+.hm-detail-panel.is-open {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hm-detail-panel-header {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.4rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-detail-panel-title {
+  flex: 1;
+  margin: 0;
+  color: var(--hero-mancer-fg);
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.hm-detail-panel-close {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-detail-panel-close:hover {
+  border-color: var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-fg);
+}
+
+.hm-detail-panel-search {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg-muted);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-detail-panel-search-input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: var(--hero-mancer-fg);
+  background: transparent;
+}
+
+.hm-detail-panel-list {
+  gap: 0.3rem;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0;
+  padding: 0.125rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.hm-detail-option {
+  list-style: none;
+}
+
+.hm-detail-option-btn {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 0.0625rem solid transparent;
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg);
+  text-align: left;
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-detail-option-btn:hover,
+.hm-detail-option-btn:focus-visible {
+  border-color: var(--hero-mancer-border-strong);
+  outline: none;
+}
+
+.hm-detail-option-btn[aria-disabled='true'] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hm-detail-section-header {
+  margin: 0.5rem 0 0.2rem;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 0.0625rem dashed var(--hero-mancer-border);
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hm-detail-section-header:first-child {
+  margin-top: 0;
+}
+
+.hm-detail-option-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.hm-detail-option-icon img {
+  object-fit: contain;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 0.25rem;
+}
+
+.hm-detail-option-label {
+  flex: 1;
+  overflow: hidden;
+  font-size: 0.9em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-detail-panel-empty {
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+  text-align: center;
+}

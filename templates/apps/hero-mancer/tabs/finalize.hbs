@@ -1,0 +1,176 @@
+<section class="tab hm-tab hm-tab-finalize standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  <div class="hm-finalize-top-row">
+    <fieldset class="hm-fieldset hm-finalize-section">
+      <legend>{{localize 'HEROMANCER.App.Finalize.BasicInfo'}}</legend>
+      <div class="hm-finalize-basic">
+        <div class="hm-finalize-portrait">
+          {{#if basicInfo.portraitImg}}<img src="{{basicInfo.portraitImg}}" alt="">{{else}}<i class="fas fa-user-large"
+              aria-hidden="true"></i>{{/if}}
+        </div>
+        <dl class="hm-finalize-basic-list">
+          <dt>{{localize 'DND5E.Name'}}</dt>
+          <dd>{{basicInfo.characterName}}</dd>
+          <dt>{{localize 'HEROMANCER.App.TabNames.species'}}</dt>
+          <dd>{{basicInfo.speciesName}}</dd>
+          <dt>
+            {{#if basicInfo.multiclass}}{{localize 'HEROMANCER.App.Finalize.ClassesLabel' total=basicInfo.totalLevel}}{{else}}{{localize 'HEROMANCER.App.TabNames.class'}}{{/if}}
+          </dt>
+          <dd>
+            <ul class="hm-finalize-classes">
+              {{#each basicInfo.classes as |entry|}}
+                <li class="hm-finalize-class-row">
+                  <span>{{entry.name}}
+                    {{#if ../basicInfo.multiclass}}({{entry.level}}){{/if}}</span>
+                  {{#if entry.subclassName}}<span
+                      class="hm-finalize-class-subclass">{{entry.subclassName}}</span>{{/if}}
+                </li>
+              {{/each}}
+            </ul>
+          </dd>
+          <dt>{{localize 'DND5E.Background'}}</dt>
+          <dd>{{basicInfo.backgroundName}}</dd>
+        </dl>
+      </div>
+    </fieldset>
+    {{#if raceProfile}}
+      <fieldset class="hm-fieldset hm-finalize-section">
+        <legend>{{localize 'DND5E.RacialTraits'}}</legend>
+        <dl>
+          <dt>{{localize 'DND5E.Movement'}}</dt>
+          <dd>{{raceProfile.speed}}</dd>
+          <dt>{{localize 'DND5E.Senses'}}</dt>
+          <dd>{{raceProfile.senses}}</dd>
+          <dt>{{localize 'DND5E.CreatureType'}}</dt>
+          <dd>{{raceProfile.creatureType}}</dd>
+        </dl>
+      </fieldset>
+    {{/if}}
+  </div>
+  <fieldset class="hm-fieldset hm-finalize-section">
+    <legend>{{localize 'DND5E.AbilityScorePl'}}</legend>
+    <div class="hm-finalize-abilities">
+      {{#each abilityRows}}
+        <div class="hm-finalize-ability">
+          <span class="hm-finalize-ability-abbr">{{localize this.abbr}}</span>
+          <span class="hm-finalize-ability-value">{{this.value}}</span>
+          {{#if this.bonus}}
+            <span class="hm-finalize-ability-bonus" data-tooltip
+              aria-label="{{localize 'HEROMANCER.App.Finalize.AbilityBase' base=this.baseValue}}">+{{this.bonus}}</span>
+          {{/if}}
+          <span class="hm-finalize-ability-mod">{{#if (gte this.modifier 0)}}+{{/if}}{{this.modifier}}</span>
+        </div>
+      {{/each}}
+    </div>
+  </fieldset>
+  <fieldset class="hm-fieldset hm-finalize-section">
+    <legend>{{localize 'HEROMANCER.App.Finalize.Proficiencies'}}</legend>
+    {{#if proficiencies.length}}
+      <div class="hm-finalize-prof-grid">
+        {{#each proficiencies}}
+          <section class="hm-finalize-prof">
+            <h3><i class="{{this.icon}}" aria-hidden="true"></i> {{this.label}}</h3>
+            <ul>{{#each this.items}}
+                <li data-tooltip aria-label="{{this.tooltip}}">{{this.name}}</li>
+              {{/each}}</ul>
+          </section>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="hm-finalize-empty">{{localize 'HEROMANCER.App.Finalize.NoProficiencies'}}</p>
+    {{/if}}
+  </fieldset>
+  <fieldset class="hm-fieldset hm-finalize-section">
+    <legend>{{localize 'TYPES.Item.equipment'}}</legend>
+    {{> hmReviewEquipment equipmentReview}}
+  </fieldset>
+  <fieldset class="hm-fieldset hm-finalize-section">
+    <legend>{{localize 'DND5E.Biography'}}</legend>
+    <div class="hm-finalize-bio-grid">
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Gender'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.gender}}{{biography.gender}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Age'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.age}}{{biography.age}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Height'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.height}}{{biography.height}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Weight'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.weight}}{{biography.weight}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Eyes'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.eyes}}{{biography.eyes}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Hair'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.hair}}{{biography.hair}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Skin'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.skin}}{{biography.skin}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Faith'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.faith}}{{biography.faith}}{{else}}-{{/if}}</span>
+      </div>
+      <div class="hm-finalize-bio-field">
+        <span class="hm-finalize-bio-label">{{localize 'DND5E.Alignment'}}</span>
+        <span class="hm-finalize-bio-value">{{#if biography.alignment}}{{biography.alignment}}{{else}}-{{/if}}</span>
+      </div>
+    </div>
+    <div class="hm-finalize-bio-long">
+      {{#if biography.appearance}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Appearance'}}</span>
+          <span class="hm-finalize-bio-value">{{biography.appearance}}</span>
+        </div>
+      {{/if}}
+      {{#if biography.traits}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Traits'}}</span>
+          <span class="hm-finalize-bio-value">{{biography.traits}}</span>
+        </div>
+      {{/if}}
+      {{#if biography.ideals}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Ideals'}}</span>
+          <span class="hm-finalize-bio-value">{{biography.ideals}}</span>
+        </div>
+      {{/if}}
+      {{#if biography.bonds}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Bonds'}}</span>
+          <span class="hm-finalize-bio-value">{{biography.bonds}}</span>
+        </div>
+      {{/if}}
+      {{#if biography.flaws}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Flaws'}}</span>
+          <span class="hm-finalize-bio-value">{{biography.flaws}}</span>
+        </div>
+      {{/if}}
+      {{#if biography.backstory}}
+        <div class="hm-finalize-bio-field">
+          <span class="hm-finalize-bio-label">{{localize 'DND5E.Biography'}}</span>
+          <div class="hm-finalize-bio-value hm-finalize-backstory">{{{biography.backstory}}}</div>
+        </div>
+      {{/if}}
+    </div>
+  </fieldset>
+  {{#if isSpellcaster}}
+    <fieldset class="hm-fieldset hm-finalize-section">
+      <legend>{{localize 'HEROMANCER.App.Finalize.SpellHandoff.Legend'}}</legend>
+      <label class="hm-finalize-skip-spell">
+        <input type="checkbox" name="finalize.skipSpellHandoff" {{#if skipSpellHandoff}}checked{{/if}}>
+        <span>{{localize 'HEROMANCER.App.Finalize.SpellHandoff.SkipLabel'}}</span>
+      </label>
+      <p class="hm-finalize-skip-spell-hint">{{localize 'HEROMANCER.App.Finalize.SpellHandoff.SkipHint'}}</p>
+    </fieldset>
+  {{/if}}
+</section>

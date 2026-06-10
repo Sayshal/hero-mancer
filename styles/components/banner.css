@@ -1,0 +1,59 @@
+.hm-banner {
+  gap: 0.5rem;
+  display: flex;
+  z-index: 200;
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  align-items: flex-start;
+  max-width: 36rem;
+  padding: 0.6rem 0.75rem;
+  border: 0.0625rem solid var(--hm-banner-color);
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg);
+  font-size: 0.875em;
+  background: color-mix(in srgb, var(--hm-banner-color) 12%, var(--hero-mancer-bg));
+  box-shadow: 0 0.5rem 1.5rem var(--hero-mancer-shadow);
+  transform: translateX(-50%);
+}
+
+.hm-pending-banner {
+  --hm-banner-color: color-mix(in srgb, var(--hero-mancer-accent) 65%, var(--hero-mancer-info));
+
+  align-items: center;
+}
+
+.hm-rejection-banner {
+  --hm-banner-color: var(--hero-mancer-danger);
+}
+
+.hm-banner-icon {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--hm-banner-color);
+  font-size: 1.25em;
+}
+
+.hm-pending-banner .hm-banner-icon {
+  margin-top: 0;
+}
+
+.hm-banner-body {
+  flex: 1 1 auto;
+}
+
+.hm-banner-body strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.hm-banner-body blockquote {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border-left: 0.125rem solid var(--hm-banner-color);
+  color: var(--hero-mancer-fg-muted);
+}
+
+.hm-banner > button {
+  flex: 0 0 auto;
+}

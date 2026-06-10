@@ -1,0 +1,45 @@
+<div class="hm-ability-card{{#if isPrimary}} is-primary{{/if}}" data-ability-block data-ability="{{ability}}"
+  data-method="{{method}}" data-min="{{min}}" data-max="{{max}}" id="{{id}}" {{#if isPrimary}}data-tooltip
+  aria-label="{{primaryTooltip}}" {{/if}}>
+  <input type="hidden" name="abilities.{{ability}}.value" value="{{value}}" data-value-input>
+  <div class="hm-ability-card-header">
+    <h3 class="hm-ability-card-name" id="{{id}}-label">{{label}}</h3>
+    {{#if iconPath}}
+      <span class="hm-ability-card-icon" style="--hm-ability-icon: url('{{iconPath}}');" aria-hidden="true"></span>
+    {{else}}
+      <span class="hm-ability-card-icon-fa" aria-hidden="true"><i class="{{iconClass}}"></i></span>
+    {{/if}}
+  </div>
+  <div class="hm-ability-card-score-group">
+    <div class="hm-ability-card-score-row">
+      <button type="button" class="hm-ability-card-pb-step" data-pb-step="-1"
+        aria-label="{{localize 'HEROMANCER.Components.AbilityBlock.Decrement'}}">
+        <i class="fas fa-minus" aria-hidden="true"></i>
+      </button>
+      <div class="hm-ability-card-score" data-value-display aria-labelledby="{{id}}-label" aria-live="polite">{{value}}
+      </div>
+      <button type="button" class="hm-ability-card-pb-step" data-pb-step="1"
+        aria-label="{{localize 'HEROMANCER.Components.AbilityBlock.Increment'}}">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="hm-ability-card-modifier" data-modifier aria-label="{{localize 'DND5E.Modifier'}}">
+      {{#if (gte modifier 0)}}+{{/if}}{{modifier}}
+    </div>
+  </div>
+
+  <div class="hm-ability-card-footer">
+    <div class="hm-ability-card-selector hm-ability-block-mode" data-mode="standardArray"
+      {{#unless (eq method 'standardArray')}}hidden{{/unless}}>
+      {{> hmCombobox standardArray}}
+    </div>
+
+    <div class="hm-ability-card-selector hm-ability-block-mode hm-ability-block-mode--manual-formula"
+      data-mode="manualFormula" data-default-formula="{{formulaPlaceholder}}"
+      {{#unless (eq method 'manualFormula')}}hidden{{/unless}}>
+      {{> hmCombobox manualFormulaPool}}
+    </div>
+
+    <p class="hm-ability-card-blurb">{{localize blurbKey}}</p>
+  </div>
+</div>

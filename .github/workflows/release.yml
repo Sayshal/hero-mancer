@@ -15,166 +15,187 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # Read module ID from module.json
-    - name: Get module ID
-      id: module_id
-      run: echo "id=$(jq -r '.id' module.json)" >> $GITHUB_OUTPUT
+      - name: Install dependencies
+        run: npm ci
 
-    # Extract version from tag (release-X.Y.Z -> X.Y.Z)
-    - name: Set up variables
-      id: get_vars
-      run: |
-        TAG=${GITHUB_REF/refs\/tags\//}
-        VERSION=${TAG#release-}
-        MODULE_ID=${{ steps.module_id.outputs.id }}
-        echo "TAG_NAME=$TAG" >> $GITHUB_ENV
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "MODULE_ID=$MODULE_ID" >> $GITHUB_ENV
-        echo "ZIP_NAME=module.zip" >> $GITHUB_ENV
-        echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.zip" >> $GITHUB_ENV
-        echo "RELEASE_MANIFEST_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.json" >> $GITHUB_ENV
-        echo "LATEST_MANIFEST_URL=${{ env.REPO_URL }}/releases/latest/download/module.json" >> $GITHUB_ENV
+      # Read module ID from module.json
+      - name: Get module ID
+        id: module_id
+        run: echo "id=$(jq -r '.id' module.json)" >> $GITHUB_OUTPUT
 
-        echo "Tag: $TAG"
-        echo "Version: $VERSION"
-        echo "Module ID: $MODULE_ID"
+      # Extract version from tag (release-X.Y.Z -> X.Y.Z)
+      - name: Set up variables
+        id: get_vars
+        run: |
+          TAG=${GITHUB_REF/refs\/tags\//}
+          VERSION=${TAG#release-}
+          MODULE_ID=${{ steps.module_id.outputs.id }}
+          echo "TAG_NAME=$TAG" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "MODULE_ID=$MODULE_ID" >> $GITHUB_ENV
+          echo "ZIP_NAME=module.zip" >> $GITHUB_ENV
+          echo "RELEASE_DOWNLOAD_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.zip" >> $GITHUB_ENV
+          echo "RELEASE_MANIFEST_URL=${{ env.REPO_URL }}/releases/download/$TAG/module.json" >> $GITHUB_ENV
+          echo "LATEST_MANIFEST_URL=${{ env.REPO_URL }}/releases/latest/download/module.json" >> $GITHUB_ENV
 
-    # Update module.json with version and download URLs
-    - name: Update module.json
-      uses: microsoft/variable-substitution@v1
-      with:
-        files: 'module.json'
-      env:
-        version: ${{ env.VERSION }}
-        download: ${{ env.RELEASE_DOWNLOAD_URL }}
-        manifest: ${{ env.LATEST_MANIFEST_URL }}
-        flags.hotReload: false
+          echo "Tag: $TAG"
+          echo "Version: $VERSION"
+          echo "Module ID: $MODULE_ID"
 
-    # Verify the version in module.json matches the tag
-    - name: Verify version
-      run: |
-        MODULE_VERSION=$(jq -r '.version' module.json)
-        if [[ ! "$MODULE_VERSION" == "${{ env.VERSION }}" ]]; then
-          echo "Error: module.json version ($MODULE_VERSION) does not match tag version (${{ env.VERSION }})"
-          exit 1
-        fi
-        echo "Version verified: $MODULE_VERSION"
+      # Build the module
+      - name: Build
+        run: npm run build
 
-    # Create zip with module files
-    - name: Zip Files
-      run: |
-        zip -r ${{ env.ZIP_NAME }} \
-          lang/ \
-          scripts/ \
-          styles/ \
-          templates/ \
-          LICENSE \
-          module.json \
-          README.md \
-          -x "*.lock" \
-          -x "package*.json" \
-          -x "node_modules/*"
+      # Update module.json with version and download URLs
+      - name: Update module.json
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: 'dist/module.json'
+        env:
+          version: ${{ env.VERSION }}
+          download: ${{ env.RELEASE_DOWNLOAD_URL }}
+          manifest: ${{ env.LATEST_MANIFEST_URL }}
+          flags.hotReload: false
 
-    # Fetch existing release body if it exists
-    - name: Fetch Release Body
-      id: release
-      uses: cardinalby/git-get-release-action@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        tag: ${{ env.TAG_NAME }}
-        doNotFailIfNotFound: true
+      # Verify the version in module.json matches the tag
+      - name: Verify version
+        run: |
+          MODULE_VERSION=$(jq -r '.version' dist/module.json)
+          if [[ ! "$MODULE_VERSION" == "${{ env.VERSION }}" ]]; then
+            echo "Error: module.json version ($MODULE_VERSION) does not match tag version (${{ env.VERSION }})"
+            exit 1
+          fi
+          echo "Version verified: $MODULE_VERSION"
 
-    # Update release with the built files
-    - name: Update Release with Files
-      id: create_version_release
-      uses: ncipollo/release-action@v1
-      with:
-        allowUpdates: true
-        omitNameDuringUpdate: true
-        draft: false
-        prerelease: true
-        omitDraftDuringUpdate: true
-        omitPrereleaseDuringUpdate: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: './module.json, ./${{ env.ZIP_NAME }}'
-        tag: ${{ env.TAG_NAME }}
-        body: |
-          ${{ steps.release.outputs.body }}
+      # Create zip with module files
+      - name: Zip Files
+        working-directory: dist
+        run: zip -r ../${{ env.ZIP_NAME }} .
 
-          **Installation:** To manually install this release, use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
+      # Fetch existing release body if it exists
+      - name: Fetch Release Body
+        id: release
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag: ${{ env.TAG_NAME }}
+          doNotFailIfNotFound: true
 
-    # Read module metadata for later steps
-    - name: Read module metadata
-      id: module
-      run: |
-        echo "title=$(jq -r '.title' module.json)" >> $GITHUB_OUTPUT
-        echo "compat_min=$(jq -r '.compatibility.minimum' module.json)" >> $GITHUB_OUTPUT
-        echo "compat_verified=$(jq -r '.compatibility.verified' module.json)" >> $GITHUB_OUTPUT
-        echo "compat_max=$(jq -r '.compatibility.maximum' module.json)" >> $GITHUB_OUTPUT
+      # Update release with the built files
+      - name: Update Release with Files
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          omitNameDuringUpdate: true
+          draft: false
+          prerelease: true
+          omitDraftDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: './dist/module.json, ./${{ env.ZIP_NAME }}'
+          tag: ${{ env.TAG_NAME }}
+          body: |
+            ${{ steps.release.outputs.body }}
 
-    # Release to Foundry Package API
-    - name: Release Foundry Package
-      run: |
-        cat << EOF > payload.json
-        {
-          "id": "${{ env.MODULE_ID }}",
-          "release": {
-            "version": "${{ env.VERSION }}",
-            "manifest": "${{ env.RELEASE_MANIFEST_URL }}",
-            "download": "${{ env.RELEASE_DOWNLOAD_URL }}",
-            "notes": "${{ env.REPO_URL }}/releases/tag/${{ env.TAG_NAME }}",
-            "compatibility": {
-              "minimum": "${{ steps.module.outputs.compat_min }}",
-              "verified": "${{ steps.module.outputs.compat_verified }}",
-              "maximum": "${{ steps.module.outputs.compat_max }}"
-            }
-          }
-        }
-        EOF
+            **Installation:** To manually install this release, use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
 
-        cat payload.json
+      # Read module metadata for later steps
+      - name: Read module metadata
+        id: module
+        run: |
+          echo "title=$(jq -r '.title' dist/module.json)" >> $GITHUB_OUTPUT
+          echo "compat_min=$(jq -r '.compatibility.minimum' dist/module.json)" >> $GITHUB_OUTPUT
+          echo "compat_verified=$(jq -r '.compatibility.verified' dist/module.json)" >> $GITHUB_OUTPUT
+          COMPAT_MAX=$(jq -r '.compatibility.maximum // empty' dist/module.json)
+          echo "compat_max=$COMPAT_MAX" >> $GITHUB_OUTPUT
 
-        curl -X POST "https://foundryvtt.com/_api/packages/release_version/" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: ${{ secrets.FOUNDRY_API_TOKEN }}" \
-          -d @payload.json
+      # Release to Foundry Package API
+      - name: Release Foundry Package
+        run: |
+          COMPAT_MAX="${{ steps.module.outputs.compat_max }}"
+          if [ -n "$COMPAT_MAX" ]; then
+            MAX_LINE="\"maximum\": \"$COMPAT_MAX\""
+          else
+            MAX_LINE=""
+          fi
 
-    # Post release notification to Discord
-    - name: Post to Discord
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        RELEASE_BODY: ${{ steps.release.outputs.body }}
-      run: |
-        # Get release notes from the release body, or use a default message
-        RELEASE_NOTES="${RELEASE_BODY:-New release available!}"
+          jq -n \
+            --arg id "${{ env.MODULE_ID }}" \
+            --arg version "${{ env.VERSION }}" \
+            --arg manifest "${{ env.RELEASE_MANIFEST_URL }}" \
+            --arg download "${{ env.RELEASE_DOWNLOAD_URL }}" \
+            --arg notes "${{ env.REPO_URL }}/releases/tag/${{ env.TAG_NAME }}" \
+            --arg min "${{ steps.module.outputs.compat_min }}" \
+            --arg verified "${{ steps.module.outputs.compat_verified }}" \
+            --arg max "$COMPAT_MAX" \
+            '{id: $id, release: {version: $version, manifest: $manifest, download: $download, notes: $notes, compatibility: ({minimum: $min, verified: $verified} + if $max != "" then {maximum: $max} else {} end)}}' \
+            > payload.json
 
-        JSON_PAYLOAD=$(jq -n \
-          --arg title "${{ steps.module.outputs.title }} v${{ env.VERSION }}" \
-          --arg version "${{ env.VERSION }}" \
-          --arg foundry_url "https://foundryvtt.com/packages/${{ env.MODULE_ID }}" \
-          --arg release_url "${{ env.RELEASE_MANIFEST_URL }}" \
-          --arg download_url "${{ env.RELEASE_DOWNLOAD_URL }}" \
-          --arg release_notes "$RELEASE_NOTES" \
-          --arg compat_min "${{ steps.module.outputs.compat_min }}" \
-          --arg compat_max "${{ steps.module.outputs.compat_max }}" \
-          '{
-            content: "<@&1384920094597185556> <@&1384920304316579953>",
-            embeds: [{
-              title: $title,
-              description: $release_notes,
-              fields: [
-                {name: "Core Compatibility", value: ($compat_min + " - " + $compat_max), inline: true},
-                {name: "Foundry Package", value: $foundry_url, inline: false}
-              ]
-            }]
-          }')
+          cat payload.json
 
-        echo "JSON Payload:"
-        echo "$JSON_PAYLOAD" | jq '.'
+          curl -X POST "https://foundryvtt.com/_api/packages/release_version/" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: ${{ secrets.FOUNDRY_API_TOKEN }}" \
+            -d @payload.json
 
-        curl -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD" \
-            $DISCORD_WEBHOOK
+      # Post release notification to Discord
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_BODY: ${{ steps.release.outputs.body }}
+          MODULE_TITLE: ${{ steps.module.outputs.title }}
+          VERSION: ${{ env.VERSION }}
+          COMPAT_MIN: ${{ steps.module.outputs.compat_min }}
+          COMPAT_MAX: ${{ steps.module.outputs.compat_max }}
+          FOUNDRY_URL: https://foundryvtt.com/packages/${{ env.MODULE_ID }}
+          RELEASE_PAGE: ${{ env.REPO_URL }}/releases/tag/${{ env.TAG_NAME }}
+        run: |
+          python3 -c "
+          import json, os
+
+          # Read curated release notes, fall back to the GitHub release body
+          notes = ''
+          if os.path.isfile('release_notes.txt') and os.path.getsize('release_notes.txt') > 0:
+              with open('release_notes.txt', 'r', encoding='utf-8') as f:
+                  notes = f.read().strip()
+          if not notes:
+              notes = os.environ.get('RELEASE_BODY', 'New release available!')
+
+          # Discord embed description cap
+          if len(notes) > 2000:
+              notes = notes[:1997] + '...'
+
+          title = os.environ.get('MODULE_TITLE', 'Hero Mancer 2') + ' v' + os.environ.get('VERSION', '')
+          compat_min = os.environ.get('COMPAT_MIN', '')
+          compat_max = os.environ.get('COMPAT_MAX', '')
+          release_page = os.environ.get('RELEASE_PAGE', '')
+          foundry_url = os.environ.get('FOUNDRY_URL', 'https://foundryvtt.com/packages/hero-mancer')
+
+          payload = json.dumps({
+              'content': '<@&1384920094597185556> <@&1384920304316579953>',
+              'embeds': [{
+                  'title': title,
+                  'url': release_page,
+                  'description': notes,
+                  'fields': [
+                      {'name': 'Core Compatibility', 'value': compat_min if compat_min == compat_max else f'{compat_min} - {compat_max}', 'inline': True},
+                      {'name': 'Foundry Package', 'value': f'[Install from Foundry]({foundry_url})', 'inline': True}
+                  ],
+                  'color': 16750848
+              }]
+          })
+
+          print('JSON Payload:')
+          print(json.dumps(json.loads(payload), indent=2))
+
+          with open('/tmp/discord_payload.json', 'w') as f:
+              f.write(payload)
+          "
+
+          curl -sS -H "Content-Type: application/json" \
+              -d @/tmp/discord_payload.json \
+              $DISCORD_WEBHOOK

@@ -1,0 +1,33 @@
+<section class="standard-form hm-dialog-body hm-asi-dialog-body">
+  <div class="hm-asi-grid">
+    {{#each inputs as |inp|}}
+      <div class="hm-asi-ability">
+        <span class="hm-asi-label">{{inp.label}}</span>
+        <div class="hm-asi-stepper">
+          <button type="button" data-action="asiAdjust" data-key="{{inp.key}}" data-delta="-1"
+            {{#unless inp.canDecrement}}disabled{{/unless}}>
+            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+          </button>
+          <span class="hm-asi-value">
+            <strong>{{inp.finalScore}}</strong>
+            <span class="hm-asi-mod">{{inp.finalModLabel}}</span>
+          </span>
+          <button type="button" data-action="asiAdjust" data-key="{{inp.key}}" data-delta="1"
+            {{#unless inp.canIncrement}}disabled{{/unless}}>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+        {{#if inp.fixed}}
+          <span
+            class="hm-asi-fixed">{{localize 'HEROMANCER.App.Advancements.ASIDialog.FixedTag' value=inp.fixed}}</span>
+        {{/if}}
+      </div>
+    {{/each}}
+  </div>
+  <p class="hm-asi-remaining">
+    {{localize 'HEROMANCER.App.Advancements.ASIDialog.Remaining' remaining=remaining total=total}}
+  </p>
+  <footer class="hm-asi-footer">
+    <button type="button" class="hm-asi-commit hm-primary" data-action="commit">{{localize 'COMMON.Confirm'}}</button>
+  </footer>
+</section>

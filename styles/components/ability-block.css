@@ -1,0 +1,540 @@
+.hm-tab-abilities {
+  container-name: hm-abilities;
+  container-type: size;
+}
+
+.hm-tab-abilities.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hm-abilities-header {
+  flex: 0 0 auto;
+}
+
+.hm-abilities-mf-bar {
+  gap: 0.6rem;
+  grid-template-columns: 1fr auto 1fr;
+  display: grid;
+  align-items: center;
+}
+
+.hm-abilities-sa-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.4rem;
+}
+
+.hm-abilities-roll-all,
+.hm-abilities-reroll-pool {
+  gap: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  height: 2.4rem;
+  padding: 0 1.2rem;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.hm-abilities-roll-all {
+  justify-self: start;
+}
+
+.hm-abilities-reroll-pool {
+  justify-self: end;
+}
+
+.hm-abilities-pool-list {
+  gap: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-abilities-pool-chip {
+  font-variant-numeric: tabular-nums;
+  gap: 0.3rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 0.8rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 999rem;
+  color: var(--hero-mancer-fg);
+  font-weight: 700;
+  line-height: 1;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-abilities-reroll-count {
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 2.4rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 999rem;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.8em;
+  line-height: 1;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-reroll-dialog .hm-prompt-footer {
+  flex-wrap: wrap;
+}
+
+.hm-reroll-dialog .hm-prompt-footer button {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hero-mancer .hm-ability-card[data-method='manualFormula']:not([data-mf-pool='1']) .hm-combobox {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.hm-abilities-pointbuy-tracker {
+  --hero-mancer-pb-fill: 100%;
+  --hero-mancer-pb-hue: 120;
+
+  display: flex;
+  position: relative;
+  align-items: center;
+  width: 100%;
+  height: 2.4rem;
+  border: 0.0625rem solid hsl(var(--hero-mancer-pb-hue) 60% 45% / 70%);
+  border-radius: var(--hero-mancer-radius-md);
+  overflow: hidden;
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg-inset);
+  box-shadow: 0 0 0.6rem hsl(var(--hero-mancer-pb-hue) 70% 45% / 25%);
+}
+
+.hm-abilities-pointbuy-fill {
+  inset: 0 auto 0 0;
+  display: block;
+  position: absolute;
+  width: var(--hero-mancer-pb-fill);
+  background: linear-gradient(90deg, hsl(var(--hero-mancer-pb-hue) 70% 40% / 35%), hsl(var(--hero-mancer-pb-hue) 70% 50% / 22%));
+  transition: width 0.18s ease-out;
+}
+
+.hm-abilities-pointbuy-label {
+  gap: 0.4rem;
+  display: flex;
+  position: relative;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.hm-abilities-pointbuy-value {
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--hero-mancer-pb-hue) 80% 65%);
+  font-weight: 800;
+  font-size: 1.2em;
+  line-height: 1;
+  text-shadow: 0 0 0.4em hsl(var(--hero-mancer-pb-hue) 70% 40% / 70%);
+}
+
+.hm-abilities-pointbuy-total {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 700;
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.hm-abilities-pointbuy-caption {
+  margin-left: auto;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hm-abilities-grid {
+  --hm-ab-cols: 3;
+
+  gap: 0.8rem;
+  grid-auto-rows: minmax(min-content, 1fr);
+  grid-template-columns: repeat(var(--hm-ab-cols), minmax(0, 1fr));
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hm-ability-card {
+  --hero-mancer-ab-hue: 60;
+
+  container-name: hm-ability-card;
+  container-type: inline-size;
+  gap: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+  padding: 1rem 0.9rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-md);
+  overflow: hidden;
+  color: var(--hero-mancer-fg);
+  text-align: center;
+  background: linear-gradient(180deg, var(--hero-mancer-bg), var(--hero-mancer-bg-elev));
+}
+
+.hm-ability-card-header {
+  gap: 0.3rem;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hm-ability-card.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.hm-ability-card-name {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 700;
+  font-size: 1.4em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hm-ability-card.is-primary .hm-ability-card-name {
+  color: var(--hero-mancer-border-strong);
+}
+
+.hm-ability-card-icon {
+  mask-image: var(--hm-ability-icon);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  display: block;
+  flex: 0 0 auto;
+  width: 5rem;
+  height: 5rem;
+  background-color: var(--hero-mancer-fg-muted);
+}
+
+.hm-ability-card-icon-fa {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 5rem;
+  color: var(--hero-mancer-fg-muted);
+  line-height: 1;
+}
+
+.hm-ability-card-icon-fa > i {
+  font-size: 3.5em;
+}
+
+.hm-ability-card.is-primary .hm-ability-card-icon {
+  background-color: var(--hero-mancer-accent);
+  filter: drop-shadow(0 0 0.3rem var(--hero-mancer-accent-glow));
+}
+
+.hm-ability-card.is-primary .hm-ability-card-icon-fa {
+  color: var(--hero-mancer-accent);
+  text-shadow: 0 0 0.3em var(--hero-mancer-accent-glow);
+}
+
+.hm-ability-card-score {
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--hero-mancer-ab-hue) 70% 55%);
+  font-weight: 800;
+  font-size: 3em;
+  line-height: 1.05;
+  text-shadow: 0 0 0.4em hsl(var(--hero-mancer-ab-hue) 70% 35% / 50%);
+}
+
+.hm-ability-card-score:empty::before {
+  opacity: 0.4;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.7em;
+  content: '—';
+}
+
+.hm-ability-card-modifier {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg);
+  font-weight: 700;
+  font-size: 1.25em;
+}
+
+.hm-ability-card-selector {
+  gap: 0.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.3rem 0 0.4rem;
+}
+
+.hm-ability-card-selector > [data-combobox] {
+  width: 8rem;
+}
+
+.hm-ability-card .hm-combobox-option {
+  text-align: left;
+}
+
+.hm-ability-card .hm-combobox-option.is-used .hm-combobox-option-label {
+  opacity: 0.5;
+  color: var(--hero-mancer-fg-muted);
+  text-decoration: line-through;
+}
+
+.hm-ability-card-score-group {
+  gap: 0.1rem;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.hm-ability-card-score,
+.hm-ability-card-modifier {
+  width: 100%;
+  text-align: center;
+}
+
+.hm-ability-card-score-row {
+  gap: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-mancer .hm-ability-card button.hm-ability-card-pb-step {
+  display: none;
+}
+
+.hero-mancer .hm-ability-card[data-method='pointBuy'] button.hm-ability-card-pb-step {
+  display: inline-flex;
+}
+
+.hm-ability-card-footer {
+  gap: 0.4rem;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.hm-ability-card-blurb {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-style: italic;
+  font-size: 0.85em;
+  line-height: 1.3;
+}
+
+@container hm-ability-card (max-width: 14em) {
+  .hm-ability-card-name {
+    font-size: 1.2em;
+  }
+
+  .hm-ability-card-icon,
+  .hm-ability-card-icon-fa {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .hm-ability-card-icon-fa > i {
+    font-size: 3em;
+  }
+
+  .hm-ability-card-score {
+    font-size: 2.4em;
+  }
+
+  .hm-ability-card-modifier {
+    font-size: 1.1em;
+  }
+
+  .hm-ability-card-blurb {
+    font-size: 0.78em;
+  }
+}
+
+@container hm-ability-card (max-width: 11em) {
+  .hm-ability-card {
+    padding: 1rem 0.6rem 0.8rem;
+  }
+
+  .hm-ability-card-name {
+    font-size: 1em;
+    letter-spacing: 0.05em;
+  }
+
+  .hm-ability-card-icon,
+  .hm-ability-card-icon-fa {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .hm-ability-card-icon-fa > i {
+    font-size: 2.4em;
+  }
+
+  .hm-ability-card-score {
+    font-size: 1.9em;
+  }
+
+  .hm-ability-card-modifier {
+    font-size: 0.95em;
+  }
+
+  .hm-ability-card-blurb {
+    font-size: 0.7em;
+  }
+}
+
+@container hm-abilities (max-height: 30em) {
+  .hm-ability-card-icon,
+  .hm-ability-card-icon-fa {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .hm-ability-card-icon-fa > i {
+    font-size: 3em;
+  }
+}
+
+@container hm-abilities (max-height: 25em) {
+  .hm-ability-card {
+    gap: 0.25rem;
+    padding: 0.7rem;
+  }
+
+  .hm-ability-card-icon,
+  .hm-ability-card-icon-fa {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .hm-ability-card-icon-fa > i {
+    font-size: 2.2em;
+  }
+
+  .hm-ability-card-selector {
+    margin: 0.2rem 0;
+  }
+}
+
+@container hm-abilities (max-height: 21em) {
+  .hm-ability-card-icon,
+  .hm-ability-card-icon-fa {
+    display: none;
+  }
+}
+
+@container hm-abilities (max-height: 18em) {
+  .hm-ability-card {
+    gap: 0.15rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .hm-ability-card-modifier {
+    display: none;
+  }
+
+  .hm-ability-card-score {
+    font-size: 2em;
+  }
+}
+
+@container hm-abilities (max-height: 15em) {
+  .hm-ability-card-name {
+    font-size: 1em;
+    letter-spacing: 0.04em;
+  }
+
+  .hm-ability-card-score {
+    font-size: 1.6em;
+  }
+
+  .hm-ability-card-blurb {
+    display: none;
+  }
+}
+
+@container hm-abilities (max-height: 12em) {
+  .hm-ability-card[data-method='standardArray'] .hm-ability-card-score-group,
+  .hm-ability-card[data-method='manualFormula'] .hm-ability-card-score-group {
+    display: none;
+  }
+}
+
+.hm-ability-block-mode {
+  gap: 0.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hm-abilities-pool-chip.is-taken {
+  opacity: 0.4;
+}
+
+.hm-abilities-pool-chip.is-taken .hm-abilities-pool-chip-value {
+  text-decoration: line-through;
+}
+
+.hm-abilities-pool-chip.is-partial {
+  border-color: var(--hero-mancer-accent);
+}
+
+.hm-abilities-pool-chip-count {
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 1.8rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999rem;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.75em;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-abilities-pool-chip.is-partial .hm-abilities-pool-chip-count {
+  color: var(--hero-mancer-accent);
+}

@@ -1,325 +1,993 @@
 {
-  "hm.actortab-button.creating": "Hero Mancer is creating your character! ... This may take a moment.",
-  "hm.actortab-button.hint": "Open Hero Mancer Application",
-  "hm.actortab-button.name": "Hero Mancer",
-  "hm.app.abilities.decrease": "-1",
-  "hm.app.abilities.increase": "+1",
-  "hm.app.abilities.instructions.chained-rolls": "Your DM has enabled Chained Rolls. Simply click on one of the dice above to roll all your stats. Don't worry! You can individually re-roll entries, assuming your DM allows it.",
-  "hm.app.abilities.instructions.manual.preamble": "The Manual Rolling method allows you to create a unique character profile by rolling dice to determine each ability score. By default, this uses the classic 4d6 drop the lowest method, but your DM may specify a custom rolling formula. While the results of this method can range from strong to average or even low scores, it adds an element of unpredictability to character building that can yield distinct strengths and weaknesses. This method is perfect for creating varied characters in short campaigns or one-shots, where surprising stats can inspire creative roleplaying. Embrace the randomness and enjoy the unique outcomes!",
-  "hm.app.abilities.instructions.no-roll-method": "Error loading a valid roll method, please report to developer.",
-  "hm.app.abilities.instructions.point-buy.preamble": "The Point Buy method provides flexibility by allowing you to assign a set number of points to your abilities. Distribute your points across abilities to create a balanced or specialized character profile. Each score above 8 has a point cost, so plan wisely!",
-  "hm.app.abilities.instructions.standard-array.preamble": "The Standard Array allows you to assign a set of predefined scores to your character's ability scores, designed to keep characters balanced and simplify character creation. This method is ideal for new players or those wanting a consistent, balanced setup across the party, ensuring each character begins on the same power level. Remember, your racial bonuses will still influence your final ability scores. Consider your class and racial bonuses carefully as you place these scores to optimize your character's performance in their primary role.",
-  "hm.app.abilities.methods.manual": "Manual",
-  "hm.app.abilities.methods.pointBuy": "Point Buy",
-  "hm.app.abilities.methods.standardArray": "Standard Array",
-  "hm.app.abilities.primary-tooltip": "{ability} is a primary ability for {class}s.",
-  "hm.app.abilities.roll-dice": "Roll dice for ability",
-  "hm.app.abilities.score-label": "Ability Scores",
-  "hm.app.abilities.score-placeholder": "Enter score",
-  "hm.app.abilities.select-method": "Ability Score Generation Method",
-  "hm.app.abilities.select-placeholder": "Choose",
-  "hm.app.abilities.select-value": "Select a value",
-  "hm.app.abilities.your-class": "your class",
-  "hm.app.background.none": "No backgrounds available.",
-  "hm.app.background.select-label": "Choose a Background",
-  "hm.app.background.select-placeholder": "Choose a background",
-  "hm.app.biography.age-hint": "Your age can tell an observer many things. Are you a seasoned veteran? A young go-getter? The older you are, the more detailed your history may be.",
-  "hm.app.biography.alignment-hint": "Your alignment defines your moral and ethical stance. While typically considered optional, it can still be an important tool for roleplaying motivations, actions, and more.",
-  "hm.app.biography.alignment-placeholder": "Enter character alignment",
-  "hm.app.biography.backstory-hint": "Your backstory defines every decision you make, and often why. Consider: goals, past life, present experiences, family, favorites, habits, self-perception, relationships, etc.",
-  "hm.app.biography.backstory-placeholder": "Write a backstory for your character. Consider what organizations they belong to, any allies they've made or enemies they've earned, and other important details from their life before becoming an adventurer.",
-  "hm.app.biography.backstory": "Backstory",
-  "hm.app.biography.bonds-placeholder-alt": "Who or what is most dear to your character? What place feels like home? What object means everything to them?",
-  "hm.app.biography.bonds-placeholder": "Who or what is most dear to your character? What place feels like home? What object means everything to them? Press the Roll button to draw from bonds suggested by your background.",
-  "hm.app.biography.characteristics": "Characteristics",
-  "hm.app.biography.description-hint": "When you look in the mirror, what do you see? Immerse yourself in your characters physical identity!",
-  "hm.app.biography.faith-hint": "Your DM determines which gods, if any, are worshiped in their campaign. From among the gods available, you can choose a single deity for your character to serve, worship, or pay lip service to. Not religious? Leave this blank!",
-  "hm.app.biography.faith-placeholder": "Enter deity or faith",
-  "hm.app.biography.flaws-placeholder-alt": "What are your character's shortcomings or weaknesses? Consider both personality quirks and ability score limitations. What traits might others find difficult?",
-  "hm.app.biography.flaws-placeholder": "What are your character's shortcomings or weaknesses? Consider both personality quirks and ability score limitations. What traits might others find difficult? Press the Roll button to draw from flaws suggested by your background.",
-  "hm.app.biography.height-hint": "Your height is influenced by your race, but can vary outside the norms.",
-  "hm.app.biography.ideals-placeholder-alt": "What principles guide your character? What cause or belief drives them to adventure? What would they fight or die for?",
-  "hm.app.biography.ideals-placeholder": "What principles guide your character? What cause or belief drives them to adventure? What would they fight or die for? Press the Roll button to draw from ideals suggested by your background.",
-  "hm.app.biography.identity": "Identity",
-  "hm.app.biography.personality-traits": "Personality Traits",
-  "hm.app.biography.physical-description": "Physical Description",
-  "hm.app.biography.roll-bonds": "Roll for bonds",
-  "hm.app.biography.roll-flaws": "Roll for flaws",
-  "hm.app.biography.roll-ideals": "Roll for ideals",
-  "hm.app.biography.roll-traits": "Roll for traits",
-  "hm.app.biography.size-hint": "Your size is determined by your race.",
-  "hm.app.biography.size-placeholder": "Determined by race",
-  "hm.app.biography.traits-placeholder-alt": "Describe your character's personality. How do their abilities shape who they are? Are they wise and contemplative, or charismatic and outgoing?",
-  "hm.app.biography.traits-placeholder": "Describe your character's personality. How do their abilities shape who they are? Are they wise and contemplative, or charismatic and outgoing? Press the Roll button to draw from personality traits suggested by your background.",
-  "hm.app.biography.weight-hint": "Your weight will determine a few things, namely who can lift you. It does not typically alter combat mechanics.",
-  "hm.app.cancel-description": "Cancel and close Hero Mancer",
-  "hm.app.cancel": "Cancel",
-  "hm.app.character-created": "Character has been created successfully.",
-  "hm.app.class.none": "No classes available.",
-  "hm.app.class.select-label": "Choose a Class",
-  "hm.app.class.select-placeholder": "Choose a class",
-  "hm.app.creation-progress": "Completion progress",
-  "hm.app.document-service.common-labels.dndbeyond-importer": "DDB",
-  "hm.app.document-service.common-labels.elkan5e": "Elkan",
-  "hm.app.document-service.common-labels.forge": "Forge",
-  "hm.app.document-service.common-labels.homebrew": "Homebrew",
-  "hm.app.equipment.no-equipment": "No equipment available.",
-  "hm.app.equipment.no-options": "No items available",
-  "hm.app.equipment.roll-wealth": "Roll Wealth",
-  "hm.app.equipment.type-equipment": "{type} Equipment",
-  "hm.app.equipment.unknown-item": "Unknown Item",
-  "hm.app.equipment.use-wealth": "Use Starting Wealth Instead",
-  "hm.app.equipment.wealth-placeholder": "0 gp",
-  "hm.app.equipment.wealth-roll-message": "{name} rolled for {type} starting wealth & received: {result} gp.",
-  "hm.app.errors.unexpected-format": "Error rendering content: Unexpected format",
-  "hm.app.finalize.review.abilities": "Ability Scores",
-  "hm.app.finalize.review.appearance-adjectives": "beautiful, gorgeous, striking, captivating, alluring, stunning, mesmerizing, enchanting, exquisite, radiant",
-  "hm.app.finalize.review.background-equipment": "Background Equipment",
-  "hm.app.finalize.review.backstory": "Backstory",
-  "hm.app.finalize.review.basic-info": "Basic Information",
-  "hm.app.finalize.review.biography-format-with-faith": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin. A worshipper of {faith}.",
-  "hm.app.finalize.review.biography-format": "A {alignment} {size} {gender}. At {age}, they weigh in at {weight}, standing {height} tall. With {eyesAdjective} {eyes} eyes, {hair} hair, and {skinAdjective} {skin} skin.",
-  "hm.app.finalize.review.biography": "Biography Overview",
-  "hm.app.finalize.review.class-equipment": "Class Equipment",
-  "hm.app.finalize.review.equipment": "Equipment",
-  "hm.app.finalize.review.loading-proficiencies": "Loading proficiencies...",
-  "hm.app.finalize.review.no-equipment": "No equipment selected",
-  "hm.app.finalize.review.no-proficiencies": "No proficiencies found. Select a race, class, and background to see available proficiencies.",
-  "hm.app.finalize.review.physical-description": "Physical Description",
-  "hm.app.finalize.review.proficiencies-error": "Error loading proficiencies. Please try again.",
-  "hm.app.finalize.review.proficiencies-reminder": "Remember to diversify your proficiency choices during the advancement process for a well-rounded character!",
-  "hm.app.finalize.review.proficiencies": "Proficiencies Preview",
-  "hm.app.finalize.review.starting-wealth": "Starting wealth: {amount}",
-  "hm.app.finalize.summary.no-items": "No items selected.",
-  "hm.app.finalize.summary.using-wealth": "Using starting wealth instead of equipment.",
-  "hm.app.header-title": "Hero Mancer Creation Wizard",
-  "hm.app.journal-description-placeholder": "The Journal is loading. This is a placeholder.",
-  "hm.app.journal-loading": "Loading journal content...",
-  "hm.app.journal.no-content-found": "No content available.",
-  "hm.app.list-or": "or",
-  "hm.app.mandatory.completed": "You have completed this field",
-  "hm.app.mandatory.incomplete": "This field is required, please complete",
-  "hm.app.nav.next-description": "Continue to the next step in character creation",
-  "hm.app.nav.next-format": "Next: {tabName}",
-  "hm.app.nav.next": "Navigate to the next tab",
-  "hm.app.nav.previous-description": "Go back to the previous step in character creation",
-  "hm.app.nav.previous-format": "Previous: {tabName}",
-  "hm.app.nav.previous": "Navigate to the previous tab",
-  "hm.app.no-description": "Unable to load a valid description for this item.",
-  "hm.app.optionsReset": "Reset Hero Mancer! Let's try again!",
-  "hm.app.optionsSaved": "Options saved! Re-open Hero Mancer to continue where you left off!",
-  "hm.app.race.none": "No races available.",
-  "hm.app.race.select-label": "Choose a Race",
-  "hm.app.race.select-placeholder": "Choose a race",
-  "hm.app.randomization-complete": "Character randomization complete!",
-  "hm.app.randomize.randomize-character": "Randomize Character",
-  "hm.app.randomize.randomize": "Randomize",
-  "hm.app.reset-description": "Reset Hero Mancer",
-  "hm.app.reset": "Reset",
-  "hm.app.save-description": "Save character for later",
-  "hm.app.save": "Save For Later",
-  "hm.app.start.character-art-label": "Character Art",
-  "hm.app.start.character-art-placeholder": "Choose art for your character",
-  "hm.app.start.generate-random-name": "Generate random name",
-  "hm.app.start.name-label": "Character Name",
-  "hm.app.start.name-placeholder": "Choose a name for your character",
-  "hm.app.start.player-assignment-label": "Assign to Player",
-  "hm.app.start.player-assignment-placeholder": "Select a Player",
-  "hm.app.start.player-avatar-placeholder": "Choose art for your player",
-  "hm.app.start.player-avatar": "Player Avatar",
-  "hm.app.start.player-color": "Player Color",
-  "hm.app.start.player-pronouns-placeholder": "Choose your preferred pronouns",
-  "hm.app.start.player-pronouns": "Player Pronouns",
-  "hm.app.start.player-settings": "Player Settings",
-  "hm.app.start.preamble.text": "<p>Hero Mancer will guide you through building your character. Work through the tabs left to right. Your progress is saved automatically — use <b>Save for Later</b> to continue another time. Press <b>Submit</b> on the Review tab when ready.</p>",
-  "hm.app.start.select-art": "Select",
-  "hm.app.start.token-art-label": "Token Art",
-  "hm.app.start.token-art-placeholder": "Choose token art for your character",
-  "hm.app.start.token-same-as-character": "Use same image for token?",
-  "hm.app.start.token-settings": "Token Settings",
-  "hm.app.start.token-visibility-placeholder": "Choose display status",
-  "hm.app.submit-description": "Submit your Hero Mancer",
-  "hm.app.submit": "Submit",
-  "hm.app.tab-names.abilities": "Abilities",
-  "hm.app.tab-names.background": "Background",
-  "hm.app.tab-names.biography": "Biography",
-  "hm.app.tab-names.class": "Class",
-  "hm.app.tab-names.equipment": "Equipment",
-  "hm.app.tab-names.finalize": "Review",
-  "hm.app.tab-names.race": "Race",
-  "hm.app.tab-names.start": "Start",
-  "hm.app.tabs": "Hero Mancer Navigation Tabs",
-  "hm.app.title": "the {components}",
-  "hm.approval.approve": "Approve",
-  "hm.approval.gm-approved": "Character '{name}' has been created and assigned to the player.",
-  "hm.approval.gm-received": "{name} has submitted a character for approval.",
-  "hm.approval.gm-rejected": "Character submission from {name} has been rejected.",
-  "hm.approval.player-approved": "Your character '{name}' has been approved and created!",
-  "hm.approval.player-rejected-resume": "Your character submission was rejected. Reopen Hero Mancer to make changes and resubmit.",
-  "hm.approval.reject": "Reject",
-  "hm.approval.review-title": "Character Approval: {name}",
-  "hm.approval.submit-description": "Submit character to GM for review and approval",
-  "hm.approval.submit-for-approval": "Submit for Approval",
-  "hm.approval.submitted": "Character submitted for GM approval. You will be notified when a decision is made.",
-  "hm.approval.unnamed": "Unnamed Character",
-  "hm.dialogs.reroll.cancel": "Cancel",
-  "hm.dialogs.reroll.chain-roll-label": "Roll all ability scores in sequence",
-  "hm.dialogs.reroll.confirm": "Reroll",
-  "hm.dialogs.reroll.content": "One or more ability scores already have values. Are you sure you want to reroll? This action cannot be undone.",
-  "hm.dialogs.reroll.title": "Reroll stat?",
-  "hm.errors.document-loading-failed": "Failed to load document libraries. Please check console for details.",
-  "hm.errors.document-preparation-failed": "Failed to prepare {type} documents: {error}",
-  "hm.errors.equipment-rendering": "There was an error loading equipment. Please try a different selection or refresh the application.",
-  "hm.errors.failed-compendium-retrieval": "Failed to retrieve compendiums: {type} {details}",
-  "hm.errors.invalid-document-type": "Invalid document type specified",
-  "hm.errors.item-not-found": "The selected {type} could not be found.",
-  "hm.errors.mandatory-fields-incomplete": "Please complete all mandatory fields before submitting.",
-  "hm.errors.randomization-failed": "Character randomization failed",
-  "hm.errors.randomize-failed": "Could not reset options to default values. Please try closing and reopening the character creator.",
-  "hm.errors.reset-options-failed": "Failed to reset your options. Please verify you have the necessary permissions and try again.",
-  "hm.errors.roll-failed": "Failed to roll ability score. Please try again.",
-  "hm.errors.save-options-failed": "Failed to save your options. Please try again.",
-  "hm.errors.select-required": "Please select a {type} before submitting.",
-  "hm.info.all-advancements-complete": "All character advancements processed successfully.",
-  "hm.settings.ability-scores.default.hint": "The starting value for ability scores when creating a new character.",
-  "hm.settings.ability-scores.default.name": "Default Ability Score",
-  "hm.settings.ability-scores.invalid-point-buy": "Point buy total is too low. With minimum score of {min}, you need at least {totalNeeded} points.",
-  "hm.settings.ability-scores.invalid-range": "Invalid ability score range. Please ensure Min ≤ Default ≤ Max.",
-  "hm.settings.ability-scores.max.hint": "The highest value allowed for ability scores during character creation.",
-  "hm.settings.ability-scores.max.name": "Maximum Ability Score",
-  "hm.settings.ability-scores.min.hint": "The lowest value allowed for ability scores during character creation.",
-  "hm.settings.ability-scores.min.name": "Minimum Ability Score",
-  "hm.settings.ability-scores.standard-array-fixed": "Standard array values {original} were outside the allowed range ({min}-{max}) and have been adjusted automatically.",
-  "hm.settings.advancement-order.hint": "Drag items to reorder how advancements are processed during character creation.",
-  "hm.settings.advancement-order.menu.name": "Advancement Order",
-  "hm.settings.advancement-order.name": "Advancement Processing Order",
-  "hm.settings.alignment-faith-inputs.hint": "When enabled, Alignment and Faith will be rendered as text input fields instead of dropdown menus, allowing for custom values.",
-  "hm.settings.alignment-faith-inputs.name": "Use Input Fields for Alignment & Faith",
-  "hm.settings.alignments.hint": "Comma-separated list of alignments available for character creation.",
-  "hm.settings.alignments.name": "Available Alignments",
-  "hm.settings.appearance-options.header": "Appearance Options",
-  "hm.settings.art-picker-root.browse": "Choose root location",
-  "hm.settings.art-picker-root.hint": "The root directory for the Character Art Picker",
-  "hm.settings.art-picker-root.name": "Art Picker Root Directory",
-  "hm.settings.background-packs.name": "Background Packs",
-  "hm.settings.chained-rolls.hint": "Chain 1 stat roll after the other to roll a complete character.",
-  "hm.settings.chained-rolls.name": "Chained Rolls",
-  "hm.settings.character-options.header": "Customization Options",
-  "hm.settings.class-packs.name": "Class Packs",
-  "hm.settings.compact-button.hint": "Show only the egg icon in the Actors tab instead of the full button with text.",
-  "hm.settings.compact-button.name": "Compact Button",
-  "hm.settings.configure-compendiums": "Configure Compendiums",
-  "hm.settings.configure-customization": "Configure Customization",
-  "hm.settings.configure-mandatory": "Configure Mandatory Fields",
-  "hm.settings.configure-rolling": "Configure Roll Options",
-  "hm.settings.custom-compendiums.background": "Background",
-  "hm.settings.custom-compendiums.class": "Class",
-  "hm.settings.custom-compendiums.error-saving": "There was an error saving your compendium settings. Please see console (F12).",
-  "hm.settings.custom-compendiums.form-saved": "Compendium form settings have been saved.",
-  "hm.settings.custom-compendiums.item": "Item",
-  "hm.settings.custom-compendiums.menu.hint": "Determine which packs Hero Mancer will use.",
-  "hm.settings.custom-compendiums.menu.name": "Custom Compendiums",
-  "hm.settings.custom-compendiums.race": "Race",
-  "hm.settings.custom-point-buy-total.hint": "Total points available. Default is 27.",
-  "hm.settings.custom-point-buy-total.name": "Custom Total",
-  "hm.settings.custom-roll-formula.hint": "Roll formula for ability score generation. Default is '4d6kh3'.",
-  "hm.settings.custom-roll-formula.name": "Custom Formula",
-  "hm.settings.custom-standard-array.hint": "Comma-separated scores. Default is 15,14,13,12,10,8",
-  "hm.settings.custom-standard-array.invalid-format": "Invalid format: please enter numbers separated by commas only.",
-  "hm.settings.custom-standard-array.name": "Custom Array",
-  "hm.settings.custom-standard-array.reset-default": "Custom Standard Array was reset to default values due to invalid length.",
-  "hm.settings.customization.error-art-picker": "Error selecting art picker location. Please try again.",
-  "hm.settings.customization.error-context": "Error loading customization settings. Default values may be shown.",
-  "hm.settings.customization.error-saving": "Error saving character customization settings.",
-  "hm.settings.customization.menu.hint": "Determine what customization players can use.",
-  "hm.settings.customization.menu.name": "Character Customization",
-  "hm.settings.customization.saved": "Character customization settings saved successfully.",
-  "hm.settings.deities.hint": "Comma-separated list of deities available for character creation.",
-  "hm.settings.deities.name": "Available Deities",
-  "hm.settings.dice-rolling-method.manual.enable": "Enable Manual Rolling",
-  "hm.settings.dice-rolling-method.manual.hint": "Allow players to roll dice using a configurable formula.",
-  "hm.settings.dice-rolling-method.manual.name": "Manual",
-  "hm.settings.dice-rolling-method.point-buy.enable": "Enable Point Buy",
-  "hm.settings.dice-rolling-method.point-buy.hint": "Allow players to spend points to set their ability scores.",
-  "hm.settings.dice-rolling-method.point-buy.name": "Point Buy",
-  "hm.settings.dice-rolling-method.standard-array.enable": "Enable Standard Array",
-  "hm.settings.dice-rolling-method.standard-array.hint": "Allow players to assign scores from a fixed set of values.",
-  "hm.settings.dice-rolling-method.standard-array.name": "Standard Array",
-  "hm.settings.dice-rolling.general.header": "General",
-  "hm.settings.dice-rolling.menu.hint": "Set stat generation options.",
-  "hm.settings.dice-rolling.menu.name": "Ability Score Generation",
-  "hm.settings.dice-rolling.need-roll-method": "At least one ability score generation method must be enabled, changes rejected.",
-  "hm.settings.dice-rolling.saved": "Dice rolling settings have been saved.",
-  "hm.settings.dicesonice.hint": "Show 3D dice animations for ability score rolls using Dice So Nice module",
-  "hm.settings.dicesonice.name": "Enable 3D Dice for Ability Rolls",
-  "hm.settings.elkan.hint": "Enabling this setting will ensure compatibility with Elkan5e. Please note this disabled the Equipment tab of Hero Mancer.",
-  "hm.settings.elkan.name": "Enable Elkan5e compatibility?",
-  "hm.settings.enable.hint": "Adds a button to use Hero Mancer on the Actors tab.",
-  "hm.settings.enable.name": "Enable Hero Mancer?",
-  "hm.settings.eye-colors.hint": "Comma-separated list of eye colors used for character randomization.",
-  "hm.settings.eye-colors.name": "Eye Colors",
-  "hm.settings.genders.hint": "Comma-separated list of genders used for character randomization.",
-  "hm.settings.genders.name": "Genders",
-  "hm.settings.general-options.header": "General Options",
-  "hm.settings.hair-colors.hint": "Comma-separated list of hair colors used for character randomization.",
-  "hm.settings.hair-colors.name": "Hair Colors",
-  "hm.settings.item-packs.name": "Item Packs",
-  "hm.settings.logger.choices.errors": "Errors",
-  "hm.settings.logger.choices.off": "Off",
-  "hm.settings.logger.choices.verbose": "Verbose",
-  "hm.settings.logger.choices.warnings": "Warnings",
-  "hm.settings.logger.hint": "Set the level of logs generated by Hero Mancer. The troubleshooter will catch everything regardless. Recommended: Warnings.",
-  "hm.settings.logger.name": "Logging Level",
-  "hm.settings.mandatory-fields.groups.abilities": "Abilities",
-  "hm.settings.mandatory-fields.groups.characteristics": "Characteristics",
-  "hm.settings.mandatory-fields.groups.identity": "Identity",
-  "hm.settings.mandatory-fields.groups.player": "Player Settings",
-  "hm.settings.mandatory-fields.groups.token": "Token Settings",
-  "hm.settings.mandatory-fields.menu.hint": "Set which fields must be filled out before submitting a character.",
-  "hm.settings.mandatory-fields.menu.name": "Mandatory Fields",
-  "hm.settings.mandatory-fields.saved": "Mandatory field settings saved",
-  "hm.settings.mandatory-fields.select-all": "Select All",
-  "hm.settings.nav-buttons.hint": "Adds Next/Previous buttons to help users navigate through the tabs",
-  "hm.settings.nav-buttons.name": "Enable Navigation Buttons",
-  "hm.settings.player-customization.hint": "Allow your players to set some information up during character creation, such as player color, pronouns, and avatar.",
-  "hm.settings.player-customization.name": "Allow Player Customization",
-  "hm.settings.publish-wealth-rolls.hint": "When enabled, starting wealth rolls will be published to chat for all users.",
-  "hm.settings.publish-wealth-rolls.name": "Publish Starting Wealth Rolls",
-  "hm.settings.race-packs.name": "Race Packs",
-  "hm.settings.randomize.hint": "Allows users to randomize aspects of their character creation process. Useful for one shots, randomizer games, and loose cannons.",
-  "hm.settings.randomize.name": "Enable Randomizer?",
-  "hm.settings.reset-to-default": "An empty field was detected in: {setting}! Reset to default value.",
-  "hm.settings.roll-delay.hint": "Delay between each chained roll in milliseconds. Lower is faster, higher is easier to follow.",
-  "hm.settings.roll-delay.name": "Roll Animation Delay",
-  "hm.settings.skin-tones.hint": "Comma-separated list of skin tones used for character randomization.",
-  "hm.settings.skin-tones.name": "Skin Tones",
-  "hm.settings.stat-generation-swap-mode.hint": "Selecting an already-used value swaps abilities instead of clearing the previous selection.",
-  "hm.settings.stat-generation-swap-mode.name": "Stat Generation Swap Mode",
-  "hm.settings.token-customization.hint": "Allow your players to set some default token settings usually reserved for the GM, such as display name status, dynamic token ring settings, and display bars.",
-  "hm.settings.token-customization.name": "Allow Token Customization",
-  "hm.settings.tokenizer.name": "Use tokenizer to choose token/character art.",
-  "hm.settings.troubleshooter.copy-error": "Failed to copy report to clipboard.",
-  "hm.settings.troubleshooter.copy-success": "Troubleshooter copied to clipboard",
-  "hm.settings.troubleshooter.copy-to-clipboard": "Copy to Clipboard",
-  "hm.settings.troubleshooter.discord": "Join Discord",
-  "hm.settings.troubleshooter.export-success": "Troubleshooter exported as {filename}",
-  "hm.settings.troubleshooter.generate-report": "Open Troubleshooter",
-  "hm.settings.troubleshooter.github": "Report Issue",
-  "hm.settings.troubleshooter.menu.hint": "Generate a troubleshooter report to assist with issues.",
-  "hm.settings.troubleshooter.menu.name": "Troubleshooter",
-  "hm.settings.troubleshooter.notes": "The troubleshooter contains all relevant information needed to start the bug-squashing process. Using the buttons below, you can save this output as a file or copy it to your clipboard. Feel free to join the Discord or create an issue on Github.",
-  "hm.settings.troubleshooter.output-label": "Troubleshooter output log",
-  "hm.settings.troubleshooter.save-to-file": "Download",
-  "hm.settings.troubleshooter.title": "Troubleshooter",
-  "hm.unknown-plain": "unknown",
-  "hm.unknown": "unknown {type}",
-  "hm.validation.item-mismatch": "{type} item name mismatch: Expected '{expected}' but found '{actual}'",
-  "hm.validation.missing-background": "Missing Background item: Expected '{expected}' but found none",
-  "hm.validation.missing-class": "Missing Class item: Expected '{expected}' but found none",
-  "hm.validation.missing-race": "Missing Race item: Expected '{expected}' but found none",
-  "hm.validation.multiple-items": "Multiple {type} items found: {items}",
-  "hm.warnings.no-packs-found": "No packs found for {type}",
-  "hm.warnings.select-background": "You must select a valid background first.",
-  "hm.warnings.simplified-journal": "Simplified view of {page}.",
-  "hm.warnings.some-advancements-failed": "Some advancements failed: {failed}. Succeeded: {succeeded}."
+  "HEROMANCER": {
+    "Release": {
+      "Title": "Hero Mancer 2 {version}",
+      "ReleaseNotes": "View Release Notes"
+    },
+    "Migration": {
+      "RefreshNotice": "Hero Mancer 2 cleaned up settings left over from a previous version. Please refresh your browser (F5) for all changes to take effect."
+    },
+    "Dialog": {
+      "HeaderActions": "Window actions",
+      "Resize": "Resize"
+    },
+    "Compare": {
+      "Pin": "Pin to compare",
+      "Unpin": "Remove pin",
+      "Open": "Compare ({count})",
+      "WindowTitle": "Compare {category}",
+      "Empty": "No pins yet. Use the pin button on a card to add it here.",
+      "NeedTwo": "Pin at least two options to compare them.",
+      "Field": {
+        "FeatsGranted": "Feat(ure)",
+        "PrimaryAbility": "Primary ability",
+        "StartingWealth": "Starting wealth",
+        "ASILevels": "ASI / feat levels",
+        "SubclassLevel": "Subclass unlock",
+        "Scales": "Scales",
+        "ParentClass": "Parent class",
+        "FeaturesByLevel": "Features by level",
+        "BackgroundASI": "Ability Score Increase",
+        "GrantedSpells": "Granted spells",
+        "Choices": "Choices",
+        "EditionSource": "Source",
+        "MinLevel": "Minimum level",
+        "GrantsASI": "Grants ASI"
+      },
+      "Value": {
+        "And": "and",
+        "AllRequired": "(all required)",
+        "PlusMore": "+{count} more",
+        "LangChoice": "+{count} of choice",
+        "ChooseN": "Choose {count}",
+        "PickN": "pick {count}",
+        "LevelNPlus": "Level {level}+",
+        "Walking": "Walking",
+        "IgnoresDifficultTerrain": "Ignores difficult terrain",
+        "AnyAbility": "Any ability"
+      },
+      "Banner": {
+        "DupEdition": "Same feat name across editions - compare the rows below."
+      }
+    },
+    "LevelUp": {
+      "NotCharacter": "Hero Mancer 2 level-up only supports character actors.",
+      "Applied": "{name} is now level {level}.",
+      "Failed": "Level up failed. Your character was restored to its previous state.",
+      "Heading": "Level up: {name}",
+      "TotalLevel": "Current level: {level}",
+      "LevelStep": "Level {from} -> {to}",
+      "Section": {
+        "Existing": "Level an existing class",
+        "Multiclass": "Multiclass into a new class"
+      },
+      "Prereq": {
+        "JoinerAnd": "and",
+        "JoinerOr": "or",
+        "RequiresPart": "{ability} {threshold} (Current: {current})",
+        "FailTooltip": "You have not met the multiclassing requirement for this class. Confirm with your GM before choosing."
+      },
+      "SheetButton": {
+        "Tooltip": "Open Hero Mancer 2 in level-up mode for this character.",
+        "SendLabel": "Send Level Up",
+        "SendTooltip": "Notify the player to level up this character.",
+        "SendGroupTooltip": "Notify selected party members to level up."
+      },
+      "Dialog": {
+        "GrantTitle": "Send Level Up",
+        "GrantBody": "Grant a level-up to {actor}? They will see a pulsing Level Up button on their character sheet.",
+        "GrantGroupBody": "Select party members to grant a level-up:",
+        "IneligibleMax": "Max level",
+        "IneligiblePending": "Already pending",
+        "IneligibleNotCharacter": "Not a character",
+        "Confirm": "Send"
+      },
+      "Broadcast": {
+        "Grant": "{gm} granted {actor} a level-up. Open your sheet to begin.",
+        "GrantGroup": "{gm} granted a level-up to {actors}.",
+        "Complete": "{actor} is now level {level}.",
+        "AlreadyPending": "{actor} already has a pending level-up."
+      },
+      "Preview": {
+        "LevelHeading": "{name} -> Level {level}",
+        "MulticlassHeading": "Multiclass into {name} (Level {level})",
+        "HPFirst": "+{total} ({base} max from {die} + {mod} CON)",
+        "HPAvg": "+{total} avg ({base} from {die} + {mod} CON)",
+        "Features": "New features",
+        "SpellcastingNote": "Progresses ({progression})",
+        "ASI": "Ability Score Improvement",
+        "ASINote": "Choose +2 / +1/+1 spread or a feat in the Advancements tab.",
+        "SubclassNote": "Pick a subclass below before advancing."
+      },
+      "Subclass": {
+        "Legend": "Choose a subclass for {name}"
+      },
+      "Source": {
+        "rules-2014": "2014 ruleset",
+        "rules-2024": "2024 ruleset",
+        "rules-unknown": "Other source",
+        "Same": "Same as existing",
+        "Cross": "Different ruleset",
+        "SameTooltip": "These classes match the ruleset of your existing class.",
+        "CrossTooltip": "These classes use a different ruleset than your existing class."
+      },
+      "Impact": {
+        "Title": "Multiclass impact",
+        "Sub": "How {name} changes your character",
+        "SpellHeading": "Spell slots",
+        "SpellStack": "Your caster level rises from {old} to {new}. Slots stack across all leveled-caster classes on the multiclass table.",
+        "SpellNew": "This class introduces leveled spell slots.",
+        "PactNew": {
+          "one": "Adds {slots} pact slot at {level}.",
+          "other": "Adds {slots} pact slots at {level}."
+        },
+        "PactUpdate": "Pact slots update to {slots} at {level}.",
+        "ASIHeading": "Next Ability Score Improvement",
+        "ASINote": "First ASI from this class lands at character level {charLevel} (class level {classLevel}).",
+        "AbilityHeading": "Casting ability",
+        "AbilitySame": "Casting ability stays {ability}.",
+        "AbilitySecond": "Adds a second casting ability: {ability}.",
+        "AbilityExistingRow": "{className} casts with {ability}",
+        "AbilityNew": "Introduces {ability}-based casting."
+      }
+    },
+    "Approval": {
+      "Unnamed": "Unnamed Character",
+      "SubmittedBy": "submitted by {user} on {when}",
+      "Banner": {
+        "one": "{count} pending character awaits review.",
+        "other": "{count} pending characters await review."
+      },
+      "BannerOpen": "Open queue",
+      "Queue": {
+        "Title": "Pending Approvals",
+        "Review": "Review",
+        "Restore": "Restore",
+        "RestoredToast": "Submission restored to the pending queue.",
+        "Empty": "No pending submissions.",
+        "EmptyArchive": "Archive is empty.",
+        "ViewPending": "View pending",
+        "ViewArchive": "View archive",
+        "QuickApprove": "Approve as submitted",
+        "QuickReject": "Reject",
+        "outcome-approved": "Approved",
+        "outcome-rejected": "Rejected",
+        "ClearArchive": {
+          "Action": "Clear archive",
+          "Title": "Clear approval archive?",
+          "Body": "Delete all archived submissions? This cannot be undone."
+        },
+        "Column": {
+          "Character": "Character",
+          "Submitter": "Submitter",
+          "SubmittedAt": "Submitted",
+          "ResolvedAt": "Resolved",
+          "Outcome": "Outcome"
+        }
+      },
+      "RejectionNotice": {
+        "Title": "Submission Rejected",
+        "Body": "Your GM rejected your character submission. Restore it to edit and resubmit, or start over.",
+        "ReasonLabel": "Reason given:",
+        "NoReason": "No reason was provided.",
+        "Restore": "Restore from submission",
+        "StartOver": "Start over"
+      },
+      "RejectionBanner": {
+        "Title": "Previous submission rejected"
+      },
+      "SubmissionLock": {
+        "Banner": "Your character is awaiting GM review. The form is read-only until the GM approves or rejects.",
+        "Tooltip": "Awaiting GM review."
+      },
+      "SubmittedToast": "Character submitted for GM review.",
+      "Replay": {
+        "Created": "Your GM approved {name}. The sheet is now open.",
+        "GMEdited": "Your GM approved {name} (with edits). The character has been created.",
+        "Failed": "Approval received, but character creation failed. Check the console for details."
+      },
+      "Review": {
+        "ApprovedToast": "Submission approved.",
+        "RejectedToast": "Submission rejected.",
+        "RejectDialog": {
+          "Title": "Reject Submission",
+          "Prompt": "Optionally explain why. The submitter will see this when they receive the rejection.",
+          "Confirm": "Reject"
+        }
+      }
+    },
+    "Integrations": {
+      "Dnd5e": {
+        "ConsentTitle": "Enable D&D5e Advancement Automation",
+        "ConsentBody": "Hero Mancer 2 needs advancement automation enabled to apply features correctly. Your current setting has it disabled.",
+        "ConsentEnable": "Enable Automation",
+        "AdvancementsEnabled": "D&D5e advancement automation enabled."
+      },
+      "SpellBook": {
+        "Missing": "Install the Spell Book module to manage spells for this character.",
+        "NoGM": "No GM is online to finalize your spellbook. Your character is created; ask your GM to configure spells when they're back.",
+        "Canceled": "Your GM closed the spellbook setup without saving. You can request it again from your character sheet.",
+        "NoCompendiums": {
+          "gm": "Spell Book has no enabled spell compendiums. Open the dnd5e source configuration and enable at least one Item compendium that contains spells.",
+          "player": "Your GM hasn't finished setting up Spell Book yet. Your spells will be available once they enable a spell compendium."
+        },
+        "Waiting": {
+          "Title": "Finalizing spellbook...",
+          "Body": "Waiting for your GM to configure spellcasting rules for {name}. The Spell Book will open here as soon as they save.",
+          "Cancel": "Stop waiting"
+        }
+      }
+    },
+    "Chat": {
+      "CharacterSummary": {
+        "Label": "Character created",
+        "EquipmentHeading": "Carried",
+        "ViewSheet": "View Sheet"
+      },
+      "Approval": {
+        "submitted": "{player} submitted {name} for review.",
+        "approved": "{name} was approved.",
+        "rejected": "{name} was rejected.",
+        "review": "Review",
+        "awaiting": "Awaiting GM review",
+        "reopen": "Open Hero Mancer 2"
+      }
+    },
+    "Character": {
+      "DefaultName": "Adventurer"
+    },
+    "App": {
+      "DocumentService": {
+        "CommonLabels": {
+          "Forge": "The Forge",
+          "DndbeyondImporter": "D&D Beyond",
+          "Homebrew": "Homebrew",
+          "Srd51": "SRD 5.1",
+          "Srd52": "SRD 5.2",
+          "UnknownSource": "Unknown Source"
+        }
+      },
+      "JournalLoading": "Loading journal page...",
+      "Journal": {
+        "PageNotFound": "Journal page not found",
+        "NoContentFound": "No content found",
+        "RenderError": "Error rendering journal page"
+      },
+      "Identity": {
+        "PickPlaceholder": "Pick one...",
+        "SubclassPlaceholder": "Pick a subclass...",
+        "Caster": {
+          "full": "Full Caster",
+          "half": "Half Caster",
+          "third": "Third Caster",
+          "pact": "Pact Magic",
+          "artificer": "Artificer"
+        },
+        "Subclass": {
+          "DescriptionNavLabel": "Switch subclass description"
+        },
+        "Multiclass": {
+          "PrimaryTooltip": "Primary class -- grants starting equipment and level-1 max HP",
+          "Add": "Add multiclass",
+          "AddMissing": "Class pick missing on a multiclass row",
+          "BalanceMismatch": "Multiclass level totals don't match the starting level",
+          "RemoveTooltip": "Remove this class",
+          "BalanceOk": "Levels assigned: {total} / {max}",
+          "BalanceShort": "Levels remaining: {missing} ({total} / {max})",
+          "BalanceOver": "Over by {over} ({total} / {max}) -- reduce a class level",
+          "PrereqFailed": "Multiclass prereq not met for a picked class",
+          "DescriptionNavLabel": "Switch description",
+          "Decrement": "Decrease level",
+          "Increment": "Increase level"
+        },
+        "ScrollTop": "Back to top"
+      },
+      "Launch": {
+        "ShortLabel": "Hero Mancer 2",
+        "DialogLabel": "Create with Hero Mancer 2",
+        "Loading": "Gathering your character options..."
+      },
+      "Randomize": {
+        "All": "Randomize",
+        "Failed": "Randomize could not finish. Some selections may be incomplete.",
+        "ConfirmTitle": "Randomize",
+        "ConfirmBody": "Randomizes: name, identity, ability scores, and hit points.\nNot touched: Equipment, Biography, and Advancements."
+      },
+      "Welcome": {
+        "Title": "Welcome to Hero Mancer 2",
+        "Lede": "A guided character creator and level-up tool.",
+        "GM": {
+          "Heading": "For GMs",
+          "StepSources": "<a data-action=\"openSources\" class=\"hm-welcome-link\">Configure Sources in the Compendium Browser</a>. Hero Mancer 2 respects which compendiums you choose to pull from.",
+          "StepSettings": "Tune Hero Mancer 2 from <a data-action=\"openSettings\" data-tab=\"abilities\" class=\"hm-welcome-link\">Abilities</a>, <a data-action=\"openSettings\" data-tab=\"wizard-flow\" class=\"hm-welcome-link\">Wizard Flow</a>, <a data-action=\"openSettings\" data-tab=\"enforcement\" class=\"hm-welcome-link\">Enforcement</a>, <a data-action=\"openSettings\" data-tab=\"player-experience\" class=\"hm-welcome-link\">Player Experience</a>, or <a data-action=\"openSettings\" data-tab=\"exclusions\" class=\"hm-welcome-link\">Compendium Exclusion List</a>.",
+          "StepApprovals": "When players submit characters, a banner appears at the top of your screen. If you dismiss the notification, you can access the Queue from the <a data-action=\"openQueue\" class=\"hm-welcome-link\">Queue Manager</a> in the settings menu.",
+          "StepOnBehalf": "GMs can create or level-up characters on behalf of players by selecting them from the Player dropdown on the Start tab.",
+          "StepLevelUp": "Grant a level-up by pressing Send Level Up on the group sheet header. A glowing Level Up button appears on the player's sheet near the rest buttons."
+        },
+        "Player": {
+          "Heading": "Getting started",
+          "HeadingForGM": "For Players",
+          "StepLaunch": "Open Hero Mancer 2 from the <a data-action=\"openActorDirectory\" class=\"hm-welcome-link\">Actor Directory</a> header or by choosing <a data-action=\"openCreateActor\" class=\"hm-welcome-link\">Create with Hero Mancer 2</a> in the Create Actor dialog.",
+          "StepTabs": "Take care to fill out all the information you can on each tab (and sub-tab!) before finalizing your character.",
+          "StepSubmit": "Press Build Character to submit. If your GM requires approval, the wizard locks until they review your submission; a banner shows the reason if it was rejected.",
+          "StepLevelUp": "When your GM grants a level-up, a glowing Level Up button appears on your sheet near your rest buttons. Click it to start."
+        },
+        "HideForever": "Don't show this again",
+        "Dismiss": "Got it",
+        "Links": {
+          "Patreon": "Support on Patreon",
+          "Kofi": "Buy me a Ko-fi",
+          "Discord": "Join the Discord",
+          "Github": "View on GitHub",
+          "Bugs": "Report a bug"
+        }
+      },
+      "Validation": {
+        "Missing": "Missing mandatory fields",
+        "PointBuy": "Point buy budget not fully spent",
+        "StandardArray": "Assign every standard-array value to an ability",
+        "ManualFormula": "Roll every ability",
+        "ConfirmIncomplete": {
+          "Title": "Create anyway?",
+          "Body": "Some required choices are still incomplete:",
+          "Warning": "Creating now may leave advancements unset or applied incorrectly.",
+          "Confirm": "Create anyway",
+          "Cancel": "Go back"
+        }
+      },
+      "Character": {
+        "Created": "Created {name}."
+      },
+      "Finalize": {
+        "BasicInfo": "Basics",
+        "ClassesLabel": "Classes (total level {total})",
+        "AbilityBase": "Base {base} + ASI",
+        "Proficiencies": "Proficiencies",
+        "NoProficiencies": "Pick a species, class, and background to populate proficiencies.",
+        "Review": {
+          "SectionShop": "Shop purchases",
+          "NoEquipment": "No equipment chosen.",
+          "Gold": "Gold: {amount}",
+          "Qty": "x{qty}"
+        },
+        "SpellHandoff": {
+          "Legend": "Spell Book handoff",
+          "SkipLabel": "Don't open Spell Book after character creation",
+          "SkipHint": "Skip the automatic spell-setup flow. You can open Spell Book yourself from the character sheet whenever you're ready."
+        }
+      },
+      "Biography": {
+        "Personality": "Personality",
+        "AlignmentPlaceholder": "e.g. Lawful Good",
+        "FaithPlaceholder": "e.g. Pelor",
+        "GenderPlaceholder": "e.g. nonbinary",
+        "AgePlaceholder": "e.g. 27",
+        "EyesPlaceholder": "e.g. amber",
+        "HairPlaceholder": "e.g. short black",
+        "SkinPlaceholder": "e.g. olive",
+        "HeightPlaceholder": "e.g. 5'10\"",
+        "WeightPlaceholder": "e.g. 165 lbs",
+        "TraitsPlaceholder": "e.g. I quote scripture for every occasion.",
+        "IdealsPlaceholder": "e.g. Knowledge belongs to everyone.",
+        "BondsPlaceholder": "e.g. My mentor went missing - I will find them.",
+        "FlawsPlaceholder": "e.g. I cannot resist a wager, no matter the stakes.",
+        "AppearancePlaceholder": "e.g. Tall and wiry, with a faded crimson cloak.",
+        "Hints": {
+          "Backstory": "Where you came from, what shaped you, why you walk this road."
+        }
+      },
+      "Abilities": {
+        "YourClass": "your class",
+        "PrimaryTooltip": "{ability} is a primary ability for {class}.",
+        "SelectMethod": "Score generation method",
+        "Blurbs": {
+          "str": "How hard you swing a sword and how much you can carry. Skills: Athletics.",
+          "dex": "Reflexes, balance, and the kind of grace that turns a fall into a tumble. Skills: Acrobatics, Sleight of Hand, Stealth.",
+          "con": "Toughness and stamina, or how much punishment you can soak before going down.",
+          "int": "Raw reasoning, memory, and 'I read that in a book once.' Skills: Arcana, History, Investigation, Nature, Religion.",
+          "wis": "Perceptiveness, gut instinct, and willpower. Skills: Animal Handling, Insight, Medicine, Perception, Survival.",
+          "cha": "Confidence, poise, and personal magnetism. Skills: Deception, Intimidation, Performance, Persuasion.",
+          "hon": "Personal honor and standing in society.",
+          "san": "Mental fortitude against horror, madness, and reality unraveling."
+        },
+        "Method": {
+          "standardArray": "Standard Array",
+          "pointBuy": "Point Buy",
+          "manualFormula": "Manual Formula"
+        },
+        "PointsRemaining": "Points remaining",
+        "RollAll": "Roll stats",
+        "PoolLabel": "Rolled values",
+        "RerollPool": "Reroll",
+        "RerollPromptTitle": "Reroll which value?",
+        "RerollExhausted": "No rerolls remaining.",
+        "RerollNoUnassigned": "All pool values are assigned to abilities. Free one before rerolling."
+      },
+      "TabNames": {
+        "background": "Background",
+        "species": "Species",
+        "class": "Class",
+        "advancements": "Advancements",
+        "level-up": "Level Up"
+      },
+      "Equipment": {
+        "EmptyPickClassBg": "Pick a class and background to see starting-equipment choices.",
+        "granted-class": "Class grants",
+        "granted-background": "Background grants",
+        "NoChoices": "No equipment choices for this combination.",
+        "DetailChoosePrompt": "Choose...",
+        "DetailClose": "Close picker",
+        "DetailSearchLabel": "Search options",
+        "DetailEmpty": "No matching options.",
+        "section-class": "Class equipment",
+        "section-background": "Background equipment",
+        "section-named": "{name} equipment",
+        "WealthToggleLabel": "Take starting wealth instead",
+        "WealthSummaryRoll": "Roll {formula} (avg {average} gp)",
+        "WealthSummaryFlat": "{average} gp",
+        "WealthActiveNote": "Equipment skipped - wealth will be granted on finalize.",
+        "WealthRollButton": "Roll wealth",
+        "WealthRolledSummary": "Rolled {formula} = {value}",
+        "WealthRollFlavor": "{source} starting wealth",
+        "OrNoneLabel": "Take gold instead",
+        "SubtabChoices": "Granted Equipment",
+        "SubtabShop": "Purchase Equipment",
+        "BonusGoldName": "Bonus starting gold",
+        "BonusGoldReroll": "Reroll",
+        "Shop": {
+          "EmptyNoWealth": "Enable a wealth toggle in Granted Equipment to unlock starting gold for purchases.",
+          "SearchPlaceholder": "Search...",
+          "FilterAll": "All",
+          "SortLabel": "Sort",
+          "SortNameAsc": "Name A-Z",
+          "SortNameDesc": "Name Z-A",
+          "SortCostAsc": "Cost: low to high",
+          "SortCostDesc": "Cost: high to low",
+          "SortBucket": "Group by type",
+          "Free": "-",
+          "Remove": "Remove",
+          "CartEmpty": "Cart empty. Click a tile to add it.",
+          "CartHeading": "Cart",
+          "CatalogueHeading": "Catalogue"
+        }
+      },
+      "Start": {
+        "PlayerSettings": "Player settings",
+        "NamePlaceholder": "e.g. Logus",
+        "GenerateRandomName": "Generate a random name",
+        "RandomNameStyle": {
+          "label": "Name style",
+          "all": "All",
+          "female": "Feminine",
+          "male": "Masculine",
+          "family": "Surname"
+        },
+        "RandomNameCulture": {
+          "label": "Name culture",
+          "all": "All",
+          "easterling": "Eastern",
+          "fantasy": "Fantasy",
+          "forest-dweller": "Elven",
+          "gem-tinkerer": "Gnomish",
+          "hill-feaster": "Halfling",
+          "metal-miner": "Dwarven",
+          "mud-grubber": "Goblin",
+          "old-worlder": "Germanic",
+          "scale-bearer": "Draconic",
+          "war-bringer": "Orcish"
+        },
+        "DiceAppearance": {
+          "Legend": "Dice So Nice",
+          "Label": "Character dice",
+          "Set": "Set dice appearance",
+          "Edit": "Edit dice appearance",
+          "StatusDefault": "Using your default dice",
+          "StatusCustom": "Custom dice set",
+          "StatusCustomWithColorset": "Custom dice: {colorset}"
+        },
+        "PlayerAssignmentLabel": "Assign to player",
+        "PlayerAssignmentPlaceholder": "No player",
+        "CharacterArtLabel": "Character art",
+        "CharacterArtPlaceholder": "Path to character portrait",
+        "Tokenize": "Tokenize",
+        "TokenSameAsCharacter": "Use character art for token",
+        "TokenArtLabel": "Token art",
+        "TokenArtPlaceholder": "Path to token image",
+        "PlayerColor": "Player color",
+        "PlayerPronouns": "Pronouns",
+        "PlayerPronounsPlaceholder": "e.g. they/them",
+        "TokenSettings": "Token ring",
+        "LevelLabel": "Starting level",
+        "LevelTileHint": "Campaign default set by the GM.",
+        "Birthday": {
+          "Label": "Character birthday",
+          "Month": "Birth month",
+          "Day": "Birth day",
+          "Year": "Birth year",
+          "Age": "{age} years old",
+          "NoteName": "{name}'s Birthday"
+        },
+        "Hints": {
+          "Name": "Type a name, or click shuffle to roll one. Middle dropdown picks style (feminine / masculine / surname). Right dropdown picks cultural flavor (Elven, Dwarven, etc).",
+          "Birthday": "Picks the character's birthday. A recurring note is added to your calendar on creation.",
+          "PlayerAssignment": "Hand the finished character to a player. They become the owner; you stay GM.",
+          "Level": "The level your character starts at. Above level 1 unlocks multiclass + advancement choices.",
+          "LevelLocked": "Locked to the campaign default. Ask your GM to adjust the starting level setting.",
+          "CharacterArt": "Path to the portrait shown on the sheet, in the wizard HUD, and in chat cards.",
+          "TokenArt": "Path to the image shown on the canvas. Auto-mirrors the portrait when linked.",
+          "ArtNoPermission": "You don't have file-browsing permission, so art can't be picked here. Your GM can set art after creation or grant the File Browsing permission.",
+          "LinkTokenArt": "Use the character portrait for the token too — skips a separate token image.",
+          "PlayerColor": "Tint for chat bubbles, cursor, and ownership indicators across the table.",
+          "PlayerPronouns": "Optional display pronouns; shows next to your name in the Players list (bottom-left).",
+          "DiceAppearance": "Open Dice So Nice's editor to pick this character's dice colorset. Saves on close.",
+          "RingEnabled": "Turn on the dynamic token ring for this character. Required for the ring/background colors below to show.",
+          "RingColor": "Color of the outer dynamic ring around the token.",
+          "BackgroundColor": "Color of the inner ring frame behind the portrait."
+        }
+      },
+      "Advancements": {
+        "Empty": "Pick your Identity before setting advancements.",
+        "ClassLegend": "{className} (level {level})",
+        "None": "This class has no advancements at the chosen level.",
+        "MiscLabel": "Misc",
+        "GrantedLabel": "Granted",
+        "ChooseLabel": "Choose",
+        "GrantedBucket": {
+          "language": "Languages",
+          "skill": "Skill Proficiencies",
+          "tool": "Tool Proficiencies",
+          "weapon-armor": "Weapon & Armor Proficiencies",
+          "save": "Saving Throws",
+          "feat": "Feats",
+          "feature": "Features",
+          "spell": "Spells",
+          "other": "Other"
+        },
+        "ChoosePrompt": "Choice",
+        "ChooseCount": "Choose {count}...",
+        "BrowseMax": "You have already selected the maximum number of items for this choice.",
+        "ASIFootLabel": "ASI or Feat",
+        "ASIFootOnlyLabel": "ASI",
+        "ASIDialog": {
+          "Title": "Ability Score Improvement",
+          "Remaining": "{remaining} / {total} points remaining",
+          "FixedTag": "+{value} granted",
+          "Undo": "Reset choice"
+        },
+        "FeatDialog": {
+          "Title": "Pick a Feat"
+        },
+        "ASIModeASIBtn": "ASI",
+        "ASIModeFeatBtn": "Feat",
+        "Ribbon": {
+          "skill": "Skill",
+          "language": "Language",
+          "save": "Save",
+          "ability": "Ability",
+          "tool": "Tool",
+          "weapon": "Weapon",
+          "armor": "Armor",
+          "immunity": "Immune",
+          "resist": "Resistance",
+          "vuln": "Weak",
+          "absorb": "Absorb",
+          "feat": "Feat",
+          "feature": "Feature",
+          "spell": "Spell",
+          "gear": "Gear",
+          "container": "Pack",
+          "consumable": "Consumable",
+          "loot": "Loot",
+          "background": "Background",
+          "class": "Class",
+          "subclass": "Subclass",
+          "species": "Species",
+          "asi": "ASI",
+          "pick": "Pick"
+        },
+        "RibbonProf": {
+          "skill": "Skill Proficiency",
+          "save": "Save Proficiency",
+          "tool": "Tool Proficiency",
+          "weapon": "Weapon Proficiency",
+          "armor": "Armor Proficiency"
+        },
+        "ItemChoicePlaceholder": "Pick an item",
+        "Chip": {
+          "granted": "Granted",
+          "choice": "Choice",
+          "choose": "Choose",
+          "choose-count": "Choose {count}",
+          "done": "Done",
+          "error": "Error",
+          "partial": "{filled} / {required}",
+          "partial-tooltip": "Selection incomplete"
+        },
+        "NoOptions": "No valid options - this advancement is misconfigured. Skipped.",
+        "ApplyFailed": "Advancement \"{title}\" failed to apply: {reason}",
+        "FeatBrowser": {
+          "Empty": "No feats indexed. Configure feat compendiums in dnd5e source settings.",
+          "EmptyFilter": "No feats match the current filters.",
+          "SearchLabel": "Search feats",
+          "SearchPlaceholder": "Search feats by name...",
+          "FilterAll": "All",
+          "QualifyingOnly": "Show only feats you qualify for",
+          "RulesAll": "All",
+          "BookAll": "All",
+          "Picked": "Selected",
+          "PrereqLevelWarning": "Requires character level {level}",
+          "PrereqRepeatable": "Repeatable",
+          "GrantsSpellTooltip": "Grants or chooses a spell",
+          "SectionRulesets": "Rulesets",
+          "SectionSources": "Sources",
+          "SectionAction": "Action economy",
+          "SectionGrants": "Grants",
+          "action-action": "Action",
+          "action-bonus": "Bonus Action",
+          "action-reaction": "Reaction",
+          "action-passive": "Passive",
+          "GrantsASIOnly": "Grants ASI",
+          "GrantsSpellOnly": "Grants a spell"
+        }
+      },
+      "HP": {
+        "empty": "Pick a class on the Identity tab to set up hit points.",
+        "method": "Method",
+        "level": "Level",
+        "max": "Max",
+        "average": "Average",
+        "reroll": "Reroll",
+        "roll-btn": "Roll hit die",
+        "reroll-btn": "Reroll hit die",
+        "roll-locked": "Reroll limit reached",
+        "applied": "Applied",
+        "applied-tooltip": "This level's hit points were already applied to this character.",
+        "con-mod": "CON modifier",
+        "con-short": "CON",
+        "total": "Total HP",
+        "per-class-chip": "{count} x {die}",
+        "block-total": "Total {total}",
+        "reroll-title": "Reroll hit die?",
+        "reroll-prompt": "Level {level} already rolled <strong>{value}</strong>. Reroll?",
+        "attempts-left": "{n} left"
+      }
+    },
+    "Components": {
+      "Combobox": {
+        "SearchLabel": "Filter options",
+        "NoResults": "No matches"
+      },
+      "EquipmentTile": {
+        "TypePack": "Pack",
+        "TypeCurrency": "Wealth",
+        "TypeNone": "Coin",
+        "BundleCount": {
+          "one": "{count} item",
+          "other": "{count} items"
+        },
+        "BundleAndMore": "and more...",
+        "RequiresProficiency": "Requires proficiency"
+      },
+      "AbilityBlock": {
+        "Increment": "Increment",
+        "Decrement": "Decrement"
+      }
+    },
+    "Wizard": {
+      "Title": "Hero Mancer 2",
+      "Review": {
+        "Title": "Reviewing: {name}"
+      },
+      "Header": {
+        "Actions": "Wizard actions",
+        "Close": "Close wizard"
+      },
+      "Sidebar": {
+        "Label": "Character summary"
+      },
+      "Hud": {
+        "Label": "Live character preview",
+        "CurrencyTooltip": "Coin remaining",
+        "Prof": "Prof",
+        "Saves": "Saves"
+      },
+      "Nav": {
+        "Label": "Wizard tabs",
+        "BadgeTooltip": "Choices remaining"
+      },
+      "Identity": {
+        "SubnavLabel": "Identity sections"
+      },
+      "Tabs": {
+        "Start": "Start",
+        "Identity": "Identity",
+        "Advancements": "Advancements",
+        "Finalize": "Finalize"
+      },
+      "Menus": {
+        "Settings": "Hero Mancer 2 Settings"
+      },
+      "Footer": {
+        "SaveDraft": "Save draft",
+        "SubmitApproval": "Submit for approval",
+        "Create": "Create character",
+        "ConfirmLevelUp": "Confirm level up",
+        "Approve": "Approve",
+        "Reject": "Reject",
+        "Back": "Back",
+        "Next": "Next"
+      },
+      "Draft": {
+        "Saved": "Draft saved.",
+        "Restored": "Draft restored.",
+        "SaveFailed": "Failed to save draft."
+      },
+      "CloseConfirm": {
+        "Title": "Unsaved Changes",
+        "Content": "You have unsaved changes. Save a draft to resume later, discard them, or cancel and stay in the wizard.",
+        "SaveDraft": "Save draft",
+        "Discard": "Discard"
+      }
+    },
+    "Settings": {
+      "ShowWelcome": {
+        "Name": "Show Welcome",
+        "Hint": "Show the Hero Mancer 2 welcome dialog once per session."
+      },
+      "MulticlassThreshold": {
+        "Name": "Multiclass ability threshold",
+        "Hint": "Minimum ability score required to multiclass into a class. Standard is 13."
+      },
+      "Logger": {
+        "Name": "Logging Level",
+        "Hint": "How much Hero Mancer 2 logs to the browser console.",
+        "Choices": {
+          "Off": "Off",
+          "Errors": "Errors",
+          "Warnings": "Warnings",
+          "Verbose": "Verbose"
+        }
+      },
+      "PublishWealthRolls": {
+        "Name": "Publish Starting Wealth Rolls",
+        "Hint": "When enabled, starting wealth rolls will be published to chat for all users."
+      },
+      "PublishCreationSummary": {
+        "Name": "Publish Creation Summary",
+        "Hint": "Post a chat card summarizing the new character.",
+        "Choices": {
+          "WhisperGM": "Whisper GM + Owner",
+          "Off": "Off"
+        }
+      },
+      "PublishLevelUpBroadcast": {
+        "Name": "Publish Level-Up Summary",
+        "Hint": "Post a chat message when a level-up is completed.",
+        "Choices": {
+          "WhisperOwners": "Whisper Owners",
+          "Off": "Off"
+        }
+      },
+      "KeepApprovalArchive": {
+        "Name": "Archive Submissions",
+        "Hint": "Keep approved and rejected submissions in a journal instead of deleting them on resolve."
+      },
+      "RequireApprovalForPlayers": {
+        "Name": "Require GM Approval",
+        "Hint": "Player characters are queued for GM review instead of being created directly. GMs bypass this."
+      },
+      "EnforceBiography": {
+        "Name": "Require Biography Fields",
+        "Hint": "When enabled, every field on the Biography tab must be filled before a character can be submitted."
+      },
+      "EnforceArt": {
+        "Name": "Require Character Art",
+        "Hint": "When enabled, character art is required. Token art is also required unless 'use character art for token' is checked."
+      },
+      "PendingApprovalsMenu": {
+        "Name": "Pending Approvals Queue",
+        "Hint": "Open the GM-side queue browser to review pending character submissions.",
+        "Label": "Open Queue"
+      },
+      "Troubleshooter": {
+        "Title": "Troubleshooter",
+        "Notes": "Copy or download this report and attach it to your bug report on Discord or GitHub.",
+        "OutputLabel": "Diagnostic report",
+        "SaveToFile": "Save to File",
+        "CopyToClipboard": "Copy to Clipboard",
+        "CopySuccess": "Report copied to clipboard.",
+        "Github": "GitHub",
+        "Menu": {
+          "Name": "Troubleshooter",
+          "Hint": "Generate a diagnostic report for bug reports.",
+          "Label": "Open Troubleshooter"
+        }
+      },
+      "AllowedMethods": {
+        "Name": "Allowed Rolling Methods",
+        "Hint": "Which rolling methods you allow your players to use to generate ability scores."
+      },
+      "AllowedHPMethods": {
+        "Name": "Allowed Hit Point Methods",
+        "Hint": "Which hit point methods you allow your players to use to roll health."
+      },
+      "SettingsPanel": {
+        "Menu": {
+          "Name": "Hero Mancer 2 Settings",
+          "Hint": "Open the Hero Mancer 2 settings dashboard. Groups every world + client setting under a tabbed UI.",
+          "Label": "Open Settings"
+        },
+        "Tabs": {
+          "abilities": "Stats",
+          "wizard-flow": "Workflow",
+          "enforcement": "Enforcement",
+          "player-experience": "Experience",
+          "advanced": "Advanced",
+          "exclusions": "Exclusions"
+        },
+        "Group": {
+          "General": "General",
+          "Identity": "Identity",
+          "Content": "Content",
+          "RequiredFields": "Required Fields",
+          "Approval": "Approval",
+          "Customization": "Customization",
+          "Publishing": "Publishing",
+          "Behavior": "Behavior",
+          "Tools": "Tools",
+          "ManualRoll": "Manual Roll",
+          "StandardArray": "Standard Array",
+          "PointBuy": "Point Buy",
+          "ScoreLimits": "Score Limits"
+        },
+        "AdvancementOrder": {
+          "RowUp": "Move up",
+          "RowDown": "Move down"
+        },
+        "AllowedMethods": {
+          "StandardArray": "Standard Array",
+          "PointBuy": "Point Buy",
+          "Manual": "Manual Roll"
+        },
+        "ArtPickerRoot": {
+          "Browse": "Browse"
+        },
+        "CustomFocusItems": {
+          "Add": "Add Item",
+          "RemoveTooltip": "Remove from focus pool"
+        },
+        "PointBuyCostMap": {
+          "Add": "Add Override",
+          "RemoveTooltip": "Remove override",
+          "CostLabel": "Point cost"
+        },
+        "Save": "Save Settings",
+        "Saved": "Settings saved.",
+        "ResetTab": "Reset this tab"
+      },
+      "CompendiumExclusionList": {
+        "Tabs": {
+          "species": "Species",
+          "background": "Background",
+          "class": "Class",
+          "subclass": "Subclass",
+          "items": "Items"
+        },
+        "Browse": "Browse",
+        "HiddenCount": "{count} hidden"
+      },
+      "LockIdentityRuleset": {
+        "Name": "Lock identity decisions to ruleset",
+        "Hint": "When on, your first identity pick locks every other identity choice to its ruleset (2014 or 2024). Options with no ruleset stay available to all."
+      },
+      "HideOtherCreateActorOptions": {
+        "Name": "Hide Other Create Options",
+        "Hint": "Players see only the Hero Mancer 2 button in the Create Actor dialog. GMs see all options."
+      },
+      "TrimSourceParenthetical": {
+        "Name": "Trim Sourcebook Suffix",
+        "Hint": "Hide the sourcebook tag in option names, e.g. 'Tiefling (PHB)' becomes 'Tiefling'."
+      },
+      "ArtPickerRoot": {
+        "Name": "Art Directory",
+        "Hint": "Starting folder for the character art picker."
+      },
+      "PlayerCustomization": {
+        "Name": "Allow Player Customization",
+        "Hint": "Let players pick their player color and pronouns during character creation."
+      },
+      "TokenCustomization": {
+        "Name": "Allow Token Ring Customization",
+        "Hint": "Let players enable the dynamic token ring and pick its ring + background color."
+      },
+      "Randomize": {
+        "Name": "Enable Randomizer?",
+        "Hint": "Allows users to randomize aspects of their character creation process."
+      },
+      "AdvancementOrder": {
+        "Name": "Identity Order",
+        "Hint": "Set the order the Background, Species, and Class tabs appear in the creation wizard."
+      },
+      "CustomRollFormula": {
+        "Name": "Manual Roll Formula",
+        "Hint": "The dice formula used by the Manual roll method. Default is 4d6kh3."
+      },
+      "CustomPointBuyTotal": {
+        "Name": "Point Buy Amount",
+        "Hint": "Total points each player has to spend in point buy. Default is 27."
+      },
+      "PointBuyCostMap": {
+        "Name": "Cost Table",
+        "Hint": "The point cost of each ability score. Edit, add, or remove rows."
+      },
+      "CustomFocusItems": {
+        "Name": "Custom Spellcasting Focus",
+        "Hint": "Items treated as valid spellcasting focuses, merged into the system list and available in the equipment shop."
+      },
+      "AllowRerolls": {
+        "Name": "Allow Rerolls",
+        "Hint": "Let players reroll manually rolled values, like HP and abilities."
+      },
+      "MaxRerollAttempts": {
+        "Name": "Max Reroll Attempts",
+        "Hint": "How many times a player can reroll. Set to 0 for unlimited."
+      },
+      "StandardArrayValues": {
+        "Name": "Standard Array Formula",
+        "Hint": "Comma separated scores your players must choose from."
+      },
+      "AbilityScores": {
+        "Default": {
+          "Name": "Default Ability Score",
+          "Hint": "The starting value for ability scores when creating a new character."
+        },
+        "Min": {
+          "Name": "Minimum Ability Score",
+          "Hint": "The lowest value allowed for ability scores during character creation."
+        },
+        "Max": {
+          "Hint": "The highest value allowed for ability scores during character creation."
+        }
+      },
+      "StartingLevel": {
+        "Name": "Starting Level",
+        "Hint": "Level new characters start at. Default is 1."
+      },
+      "AllowPlayerLevelOverride": {
+        "Name": "Allow Player Level Override",
+        "Hint": "When enabled, players can change their starting level on the Start tab. When disabled, the campaign default is enforced."
+      },
+      "HPMethod": {
+        "Choices": {
+          "max": "Maximum",
+          "average": "Average",
+          "manual": "Manual"
+        }
+      },
+      "HPRerollOnes": {
+        "Name": "Reroll 1s on Hit Dice",
+        "Hint": "When enabled, manual HP rolls reroll any 1 on the first try (uses 1dNrr1)."
+      },
+      "HPL1MaxDie": {
+        "Name": "Level 1 Uses Max Hit Die",
+        "Hint": "The primary class gets maximum HP at first level."
+      },
+      "RefundUnchosenGold": {
+        "Name": "Refund Skipped Equipment",
+        "Hint": "Unchecking a granted equipment item adds its price to your shop gold."
+      },
+      "BonusGoldFormula": {
+        "Name": "Bonus Starting Gold Formula",
+        "Hint": "Roll formula or fixed amount (e.g. '1d100*3' or '250') added to every character's starting gold pool. Leave blank to disable. Dice formulas require a player roll on the Granted Equipment tab; fixed amounts apply automatically."
+      },
+      "Dicesonice": {
+        "Name": "Enable 3D Dice for Ability Rolls",
+        "Hint": "Show 3D dice animations for ability score rolls using Dice So Nice."
+      },
+      "Tokenizer": {
+        "Name": "Tokenizer Compatibility",
+        "Hint": "Use Tokenizer 2's editor for character portrait and token art."
+      }
+    }
+  }
 }

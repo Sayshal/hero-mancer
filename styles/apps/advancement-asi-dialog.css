@@ -1,0 +1,82 @@
+.hm-asi-dialog-body {
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+.hm-asi-grid {
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: grid;
+}
+
+.hm-asi-ability {
+  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.7rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-md);
+  background: linear-gradient(180deg, var(--hero-mancer-bg), var(--hero-mancer-bg-elev));
+}
+
+.hm-asi-label {
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hm-asi-stepper {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.hm-asi-value {
+  gap: 0.1rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2rem;
+}
+
+.hm-asi-value > strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg);
+  font-weight: 800;
+  font-size: 1.6em;
+  line-height: 1;
+}
+
+.hm-asi-mod {
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 600;
+  font-size: 0.85em;
+}
+
+.hm-asi-fixed {
+  color: var(--hero-mancer-accent);
+  font-style: italic;
+  font-size: 0.75em;
+}
+
+.hm-asi-remaining {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.hm-asi-footer {
+  gap: 0.5rem;
+  display: flex;
+  padding-top: 0.5rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-asi-commit {
+  flex: 1;
+}

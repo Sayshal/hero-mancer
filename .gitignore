@@ -1,4 +1,8 @@
-DND5E
-Foundry
-*.lock
+/coverage/
+/dist
+/dnd5e
+/foundry/
+/node_modules/
 /todo
+*.lock
+README.html

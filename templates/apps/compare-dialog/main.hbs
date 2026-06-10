@@ -1,0 +1,43 @@
+<section class="hm-dialog-body hm-compare-body">
+  {{#if empty}}
+    <p class="hm-empty hm-compare-empty">{{emptyText}}</p>
+  {{else}}
+    {{#if banner}}
+      <div class="hm-compare-banner" role="note">
+        <i class="{{banner.icon}}" aria-hidden="true"></i>
+        <span>{{banner.text}}</span>
+      </div>
+    {{/if}}
+    <div class="hm-compare-grid" style="{{gridStyle}}">
+      <div class="hm-compare-row-label hm-compare-corner" aria-hidden="true"></div>
+      {{#each columns as |col|}}
+        <div class="hm-compare-col-header">
+          <a class="hm-compare-col-link" data-item-link data-uuid="{{col.uuid}}" role="button" tabindex="0">
+            {{#if col.img}}<img src="{{col.img}}" alt="" class="hm-compare-col-icon">{{/if}}
+            <span class="hm-compare-col-name">{{col.name}}</span>
+          </a>
+          <button type="button" class="hm-compare-col-remove" data-action="removePin" data-uuid="{{col.uuid}}"
+            data-tooltip="" aria-label="{{localize 'HEROMANCER.Compare.Unpin'}}">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      {{/each}}
+
+      {{#each rows as |row|}}
+        <div class="hm-compare-row-label">
+          <i class="{{row.icon}}" aria-hidden="true"></i>
+          <span>{{row.label}}</span>
+        </div>
+        {{#each row.cells as |cell|}}
+          <div class="hm-compare-cell">
+            {{#if cell.html}}
+              <div class="hm-compare-cell-rich">{{{cell.html}}}</div>
+            {{else}}
+              <span>{{cell.text}}</span>
+            {{/if}}
+          </div>
+        {{/each}}
+      {{/each}}
+    </div>
+  {{/if}}
+</section>

@@ -1,0 +1,21 @@
+<section class="hm-dialog-body hm-troubleshooter-body">
+  <p class="hint">{{localize "HEROMANCER.Settings.Troubleshooter.Notes"}}</p>
+  <textarea class="hm-troubleshooter-output" rows="20" readonly
+    aria-label="{{localize 'HEROMANCER.Settings.Troubleshooter.OutputLabel'}}">{{output}}</textarea>
+  <footer class="hm-dialog-footer hm-troubleshooter-footer">
+    <button type="button" class="hm-primary" data-action="exportReport">
+      <i class="fa-solid fa-download" aria-hidden="true"></i>
+      {{localize "HEROMANCER.Settings.Troubleshooter.SaveToFile"}}
+    </button>
+    <button type="button" data-action="copyReport">
+      <i class="fa-solid fa-copy" aria-hidden="true"></i>
+      {{localize "HEROMANCER.Settings.Troubleshooter.CopyToClipboard"}}
+    </button>
+    <button type="button" data-action="openDiscord">
+      <i class="fa-brands fa-discord" aria-hidden="true"></i> {{localize "DND5E.Discord"}}
+    </button>
+    <button type="button" data-action="openGithub">
+      <i class="fa-brands fa-github" aria-hidden="true"></i> {{localize "HEROMANCER.Settings.Troubleshooter.Github"}}
+    </button>
+  </footer>
+</section>

@@ -1,0 +1,91 @@
+<section class="tab hm-tab hm-tab-equipment standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  {{#unless hasSources}}
+    <p class="hm-empty">{{localize 'HEROMANCER.App.Equipment.EmptyPickClassBg'}}</p>
+  {{else}}
+    <nav class="hm-tab-subtabs tabs" role="tablist" aria-label="{{localize 'TYPES.Item.equipment'}}">
+      <button type="button" class="hm-tab-subtab-btn {{#if (eq equipmentSubTab 'choices')}}active{{/if}}"
+        data-action="tab" data-tab="choices" data-group="equipment" role="tab"
+        aria-selected="{{#if (eq equipmentSubTab 'choices')}}true{{else}}false{{/if}}">
+        <i class="fas fa-clipboard-check"></i>
+        <span>{{localize 'HEROMANCER.App.Equipment.SubtabChoices'}}</span>
+      </button>
+      <button type="button" class="hm-tab-subtab-btn {{#if (eq equipmentSubTab 'shop')}}active{{/if}}" data-action="tab"
+        data-tab="shop" data-group="equipment" role="tab"
+        aria-selected="{{#if (eq equipmentSubTab 'shop')}}true{{else}}false{{/if}}">
+        <i class="fas fa-shop"></i>
+        <span>{{localize 'HEROMANCER.App.Equipment.SubtabShop'}}</span>
+      </button>
+    </nav>
+
+    <section class="tab hm-tab-subtab-panel {{#if (eq equipmentSubTab 'choices')}}active{{/if}}" data-tab="choices"
+      data-group="equipment" role="tabpanel">
+      <div class="hm-tab-equipment-body">
+        {{#if bonusGold}}
+          <fieldset class="hm-fieldset hm-eq-bonus-gold">
+            <legend>{{localize 'HEROMANCER.App.Equipment.BonusGoldName'}}</legend>
+            <input type="hidden" name="equipment.bonusGoldRolled" value="{{bonusGold.rolledValue}}"
+              data-eq-bonus-rolled />
+            <div class="hm-eq-bonus-gold-row">
+              <span class="hm-eq-bonus-gold-formula">{{bonusGold.formulaSummary}}</span>
+              {{#if bonusGold.rolledFormatted}}
+                <span class="hm-eq-bonus-gold-amount"><i class="fas fa-coins" aria-hidden="true"></i>
+                  {{bonusGold.rolledFormatted}}</span>
+              {{/if}}
+              {{#if bonusGold.canRoll}}
+                <button type="button" class="hm-eq-wealth-roll" data-action="rollBonusGold"
+                  data-formula="{{bonusGold.formula}}">
+                  <i class="fas fa-dice"></i>
+                  <span>{{#if bonusGold.rolledValue}}{{localize 'HEROMANCER.App.Equipment.BonusGoldReroll'}}{{else}}{{localize
+                      'DND5E.Roll'}}{{/if}}</span>
+                </button>
+              {{/if}}
+            </div>
+          </fieldset>
+        {{/if}}
+        {{#each sections}}
+          <fieldset class="hm-fieldset hm-eq-section" data-eq-section="{{this.tag}}">
+            <legend>{{this.label}}</legend>
+            {{#if this.wealthAvailable}}
+              <label class="hm-eq-wealth-toggle">
+                <input type="checkbox" name="{{this.wealthCheckboxName}}" data-eq-wealth-toggle
+                  {{#if this.useWealth}}checked{{/if}} />
+                <span>{{localize 'HEROMANCER.App.Equipment.WealthToggleLabel'}}</span>
+                {{#if this.rolledSummary}}
+                  <em class="hm-eq-wealth-summary">({{this.rolledSummary}})</em>
+                {{else}}
+                  <em class="hm-eq-wealth-summary">({{this.wealthSummary}})</em>
+                {{/if}}
+              </label>
+              <input type="hidden" name="{{this.wealthRolledName}}" value="{{this.rolledValue}}"
+                data-eq-wealth-rolled />
+              {{#if this.canRollNow}}
+                <button type="button" class="hm-eq-wealth-roll" data-action="rollWealth" data-tag="{{this.tag}}"
+                  data-formula="{{this.wealth.formula}}">
+                  <i class="fas fa-dice"></i>
+                  <span>{{localize 'HEROMANCER.App.Equipment.WealthRollButton'}}</span>
+                </button>
+              {{/if}}
+            {{/if}}
+            {{#if this.useWealth}}
+              <p class="hm-eq-wealth-active">{{localize 'HEROMANCER.App.Equipment.WealthActiveNote'}}</p>
+            {{else}}
+              {{#each this.groups}}
+                {{> hmEquipmentTile this}}
+              {{/each}}
+            {{/if}}
+          </fieldset>
+        {{/each}}
+        {{#unless sections.length}}
+          <p class="hm-empty">{{localize 'HEROMANCER.App.Equipment.NoChoices'}}</p>
+        {{/unless}}
+      </div>
+    </section>
+
+    <section class="tab hm-tab-subtab-panel {{#if (eq equipmentSubTab 'shop')}}active{{/if}}" data-tab="shop"
+      data-group="equipment" role="tabpanel">
+      {{> hmEquipmentShop shop}}
+    </section>
+
+  {{/unless}}
+</section>

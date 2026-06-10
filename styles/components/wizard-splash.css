@@ -1,0 +1,60 @@
+.hm-wizard-splash {
+  backdrop-filter: blur(0.5rem);
+  inset: 0;
+  display: flex;
+  opacity: 1;
+  z-index: 9999;
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  background: rgb(0 0 0 / 35%);
+  transition: opacity 0.35s ease;
+}
+
+.hm-wizard-splash.is-done {
+  opacity: 0;
+}
+
+.hm-wizard-splash-card {
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 18rem;
+  max-width: 80vw;
+  padding: 2rem;
+  border: 0.0625rem solid var(--hero-mancer-border-strong);
+  border-radius: var(--hero-mancer-radius-lg);
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg);
+  box-shadow: 0 0.75rem 2rem var(--hero-mancer-shadow);
+}
+
+.hm-wizard-splash-egg {
+  color: var(--hero-mancer-accent);
+  font-size: 2.5em;
+  animation: hm-egg-pulse 2.4s ease-in-out infinite;
+}
+
+.hm-wizard-splash-label {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.hm-wizard-splash-track {
+  width: 100%;
+  height: 0.4rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-wizard-splash-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 0.2rem;
+  background: var(--hero-mancer-accent);
+  transition: width 0.3s ease;
+}

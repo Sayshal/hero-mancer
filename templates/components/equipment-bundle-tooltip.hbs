@@ -1,0 +1,6 @@
+<ul class="hm-bundle-tip">{{#each contents}}
+    <li>{{#if this.icon}}<img src="{{this.icon}}" alt="">{{/if}}<span>{{this.label}}</span>{{#if this.qty}} <span
+          class="hm-bundle-tip-qty">&times;{{this.qty}}</span>{{/if}}</li>
+  {{/each}}{{#each pickers}}
+    <li class="hm-bundle-tip-pick"><i class="fas fa-circle-question"></i><em>{{this.label}}</em></li>
+  {{/each}}</ul>

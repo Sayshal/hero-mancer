@@ -1,0 +1,48 @@
+<section class="tab hm-tab hm-tab-abilities standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  <header class="hm-abilities-header">
+    <div class="form-group">
+      <label for="abilities-method">{{localize 'HEROMANCER.App.Abilities.SelectMethod'}}</label>
+      <div class="form-fields">
+        <select id="abilities-method" name="abilities.method" data-abilities-method>
+          {{#each methodOptions}}
+            <option value="{{this.value}}" {{#if this.active}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+  </header>
+  {{#if (eq method 'pointBuy')}}
+    <div class="hm-abilities-pointbuy-tracker" data-pb-tracker>
+      <div class="hm-abilities-pointbuy-fill" data-pb-fill aria-hidden="true"></div>
+      <div class="hm-abilities-pointbuy-label">
+        <strong class="hm-abilities-pointbuy-value" data-pb-remaining>{{pointBuy.remaining}}</strong>
+        <span class="hm-abilities-pointbuy-total">/ {{pointBuy.totalPoints}}</span>
+        <span class="hm-abilities-pointbuy-caption">{{localize 'HEROMANCER.App.Abilities.PointsRemaining'}}</span>
+      </div>
+    </div>
+  {{/if}}
+  {{#if (eq method 'standardArray')}}
+    <div class="hm-abilities-sa-bar">
+      <ol class="hm-abilities-pool-list" data-sa-pool-list aria-label="{{localize 'HEROMANCER.App.Abilities.PoolLabel'}}"></ol>
+    </div>
+  {{/if}}
+  {{#if (eq method 'manualFormula')}}
+    <div class="hm-abilities-mf-bar">
+      <button type="button" class="hm-abilities-roll-all" data-action="rollAllAbilities">
+        <i class="fas fa-dice-d6" aria-hidden="true"></i>
+        {{localize 'HEROMANCER.App.Abilities.RollAll'}}
+      </button>
+      <ol class="hm-abilities-pool-list" data-pool-list hidden aria-label="{{localize 'HEROMANCER.App.Abilities.PoolLabel'}}">
+      </ol>
+      <button type="button" class="hm-abilities-reroll-pool" data-action="rerollPool" data-reroll-pool hidden>
+        <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+        {{localize 'HEROMANCER.App.Abilities.RerollPool'}}
+        <span class="hm-abilities-reroll-count" data-reroll-remaining></span>
+      </button>
+    </div>
+  {{/if}}
+  <div class="hm-abilities-grid" style="--hm-ab-cols: {{gridCols}};">
+    {{#each blocks}}{{> hmAbilityBlock this}}{{/each}}
+  </div>
+</section>

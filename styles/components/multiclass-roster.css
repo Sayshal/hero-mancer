@@ -1,0 +1,230 @@
+.hm-mc-roster {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.hm-mc-row {
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  display: grid;
+  align-items: center;
+  padding: 0.5rem 0.625rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-md);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-mc-roster[data-multiclass='true'] .hm-mc-row {
+  grid-template-columns: 1fr auto auto;
+}
+
+.hm-mc-row[data-primary='true'] {
+  border-color: var(--hero-mancer-border-strong);
+  background: color-mix(in srgb, var(--hero-mancer-accent-soft) 30%, var(--hero-mancer-bg-elev));
+}
+
+.hm-mc-row-primary-marker {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--hero-mancer-accent);
+  font-size: 0.9em;
+}
+
+.hm-mc-row-combo {
+  min-width: 0;
+}
+
+.hm-mc-row-level {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hm-mc-row-level-label {
+  margin: 0;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 500;
+  font-size: 0.875em;
+}
+
+.hm-mc-row-level input[type='number'] {
+  appearance: textfield;
+  width: 3.5rem;
+  padding: 0.25rem 0.4rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-fg);
+  text-align: center;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-mc-row-level input[type='number']::-webkit-inner-spin-button,
+.hm-mc-row-level input[type='number']::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.hm-mc-row-level-stepper {
+  gap: 0.2rem;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.hm-mc-row-level-step {
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: center;
+  width: 1.6rem;
+  padding: 0;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-fg);
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-mc-row-level-step:hover {
+  border-color: var(--hero-mancer-border-strong);
+  color: var(--hero-mancer-accent);
+}
+
+.hm-mc-row-remove {
+  gap: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 0.0625rem solid transparent;
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-mc-row-remove:hover:not(:disabled) {
+  border-color: var(--hero-mancer-danger);
+  color: var(--hero-mancer-danger-fg);
+  background: var(--hero-mancer-danger-soft);
+}
+
+.hm-mc-row-remove:disabled {
+  visibility: hidden;
+  cursor: default;
+}
+
+.hm-mc-row-prereq {
+  gap: 0.35rem;
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.3rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-danger);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-danger-fg);
+  font-size: 0.8125em;
+  background: var(--hero-mancer-danger-soft);
+}
+
+.hm-mc-roster-footer {
+  gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.hm-mc-add {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border: 0.0625rem dashed var(--hero-mancer-accent);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-accent);
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-mc-add:hover {
+  background: var(--hero-mancer-accent-faint);
+}
+
+.hm-mc-balance-banner {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 0.25rem solid var(--hero-mancer-warn);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-warn-fg);
+  font-size: 0.875em;
+  background: var(--hero-mancer-warn-soft);
+}
+
+.hm-mc-subclass-list {
+  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-mc-subclass-row {
+  gap: 0.5rem;
+  grid-template-columns: 9rem 1fr;
+  display: grid;
+  align-items: center;
+}
+
+.hm-mc-subclass-class-name {
+  margin: 0;
+  color: var(--hero-mancer-fg);
+  font-weight: 600;
+}
+
+.hm-mc-desc-pills {
+  gap: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 0.5rem;
+  padding: 0;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-mc-desc-pill {
+  gap: 0;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  border: 0.0625rem solid transparent;
+  border-bottom: none;
+  border-radius: var(--hero-mancer-radius-md) var(--hero-mancer-radius-md) 0 0;
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 500;
+  font-size: 0.875em;
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-mc-desc-pill:hover {
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-accent-hover);
+}
+
+.hm-mc-desc-pill.is-active {
+  margin-bottom: -0.0625rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-bottom: 0.0625rem solid var(--hero-mancer-bg-elev);
+  color: var(--hero-mancer-fg);
+  cursor: default;
+  background: var(--hero-mancer-bg-elev);
+}

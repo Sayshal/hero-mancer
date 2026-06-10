@@ -1,0 +1,81 @@
+<div class="hm-mc-impact-mount">
+  <aside class="hm-mc-impact-panel" data-multiclass-impact-panel hidden role="complementary"
+    aria-labelledby="hm-mc-impact-title">
+    <header class="hm-mc-impact-header">
+      {{#if classImg}}<img class="hm-mc-impact-icon" src="{{classImg}}" alt="">{{/if}}
+      <div class="hm-mc-impact-titles">
+        <h3 class="hm-mc-impact-title" id="hm-mc-impact-title">{{localize 'HEROMANCER.LevelUp.Impact.Title'}}</h3>
+        <p class="hm-mc-impact-sub">{{localize 'HEROMANCER.LevelUp.Impact.Sub' name=className}}</p>
+      </div>
+      <button type="button" class="hm-mc-impact-close" data-impact-close
+        aria-label="{{localize 'APPLICATION.ACTIONS.Close'}}">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="hm-mc-impact-body">
+      {{#if spell}}
+        <section class="hm-mc-impact-row hm-mc-impact-spell">
+          <header class="hm-mc-impact-row-head">
+            <i class="fas fa-sparkles" aria-hidden="true"></i>
+            <span>{{localize 'HEROMANCER.LevelUp.Impact.SpellHeading'}}</span>
+          </header>
+          {{#if spell.multiclassStacks}}
+            <p class="hm-mc-impact-note">
+              {{localize 'HEROMANCER.LevelUp.Impact.SpellStack' old=spell.oldCasterLevel new=spell.newCasterLevel}}
+            </p>
+          {{else if spell.added.length}}
+            <p class="hm-mc-impact-note">{{localize 'HEROMANCER.LevelUp.Impact.SpellNew'}}</p>
+          {{/if}}
+          {{#if spell.added.length}}
+            <ul class="hm-mc-impact-slot-list">
+              {{#each spell.added as |slot|}}
+                <li class="hm-mc-impact-slot{{#if slot.isNew}} is-new{{/if}}">
+                  <span class="hm-mc-impact-slot-count">+{{slot.count}}</span>
+                  <span class="hm-mc-impact-slot-label">{{slot.levelLabel}}</span>
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+          {{#if spell.pact}}
+            <p class="hm-mc-impact-pact">{{spell.pact.summary}}</p>
+          {{/if}}
+        </section>
+      {{/if}}
+
+      {{#if nextAsi}}
+        <section class="hm-mc-impact-row hm-mc-impact-asi">
+          <header class="hm-mc-impact-row-head">
+            <i class="fas fa-arrow-up-right-dots" aria-hidden="true"></i>
+            <span>{{localize 'HEROMANCER.LevelUp.Impact.ASIHeading'}}</span>
+          </header>
+          <p class="hm-mc-impact-note">
+            {{localize 'HEROMANCER.LevelUp.Impact.ASINote' charLevel=nextAsi.characterLevel classLevel=nextAsi.classLevel}}
+          </p>
+        </section>
+      {{/if}}
+
+      {{#if castingAbility}}
+        <section class="hm-mc-impact-row hm-mc-impact-ability">
+          <header class="hm-mc-impact-row-head">
+            <i class="fas fa-wand-magic" aria-hidden="true"></i>
+            <span>{{localize 'HEROMANCER.LevelUp.Impact.AbilityHeading'}}</span>
+          </header>
+          {{#if (eq castingAbility.kind 'same')}}
+            <p class="hm-mc-impact-note">{{localize 'HEROMANCER.LevelUp.Impact.AbilitySame' ability=castingAbility.label}}</p>
+          {{else if (eq castingAbility.kind 'second')}}
+            <p class="hm-mc-impact-note">{{localize 'HEROMANCER.LevelUp.Impact.AbilitySecond'
+              ability=castingAbility.label}}</p>
+            <ul class="hm-mc-impact-existing-list">
+              {{#each castingAbility.existing as |e|}}
+                <li>{{localize 'HEROMANCER.LevelUp.Impact.AbilityExistingRow' className=e.className ability=e.label}}</li>
+              {{/each}}
+            </ul>
+          {{else}}
+            <p class="hm-mc-impact-note">{{localize 'HEROMANCER.LevelUp.Impact.AbilityNew' ability=castingAbility.label}}</p>
+          {{/if}}
+        </section>
+      {{/if}}
+    </div>
+  </aside>
+</div>

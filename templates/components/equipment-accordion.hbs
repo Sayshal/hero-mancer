@@ -1,0 +1,16 @@
+<section class="hm-accordion{{#if open}} is-open{{/if}}" data-equipment-accordion id="{{id}}" role="region"
+  {{#if labelledBy}}aria-labelledby="{{labelledBy}}" {{else if label}}aria-labelledby="{{id}}-label" {{/if}}
+  {{#unless open}}hidden{{/unless}}>
+  {{#if label}}
+    <header class="hm-accordion-header">
+      <span class="hm-accordion-label" id="{{id}}-label">{{label}}</span>
+      {{#unless (eq closeable false)}}
+        <button type="button" class="hm-accordion-close" data-close
+          aria-label="{{localize 'APPLICATION.ACTIONS.Close'}}">
+          <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+      {{/unless}}
+    </header>
+  {{/if}}
+  <div class="hm-accordion-body" data-body>{{{body}}}</div>
+</section>

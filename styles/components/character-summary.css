@@ -1,0 +1,89 @@
+.hm-chat-summary {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--hero-mancer-radius-md);
+  overflow: hidden;
+  color: var(--hero-mancer-fg);
+  font-size: 0.92em;
+}
+
+.hm-chat-summary .hm-hud {
+  --hm-hud-banner-bg: color-mix(in srgb, var(--hm-hud-secondary) 60%, rgb(0 0 0));
+
+  margin: 0;
+  font-size: 1em;
+}
+
+.hm-chat-summary .hm-hud-banner {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--hm-hud-banner-bg) 90%, rgb(255 255 255) 8%) 0%, var(--hm-hud-banner-bg) 30%, color-mix(in srgb, var(--hm-hud-banner-bg) 85%, rgb(0 0 0)) 100%),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 6%) 0 0.0625rem, transparent 0.0625rem 0.5rem);
+}
+
+.hm-chat-summary .hm-hud-name,
+.hm-chat-summary .hm-hud-class-name,
+.hm-chat-summary .hm-hud-class-level,
+.hm-chat-summary .hm-hud-line,
+.hm-chat-summary .hm-hud-ability dd,
+.hm-chat-summary .hm-hud-grid-row dd {
+  color: var(--hm-hud-banner-ink);
+}
+
+.hm-chat-summary .hm-hud-ability dt,
+.hm-chat-summary .hm-hud-grid-row dt,
+.hm-chat-summary .hm-hud-ability-mod {
+  color: var(--hm-hud-banner-muted);
+}
+
+.hm-chat-summary-equipment {
+  padding: 0.4rem 0.7rem 0.5rem;
+}
+
+.hm-chat-summary-equipment h4 {
+  margin: 0 0 0.25rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+  color: var(--hero-mancer-accent);
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hm-chat-summary-equipment-list {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.hm-chat-summary-equipment-list a.content-link {
+  color: var(--hero-mancer-accent);
+  font-weight: 600;
+}
+
+.hm-chat-summary-actions {
+  display: flex;
+  justify-content: center;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.hm-chat-summary-actions a.content-link {
+  gap: 0.4rem;
+  display: inline-flex;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border: 0.0625rem solid var(--hero-mancer-accent);
+  border-radius: var(--hero-mancer-radius-md);
+  color: var(--hero-mancer-accent);
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--hero-mancer-accent-faint);
+}
+
+.hm-chat-summary-actions a.content-link:hover {
+  color: var(--hero-mancer-fg-on-accent);
+  background: var(--hero-mancer-accent);
+}

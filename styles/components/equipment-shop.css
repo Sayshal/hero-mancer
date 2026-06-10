@@ -1,0 +1,388 @@
+.hm-wizard [data-item-link]:not([disabled]) {
+  cursor: pointer;
+}
+
+.hm-wizard [data-item-link]:not([disabled]):hover {
+  filter: brightness(1.2);
+}
+
+.hm-wizard [data-item-link]:focus-visible {
+  outline: 0.125rem solid var(--hero-mancer-accent);
+  outline-offset: 0.125rem;
+}
+
+.hm-tab-subtabs {
+  gap: 0.25rem;
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-tab-subtab-btn {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  border: 0.0625rem solid transparent;
+  border-bottom: none;
+  border-radius: 0.4rem 0.4rem 0 0;
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-tab-subtab-btn.active {
+  border-color: var(--hero-mancer-border);
+  color: var(--hero-mancer-fg);
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-tab-subtab-btn i {
+  font-size: 0.95em;
+}
+
+.hm-tab-subtab-panel.active {
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-eq-shop {
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-eq-shop-body {
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 19rem;
+  display: grid;
+  align-items: start;
+}
+
+.hm-eq-shop-catalogue {
+  gap: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hm-eq-shop-catalogue legend,
+.hm-eq-shop-cart legend {
+  font-size: 1.2em;
+}
+
+.hm-eq-shop-pool {
+  gap: 0.15rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.hm-eq-shop-pool-cell {
+  gap: 0.4rem;
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.85em;
+}
+
+.hm-eq-shop-pool-cell dt {
+  color: var(--hero-mancer-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hm-eq-shop-pool-cell dd {
+  font-variant-numeric: tabular-nums;
+  gap: 0.35rem;
+  display: inline-flex;
+  align-items: baseline;
+  margin: 0;
+  padding-right: 0.25rem;
+  font-weight: 600;
+}
+
+.hm-eq-shop-pool-remaining dd {
+  color: var(--hero-mancer-accent);
+}
+
+.hm-eq-shop-controls {
+  gap: 0.5rem;
+  display: flex;
+  align-items: stretch;
+}
+
+.hm-eq-shop-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.hm-eq-shop-popover {
+  display: inline-flex;
+  position: relative;
+}
+
+.hm-eq-shop-popover-trigger {
+  display: inline-flex;
+  position: relative;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  width: 2.25rem;
+  padding: 0;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  list-style: none;
+  color: var(--hero-mancer-fg);
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-eq-shop-popover-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.hm-eq-shop-popover[open] .hm-eq-shop-popover-trigger {
+  border-color: var(--hero-mancer-border-strong);
+}
+
+.hm-eq-shop-popover-trigger[data-count] {
+  border-color: var(--hero-mancer-accent);
+}
+
+.hm-eq-shop-popover-trigger[data-count]::after {
+  display: inline-flex;
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  justify-content: center;
+  align-items: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: var(--hero-mancer-radius-pill);
+  color: var(--hero-mancer-bg);
+  font-weight: 600;
+  font-size: 0.65em;
+  line-height: 1;
+  content: attr(data-count);
+  background: var(--hero-mancer-accent);
+}
+
+.hm-eq-shop-popover-panel {
+  z-index: 4;
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  padding: 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border-strong);
+  border-radius: var(--hero-mancer-radius-md);
+  background: var(--hero-mancer-bg-elev);
+  box-shadow: 0 0.4rem 1rem var(--hero-mancer-shadow);
+}
+
+.hm-eq-shop-filter-panel {
+  gap: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  width: 22rem;
+}
+
+.hm-eq-shop-sort-panel {
+  gap: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+}
+
+.hm-eq-shop-filter-chip,
+.hm-eq-shop-sort-chip {
+  gap: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-pill);
+  color: var(--hero-mancer-fg);
+  font-size: 0.85em;
+  cursor: pointer;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-eq-shop-sort-chip {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.hm-eq-shop-filter-chip.is-active,
+.hm-eq-shop-sort-chip.is-active {
+  border-color: var(--hero-mancer-accent);
+  background: color-mix(in srgb, var(--hero-mancer-accent) 18%, var(--hero-mancer-bg));
+}
+
+.hm-eq-shop-filter-count {
+  padding: 0 0.4rem;
+  border-radius: var(--hero-mancer-radius-pill);
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.78em;
+  background: var(--hero-mancer-bg-inset);
+}
+
+.hm-eq-shop-grid {
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-tile.hm-eq-shop-tile {
+  min-height: 4.5rem;
+  padding-top: 1.6rem;
+}
+
+.hm-tile.hm-eq-shop-tile .hm-tile-ribbon {
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7em;
+}
+
+.hm-eq-shop-tile[hidden] {
+  display: none;
+}
+
+.hm-eq-shop-tile[data-cost-tier='gold'] .hm-tile-foot > i {
+  color: var(--hero-mancer-currency-gold);
+}
+
+.hm-eq-shop-tile[data-cost-tier='silver'] .hm-tile-foot > i {
+  color: var(--hero-mancer-currency-silver);
+}
+
+.hm-eq-shop-tile[data-cost-tier='copper'] .hm-tile-foot > i {
+  color: var(--hero-mancer-currency-copper);
+}
+
+.hm-eq-shop-tile.is-unaffordable {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hm-eq-shop-cart {
+  gap: 0.5rem;
+  display: flex;
+  position: sticky;
+  top: 0.5rem;
+  flex-direction: column;
+  max-height: calc(100vh - 12rem);
+  overflow-y: auto;
+}
+
+.hm-eq-shop-cart-list {
+  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-eq-shop-cart-line {
+  gap: 0.5rem;
+  grid-template-columns: 1.4rem 1fr auto auto;
+  display: grid;
+  align-items: center;
+  padding: 0.3rem 0.45rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  font-size: 0.85em;
+  background: var(--hero-mancer-bg);
+}
+
+.hm-eq-shop-cart-name-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.hm-eq-shop-cart-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 120ms ease-out;
+}
+
+.hm-eq-shop-line-gp {
+  font-variant-numeric: tabular-nums;
+  gap: 0.35rem;
+  inset: 0;
+  display: flex;
+  opacity: 0;
+  position: absolute;
+  align-items: center;
+  padding-right: 0.25rem;
+  color: var(--hero-mancer-accent);
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+.hm-eq-shop-cart-line:hover .hm-eq-shop-cart-name,
+.hm-eq-shop-cart-line:focus-within .hm-eq-shop-cart-name {
+  opacity: 0;
+}
+
+.hm-eq-shop-cart-line:hover .hm-eq-shop-line-gp,
+.hm-eq-shop-cart-line:focus-within .hm-eq-shop-line-gp {
+  opacity: 1;
+}
+
+.hm-eq-shop-qty-select {
+  appearance: none;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+  width: 2.7rem;
+  min-width: 2.7rem;
+  height: 1.6rem;
+  padding: 0 0.3rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: var(--hero-mancer-radius-sm);
+  color: var(--hero-mancer-fg);
+  font-size: 0.85em;
+  line-height: 1;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  background: var(--hero-mancer-bg-elev);
+}
+
+.hm-eq-shop-qty-select:hover,
+.hm-eq-shop-qty-select:focus-visible {
+  border-color: var(--hero-mancer-accent);
+  outline: none;
+}
+
+.hm-eq-shop-cart-line img {
+  object-fit: contain;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.hm-eq-shop-remove {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 0.0625rem solid transparent;
+  border-radius: 50%;
+  color: var(--hero-mancer-fg-muted);
+  cursor: pointer;
+  background: transparent;
+}
+
+.hm-eq-shop-remove:hover {
+  border-color: var(--hero-mancer-danger);
+  color: var(--hero-mancer-danger);
+}

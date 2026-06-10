@@ -1,0 +1,155 @@
+<section class="tab hm-tab hm-tab-level-up standard-form {{ tab.cssClass }}" data-tab="{{ tab.id }}"
+  data-group="{{ tab.group }}">
+  {{#if impact.available}}
+    {{> hmMulticlassImpactPanel impact}}
+  {{/if}}
+
+  <header class="hm-level-up-header">
+    <h2>{{localize 'HEROMANCER.LevelUp.Heading' name=actorName}}</h2>
+    <p class="hm-level-up-subhead">{{localize 'HEROMANCER.LevelUp.TotalLevel' level=totalLevel}}</p>
+  </header>
+
+  <fieldset class="hm-fieldset hm-level-up-section">
+    <legend>{{localize 'HEROMANCER.LevelUp.Section.Existing'}}</legend>
+    <ol class="hm-level-up-tile-grid">
+      {{#each existingTiles as |c|}}
+        <li class="hm-level-up-tile-wrap">
+          <label class="hm-level-up-tile{{#if c.selected}} is-selected{{/if}}">
+            <input type="radio" name="levelUp.pickedClass" value="{{c.uuid}}" data-tile-uuid="{{c.uuid}}"
+              data-multiclass="0" {{#if c.selected}}checked{{/if}}>
+            {{#if c.img}}<img class="hm-level-up-tile-icon" src="{{c.img}}" alt="">{{/if}}
+            <span class="hm-level-up-tile-name">{{c.name}}</span>
+            <span
+              class="hm-level-up-tile-level">{{localize 'HEROMANCER.LevelUp.LevelStep' from=c.level to=c.nextLevel}}</span>
+          </label>
+        </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+
+  {{#if preview}}
+    <section class="hm-level-up-preview" data-rules="{{preview.newLevel}}">
+      <header class="hm-level-up-preview-header">
+        {{#if preview.classImg}}<img class="hm-level-up-preview-icon" src="{{preview.classImg}}" alt="">{{/if}}
+        <h3 class="hm-level-up-preview-title">
+          {{#if preview.isMulticlass}}
+            {{localize 'HEROMANCER.LevelUp.Preview.MulticlassHeading' name=preview.className level=preview.newLevel}}
+          {{else}}
+            {{localize 'HEROMANCER.LevelUp.Preview.LevelHeading' name=preview.className level=preview.newLevel}}
+          {{/if}}
+        </h3>
+      </header>
+
+      {{#if preview.hp.available}}
+        <div class="hm-level-up-preview-row hm-level-up-preview-hp">
+          <span class="hm-level-up-preview-label">{{localize 'DND5E.HitPoints'}}</span>
+          {{#if preview.hp.isFirstLevel}}
+            <span
+              class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.HPFirst' total=preview.hp.total base=preview.hp.base die=preview.hp.dieLabel mod=preview.hp.conMod}}</span>
+          {{else}}
+            <span
+              class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.HPAvg' total=preview.hp.total base=preview.hp.base die=preview.hp.dieLabel mod=preview.hp.conMod}}</span>
+          {{/if}}
+        </div>
+      {{/if}}
+
+      {{#if preview.features.length}}
+        <div class="hm-level-up-preview-row hm-level-up-preview-features">
+          <span class="hm-level-up-preview-label">{{localize 'HEROMANCER.LevelUp.Preview.Features'}}</span>
+          <ul class="hm-level-up-preview-feature-list">
+            {{#each preview.features as |f|}}
+              <li class="hm-level-up-preview-feature">
+                <strong>{{f.title}}</strong>
+                {{#if f.items.length}}
+                  <ul class="hm-level-up-preview-grants">
+                    {{#each f.items as |it|}}
+                      <li><a class="content-link" data-item-link data-uuid="{{it.uuid}}" draggable="false">
+                          {{#if it.img}}<img src="{{it.img}}" alt="">{{/if}}{{it.name}}
+                        </a></li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+
+      {{#if preview.spellcasting}}
+        <div class="hm-level-up-preview-row hm-level-up-preview-spellcasting">
+          <span class="hm-level-up-preview-label">{{localize 'DND5E.Spellcasting'}}</span>
+          <span
+            class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.SpellcastingNote' progression=preview.spellcasting.progression}}</span>
+        </div>
+      {{/if}}
+
+      {{#if preview.asi}}
+        <div class="hm-level-up-preview-row hm-level-up-preview-asi">
+          <span class="hm-level-up-preview-label">{{localize 'HEROMANCER.LevelUp.Preview.ASI'}}</span>
+          <span class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.ASINote'}}</span>
+        </div>
+      {{/if}}
+
+      {{#if preview.subclass}}
+        <div class="hm-level-up-preview-row hm-level-up-preview-subclass">
+          <span class="hm-level-up-preview-label">{{localize 'TYPES.Item.subclass'}}</span>
+          <span class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.SubclassNote'}}</span>
+        </div>
+      {{/if}}
+    </section>
+  {{/if}}
+
+  {{#if subclassPicker}}
+    <fieldset class="hm-fieldset hm-level-up-subclass-picker">
+      <legend>{{localize 'HEROMANCER.LevelUp.Subclass.Legend' name=subclassPicker.className}}</legend>
+      <div class="form-group">
+        <div class="form-fields">{{> hmCombobox subclassPicker.combo}}</div>
+      </div>
+    </fieldset>
+  {{/if}}
+
+  {{#if hasMulticlassOptions}}
+    <section class="hm-level-up-section hm-level-up-multiclass">
+      <h3 class="hm-level-up-section-heading">{{localize 'HEROMANCER.LevelUp.Section.Multiclass'}}</h3>
+      {{#each multiclassGroups as |g|}}
+        <fieldset class="hm-fieldset hm-level-up-source-group{{#if g.isSameSource}} is-same-source{{/if}}"
+          data-rules="{{g.rules}}">
+          <legend class="hm-level-up-source-legend">
+            <span class="hm-level-up-source-label">{{g.label}}</span>
+            {{#if g.isSameSource}}
+              <span class="hm-level-up-source-chip is-same"
+                data-tooltip="HEROMANCER.LevelUp.Source.SameTooltip">{{localize 'HEROMANCER.LevelUp.Source.Same'}}</span>
+            {{else}}
+              <span class="hm-level-up-source-chip is-cross"
+                data-tooltip="HEROMANCER.LevelUp.Source.CrossTooltip">{{localize 'HEROMANCER.LevelUp.Source.Cross'}}</span>
+            {{/if}}
+          </legend>
+          <ol class="hm-level-up-tile-grid">
+            {{#each g.tiles as |c|}}
+              <li class="hm-level-up-tile-wrap">
+                <label
+                  class="hm-level-up-tile{{#if c.selected}} is-selected{{/if}}{{#unless c.passes}} is-prereq-failed{{/unless}}">
+                  <input type="radio" name="levelUp.pickedClass" value="{{c.uuid}}" data-tile-uuid="{{c.uuid}}"
+                    data-multiclass="1" {{#if c.selected}}checked{{/if}}>
+                  {{#if c.img}}<img class="hm-level-up-tile-icon" src="{{c.img}}" alt="">{{/if}}
+                  <span class="hm-level-up-tile-name">{{c.name}}</span>
+                  <span class="hm-level-up-tile-level">{{localize 'HEROMANCER.LevelUp.LevelStep' from=0 to=1}}</span>
+                  {{#if c.book}}
+                    <span class="hm-level-up-tile-source">{{c.book}}</span>
+                  {{/if}}
+                  {{#unless c.passes}}
+                    <span class="hm-level-up-tile-warn" data-tooltip
+                      aria-label="{{localize 'HEROMANCER.LevelUp.Prereq.FailTooltip' prereq=c.prereqLabel}}">
+                      <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                      <span class="hm-level-up-tile-warn-label">{{c.prereqChipLabel}}</span>
+                    </span>
+                  {{/unless}}
+                </label>
+              </li>
+            {{/each}}
+          </ol>
+        </fieldset>
+      {{/each}}
+    </section>
+  {{/if}}
+</section>

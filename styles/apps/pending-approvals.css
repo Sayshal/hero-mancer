@@ -1,0 +1,54 @@
+.hm-pending-approvals-body {
+  padding: 0.85rem 0;
+}
+
+.hm-pending-approvals-table {
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.hm-pending-approvals-table th:first-child,
+.hm-pending-approvals-table td:first-child {
+  padding-left: 0.85rem;
+}
+
+.hm-pending-approvals-table th:last-child,
+.hm-pending-approvals-table td:last-child {
+  padding-right: 0.85rem;
+}
+
+.hm-pending-approvals-table thead th,
+.hm-pending-approvals-table tbody td {
+  text-align: center;
+}
+
+.hm-pending-approvals-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.85rem;
+  padding-top: 0.6rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+}
+
+.hm-pending-approvals-clear {
+  width: auto;
+  color: var(--hero-mancer-danger);
+}
+
+.hm-pending-approvals-outcome {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.7rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.hm-pending-approvals-outcome-approved {
+  color: var(--hero-mancer-success-fg);
+  background: color-mix(in srgb, var(--hero-mancer-success) 18%, transparent);
+}
+
+.hm-pending-approvals-outcome-rejected {
+  color: var(--hero-mancer-danger-fg);
+  background: color-mix(in srgb, var(--hero-mancer-danger) 18%, transparent);
+}
