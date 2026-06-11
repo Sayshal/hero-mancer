@@ -104,7 +104,7 @@ export class EquipmentDetailPanel {
     const opt = e.target.closest('[data-detail-option]');
     if (opt) {
       e.preventDefault();
-      this.#pick(opt.dataset.value);
+      this.#pick(opt.dataset.value, opt);
     }
   }
 
@@ -277,10 +277,11 @@ export class EquipmentDetailPanel {
   /**
    * Commit a pick: writes value to the active hidden input, updates the trigger chip, closes.
    * @param {string} value Selected option value (uuid).
+   * @param {?HTMLElement} [optEl] The clicked option element, disambiguating sections that share a pool.
    */
-  #pick(value) {
+  #pick(value, optEl = null) {
     if (this.activeSections) {
-      this.#pickSection(value);
+      this.#pickSection(value, optEl);
       return;
     }
     if (!this.activeName) return;
@@ -321,9 +322,10 @@ export class EquipmentDetailPanel {
   /**
    * Toggle a section pick (one selection per section, max=1).
    * @param {string} value Selected option value.
+   * @param {?HTMLElement} [btn] The clicked option button; required when sections share a pool so the right section resolves.
    */
-  #pickSection(value) {
-    const btn = this.list.querySelector(`[data-detail-option][data-value="${CSS.escape(value)}"]`);
+  #pickSection(value, btn = null) {
+    btn ??= this.list.querySelector(`[data-detail-option][data-value="${CSS.escape(value)}"]`);
     if (!btn || btn.getAttribute('aria-disabled') === 'true') return;
     const sIdx = Number(btn.dataset.sectionIdx);
     const sec = this.activeSections?.[sIdx];

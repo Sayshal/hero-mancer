@@ -255,39 +255,6 @@ function buildMultiSectionPicker(pickers, fallbackLabel) {
 }
 
 /**
- * Build a single picker spec for a category/choice node with `count > 1`. Routes through the same detail-panel drawer as single-pick but carries `max > 1` so the panel renders as multi-select.
- * @param {object} node Parser category/choice node (`count > 1`).
- * @param {string} tag Source tag.
- * @param {string} ownerId Owning OR-group (or top-level) id.
- * @param {object} draft Saved equipment draft.
- * @param {object} profs Structured proficiency record.
- * @returns {object} Picker spec with `max`, `value` (csv), `selectedLabels`, `selectedIcons`.
- */
-function buildMultiPicker(node, tag, ownerId, draft, profs) {
-  const pool = poolForNode(node);
-  const filtered = node.requiresProficiency === false ? pool : filterByProficiency(pool, node.categoryType, profs);
-  const options = filtered.map((o) => ({ value: o.uuid, label: o.name, icon: o.img ?? null, traitKey: null }));
-  const optionsJson = JSON.stringify(options);
-  const cleanLabel = stripCountPrefix(stripHtml(node.label)).titleCase();
-  const max = node.count;
-  const name = `equipment.${tag}.${ownerId}.multipick.${node.id}`;
-  const stored = draft[`${tag}.${ownerId}.multipick.${node.id}`] ?? '';
-  const valueList = stored ? stored.split(',').filter(Boolean).slice(0, max) : [];
-  const selectedOptions = valueList.map((v) => options.find((o) => o.value === v)).filter(Boolean);
-  return {
-    name,
-    value: valueList.join(','),
-    label: cleanLabel,
-    categoryType: node.categoryType,
-    max,
-    options,
-    optionsJson,
-    selectedLabels: selectedOptions.map((o) => o.label),
-    selectedIcons: selectedOptions.map((o) => o.icon).filter(Boolean)
-  };
-}
-
-/**
  * Build a tile spec for one child node (used inside OR groups + category placeholders).
  * @param {object} child Parser node.
  * @param {string} tag Source tag.
@@ -325,18 +292,19 @@ function tileForChild(child, tag, ownerId, draft, profs, traitLinks) {
     const label = stripHtml(child.label).titleCase();
     const type = bucketForCategoryType(child.categoryType);
     if (child.count > 1) {
-      const multiPicker = buildMultiPicker(child, tag, ownerId, draft, profs);
+      const slots = buildPickerSpecs(child, tag, ownerId, draft, profs, traitLinks);
+      const multiSection = buildMultiSectionPicker(slots, label);
       return {
         value: `${child.kind}:${child.id}`,
-        label: multiPicker.selectedLabels.length ? multiPicker.selectedLabels.join(', ') : multiPicker.label,
+        label: multiSection.aggregateLabel,
         type,
         typeLabel: bucketLabel(type),
-        icon: multiPicker.selectedIcons[0] ?? null,
+        icon: multiSection.aggregateIcon ?? null,
         uuid: null,
-        picker: multiPicker,
+        multiSection,
         isPicker: true,
-        isPlaceholder: !multiPicker.value,
-        foot: { icon: null, text: `${multiPicker.label} (×${multiPicker.max})` }
+        isPlaceholder: !multiSection.filled,
+        foot: { icon: null, text: `${label} (×${child.count})` }
       };
     }
     const [p] = buildPickerSpecs(child, tag, ownerId, draft, profs, traitLinks);

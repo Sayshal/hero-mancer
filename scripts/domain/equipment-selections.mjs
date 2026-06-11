@@ -101,13 +101,6 @@ function collectFromAnd(andNode, ownerId, tag, draft, out) {
  */
 function pushPickedSlots(node, tag, ownerId, draft, out) {
   const slots = node.count > 1 ? node.count : 1;
-  if (slots > 1) {
-    const csv = draft[`${tag}.${ownerId}.multipick.${node.id}`];
-    if (csv) {
-      for (const uuid of csv.split(',').filter(Boolean)) out.push({ uuid, quantity: 1 });
-      return;
-    }
-  }
   for (let i = 0; i < slots; i++) {
     const slotKey = slots > 1 ? `${node.id}.${i}` : node.id;
     const uuid = draft[`${tag}.${ownerId}.pick.${slotKey}`];
