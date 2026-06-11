@@ -50,7 +50,9 @@ export function advancementLevels(adv) {
  * @returns {object} Apply-ready data.
  */
 export function advancementApplyData(adv, data) {
-  if (adv?.constructor?.typeName === 'ItemChoice' && Array.isArray(data?.added)) return { ...data, selected: data.added };
+  const type = adv?.constructor?.typeName;
+  if (type === 'ItemChoice' && Array.isArray(data?.added)) return { ...data, selected: data.added };
+  if (type === 'AbilityScoreImprovement' && data?.type === 'feat' && data.feat) return { ...data, uuid: data.feat };
   return data;
 }
 

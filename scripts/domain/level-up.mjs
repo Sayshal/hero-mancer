@@ -87,10 +87,16 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     const characterLevel = (actor.system?.details?.level ?? 0) + 1;
     if (pickedSubclass) await applySubclassFromIdentity(classItem, pickedSubclass, newLevel);
     await applySubclassPicks(clone, advancementDraft, newLevel, wizardElement);
+    const autoProcessed = new Set(clone.items.map((i) => i.id));
     await applyAutoAdvancementsAtLevel(clone, newLevel, characterLevel, classItem);
     await applyHitPoints(classItem, newLevel, hpDraft);
-    const ok = await applyNonSubclassPicks(clone, advancementDraft, wizardElement);
-    if (!ok) throw new Error('advancement application aborted');
+    const appliedPicks = new Set();
+    for (let round = 0; round < 10; round++) {
+      const picks = await applyNonSubclassPicks(clone, advancementDraft, wizardElement, appliedPicks);
+      if (!picks.ok) throw new Error('advancement application aborted');
+      const autoApplied = await applyGrantedItemAutoAdvancements(clone, characterLevel, autoProcessed);
+      if (!picks.applied && !autoApplied) break;
+    }
     await commitClone(actor, clone);
   } catch (err) {
     log(1, 'applyLevelUp aborted (no actor mutation):', err);
@@ -157,6 +163,31 @@ async function applyAutoAdvancementsAtLevel(actor, newLevel, characterLevel, cla
 }
 
 /**
+ * Apply auto-type advancements on items granted mid-run (e.g. a feat chosen via an ASI or ItemChoice pick) that the level-scoped pass never saw.
+ * @param {object} actor Target actor.
+ * @param {number} characterLevel Character level being gained; caps the granted item's advancement levels.
+ * @param {Set<string>} processed Item ids already handled; freshly granted items are the only ones left.
+ * @returns {Promise<boolean>} True when at least one advancement applied this call.
+ */
+async function applyGrantedItemAutoAdvancements(actor, characterLevel, processed) {
+  let appliedAny = false;
+  const pending = actor.items.filter((item) => !processed.has(item.id));
+  for (const item of pending) {
+    processed.add(item.id);
+    for (const adv of Object.values(item.advancement?.byId ?? {})) {
+      if (!AUTO_APPLY_TYPES.has(adv.constructor?.typeName)) continue;
+      if (!classAdvApplies(adv.classRestriction, true)) continue;
+      for (const level of advancementLevels(adv)) {
+        if (level < 0 || level > characterLevel) continue;
+        await adv.apply(level, {}, { initial: true });
+        appliedAny = true;
+      }
+    }
+  }
+  return appliedAny;
+}
+
+/**
  * Apply the HP advancement on the picked class item at the new level using the HP-tab draft row.
  * @param {object} classItem Class item being levelled.
  * @param {number} newLevel Level being applied this run.
@@ -174,17 +205,24 @@ async function applyHitPoints(classItem, newLevel, hpDraft) {
 }
 
 /**
- * Walk the advancement draft and apply every non-subclass pick at the new level.
+ * Walk the advancement draft and apply each non-subclass pick whose advancement currently resolves; re-resolved across rounds so picks on mid-run-granted feats apply once their parent has.
  * @param {object} actor Target actor.
  * @param {Object<string, Object<number, object>>} draft Advancement pick map.
  * @param {?HTMLElement} wizardElement Wizard root for error stamping.
- * @returns {Promise<boolean>} True when every pick applied.
+ * @param {Set<string>} appliedSet Advancement ids already applied; persisted across rounds so re-runs skip them.
+ * @returns {Promise<{ok: boolean, applied: boolean}>} `ok` false on apply error; `applied` true when at least one pick applied this call.
  */
-async function applyNonSubclassPicks(actor, draft, wizardElement) {
+async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
+  let appliedAny = false;
   for (const [advId, byLevel] of Object.entries(draft ?? {})) {
+    if (appliedSet.has(advId)) continue;
     const adv = findAdvancement(actor, advId);
     if (!adv) continue;
-    if (adv.constructor?.typeName === 'Subclass') continue;
+    if (adv.constructor?.typeName === 'Subclass') {
+      appliedSet.add(advId);
+      continue;
+    }
+    appliedSet.add(advId);
     for (const [levelStr, data] of Object.entries(byLevel)) {
       const level = Number(levelStr);
       try {
@@ -193,11 +231,12 @@ async function applyNonSubclassPicks(actor, draft, wizardElement) {
         const reason = err?.message ?? String(err);
         if (wizardElement) markAdvancementRowError(wizardElement, advId, level, reason);
         log(1, `Advancement ${advId} L${level} apply failed:`, err);
-        return false;
+        return { ok: false, applied: appliedAny };
       }
     }
+    appliedAny = true;
   }
-  return true;
+  return { ok: true, applied: appliedAny };
 }
 
 /**
