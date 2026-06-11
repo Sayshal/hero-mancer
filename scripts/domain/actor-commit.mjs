@@ -19,8 +19,8 @@ export async function commitClone(actor, clone) {
   }
   const toDelete = [...existingIds].filter((id) => !seen.has(id));
   const opts = { isAdvancement: true };
-  await actor.update(updates, opts);
   if (toCreate.length) await actor.createEmbeddedDocuments('Item', toCreate, { keepId: true, ...opts });
+  await actor.update(updates, opts);
   if (toUpdate.length) await actor.updateEmbeddedDocuments('Item', toUpdate, { diff: false, recursive: false, ...opts });
   if (toDelete.length) {
     const present = toDelete.filter((id) => actor.items.has(id));
