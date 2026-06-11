@@ -27,7 +27,7 @@ export function registerLevelUpSheetButton() {
  * @returns {void}
  */
 function syncCharacterButton(app, element, spec) {
-  element.querySelector('[data-hm-level-up]')?.remove();
+  element.querySelectorAll('[data-hm-level-up]').forEach((b) => b.remove());
   const actor = app.actor;
   if (!isEligible(actor)) return;
   const host = element.querySelector(spec.selector);
@@ -54,7 +54,7 @@ function syncCharacterButton(app, element, spec) {
  * @returns {void}
  */
 function syncGroupButton(app, element, spec) {
-  element.querySelector('[data-hm-level-up]')?.remove();
+  element.querySelectorAll('[data-hm-level-up]').forEach((b) => b.remove());
   if (!game.user.isGM || app.actor.type !== 'group') return;
   const host = element.querySelector(spec.selector);
   if (!host) return;
