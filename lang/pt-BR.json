@@ -1,0 +1,993 @@
+{
+  "HEROMANCER": {
+    "Release": {
+      "Title": "Hero Mancer 2 {version}",
+      "ReleaseNotes": "Ver Notas da Versão"
+    },
+    "Migration": {
+      "RefreshNotice": "Hero Mancer 2 limpou configurações remanescentes de uma versão anterior. Atualize seu navegador (F5) para que todas as alterações entrem em vigor."
+    },
+    "Dialog": {
+      "HeaderActions": "Ações da Janela",
+      "Resize": "Redimensionar"
+    },
+    "Compare": {
+      "Pin": "Fixar para Comparar",
+      "Unpin": "Desafixar",
+      "Open": "Comparar ({count})",
+      "WindowTitle": "Comparar {category}",
+      "Empty": "Nenhum item fixado ainda. Use o botão de fixar em um cartão para adicioná-lo aqui.",
+      "NeedTwo": "Fixe pelo menos duas opções para compará-las.",
+      "Field": {
+        "FeatsGranted": "Características",
+        "PrimaryAbility": "Atributo Principal",
+        "StartingWealth": "Riqueza Inicial",
+        "ASILevels": "AdA / Níveis de Talento",
+        "SubclassLevel": "Desbloqueio de Subclasse",
+        "Scales": "Escalas",
+        "ParentClass": "Classe Base",
+        "FeaturesByLevel": "Características por Nível",
+        "BackgroundASI": "Aumento de Atributo",
+        "GrantedSpells": "Magias Concedidas",
+        "Choices": "Escolhas",
+        "EditionSource": "Origem",
+        "MinLevel": "Nível Mínimo",
+        "GrantsASI": "Concede AdA"
+      },
+      "Value": {
+        "And": "e",
+        "AllRequired": "(todos os obrigatórios)",
+        "PlusMore": "+{count} a mais",
+        "LangChoice": "+{count} à escolha",
+        "ChooseN": "Escolha {count}",
+        "PickN": "escolha {count}",
+        "LevelNPlus": "Nível {level}+",
+        "Walking": "Caminhada",
+        "IgnoresDifficultTerrain": "Ignora Terreno Difícil",
+        "AnyAbility": "Qualquer Atributo"
+      },
+      "Banner": {
+        "DupEdition": "Mesmo nome de talento em diferentes edições - compare as linhas abaixo."
+      }
+    },
+    "LevelUp": {
+      "NotCharacter": "O avanço de nível do Hero Mancer 2 é compatível apenas com atores de personagens.",
+      "Applied": "{name} agora está no nível {level}.",
+      "Failed": "O aumento de nível falhou. Seu personagem foi restaurado ao estado anterior.",
+      "Heading": "Avanço de Nível: {name}",
+      "TotalLevel": "Nível Atual: {level}",
+      "LevelStep": "Nível {from} -> {to}",
+      "Section": {
+        "Existing": "Aumentar o nível de uma classe existente",
+        "Multiclass": "Multiclasse com uma nova classe"
+      },
+      "Prereq": {
+        "JoinerAnd": "e",
+        "JoinerOr": "ou",
+        "RequiresPart": "{ability} {threshold} (Atual: {current})",
+        "FailTooltip": "Você não atende ao requisito de multiclasse para esta classe. Confirme com seu Mestre antes de escolhê-la."
+      },
+      "SheetButton": {
+        "Tooltip": "Abrir o Hero Mancer 2 no modo de avanço de nível para este personagem.",
+        "SendLabel": "Enviar Avanço de Nível",
+        "SendTooltip": "Notificar o jogador para avançar o nível deste personagem.",
+        "SendGroupTooltip": "Notificar os membros selecionados do grupo para avançarem de nível."
+      },
+      "Dialog": {
+        "GrantTitle": "Enviar Avanço de Nível",
+        "GrantBody": "Conceder um avanço de nível para {actor}? Ele verá um botão pulsante de Avançar Nível em sua ficha de personagem.",
+        "GrantGroupBody": "Selecione os membros do grupo para conceder um avanço de nível:",
+        "IneligibleMax": "Nível Máx",
+        "IneligiblePending": "Já pendente",
+        "IneligibleNotCharacter": "Não é um personagem",
+        "Confirm": "Enviar"
+      },
+      "Broadcast": {
+        "Grant": "{gm} concedeu um avanço de nível para {actor}. Abra sua ficha para começar.",
+        "GrantGroup": "{gm} concedeu um avanço de nível para {actors}.",
+        "Complete": "{actor} agora está no nível {level}.",
+        "AlreadyPending": "{actor} já possui um avanço de nível pendente."
+      },
+      "Preview": {
+        "LevelHeading": "{name} -> Nível {level}",
+        "MulticlassHeading": "Multiclasse com {name} (Nível {level})",
+        "HPFirst": "+{total} ({base} máx. de {die} + {mod} CON)",
+        "HPAvg": "+{total} méd. ({base} de {die} + {mod} CON)",
+        "Features": "Novas Características",
+        "SpellcastingNote": "Progride ({progression})",
+        "ASI": "Aumento de Atributo",
+        "ASINote": "Escolha uma distribuição de +2 / +1/+1 ou um talento na aba Progressões.",
+        "SubclassNote": "Escolha uma subclasse abaixo antes de prosseguir."
+      },
+      "Subclass": {
+        "Legend": "Escolha uma subclasse para {name}"
+      },
+      "Source": {
+        "rules-2014": "Conjunto de Regras de 2014",
+        "rules-2024": "Conjunto de Regras de 2024",
+        "rules-unknown": "Outra origem",
+        "Same": "Igual à existente",
+        "Cross": "Conjunto de Regras diferente",
+        "SameTooltip": "Estas classes correspondem ao conjunto de regras da sua classe existente.",
+        "CrossTooltip": "Estas classes utilizam um conjunto de regras diferente da sua classe existente."
+      },
+      "Impact": {
+        "Title": "Impacto da Multiclasse",
+        "Sub": "Como {name} altera seu personagem",
+        "SpellHeading": "Espaços de Magia",
+        "SpellStack": "Seu nível de conjurador aumenta de {old} para {new}. Os espaços de magia são acumulados entre todas as classes conjuradoras com níveis, conforme a tabela de multiclasse.",
+        "SpellNew": "Esta classe concede espaços de magia com níveis.",
+        "PactNew": {
+          "one": "Concede {slots} espaço de pacto de nível {level}.",
+          "other": "Concede {slots} espaços de pacto de nível {level}."
+        },
+        "PactUpdate": "Os espaços de pacto passam para {slots} no nível {level}.",
+        "ASIHeading": "Próximo Aumento de Atributo",
+        "ASINote": "O primeiro AdA desta classe é obtido no nível {charLevel} de personagem (nível {classLevel} de classe).",
+        "AbilityHeading": "Atributo de Conjuração",
+        "AbilitySame": "O atributo de conjuração permanece sendo {ability}.",
+        "AbilitySecond": "Adiciona um segundo atributo de conjuração: {ability}.",
+        "AbilityExistingRow": "{className} conjura usando {ability}",
+        "AbilityNew": "Introduz conjuração baseada em {ability}."
+      }
+    },
+    "Approval": {
+      "Unnamed": "Personagem sem Nome",
+      "SubmittedBy": "solicitado por {user} em {when}",
+      "Banner": {
+        "one": "{count} personagem pendente aguarda revisão.",
+        "other": "{count} personagens pendentes aguardam revisão."
+      },
+      "BannerOpen": "Abrir Fila",
+      "Queue": {
+        "Title": "Aprovações Pendentes",
+        "Review": "Revisar",
+        "Restore": "Restaurar",
+        "RestoredToast": "A solicitação foi restaurada para a fila de pendências.",
+        "Empty": "Nenhuma solicitação pendente.",
+        "EmptyArchive": "O arquivo está vazio.",
+        "ViewPending": "Ver pendentes",
+        "ViewArchive": "Ver arquivo",
+        "QuickApprove": "Aprovar como solicitado",
+        "QuickReject": "Rejeitar",
+        "outcome-approved": "Aprovado",
+        "outcome-rejected": "Rejeitado",
+        "ClearArchive": {
+          "Action": "Limpar Arquivo",
+          "Title": "Limpar o arquivo de aprovações?",
+          "Body": "Excluir todas as solicitações arquivadas? Esta ação não pode ser desfeita."
+        },
+        "Column": {
+          "Character": "Personagem",
+          "Submitter": "Solicitante",
+          "SubmittedAt": "Solicitado",
+          "ResolvedAt": "Resolvido",
+          "Outcome": "Resultado"
+        }
+      },
+      "RejectionNotice": {
+        "Title": "Solicitação Rejeitada",
+        "Body": "Seu Mestre rejeitou a solicitação do seu personagem. Restaure-a para editá-la e enviá-la novamente ou comece do zero.",
+        "ReasonLabel": "Motivo informado:",
+        "NoReason": "Nenhum motivo informado.",
+        "Restore": "Restaurar da Solicitação",
+        "StartOver": "Começar do Zero"
+      },
+      "RejectionBanner": {
+        "Title": "Solicitação Anterior Rejeitada"
+      },
+      "SubmissionLock": {
+        "Banner": "Seu personagem está aguardando a revisão do Mestre. O formulário permanecerá somente leitura até que ele aprove ou rejeite a solicitação.",
+        "Tooltip": "Aguardando revisão do Mestre."
+      },
+      "SubmittedToast": "Personagem enviado para revisão do Mestre.",
+      "Replay": {
+        "Created": "Seu Mestre aprovou {name}. A ficha agora está disponível.",
+        "GMEdited": "Seu Mestre aprovou {name} (com alterações). O personagem foi criado.",
+        "Failed": "A aprovação foi recebida, mas a criação do personagem falhou. Verifique o console para mais detalhes."
+      },
+      "Review": {
+        "ApprovedToast": "Solicitação Aprovada.",
+        "RejectedToast": "Solicitação Rejeitada.",
+        "RejectDialog": {
+          "Title": "Rejeitar Solicitação",
+          "Prompt": "Opcionalmente, explique o motivo. O solicitante verá esta mensagem ao receber a rejeição.",
+          "Confirm": "Rejeitar"
+        }
+      }
+    },
+    "Integrations": {
+      "Dnd5e": {
+        "ConsentTitle": "Ativar Automação de Progressão do D&D5e",
+        "ConsentBody": "O Hero Mancer 2 precisa que a automação de progressão esteja ativada para aplicar as características corretamente. Sua configuração atual está desativada.",
+        "ConsentEnable": "Habilitar Automação",
+        "AdvancementsEnabled": "Automação de Progressão do D&D5e ativada."
+      },
+      "SpellBook": {
+        "Missing": "Instale o módulo Spell Book para gerenciar as magias deste personagem.",
+        "NoGM": "Nenhum Mestre está online para finalizar seu grimório. Seu personagem foi criado, porém peça ao seu Mestre para configurar as magias quando ele retornar.",
+        "Canceled": "Seu Mestre fechou a configuração do grimório sem salvar. Você pode solicitá-la novamente pela ficha do seu personagem.",
+        "NoCompendiums": {
+          "gm": "O Spell Book não possui nenhum compêndio de magias habilitado. Abra a configuração de fontes do D&D5e e habilite pelo menos um compêndio de Item que contenha magias.",
+          "player": "Seu Mestre ainda não terminou de configurar o Spell Book. Suas magias ficarão disponíveis assim que ele habilitar um compêndio de magias."
+        },
+        "Waiting": {
+          "Title": "Finalizando grimório...",
+          "Body": "Aguardando seu Mestre configurar as regras de conjuração para {name}. O Spell Book será aberto aqui assim que ele salvar as configurações.",
+          "Cancel": "Parar de Aguardar"
+        }
+      }
+    },
+    "Chat": {
+      "CharacterSummary": {
+        "Label": "Personagem Criado",
+        "EquipmentHeading": "Carregando",
+        "ViewSheet": "Ver Ficha"
+      },
+      "Approval": {
+        "submitted": "{player} enviou {name} para revisão.",
+        "approved": "{name} foi aprovado.",
+        "rejected": "{name} foi rejeitado.",
+        "review": "Revisar",
+        "awaiting": "Aguardando revisão do Mestre",
+        "reopen": "Abrir Hero Mancer 2"
+      }
+    },
+    "Character": {
+      "DefaultName": "Aventureiro"
+    },
+    "App": {
+      "DocumentService": {
+        "CommonLabels": {
+          "Forge": "The Forge",
+          "DndbeyondImporter": "D&D Beyond",
+          "Homebrew": "Homebrew",
+          "Srd51": "SRD 5.1",
+          "Srd52": "SRD 5.2",
+          "UnknownSource": "Origem Desconhecida"
+        }
+      },
+      "JournalLoading": "Carregando página do diário...",
+      "Journal": {
+        "PageNotFound": "Página do diário não encontrada",
+        "NoContentFound": "Nenhum conteúdo encontrado",
+        "RenderError": "Erro ao exibir a página do diário"
+      },
+      "Identity": {
+        "PickPlaceholder": "Escolha um...",
+        "SubclassPlaceholder": "Escolha uma subclasse...",
+        "Caster": {
+          "full": "Full Caster",
+          "half": "Half Caster",
+          "third": "Third Caster",
+          "pact": "Pact Magic",
+          "artificer": "Artificer"
+        },
+        "Subclass": {
+          "DescriptionNavLabel": "Trocar descrição da subclasse"
+        },
+        "Multiclass": {
+          "PrimaryTooltip": "Classe primária -- concede o equipamento inicial e os PV máximos do 1º nível",
+          "Add": "Adicionar Multiclasse",
+          "AddMissing": "Seleção de classe ausente em uma linha de multiclasse",
+          "BalanceMismatch": "O total de níveis da multiclasse não corresponde ao nível inicial",
+          "RemoveTooltip": "Remover esta Classe",
+          "BalanceOk": "Níveis atribuídos: {total} / {max}",
+          "BalanceShort": "Níveis restantes: {missing} ({total} / {max})",
+          "BalanceOver": "Excedido em {over} ({total} / {max}) -- reduza um nível de classe",
+          "PrereqFailed": "Pré-requisito de multiclasse não atendido para uma das classes selecionadas",
+          "DescriptionNavLabel": "Trocar descrição",
+          "Decrement": "Diminuir Nível",
+          "Increment": "Aumentar Nível"
+        },
+        "ScrollTop": "Voltar ao topo"
+      },
+      "Launch": {
+        "ShortLabel": "Hero Mancer 2",
+        "DialogLabel": "Criar com Hero Mancer 2",
+        "Loading": "Reunindo as opções do seu personagem..."
+      },
+      "Randomize": {
+        "All": "Aleatorizar",
+        "Failed": "A aleatorização não pôde ser concluída. Algumas seleções podem estar incompletas.",
+        "ConfirmTitle": "Aleatorizar",
+        "ConfirmBody": "Aleatoriza: nome, identidade, atributos e pontos de vida.\nNão altera: Equipamentos, Biografia e Progressões."
+      },
+      "Welcome": {
+        "Title": "Bem-vindo ao Hero Mancer 2",
+        "Lede": "Uma ferramenta guiada para criação e avanço de nível de personagens.",
+        "GM": {
+          "Heading": "Para Mestres",
+          "StepSources": "<a data-action=\"openSources\" class=\"hm-welcome-link\">Configure as Fontes no Navegador de Compêndios</a>. O Hero Mancer 2 respeita os compêndios que você escolher utilizar como fonte de conteúdo.",
+          "StepSettings": "Ajuste o Hero Mancer 2 em <a data-action=\"openSettings\" data-tab=\"abilities\" class=\"hm-welcome-link\">Atributos</a>, <a data-action=\"openSettings\" data-tab=\"wizard-flow\" class=\"hm-welcome-link\">Fluxo do Assistente</a>, <a data-action=\"openSettings\" data-tab=\"enforcement\" class=\"hm-welcome-link\">Restrições</a>, <a data-action=\"openSettings\" data-tab=\"player-experience\" class=\"hm-welcome-link\">Experiência do Jogador</a> ou <a data-action=\"openSettings\" data-tab=\"exclusions\" class=\"hm-welcome-link\">Lista de Exclusão de Compêndios</a>.",
+          "StepApprovals": "Quando os jogadores enviarem personagens para revisão, um aviso aparecerá no topo da sua tela. Se você dispensar a notificação, poderá acessar a Fila pelo <a data-action=\"openQueue\" class=\"hm-welcome-link\">Gerenciador de Solicitações</a> no menu de configurações.",
+          "StepOnBehalf": "Mestres podem criar ou avançar o nível de personagens em nome dos jogadores, selecionando-os na lista suspensa de Jogadores na aba Início.",
+          "StepLevelUp": "Conceda um avanço de nível pressionando Enviar Avanço de Nível no cabeçalho da ficha do grupo. Um botão brilhante de Avançar Nível aparecerá na ficha do jogador, próximo aos botões de descanso."
+        },
+        "Player": {
+          "Heading": "Primeiros Passos",
+          "HeadingForGM": "Para Jogadores",
+          "StepLaunch": "Abra o Hero Mancer 2 pelo cabeçalho do <a data-action=\"openActorDirectory\" class=\"hm-welcome-link\">Diretório de Atores</a> ou selecionando <a data-action=\"openCreateActor\" class=\"hm-welcome-link\">Criar com Hero Mancer 2</a> na janela de criação de ator.",
+          "StepTabs": "Certifique-se de preencher todas as informações possíveis em cada aba (e sub-aba!) antes de finalizar seu personagem.",
+          "StepSubmit": "Pressione Construir Personagem para enviar a solicitação. Se o seu Mestre exigir aprovação, o assistente ficará bloqueado até que ele revise sua solicitação. Caso ela seja rejeitada, um aviso exibirá o motivo.",
+          "StepLevelUp": "Quando seu Mestre conceder um avanço de nível, um botão brilhante de Avançar Nível aparecerá na sua ficha, próximo aos botões de descanso. Clique nele para começar."
+        },
+        "HideForever": "Não mostrar novamente",
+        "Dismiss": "Entendi",
+        "Links": {
+          "Patreon": "Apoiar no Patreon",
+          "Kofi": "Me pague um Ko-fi",
+          "Discord": "Entrar no Discord",
+          "Github": "Ver no GitHub",
+          "Bugs": "Reportar um bug"
+        }
+      },
+      "Validation": {
+        "Missing": "Campos Obrigatórios Ausentes",
+        "PointBuy": "Pontos da Compra de Pontos não foram totalmente utilizados",
+        "StandardArray": "Atribua todos os valores fixos a um atributo",
+        "ManualFormula": "Rolar Todos os Atributos",
+        "ConfirmIncomplete": {
+          "Title": "Criar Mesmo Assim?",
+          "Body": "Algumas escolhas obrigatórias ainda não foram concluídas:",
+          "Warning": "Criar agora pode deixar progressões não configuradas ou aplicadas incorretamente.",
+          "Confirm": "Criar Mesmo Assim",
+          "Cancel": "Voltar"
+        }
+      },
+      "Character": {
+        "Created": "{name} criado."
+      },
+      "Finalize": {
+        "BasicInfo": "Básicos",
+        "ClassesLabel": "Classes (nível total {total})",
+        "AbilityBase": "Base {base} + AdA",
+        "Proficiencies": "Proficiências",
+        "NoProficiencies": "Escolha uma espécie, classe e antecedente para preencher as proficiências.",
+        "Review": {
+          "SectionShop": "Compras na Loja",
+          "NoEquipment": "Nenhum equipamento escolhido.",
+          "Gold": "Ouro: {amount}",
+          "Qty": "x{qty}"
+        },
+        "SpellHandoff": {
+          "Legend": "Transferência do Spell Book",
+          "SkipLabel": "Não abrir o Spell Book após a criação do personagem",
+          "SkipHint": "Pula o fluxo automático de configuração de magias. Você pode abrir o Spell Book manualmente pela ficha do personagem quando estiver pronto."
+        }
+      },
+      "Biography": {
+        "Personality": "Personalidade",
+        "AlignmentPlaceholder": "ex: Ordeiro Bom",
+        "FaithPlaceholder": "ex: Pelor",
+        "GenderPlaceholder": "ex: não-binário",
+        "AgePlaceholder": "ex: 27",
+        "EyesPlaceholder": "ex: âmbar",
+        "HairPlaceholder": "ex: preto curto",
+        "SkinPlaceholder": "ex: oliva",
+        "HeightPlaceholder": "ex: 1,78 m",
+        "WeightPlaceholder": "ex: 75 kg",
+        "TraitsPlaceholder": "ex: Cito as escrituras em toda ocasião.",
+        "IdealsPlaceholder": "ex: O conhecimento pertence a todos.",
+        "BondsPlaceholder": "ex: Meu mentor desapareceu e eu vou encontrá-lo.",
+        "FlawsPlaceholder": "ex: Não consigo resistir a uma aposta, não importa o risco.",
+        "AppearancePlaceholder": "ex: Alto e esguio, com um manto carmesim desbotado.",
+        "Hints": {
+          "Backstory": "De onde você veio, o que te moldou, por que você segue este caminho."
+        }
+      },
+      "Abilities": {
+        "YourClass": "sua classe",
+        "PrimaryTooltip": "{ability} é um atributo primário de {class}.",
+        "SelectMethod": "Método de Geração de Atributo",
+        "Blurbs": {
+          "str": "O quão forte você golpeia com uma espada e o quanto consegue carregar. Perícias: Atletismo.",
+          "dex": "Reflexos, equilíbrio e o tipo de graça que transforma uma queda em um rolamento. Perícias: Acrobacia, Furtividade, Prestidigitação.",
+          "con": "Resistência e vigor, ou o quanto de dano você consegue suportar antes de cair.",
+          "int": "Raciocínio puro, memória e aquele 'já li isso em algum livro'. Perícias: Arcanismo, História, Investigação, Natureza, Religião.",
+          "wis": "Percepção, instinto e força de vontade. Perícias: Intuição, Lidar com Animais, Medicina, Percepção, Sobrevivência.",
+          "cha": "Confiança, presença e magnetismo pessoal. Perícias: Enganação, Intimidação, Performance, Persuasão.",
+          "hon": "Honra pessoal e posição na sociedade.",
+          "san": "Fortaleza mental contra o horror, a loucura e o colapso da realidade."
+        },
+        "Method": {
+          "standardArray": "Modo Fixo",
+          "pointBuy": "Compra de Pontos",
+          "manualFormula": "Fórmula Manual"
+        },
+        "PointsRemaining": "Pontos Restantes",
+        "RollAll": "Rolar Atributos",
+        "PoolLabel": "Valores Rolados",
+        "RerollPool": "Rerolar",
+        "RerollPromptTitle": "Rerolar qual valor?",
+        "RerollExhausted": "Sem rerolagens restantes.",
+        "RerollNoUnassigned": "Todos os valores do conjunto já foram atribuídos aos atributos. Libere um antes de rerolar."
+      },
+      "TabNames": {
+        "background": "Antecedente",
+        "species": "Espécie",
+        "class": "Classe",
+        "advancements": "Progressão",
+        "level-up": "Avanço de Nível"
+      },
+      "Equipment": {
+        "EmptyPickClassBg": "Escolha uma classe e um antecedente para ver as opções de equipamento inicial.",
+        "granted-class": "Concedido pela Classe",
+        "granted-background": "Concedido pelo Antecedente",
+        "NoChoices": "Nenhuma opção de equipamento para esta combinação.",
+        "DetailChoosePrompt": "Escolher...",
+        "DetailClose": "Fechar Seletor",
+        "DetailSearchLabel": "Pesquisar Opções",
+        "DetailEmpty": "Nenhuma opção correspondente.",
+        "section-class": "Equipamento de Classe",
+        "section-background": "Equipamento de Antecedente",
+        "section-named": "Equipamento de {name}",
+        "WealthToggleLabel": "Usar Riqueza Inicial",
+        "WealthSummaryRoll": "Rolar {formula} (média de {average} PO)",
+        "WealthSummaryFlat": "{average} PO",
+        "WealthActiveNote": "Equipamento ignorado. A riqueza será concedida ao finalizar.",
+        "WealthRollButton": "Rolar Riqueza",
+        "WealthRolledSummary": "Rolou {formula} = {value}",
+        "WealthRollFlavor": "Riqueza inicial de {source}",
+        "OrNoneLabel": "Pegar ouro em vez disso",
+        "SubtabChoices": "Equipamento Concedido",
+        "SubtabShop": "Comprar Equipamento",
+        "BonusGoldName": "Ouro inicial bônus",
+        "BonusGoldReroll": "Rerolar",
+        "Shop": {
+          "EmptyNoWealth": "Ative a opção de riqueza em Equipamento Concedido para desbloquear o ouro inicial para compras.",
+          "SearchPlaceholder": "Pesquisar...",
+          "FilterAll": "Tudo",
+          "SortLabel": "Ordenar",
+          "SortNameAsc": "Nome A-Z",
+          "SortNameDesc": "Nome Z-A",
+          "SortCostAsc": "Custo: menor para maior",
+          "SortCostDesc": "Custo: maior para menor",
+          "SortBucket": "Agrupar por Tipo",
+          "Free": "-",
+          "Remove": "Remover",
+          "CartEmpty": "Carrinho vazio. Clique em um item para adicioná-lo.",
+          "CartHeading": "Carrinho",
+          "CatalogueHeading": "Catálogo"
+        }
+      },
+      "Start": {
+        "PlayerSettings": "Configurações de Jogador",
+        "NamePlaceholder": "ex: Logus",
+        "GenerateRandomName": "Gerar um nome aleatório",
+        "RandomNameStyle": {
+          "label": "Estilo do nome",
+          "all": "Todos",
+          "female": "Feminino",
+          "male": "Masculino",
+          "family": "Sobrenome"
+        },
+        "RandomNameCulture": {
+          "label": "Cultura do nome",
+          "all": "Todas",
+          "easterling": "Oriental",
+          "fantasy": "Fantasia",
+          "forest-dweller": "Élfico",
+          "gem-tinkerer": "Gnômico",
+          "hill-feaster": "Halfling",
+          "metal-miner": "Anão",
+          "mud-grubber": "Goblin",
+          "old-worlder": "Germânico",
+          "scale-bearer": "Dracônico",
+          "war-bringer": "Órquico"
+        },
+        "DiceAppearance": {
+          "Legend": "Dice So Nice",
+          "Label": "Dados do Personagem",
+          "Set": "Definir Aparência dos Dados",
+          "Edit": "Editar Aparência dos Dados",
+          "StatusDefault": "Usando seus dados padrão",
+          "StatusCustom": "Conjunto de dados personalizado",
+          "StatusCustomWithColorset": "Dados personalizados: {colorset}"
+        },
+        "PlayerAssignmentLabel": "Atribuir ao Jogador",
+        "PlayerAssignmentPlaceholder": "Nenhum Jogador",
+        "CharacterArtLabel": "Arte do Personagem",
+        "CharacterArtPlaceholder": "Caminho para o retrato do personagem",
+        "Tokenize": "Tokenizer",
+        "TokenSameAsCharacter": "Usar Arte do Personagem como Token",
+        "TokenArtLabel": "Arte do Token",
+        "TokenArtPlaceholder": "Caminho para a imagem do token",
+        "PlayerColor": "Cor de Jogador",
+        "PlayerPronouns": "Pronomes",
+        "PlayerPronounsPlaceholder": "ex: ele/dele",
+        "TokenSettings": "Anel de Token",
+        "LevelLabel": "Nível Inicial",
+        "LevelTileHint": "Padrão da campanha definido pelo Mestre.",
+        "Birthday": {
+          "Label": "Aniversário do Personagem",
+          "Month": "Mês de Nascimento",
+          "Day": "Dia de Nascimento",
+          "Year": "Ano de Nascimento",
+          "Age": "{age} anos de idade",
+          "NoteName": "Aniversário de {name}"
+        },
+        "Hints": {
+          "Name": "Digite um nome ou clique em embaralhar para gerar um. O menu suspenso do meio seleciona o estilo (feminino / masculino / sobrenome). O menu da direita seleciona a cultura (Élfica, Anã, etc.).",
+          "Birthday": "Define o aniversário do personagem. Uma anotação recorrente é adicionada ao seu calendário na criação.",
+          "PlayerAssignment": "Entregue o personagem finalizado a um jogador. Ele se torna o dono, você permanece como Mestre.",
+          "Level": "O nível com que seu personagem começa. Acima do nível 1 desbloqueia multiclasse + escolhas de progressão.",
+          "LevelLocked": "Bloqueado pelo padrão da campanha. Peça ao seu Mestre para ajustar a configuração de nível inicial.",
+          "CharacterArt": "Caminho para o retrato exibido na ficha, na HUD do assistente e nos cartões de chat.",
+          "TokenArt": "Caminho para a imagem exibida na cena. Espelha automaticamente o retrato quando vinculada.",
+          "ArtNoPermission": "Você não tem permissão de navegação de arquivos, então a arte não pode ser selecionada aqui. Seu Mestre pode definir a arte após a criação ou conceder a permissão de Navegação de Arquivos.",
+          "LinkTokenArt": "Usa o retrato do personagem também como token. Dispensa uma imagem de token separada.",
+          "PlayerColor": "Cor dos balões de conversa, cursor e indicadores de propriedade na mesa.",
+          "PlayerPronouns": "Pronomes opcionais de exibição. Aparecem ao lado do seu nome na lista de Jogadores (canto inferior esquerdo).",
+          "DiceAppearance": "Abra o editor do Dice So Nice para escolher o conjunto de cores dos dados deste personagem. As alterações são salvas ao fechar.",
+          "RingEnabled": "Ative o anel dinâmico do token para este personagem. Necessário para que as cores do anel/fundo abaixo sejam exibidas.",
+          "RingColor": "Cor do anel dinâmico externo ao redor do token.",
+          "BackgroundColor": "Cor da moldura interna do anel atrás do retrato."
+        }
+      },
+      "Advancements": {
+        "Empty": "Escolha sua Identidade antes de definir as progressões.",
+        "ClassLegend": "{className} (nível {level})",
+        "None": "Esta classe não possui progressões no nível escolhido.",
+        "MiscLabel": "Diversos",
+        "GrantedLabel": "Concedido",
+        "ChooseLabel": "Escolher",
+        "GrantedBucket": {
+          "language": "Idiomas",
+          "skill": "Proficiências em Perícia",
+          "tool": "Proficiências com Ferramenta",
+          "weapon-armor": "Proficiências com Arma e Armadura",
+          "save": "Salvaguardas",
+          "feat": "Talentos",
+          "feature": "Características",
+          "spell": "Magias",
+          "other": "Outro"
+        },
+        "ChoosePrompt": "Escolha",
+        "ChooseCount": "Escolher {count}...",
+        "BrowseMax": "Você já selecionou o número máximo de itens para esta escolha.",
+        "ASIFootLabel": "AdA ou Talento",
+        "ASIFootOnlyLabel": "AdA",
+        "ASIDialog": {
+          "Title": "Aumento de Atributo",
+          "Remaining": "{remaining} / {total} pontos restantes",
+          "FixedTag": "+{value} concedido",
+          "Undo": "Redefinir escolha"
+        },
+        "FeatDialog": {
+          "Title": "Escolha um Talento"
+        },
+        "ASIModeASIBtn": "AdA",
+        "ASIModeFeatBtn": "Talento",
+        "Ribbon": {
+          "skill": "Perícia",
+          "language": "Idioma",
+          "save": "Salvaguarda",
+          "ability": "Atributo",
+          "tool": "Ferramenta",
+          "weapon": "Arma",
+          "armor": "Armadura",
+          "immunity": "Imune",
+          "resist": "Resistência",
+          "vuln": "Vulnerável",
+          "absorb": "Absorve",
+          "feat": "Talento",
+          "feature": "Característica",
+          "spell": "Magia",
+          "gear": "Equipamento",
+          "container": "Kit",
+          "consumable": "Consumível",
+          "loot": "Saque",
+          "background": "Antecedente",
+          "class": "Classe",
+          "subclass": "Subclasse",
+          "species": "Espécie",
+          "asi": "AdA",
+          "pick": "Escolher"
+        },
+        "RibbonProf": {
+          "skill": "Proficiência em Perícia",
+          "save": "Proficiência em Salvaguarda",
+          "tool": "Proficiência com Ferramenta",
+          "weapon": "Proficiência com Arma",
+          "armor": "Proficiência com Armadura"
+        },
+        "ItemChoicePlaceholder": "Escolha um item",
+        "Chip": {
+          "granted": "Concedido",
+          "choice": "Escolha",
+          "choose": "Escolher",
+          "choose-count": "Escolha {count}",
+          "done": "Concluído",
+          "error": "Erro",
+          "partial": "{filled} / {required}",
+          "partial-tooltip": "Seleção incompleta"
+        },
+        "NoOptions": "Nenhuma opção válida. Esta progressão está configurada incorretamente. Será ignorada.",
+        "ApplyFailed": "A progressão \"{title}\" falhou ao ser aplicada: {reason}",
+        "FeatBrowser": {
+          "Empty": "Nenhum talento indexado. Configure os compêndios de talentos nas configurações de fonte do D&D5e.",
+          "EmptyFilter": "Nenhum talento corresponde aos filtros atuais.",
+          "SearchLabel": "Procurar talentos",
+          "SearchPlaceholder": "Procurar talentos por nome...",
+          "FilterAll": "Todos",
+          "QualifyingOnly": "Mostrar apenas talentos para os quais você é elegível",
+          "RulesAll": "Todas",
+          "BookAll": "Todos",
+          "Picked": "Selecionado",
+          "PrereqLevelWarning": "Requer nível {level} de personagem",
+          "PrereqRepeatable": "Repetível",
+          "GrantsSpellTooltip": "Concede ou permite escolher uma magia",
+          "SectionRulesets": "Conjuntos de Regras",
+          "SectionSources": "Origens",
+          "SectionAction": "Economia de Ação",
+          "SectionGrants": "Concede",
+          "action-action": "Ação",
+          "action-bonus": "Ação Bônus",
+          "action-reaction": "Reação",
+          "action-passive": "Passivo",
+          "GrantsASIOnly": "Concede AdA",
+          "GrantsSpellOnly": "Concede uma Magia"
+        }
+      },
+      "HP": {
+        "empty": "Escolha uma classe na aba Identidade para configurar os pontos de vida.",
+        "method": "Método",
+        "level": "Nível",
+        "max": "Máx",
+        "average": "Média",
+        "reroll": "Rerolar",
+        "roll-btn": "Rolar Dado de Vida",
+        "reroll-btn": "Rerolar Dado de Vida",
+        "roll-locked": "Limite de Rerolagem Atingido",
+        "applied": "Aplicado",
+        "applied-tooltip": "Os pontos de vida deste nível já foram aplicados a este personagem.",
+        "con-mod": "Modificador de CON",
+        "con-short": "CON",
+        "total": "PV Total",
+        "per-class-chip": "{count} x {die}",
+        "block-total": "Total {total}",
+        "reroll-title": "Rerolar Dado de Vida?",
+        "reroll-prompt": "O nível {level} já rolou <strong>{value}</strong>. Rerolar?",
+        "attempts-left": "{n} restante(s)"
+      }
+    },
+    "Components": {
+      "Combobox": {
+        "SearchLabel": "Filtrar Opções",
+        "NoResults": "Nenhuma correspondência"
+      },
+      "EquipmentTile": {
+        "TypePack": "Conjunto",
+        "TypeCurrency": "Riqueza",
+        "TypeNone": "Moeda",
+        "BundleCount": {
+          "one": "{count} item",
+          "other": "{count} itens"
+        },
+        "BundleAndMore": "e mais...",
+        "RequiresProficiency": "Requer proficiência"
+      },
+      "AbilityBlock": {
+        "Increment": "Aumentar",
+        "Decrement": "Diminuir"
+      }
+    },
+    "Wizard": {
+      "Title": "Hero Mancer 2",
+      "Review": {
+        "Title": "Revisando: {name}"
+      },
+      "Header": {
+        "Actions": "Ações do Assistente",
+        "Close": "Fechar Assistente"
+      },
+      "Sidebar": {
+        "Label": "Resumo do Personagem"
+      },
+      "Hud": {
+        "Label": "Visualização do Personagem Ao Vivo",
+        "CurrencyTooltip": "Moedas Restantes",
+        "Prof": "Prof",
+        "Saves": "Salvaguardas"
+      },
+      "Nav": {
+        "Label": "Abas do Assistente",
+        "BadgeTooltip": "Escolhas Restantes"
+      },
+      "Identity": {
+        "SubnavLabel": "Seções de Identidade"
+      },
+      "Tabs": {
+        "Start": "Início",
+        "Identity": "Identidade",
+        "Advancements": "Progressões",
+        "Finalize": "Finalizar"
+      },
+      "Menus": {
+        "Settings": "Configurações do Hero Mancer 2"
+      },
+      "Footer": {
+        "SaveDraft": "Salvar Rascunho",
+        "SubmitApproval": "Enviar para Aprovação",
+        "Create": "Criar Personagem",
+        "ConfirmLevelUp": "Confirmar Avanço de Nível",
+        "Approve": "Aprovar",
+        "Reject": "Rejeitar",
+        "Back": "Voltar",
+        "Next": "Próximo"
+      },
+      "Draft": {
+        "Saved": "Rascunho salvo.",
+        "Restored": "Rascunho restaurado.",
+        "SaveFailed": "Falha ao salvar o rascunho."
+      },
+      "CloseConfirm": {
+        "Title": "Alterações Não Salvas",
+        "Content": "Você possui alterações não salvas. Salve um rascunho para continuar depois, descarte as alterações ou cancele para permanecer no assistente.",
+        "SaveDraft": "Salvar Rascunho",
+        "Discard": "Descartar"
+      }
+    },
+    "Settings": {
+      "ShowWelcome": {
+        "Name": "Exibir Boas-Vindas",
+        "Hint": "Exibir a janela de boas-vindas do Hero Mancer 2 uma vez por sessão."
+      },
+      "MulticlassThreshold": {
+        "Name": "Limite de Atributo para Multiclasse",
+        "Hint": "Valor mínimo de atributo necessário para adquirir uma multiclasse. O padrão é 13."
+      },
+      "Logger": {
+        "Name": "Nível de Registro",
+        "Hint": "Define a quantidade de informações que o Hero Mancer 2 registra no console do navegador.",
+        "Choices": {
+          "Off": "Desligado",
+          "Errors": "Erros",
+          "Warnings": "Avisos",
+          "Verbose": "Verbose"
+        }
+      },
+      "PublishWealthRolls": {
+        "Name": "Publicar Rolagens de Riqueza Inicial",
+        "Hint": "Quando ativado, as rolagens de riqueza inicial serão publicadas no chat para todos os usuários."
+      },
+      "PublishCreationSummary": {
+        "Name": "Publicar Resumo da Criação",
+        "Hint": "Publica um cartão no chat resumindo o novo personagem.",
+        "Choices": {
+          "WhisperGM": "Sussurrar para o Mestre + Dono",
+          "Off": "Desativado"
+        }
+      },
+      "PublishLevelUpBroadcast": {
+        "Name": "Publicar Resumo do Avanço de Nível",
+        "Hint": "Publica uma mensagem no chat quando um avanço de nível for concluído.",
+        "Choices": {
+          "WhisperOwners": "Sussurrar para os Donos",
+          "Off": "Desativado"
+        }
+      },
+      "KeepApprovalArchive": {
+        "Name": "Arquivar Solicitações",
+        "Hint": "Mantém as solicitações aprovadas e rejeitadas em um diário em vez de excluí-las ao serem resolvidas."
+      },
+      "RequireApprovalForPlayers": {
+        "Name": "Exigir Aprovação do Mestre",
+        "Hint": "Os personagens dos jogadores são enviados para revisão do Mestre em vez de serem criados diretamente. Mestres ignoram essa exigência."
+      },
+      "EnforceBiography": {
+        "Name": "Exigir Campos de Biografia",
+        "Hint": "Quando ativado, todos os campos da aba Biografia devem ser preenchidos antes que um personagem possa ser enviado."
+      },
+      "EnforceArt": {
+        "Name": "Exigir Arte do Personagem",
+        "Hint": "Quando ativado, a arte do personagem é obrigatória. A arte do token também será obrigatória, a menos que a opção 'Usar Arte do Personagem como Token' esteja marcada."
+      },
+      "PendingApprovalsMenu": {
+        "Name": "Fila de Aprovações Pendentes",
+        "Hint": "Abre o painel de fila do Mestre para revisar as solicitações de personagens pendentes.",
+        "Label": "Abrir Fila"
+      },
+      "Troubleshooter": {
+        "Title": "Diagnóstico",
+        "Notes": "Copie ou baixe este relatório e anexe-o ao seu relatório de erro no Discord ou GitHub.",
+        "OutputLabel": "Relatório de Diagnóstico",
+        "SaveToFile": "Salvar em Arquivo",
+        "CopyToClipboard": "Copiar para Área de Transferência",
+        "CopySuccess": "Relatório copiado para a área de transferência.",
+        "Github": "GitHub",
+        "Menu": {
+          "Name": "Diagnóstico",
+          "Hint": "Gere um relatório de diagnóstico para relatórios de erros.",
+          "Label": "Abrir Diagnóstico"
+        }
+      },
+      "AllowedMethods": {
+        "Name": "Métodos de Rolagem Permitidos",
+        "Hint": "Quais métodos de rolagem você permite que seus jogadores utilizem para gerar valores de atributos."
+      },
+      "AllowedHPMethods": {
+        "Name": "Métodos de Pontos de Vida Permitidos",
+        "Hint": "Quais métodos de pontos de vida você permite que seus jogadores utilizem para rolar a vida."
+      },
+      "SettingsPanel": {
+        "Menu": {
+          "Name": "Configurações do Hero Mancer 2",
+          "Hint": "Abre o painel de configurações do Hero Mancer 2. Agrupa todas as configurações do mundo + cliente em uma interface com abas.",
+          "Label": "Abrir Configurações"
+        },
+        "Tabs": {
+          "abilities": "Atributos",
+          "wizard-flow": "Fluxo do Assistente",
+          "enforcement": "Restrições",
+          "player-experience": "Experiência",
+          "advanced": "Avançado",
+          "exclusions": "Exclusões"
+        },
+        "Group": {
+          "General": "Geral",
+          "Identity": "Identidade",
+          "Content": "Conteúdo",
+          "RequiredFields": "Campos Obrigatórios",
+          "Approval": "Aprovação",
+          "Customization": "Personalização",
+          "Publishing": "Publicação",
+          "Behavior": "Comportamento",
+          "Tools": "Ferramentas",
+          "ManualRoll": "Rolagem Manual",
+          "StandardArray": "Modo Fixo",
+          "PointBuy": "Compra de Pontos",
+          "ScoreLimits": "Limites de Atributo"
+        },
+        "AdvancementOrder": {
+          "RowUp": "Mover para Cima",
+          "RowDown": "Mover para Baixo"
+        },
+        "AllowedMethods": {
+          "StandardArray": "Modo Fixo",
+          "PointBuy": "Compra de Pontos",
+          "Manual": "Rolagem Manual"
+        },
+        "ArtPickerRoot": {
+          "Browse": "Procurar"
+        },
+        "CustomFocusItems": {
+          "Add": "Adicionar Item",
+          "RemoveTooltip": "Remover do conjunto de foco"
+        },
+        "PointBuyCostMap": {
+          "Add": "Adicionar Substituição",
+          "RemoveTooltip": "Remover substituição",
+          "CostLabel": "Custo em Pontos"
+        },
+        "Save": "Salvar Configurações",
+        "Saved": "Configurações salvas.",
+        "ResetTab": "Redefinir esta Aba"
+      },
+      "CompendiumExclusionList": {
+        "Tabs": {
+          "species": "Espécies",
+          "background": "Antecedente",
+          "class": "Classe",
+          "subclass": "Subclasse",
+          "items": "Itens"
+        },
+        "Browse": "Procurar",
+        "HiddenCount": "{count} oculto(s)"
+      },
+      "LockIdentityRuleset": {
+        "Name": "Vincular Escolhas de Identidade ao Conjunto de Regras",
+        "Hint": "Quando ativado, sua primeira escolha de identidade vincula todas as demais escolhas de identidade ao mesmo conjunto de regras (2014 ou 2024). Opções sem conjunto de regras permanecem disponíveis para todos."
+      },
+      "HideOtherCreateActorOptions": {
+        "Name": "Ocultar Outras Opções de Criação",
+        "Hint": "Os jogadores verão apenas o botão do Hero Mancer 2 na janela Criar Ator. Mestres verão todas as opções."
+      },
+      "TrimSourceParenthetical": {
+        "Name": "Remover Sufixo do Livro de Regras",
+        "Hint": "Oculta a identificação do livro de regras nos nomes das opções. Ex: 'Tiefling (PHB)' passa a ser exibido como 'Tiefling'."
+      },
+      "ArtPickerRoot": {
+        "Name": "Diretório de Artes",
+        "Hint": "Pasta inicial para o seletor de arte do personagem."
+      },
+      "PlayerCustomization": {
+        "Name": "Permitir Personalização dos Jogadores",
+        "Hint": "Permite que os jogadores escolham sua cor de jogador e pronomes durante a criação do personagem."
+      },
+      "TokenCustomization": {
+        "Name": "Permitir Personalização do Anel de Token",
+        "Hint": "Permite que os jogadores ativem o anel dinâmico de token e escolham suas cores de anel + fundo."
+      },
+      "Randomize": {
+        "Name": "Ativar Aleatorizador?",
+        "Hint": "Permite que os usuários aleatorizem aspectos do processo de criação de seus personagens."
+      },
+      "AdvancementOrder": {
+        "Name": "Ordem da Identidade",
+        "Hint": "Define a ordem em que as abas Antecedente, Espécie e Classe são exibidas no assistente de criação."
+      },
+      "CustomRollFormula": {
+        "Name": "Fórmula de Rolagem Manual",
+        "Hint": "A fórmula de dados utilizada pelo método de Rolagem Manual. O padrão é 4d6kh3."
+      },
+      "CustomPointBuyTotal": {
+        "Name": "Quantidade de Compra de Pontos",
+        "Hint": "Total de pontos que cada jogador possui para gastar na compra de pontos. O padrão é 27."
+      },
+      "PointBuyCostMap": {
+        "Name": "Tabela de Custo",
+        "Hint": "O custo em pontos de cada valor de atributo. Edite, adicione ou remova linhas."
+      },
+      "CustomFocusItems": {
+        "Name": "Foco de Conjuração Personalizado",
+        "Hint": "Itens tratados como focos de conjuração válidos, adicionados à lista do sistema e disponibilizados na loja de equipamentos."
+      },
+      "AllowRerolls": {
+        "Name": "Permitir Rerolagens",
+        "Hint": "Permite que os jogadores refaçam valores obtidos por rolagem manual, como PV e atributos."
+      },
+      "MaxRerollAttempts": {
+        "Name": "Tentativas Máximas de Rerolagem",
+        "Hint": "Quantas vezes um jogador pode realizar uma nova rolagem. Defina como 0 para ilimitadas."
+      },
+      "StandardArrayValues": {
+        "Name": "Fórmula do Modo Fixo",
+        "Hint": "Valores separados por vírgulas que os jogadores devem escolher."
+      },
+      "AbilityScores": {
+        "Default": {
+          "Name": "Valor Padrão de Atributo",
+          "Hint": "O valor inicial dos atributos ao criar um novo personagem."
+        },
+        "Min": {
+          "Name": "Valor Mínimo de Atributo",
+          "Hint": "O menor valor permitido para atributos durante a criação de personagem."
+        },
+        "Max": {
+          "Hint": "O maior valor permitido para atributos durante a criação de personagem."
+        }
+      },
+      "StartingLevel": {
+        "Name": "Nível Inicial",
+        "Hint": "Nível em que novos personagens começam. O padrão é 1."
+      },
+      "AllowPlayerLevelOverride": {
+        "Name": "Permitir Jogadores Alterarem Nível",
+        "Hint": "Quando ativado, os jogadores podem alterar seu nível inicial na aba Início. Quando desativado, o nível padrão da campanha é obrigatório."
+      },
+      "HPMethod": {
+        "Choices": {
+          "max": "Máximo",
+          "average": "Média",
+          "manual": "Manual"
+        }
+      },
+      "HPRerollOnes": {
+        "Name": "Rerolar 1 nos Dados de Vida",
+        "Hint": "Quando ativado, as rolagens manuais de PV rerolam qualquer resultado 1 na primeira tentativa (utiliza 1dNrr1)."
+      },
+      "HPL1MaxDie": {
+        "Name": "Nível 1 Usa Dado de Vida Máximo",
+        "Hint": "A classe primária recebe o valor máximo de PV no primeiro nível."
+      },
+      "RefundUnchosenGold": {
+        "Name": "Reembolsar Equipamentos Ignorados",
+        "Hint": "Desmarcar um item de equipamento concedido adiciona seu preço ao ouro da loja."
+      },
+      "BonusGoldFormula": {
+        "Name": "Fórmula de Ouro Inicial Bônus",
+        "Hint": "Fórmula de rolagem ou valor fixo (ex: '1d100*3' ou '250') adicionado ao total de ouro inicial de todos os personagens. Deixe em branco para desativar. Fórmulas de dados exigem uma rolagem do jogador na aba Equipamentos Concedidos e valores fixos são aplicados automaticamente."
+      },
+      "Dicesonice": {
+        "Name": "Ativar Dados 3D para Rolagens de Atributos",
+        "Hint": "Exibe animações de dados 3D para rolagens de atributos usando o Dice So Nice."
+      },
+      "Tokenizer": {
+        "Name": "Compatibilidade com Tokenizer",
+        "Hint": "Utiliza o editor do Tokenizer 2 para a arte do retrato do personagem e do token."
+      }
+    }
+  }
+}
