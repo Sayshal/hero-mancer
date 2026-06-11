@@ -2926,10 +2926,17 @@ export class HeroMancer extends HMDialog {
       return;
     }
     const filters = { locked: { additional: {}, documentClass: 'Item', types: new Set([cfg.type]) } };
-    if (cfg.type === 'spell' && cfg.level !== '') filters.locked.additional.level = cfg.level === 'available' ? { max: cfg.maxSpellLevel } : { min: Number(cfg.level), max: Number(cfg.level) };
-    if (cfg.type === 'spell' && cfg.list?.length) filters.locked.additional.spelllist = cfg.list.reduce((obj, list) => ({ ...obj, [list]: 1 }), {});
-    if (cfg.type === 'feat' && cfg.category) filters.locked.additional.category = { [cfg.category]: 1 };
-    if (cfg.type === 'feat' && cfg.subtype) filters.locked.additional.subtype = { [cfg.subtype]: 1 };
+    switch (cfg.type) {
+      case 'spell':
+        if (cfg.level !== '') filters.locked.additional.level = cfg.level === 'available' ? { max: cfg.maxSpellLevel } : { min: Number(cfg.level), max: Number(cfg.level) };
+        if (cfg.list?.length) filters.locked.additional.spelllist = cfg.list.reduce((obj, list) => ({ ...obj, [list]: 1 }), {});
+        break;
+      case 'feat':
+        if (cfg.category) filters.locked.additional.category = { [cfg.category]: 1 };
+        if (cfg.subtype) filters.locked.additional.subtype = { [cfg.subtype]: 1 };
+        filters.locked.arbitrary = [{ k: 'system.prerequisites.level', o: 'lte', v: cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped()) }];
+        break;
+    }
     const result = await dnd5e.applications.CompendiumBrowser.select({ filters, selection: { min: 1, max: cfg.max - current.length } });
     if (!result?.size) return;
     const merged = [...new Set([...current, ...result])].slice(0, cfg.max);

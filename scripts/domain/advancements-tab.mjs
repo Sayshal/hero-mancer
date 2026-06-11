@@ -269,7 +269,8 @@ function itemChoiceTile(row) {
       subtype: spec.restrictionSubtype,
       level: spec.restrictionLevel,
       list: spec.restrictionList,
-      maxSpellLevel: spec.maxSpellLevel
+      maxSpellLevel: spec.maxSpellLevel,
+      featureLevel: spec.featureLevel
     });
   } else {
     tile.picker = {
