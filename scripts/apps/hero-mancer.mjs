@@ -491,7 +491,8 @@ export class HeroMancer extends HMDialog {
             effectiveLevel,
             equipmentReview,
             skipSpellHandoff: this.#readSkipSpellHandoff(),
-            asiBonus
+            asiBonus,
+            advancementDraft: this.#readAdvancementDraft()
           })
         );
       }

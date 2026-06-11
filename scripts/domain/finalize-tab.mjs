@@ -74,6 +74,7 @@ function isProgressionSpellcaster(doc) {
  * @param {?object} [args.equipmentReview] Result of `buildEquipmentReview`.
  * @param {boolean} [args.skipSpellHandoff] Current value of the skip-spell-handoff checkbox.
  * @param {?Object<string, number>} [args.asiBonus] Total ASI bonus per ability key, accumulated across class, subclass, race, and background advancements.
+ * @param {object} [args.advancementDraft] Advancement pick map, so chosen Trait proficiencies (skills/tools/languages) show alongside grants.
  * @returns {object} Render-ready finalize-tab context.
  */
 export function buildFinalizeContext({
@@ -87,10 +88,11 @@ export function buildFinalizeContext({
   effectiveLevel = 1,
   equipmentReview = null,
   skipSpellHandoff = false,
-  asiBonus = null
+  asiBonus = null,
+  advancementDraft = {}
 } = {}) {
   const docs = [...classRoster.flatMap((s) => [s.classDoc, s.subclassDoc]), speciesDoc, backgroundDoc].filter(Boolean);
-  const proficiencies = buildProficiencyCategories(docs);
+  const proficiencies = buildProficiencyCategories(docs, advancementDraft);
   const abilityKeys = Object.keys(CONFIG.DND5E.abilities ?? {});
   const abilityRows = abilityKeys.map((key) => {
     const cfg = CONFIG.DND5E.abilities[key];

@@ -43,25 +43,30 @@ function categorizeGrant(grant, source, data) {
 }
 
 /**
- * Walk doc's Trait advancements, categorizing every grant.
+ * Walk doc's Trait advancements, categorizing both auto-grants and chosen picks from the draft.
  * @param {object} doc Source doc.
  * @param {ProficiencyData} data Accumulator.
+ * @param {object} [draft] Advancement pick map keyed by advancement id then level.
  */
-function extractFromDoc(doc, data) {
+function extractFromDoc(doc, data, draft = {}) {
   if (!doc) return;
   const traits = doc.advancement?.byType?.Trait;
   if (!traits) return;
-  for (const trait of traits) for (const grant of trait.configuration?.grants ?? []) categorizeGrant(grant, doc.name, data);
+  for (const trait of traits) {
+    for (const grant of trait.configuration?.grants ?? []) categorizeGrant(grant, doc.name, data);
+    for (const entry of Object.values(draft[trait.id] ?? {})) for (const key of entry?.chosen ?? []) categorizeGrant(key, doc.name, data);
+  }
 }
 
 /**
- * Aggregate proficiency grants across multiple docs into merged buckets.
+ * Aggregate proficiency grants + chosen picks across multiple docs into merged buckets.
  * @param {object[]} docs Source docs.
+ * @param {object} [draft] Advancement pick map keyed by advancement id then level.
  * @returns {ProficiencyData} Merged buckets.
  */
-export function aggregateProficiencies(docs) {
+export function aggregateProficiencies(docs, draft = {}) {
   const data = makeProficiencyData();
-  for (const doc of docs) extractFromDoc(doc, data);
+  for (const doc of docs) extractFromDoc(doc, data, draft);
   return data;
 }
 
@@ -82,10 +87,11 @@ export function dedupCategory(set) {
 /**
  * Template-ready category list; skips empty categories.
  * @param {object[]} docs Source docs.
+ * @param {object} [draft] Advancement pick map keyed by advancement id then level.
  * @returns {Array<{label: string, icon: string, items: object[]}>} Render-ready categories.
  */
-export function buildProficiencyCategories(docs) {
-  const data = aggregateProficiencies(docs);
+export function buildProficiencyCategories(docs, draft = {}) {
+  const data = aggregateProficiencies(docs, draft);
   const out = [];
   for (const meta of CATEGORY_META) {
     const set = data[meta.bucket];
