@@ -764,7 +764,7 @@
         "Name": "Publish Level-Up Summary",
         "Hint": "Post a chat message when a level-up is completed.",
         "Choices": {
-          "WhisperOwners": "Whisper Owners",
+          "WhisperOwners": "Whisper GM + Owner",
           "Off": "Off"
         }
       },
