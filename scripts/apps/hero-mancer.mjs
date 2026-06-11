@@ -2559,7 +2559,8 @@ export class HeroMancer extends HMDialog {
   static async #onPickArt(_event, target) {
     const input = target.parentElement?.querySelector('input[type="text"]');
     if (!input) return;
-    const path = await pickArt({ current: input.value });
+    const root = game.user.isGM ? '' : game.settings.get(MODULE.ID, MODULE.SETTINGS.ART_PICKER_ROOT) || '';
+    const path = await pickArt({ current: input.value, root });
     if (path != null) {
       input.value = path;
       input.dispatchEvent(new Event('change', { bubbles: true }));

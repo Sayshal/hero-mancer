@@ -124,11 +124,13 @@
           {{/each}}
         </div>
       {{else if (eq type "filePicker")}}
-        <input id="hm-sp-{{key}}" type="text" name="{{key}}" value="{{value}}" readonly>
-        <button type="button" data-action="pickFolder" data-target="{{key}}">
-          <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-          {{localize "HEROMANCER.Settings.SettingsPanel.ArtPickerRoot.Browse"}}
-        </button>
+        <div class="hm-sp-filepicker">
+          <input id="hm-sp-{{key}}" type="text" name="{{key}}" value="{{value}}" readonly>
+          <button type="button" data-action="pickFolder" data-target="{{key}}">
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            {{localize "HEROMANCER.Settings.SettingsPanel.ArtPickerRoot.Browse"}}
+          </button>
+        </div>
       {{/if}}
     </div>
     {{#if hint}}
