@@ -42,6 +42,7 @@ export class FeatBrowser {
     this.rulesButtons = Array.from(root.querySelectorAll('[data-feat-browser-rules]'));
     this.bookButtons = Array.from(root.querySelectorAll('[data-feat-browser-book]'));
     this.actionButtons = Array.from(root.querySelectorAll('[data-feat-browser-action]'));
+    this.abilityButtons = Array.from(root.querySelectorAll('[data-feat-browser-ability]'));
     this.qualifyToggles = Array.from(root.querySelectorAll('[data-feat-browser-qualify]'));
     this.grantsAsiToggles = Array.from(root.querySelectorAll('[data-feat-browser-grants-asi]'));
     this.grantsSpellToggles = Array.from(root.querySelectorAll('[data-feat-browser-grants-spell]'));
@@ -50,6 +51,7 @@ export class FeatBrowser {
     this.activeRules = this.rulesButtons.find((b) => b.classList.contains('is-active'))?.dataset.featBrowserRules ?? 'all';
     this.activeBook = this.bookButtons.find((b) => b.classList.contains('is-active'))?.dataset.featBrowserBook ?? 'all';
     this.activeAction = this.actionButtons.find((b) => b.classList.contains('is-active'))?.dataset.featBrowserAction ?? 'all';
+    this.activeAbility = this.abilityButtons.find((b) => b.classList.contains('is-active'))?.dataset.featBrowserAbility ?? 'all';
     this.inlineBar = root.querySelector('[data-feat-browser-inline]');
     this.#bind();
     this.#apply();
@@ -64,6 +66,7 @@ export class FeatBrowser {
     for (const btn of this.rulesButtons) btn.addEventListener('click', () => this.#onChipFilter(btn, this.rulesButtons, 'featBrowserRules', 'activeRules'));
     for (const btn of this.bookButtons) btn.addEventListener('click', () => this.#onChipFilter(btn, this.bookButtons, 'featBrowserBook', 'activeBook'));
     for (const btn of this.actionButtons) btn.addEventListener('click', () => this.#onChipFilter(btn, this.actionButtons, 'featBrowserAction', 'activeAction'));
+    for (const btn of this.abilityButtons) btn.addEventListener('click', () => this.#onChipFilter(btn, this.abilityButtons, 'featBrowserAbility', 'activeAbility'));
     this.#wireToggleGroup(this.qualifyToggles);
     this.#wireToggleGroup(this.grantsAsiToggles);
     this.#wireToggleGroup(this.grantsSpellToggles);
@@ -143,6 +146,7 @@ export class FeatBrowser {
     const rules = this.activeRules;
     const book = this.activeBook;
     const action = this.activeAction;
+    const ability = this.activeAbility;
     const qualifyingOnly = this.qualifyToggles.some((t) => t.checked);
     const grantsAsiOnly = this.grantsAsiToggles.some((t) => t.checked);
     const grantsSpellOnly = this.grantsSpellToggles.some((t) => t.checked);
@@ -152,6 +156,7 @@ export class FeatBrowser {
       if (rules !== 'all' && feat.rules !== rules) return false;
       if (book !== 'all' && feat.book !== book) return false;
       if (action !== 'all' && !feat.actionBuckets?.has?.(action)) return false;
+      if (ability !== 'all' && !feat.abilityIncreases?.has?.(ability)) return false;
       if (qualifyingOnly && !feat.qualifies) return false;
       if (grantsAsiOnly && !feat.hasASI) return false;
       if (grantsSpellOnly && !feat.grantsSpell) return false;

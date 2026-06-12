@@ -38,6 +38,18 @@
         </button>
       {{/each}}
     {{/inline}}
+    {{#*inline "featAbilityChips"}}
+      <button type="button" class="hm-feat-browser-filter-chip {{#if allAbilityActive}}is-active{{/if}}"
+        data-feat-browser-ability="all">
+        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+      </button>
+      {{#each abilityOptions}}
+        <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
+          data-feat-browser-ability="{{this.value}}">
+          {{this.label}}
+        </button>
+      {{/each}}
+    {{/inline}}
     {{#*inline "featGrantsToggles"}}
       <label class="hm-feat-browser-qualify">
         <input type="checkbox" data-feat-browser-grants-asi {{#if filters.grantsAsi}}checked{{/if}}>
@@ -82,6 +94,13 @@
               <span class="hm-feat-browser-filter-section-title">{{localize
                 'HEROMANCER.App.Advancements.FeatBrowser.SectionAction'}}</span>
               <div class="hm-feat-browser-filter-group" role="group">{{> featActionChips}}</div>
+            </section>
+          {{/if}}
+          {{#if abilityOptions.length}}
+            <section class="hm-feat-browser-filter-section" data-popover-section="ability" hidden>
+              <span class="hm-feat-browser-filter-section-title">{{localize
+                'HEROMANCER.App.Advancements.FeatBrowser.SectionAbility'}}</span>
+              <div class="hm-feat-browser-filter-group" role="group">{{> featAbilityChips}}</div>
             </section>
           {{/if}}
           <section class="hm-feat-browser-filter-section" data-popover-section="grants" hidden>
@@ -130,6 +149,12 @@
           <fieldset class="hm-feat-browser-inline-group" data-inline-group="action">
             <legend>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SectionAction'}}</legend>
             <div class="hm-feat-browser-filter-group" role="group">{{> featActionChips}}</div>
+          </fieldset>
+        {{/if}}
+        {{#if abilityOptions.length}}
+          <fieldset class="hm-feat-browser-inline-group" data-inline-group="ability">
+            <legend>{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SectionAbility'}}</legend>
+            <div class="hm-feat-browser-filter-group" role="group">{{> featAbilityChips}}</div>
           </fieldset>
         {{/if}}
         <fieldset class="hm-feat-browser-inline-group" data-inline-group="grants">

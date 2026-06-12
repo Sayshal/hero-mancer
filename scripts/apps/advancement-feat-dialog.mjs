@@ -87,6 +87,8 @@ export class AdvancementFeatDialog extends HMDialog {
       if (bookBtn) this.filters.book = bookBtn.dataset.featBrowserBook;
       const actionBtn = t.closest?.('[data-feat-browser-action]');
       if (actionBtn) this.filters.action = actionBtn.dataset.featBrowserAction;
+      const abilityBtn = t.closest?.('[data-feat-browser-ability]');
+      if (abilityBtn) this.filters.ability = abilityBtn.dataset.featBrowserAbility;
     });
   }
 

@@ -155,10 +155,11 @@
   color: var(--hero-mancer-accent);
 }
 
-.hm-feat-browser-filter-chip.is-active {
+.hero-mancer button.hm-feat-browser-filter-chip.is-active {
   border-color: var(--hero-mancer-accent);
-  color: var(--hero-mancer-accent);
-  background: var(--hero-mancer-accent-soft);
+  color: var(--hero-mancer-fg-on-accent);
+  background: var(--hero-mancer-accent);
+  font-weight: 600;
 }
 
 .hm-feat-browser-qualify {
@@ -167,6 +168,11 @@
   align-items: center;
   color: var(--hero-mancer-fg-muted);
   font-size: 0.9em;
+}
+
+.hm-feat-browser-qualify:has(input:checked) {
+  color: var(--hero-mancer-accent);
+  font-weight: 600;
 }
 
 .hero-mancer button.hm-feat-browser-compare[data-action='openCompare'] {

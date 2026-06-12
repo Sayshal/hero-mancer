@@ -621,6 +621,7 @@
           "SectionRulesets": "Rulesets",
           "SectionSources": "Sources",
           "SectionAction": "Action economy",
+          "SectionAbility": "Ability increase",
           "SectionGrants": "Grants",
           "action-action": "Action",
           "action-bonus": "Bonus Action",

@@ -22,6 +22,7 @@ const state = { cache: new Map(), ready: false, promise: null };
  * @property {boolean} repeatable True when repeatable.
  * @property {Set<string>} actionBuckets Combat-action buckets (`action`/`bonus`/`reaction`/`passive`).
  * @property {boolean} hasASI True when any AbilityScoreImprovement advancement exists.
+ * @property {Set<string>} abilityIncreases Ability keys this feat's ASI advancements can raise.
  * @property {boolean} grantsSpell True when any granted/choice item is a spell, or any activity casts a spell.
  * @property {string} descriptionHtml Pre-enriched HTML.
  */
@@ -77,6 +78,7 @@ function normalizeEntry(entry) {
     repeatable: entry.system?.prerequisites?.repeatable === true,
     actionBuckets: new Set(['passive']),
     hasASI: false,
+    abilityIncreases: new Set(),
     grantsSpell: false,
     descriptionHtml: ''
   };
@@ -92,9 +94,10 @@ async function hydrateEntry(entry, normalized) {
   const doc = await fromUuid(entry.uuid);
   const activities = Object.values(doc?.system?.activities ?? {});
   const rawAdvancement = doc?.system?.advancement;
-  const advancement = Array.isArray(rawAdvancement) ? rawAdvancement : rawAdvancement ? Object.values(rawAdvancement) : [];
+  const advancement = Array.isArray(rawAdvancement) ? rawAdvancement : rawAdvancement ? Array.from(rawAdvancement.values?.() ?? Object.values(rawAdvancement)) : [];
   normalized.actionBuckets = deriveActionBuckets(activities);
   normalized.hasASI = advancement.some((a) => a?.type === 'AbilityScoreImprovement');
+  normalized.abilityIncreases = deriveAbilityIncreases(advancement);
   normalized.grantsSpell = deriveGrantsSpell(advancement, activities);
   const raw = doc?.system?.description?.value ?? '';
   if (raw) normalized.descriptionHtml = await safeEnrichHTML(raw, { secrets: false });
@@ -113,6 +116,28 @@ function deriveActionBuckets(activities) {
     else out.add('passive');
   }
   if (!out.size) out.add('passive');
+  return out;
+}
+
+/**
+ * Resolve which ability keys a feat's AbilityScoreImprovement advancements can raise (fixed bumps + assignable points on unlocked abilities).
+ * @param {object[]} advancement Raw advancement entries.
+ * @returns {Set<string>} Ability keys (str/dex/con/int/wis/cha).
+ */
+function deriveAbilityIncreases(advancement) {
+  const out = new Set();
+  const keys = Object.entries(CONFIG.DND5E.abilities ?? {})
+    .filter(([, cfg]) => cfg.improvement !== false)
+    .map(([key]) => key);
+  for (const adv of advancement) {
+    if (adv?.type !== 'AbilityScoreImprovement') continue;
+    const cfg = adv.configuration ?? {};
+    for (const [key, value] of Object.entries(cfg.fixed ?? {})) if (Number(value) > 0) out.add(key);
+    if ((Number(cfg.points) || 0) > 0) {
+      const locked = new Set(cfg.locked ?? []);
+      for (const key of keys) if (!locked.has(key)) out.add(key);
+    }
+  }
   return out;
 }
 
@@ -148,11 +173,13 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
   const activeRules = filters?.rules ?? 'all';
   const activeBook = filters?.book ?? 'all';
   const activeAction = filters?.action ?? 'all';
+  const activeAbility = filters?.ability ?? 'all';
   const feats = [];
   const rulesSet = new Set();
   const bookSet = new Set();
   const subtypeSet = new Set();
   const actionSet = new Set();
+  const abilitySet = new Set();
   for (const entry of state.cache.values()) {
     const qualifies = qualifiesForFeat(entry, { actor, characterLevel });
     const levelGated = (entry.prereqLevel ?? 0) > characterLevel;
@@ -176,6 +203,7 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
     if (entry.book) bookSet.add(entry.book);
     if (entry.subtype) subtypeSet.add(entry.subtype);
     for (const bucket of entry.actionBuckets) actionSet.add(bucket);
+    for (const ability of entry.abilityIncreases) abilitySet.add(ability);
   }
   feats.sort((a, b) => a.name.localeCompare(b.name));
   const pinCount = compare.pinCount('feat');
@@ -188,6 +216,9 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
   const actionOptions = ['action', 'bonus', 'reaction', 'passive']
     .filter((bucket) => actionSet.has(bucket))
     .map((bucket) => ({ value: bucket, label: _loc(`HEROMANCER.App.Advancements.FeatBrowser.action-${bucket}`), selected: activeAction === bucket }));
+  const abilityOptions = Object.entries(CONFIG.DND5E.abilities ?? {})
+    .filter(([key]) => abilitySet.has(key))
+    .map(([key, cfg]) => ({ value: key, label: _loc(cfg.abbreviation).toUpperCase(), selected: activeAbility === key }));
   return {
     hasFeats: feats.length > 0,
     scope,
@@ -197,12 +228,14 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
     rulesOptions,
     bookOptions,
     actionOptions,
+    abilityOptions,
     feats,
-    filters: filters ?? { search: '', subtype: 'all', rules: 'all', book: 'all', action: 'all', qualify: false, grantsAsi: false, grantsSpell: false },
+    filters: filters ?? { search: '', subtype: 'all', rules: 'all', book: 'all', action: 'all', ability: 'all', qualify: false, grantsAsi: false, grantsSpell: false },
     allFilterActive: activeSubtype === 'all',
     allRulesActive: activeRules === 'all',
     allBookActive: activeBook === 'all',
     allActionActive: activeAction === 'all',
+    allAbilityActive: activeAbility === 'all',
     compare: { pinCount, canCompare: pinCount >= 2, compareLabel: _loc('HEROMANCER.Compare.Open', { count: pinCount }) }
   };
 }
