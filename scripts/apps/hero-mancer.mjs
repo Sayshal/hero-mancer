@@ -211,6 +211,9 @@ export class HeroMancer extends HMDialog {
   /** @type {boolean} Set on the first user-driven change after restore. */
   #dirty = false;
 
+  /** @type {boolean} True while a saved draft is being re-applied, so programmatic combo changes skip the user-change class flush. */
+  #applyingDraft = false;
+
   /** @type {boolean} Skip the unsaved-changes prompt in `_preClose`. */
   #confirmCloseBypass = false;
 
@@ -1021,12 +1024,17 @@ export class HeroMancer extends HMDialog {
       const v = blockEl.querySelector('input[data-value-input]')?.value;
       if (v !== '' && v != null) AbilityBlock.attach(blockEl).setValue(Number(v));
     }
-    for (const cb of this.element.querySelectorAll('[data-combobox]')) {
-      const value = cb.querySelector('input[type="hidden"]')?.value || cb.dataset.value;
-      if (value) {
-        cb.dataset.value = value;
-        Combobox.attach(cb).select(value);
+    this.#applyingDraft = true;
+    try {
+      for (const cb of this.element.querySelectorAll('[data-combobox]')) {
+        const value = cb.querySelector('input[type="hidden"]')?.value || cb.dataset.value;
+        if (value) {
+          cb.dataset.value = value;
+          Combobox.attach(cb).select(value);
+        }
       }
+    } finally {
+      this.#applyingDraft = false;
     }
     this.#refreshValidation();
     const partsToRender = [];
@@ -1351,6 +1359,28 @@ export class HeroMancer extends HMDialog {
     cb.dataset.value = '';
     const hidden = cb.querySelector('input[type="hidden"]');
     if (hidden) hidden.value = '';
+  }
+
+  /**
+   * Clear one roster slot's subclass combobox DOM state so changing that slot's class drops a now-mismatched subclass; other slots are untouched (multiclass-aware).
+   * @param {string} slotId Roster slot id whose subclass to clear.
+   */
+  #clearRosterSubclassDom(slotId) {
+    const cb = this.element.querySelector(`[data-tab="identity"] [data-combobox][data-name="identity.classes.${slotId}.subclassUuid"]`);
+    if (!cb) return;
+    cb.dataset.value = '';
+    const hidden = cb.querySelector('input[type="hidden"]');
+    if (hidden) hidden.value = '';
+  }
+
+  /**
+   * Clear the advancement-pick hidden inputs under one class slot's fieldset so changing that slot's class drops its prior picks.
+   * @param {string} slotId Roster slot id whose advancement picks to flush.
+   */
+  #flushSlotAdvancementDraft(slotId) {
+    const group = this.element.querySelector(`[data-advancement-group="class-${slotId}"]`);
+    if (!group) return;
+    for (const input of group.querySelectorAll('input[type="hidden"]')) input.value = '';
   }
 
   /** Delegated listener: open the ASI or Feat dialog when an ASI tile's mode button is clicked; reset on undo. */
@@ -2046,6 +2076,10 @@ export class HeroMancer extends HMDialog {
         if (!row) return;
         const isPrimary = row.dataset.primary === 'true';
         if (t.matches?.('input[type="hidden"][name^="identity.classes."][name$=".uuid"]')) {
+          if (!this.#applyingDraft) {
+            this.#clearRosterSubclassDom(row.dataset.slotId);
+            this.#flushSlotAdvancementDraft(row.dataset.slotId);
+          }
           if (isPrimary) {
             this.render({ parts: ['identity'] });
             requestAnimationFrame(() => this.render({ parts: ['abilities', 'hp', 'equipment', 'advancements'] }));
