@@ -1,10 +1,11 @@
 import { MODULE } from '../constants.mjs';
 
 /**
- * Whisper the release announcement to the active user once per version.
+ * Whisper the release announcement to the active GM once per version.
  * @returns {Promise<void>}
  */
 export async function checkReleaseMessage() {
+  if (!game.user.isGM) return;
   const version = game.modules.get(MODULE.ID)?.version;
   if (!version) return;
   const lastSeen = game.user.getFlag(MODULE.ID, MODULE.FLAGS.LAST_SEEN_VERSION);

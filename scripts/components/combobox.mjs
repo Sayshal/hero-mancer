@@ -83,6 +83,8 @@ export class Combobox {
     this._onDocPointerDown = this.#onDocPointerDown.bind(this);
     this.#bind();
     this.#syncFromMarkup();
+    this._fitObserver = new ResizeObserver(() => this.#fitTags());
+    this._fitObserver.observe(this.trigger);
     Combobox.#instances.set(root, this);
   }
 
@@ -182,7 +184,43 @@ export class Combobox {
   /** Detach event listeners and forget the instance. */
   destroy() {
     document.removeEventListener('pointerdown', this._onDocPointerDown, true);
+    this._fitObserver?.disconnect();
     Combobox.#instances.delete(this.root);
+  }
+
+  /** Trim overflowing pills on the trigger and, while open, every visible option. */
+  #fitTags() {
+    const options = this._open
+      ? this.#options()
+          .filter((o) => !o.hidden)
+          .map((o) => ({ label: o.querySelector('.hm-combobox-option-label'), tags: o.querySelector('.hm-combobox-option-tags') }))
+      : [];
+    this.#fitRows([this.#triggerRow(), ...options]);
+  }
+
+  /** @returns {{label: ?HTMLElement, tags: ?HTMLElement}} The trigger's label/tags pair. */
+  #triggerRow() {
+    return { label: this.trigger.querySelector('.hm-combobox-trigger-label'), tags: this.trigger.querySelector('.hm-combobox-trigger-tags') };
+  }
+
+  /**
+   * Restore every row's pills, then hide trailing ones until each label fits. Reads are batched before writes so a full option list reflows once, not once per pill.
+   * @param {{label: ?HTMLElement, tags: ?HTMLElement}[]} rows Label/tags pairs to fit.
+   */
+  #fitRows(rows) {
+    const valid = rows.filter((r) => r.label && r.tags);
+    for (const { tags } of valid) for (const pill of tags.querySelectorAll('.hm-combobox-option-tag')) pill.style.display = '';
+    const plans = valid.map(({ label, tags }) => {
+      const pills = Array.from(tags.querySelectorAll('.hm-combobox-option-tag'));
+      return { pills, overflow: label.scrollWidth - label.clientWidth, widths: pills.map((p) => p.offsetWidth + 4) };
+    });
+    for (const { pills, overflow, widths } of plans) {
+      let freed = 0;
+      for (let i = pills.length - 1; i >= 0 && freed < overflow; i--) {
+        freed += widths[i];
+        pills[i].style.display = 'none';
+      }
+    }
   }
 
   /** Open the panel. Uses the popover API + fixed positioning so the panel escapes all ancestor overflow. */
@@ -235,6 +273,7 @@ export class Combobox {
     this.panel.style.width = `${rect.width}px`;
     const host = this.root.closest('.hm-dialog, .application');
     if (host) this.panel.style.maxHeight = `${host.getBoundingClientRect().height * 0.8}px`;
+    this.#fitTags();
   }
 
   /** Toggle the panel open or closed. */
@@ -343,6 +382,7 @@ export class Combobox {
     else this.triggerIcon.replaceChildren();
     const optTags = opt.querySelector('.hm-combobox-option-tags');
     if (this.triggerTags) this.triggerTags.replaceChildren(...(optTags ? [optTags.cloneNode(true)] : []));
+    this.#fitRows([this.#triggerRow()]);
   }
 
   /**
@@ -377,6 +417,7 @@ export class Combobox {
     this.empty.hidden = visibleCount > 0;
     const active = this._activeId && document.getElementById(this._activeId);
     if (!active || active.hidden) this.#setActive(this.#firstEnabled(), { scroll: true });
+    this.#fitTags();
   }
 
   /**

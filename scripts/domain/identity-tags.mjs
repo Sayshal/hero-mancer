@@ -17,7 +17,7 @@ export function buildIdentityTags(entry, type) {
   if (rules) tags.push(rules);
   if (type === 'class') classTags(entry, tags, keywords);
   else if (type === 'race') speciesTags(entry, tags);
-  else if (type === 'background') skillTags(entry, tags);
+  else if (type === 'background') backgroundTags(entry, tags, keywords);
   return { tags, keywords };
 }
 
@@ -75,4 +75,41 @@ function skillTags(entry, tags) {
     for (const grant of advancement.configuration?.grants ?? []) if (grant.startsWith('skills:')) skills.add(grant.slice(7));
   }
   for (const key of skills) tags.push(_loc(CONFIG.DND5E.skills[key]?.label ?? key));
+}
+
+/**
+ * Append granted-skill, ability-score-increase, and origin-feat chips for a background; full ability and feat names go to keywords.
+ * @param {object} entry Slim DocEntry.
+ * @param {string[]} tags Display chips to append to.
+ * @param {string[]} keywords Search synonyms to append to.
+ */
+function backgroundTags(entry, tags, keywords) {
+  skillTags(entry, tags);
+  const asi = advancementArray(entry).find((a) => a.type === 'AbilityScoreImprovement')?.configuration;
+  if (asi) {
+    const fixed = Object.entries(asi.fixed ?? {})
+      .filter(([, v]) => v)
+      .map(([key]) => key);
+    let abilities = fixed;
+    if (!abilities.length && Number(asi.points) > 0) {
+      const locked = new Set(asi.locked ?? []);
+      abilities = Object.entries(CONFIG.DND5E.abilities ?? {})
+        .filter(([key, cfg]) => cfg.improvement !== false && !locked.has(key))
+        .map(([key]) => key);
+    }
+    if (abilities.length) {
+      tags.push(abilities.map((a) => _loc(CONFIG.DND5E.abilities[a]?.abbreviation ?? a).toUpperCase()).join('/'));
+      for (const a of abilities) keywords.push(_loc(CONFIG.DND5E.abilities[a]?.label ?? a));
+    }
+  }
+  for (const advancement of advancementArray(entry)) {
+    if (advancement.type !== 'ItemGrant') continue;
+    for (const item of advancement.configuration?.items ?? []) {
+      const name = fromUuidSync(item?.uuid ?? item)?.name;
+      if (name) {
+        tags.push(name);
+        keywords.push(name);
+      }
+    }
+  }
 }

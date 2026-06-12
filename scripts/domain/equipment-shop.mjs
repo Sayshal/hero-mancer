@@ -170,6 +170,7 @@ async function collectGoldPool(draft, classDoc, backgroundDoc, sections) {
     }
     const picked = collectPickedCurrency(draft, tag, doc, sections);
     if (picked.amount > 0) total += picked.amount;
+    if (!draft[`${tag}.useWealth`]) total += collectMandatoryCurrency(doc);
     const refund = await collectGrantRefund(draft, tag, sections);
     if (refund > 0) total += refund;
   }
@@ -312,6 +313,39 @@ function collectPickedCurrency(draft, tag, doc, sections) {
     }
   }
   return { amount: round2(amount), formula: parts.length ? parts.join(' + ') : null };
+}
+
+/**
+ * Sum currency that is granted unconditionally: entries whose group chain reaches the root through AND groups only, never gated behind an OR pick.
+ * @param {object} doc Source document.
+ * @returns {number} Mandatory currency total in gp.
+ */
+function collectMandatoryCurrency(doc) {
+  const entries = doc?.system?.startingEquipment ?? [];
+  if (!entries.length) return 0;
+  const byId = new Map(entries.map((e) => [e._id, e]));
+  let amount = 0;
+  for (const entry of entries) {
+    if (entry.type !== 'currency' || !isAlwaysGranted(entry.group, byId)) continue;
+    amount += toGold(entry.count ?? 0, entry.key);
+  }
+  return round2(amount);
+}
+
+/**
+ * Whether a starting-equipment entry is always granted: every ancestor group up to the root is an AND group.
+ * @param {string} groupId Parent group id of the entry.
+ * @param {Map<string, object>} byId Entry lookup by `_id`.
+ * @returns {boolean} False if any ancestor is an OR choice or the chain is broken.
+ */
+function isAlwaysGranted(groupId, byId) {
+  let current = groupId;
+  while (current) {
+    const parent = byId.get(current);
+    if (!parent || parent.type === 'OR') return false;
+    current = parent.group;
+  }
+  return true;
 }
 
 /**

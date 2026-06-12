@@ -130,7 +130,8 @@ const TAB_SETTINGS = {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Behavior',
       settings: [
         { key: 'HIDE_OTHER_CREATE_ACTOR_OPTIONS', type: 'boolean' },
-        { key: 'SHOW_WELCOME', type: 'boolean' }
+        { key: 'SHOW_WELCOME', type: 'boolean' },
+        { key: 'DISABLE_WELCOME_POPUP', type: 'boolean' }
       ]
     },
     {

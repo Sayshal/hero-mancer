@@ -56,6 +56,7 @@ const SETTINGS = {
   TOKENIZER_COMPATIBILITY: 'tokenizerCompatibility',
   TRIM_SOURCE_PARENTHETICAL: 'trimSourceParenthetical',
   TROUBLESHOOTING_MENU: 'troubleshootingMenu',
+  DISABLE_WELCOME_POPUP: 'disableWelcomePopup',
   SHOW_WELCOME: 'showWelcome',
   WIZARD_POSITION: 'wizardPosition'
 };

@@ -736,6 +736,10 @@
         "Name": "Show Welcome",
         "Hint": "Show the Hero Mancer 2 welcome dialog once per session."
       },
+      "DisableWelcomePopup": {
+        "Name": "Disable Welcome Popup",
+        "Hint": "Globally suppress the welcome dialog for every user in this world. Overrides each player's Show Welcome setting."
+      },
       "MulticlassThreshold": {
         "Name": "Multiclass ability threshold",
         "Hint": "Minimum ability score required to multiclass into a class. Standard is 13."

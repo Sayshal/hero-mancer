@@ -102,6 +102,7 @@ export class Welcome extends HMDialog {
  */
 export function maybeShowWelcome() {
   if (shownThisSession) return;
+  if (game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_WELCOME_POPUP)) return;
   if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.SHOW_WELCOME)) return;
   shownThisSession = true;
   new Welcome().render({ force: true });

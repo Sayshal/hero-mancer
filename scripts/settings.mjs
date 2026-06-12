@@ -150,6 +150,14 @@ export function registerSettings() {
     type: new ObjectField({ initial: {} })
   });
 
+  r(MODULE.ID, MODULE.SETTINGS.DISABLE_WELCOME_POPUP, {
+    name: 'HEROMANCER.Settings.DisableWelcomePopup.Name',
+    hint: 'HEROMANCER.Settings.DisableWelcomePopup.Hint',
+    scope: 'world',
+    config: true,
+    type: new BooleanField({ initial: false })
+  });
+
   r(MODULE.ID, MODULE.SETTINGS.SHOW_WELCOME, {
     name: 'HEROMANCER.Settings.ShowWelcome.Name',
     hint: 'HEROMANCER.Settings.ShowWelcome.Hint',
