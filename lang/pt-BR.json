@@ -621,6 +621,7 @@
           "SectionRulesets": "Conjuntos de Regras",
           "SectionSources": "Origens",
           "SectionAction": "Economia de Ação",
+          "SectionAbility": "Aumento de Atributo",
           "SectionGrants": "Concede",
           "action-action": "Ação",
           "action-bonus": "Ação Bônus",
@@ -649,7 +650,8 @@
         "block-total": "Total {total}",
         "reroll-title": "Rerolar Dado de Vida?",
         "reroll-prompt": "O nível {level} já rolou <strong>{value}</strong>. Rerolar?",
-        "attempts-left": "{n} restante(s)"
+        "attempts-left": "{n} restante(s)",
+        "RollFlavor": "Pontos de Vida de {class} nível {level}"
       }
     },
     "Components": {
@@ -734,9 +736,17 @@
         "Name": "Exibir Boas-Vindas",
         "Hint": "Exibir a janela de boas-vindas do Hero Mancer 2 uma vez por sessão."
       },
+      "DisableWelcomePopup": {
+        "Name": "Desabilitar Janela de Boas-Vindas",
+        "Hint": "Suprime globalmente a janela de boas-vindas para todos os usuários deste mundo. Substitui a configuração Exibir Boas-Vindas de cada jogador."
+      },
       "MulticlassThreshold": {
         "Name": "Limite de Atributo para Multiclasse",
         "Hint": "Valor mínimo de atributo necessário para adquirir uma multiclasse. O padrão é 13."
+      },
+      "DisableMulticlass": {
+        "Name": "Desabilitar Multiclasse",
+        "Hint": "Impede que os jogadores adicionem uma segunda classe durante a criação do personagem ou ao avanço de nível."
       },
       "Logger": {
         "Name": "Nível de Registro",
@@ -752,6 +762,10 @@
         "Name": "Publicar Rolagens de Riqueza Inicial",
         "Hint": "Quando ativado, as rolagens de riqueza inicial serão publicadas no chat para todos os usuários."
       },
+      "PublishHpRolls": {
+        "Name": "Publicar Rolagens de PV",
+        "Hint": "Quando ativado, as rolagens manuais de Pontos de Vida serão publicadas no chat para todos os usuários."
+      },
       "PublishCreationSummary": {
         "Name": "Publicar Resumo da Criação",
         "Hint": "Publica um cartão no chat resumindo o novo personagem.",
@@ -764,7 +778,7 @@
         "Name": "Publicar Resumo do Avanço de Nível",
         "Hint": "Publica uma mensagem no chat quando um avanço de nível for concluído.",
         "Choices": {
-          "WhisperOwners": "Sussurrar para os Donos",
+          "WhisperOwners": "Sussurrar para o Mestre + Dono",
           "Off": "Desativado"
         }
       },
@@ -871,6 +885,7 @@
           "background": "Antecedente",
           "class": "Classe",
           "subclass": "Subclasse",
+          "feat": "Talentos",
           "items": "Itens"
         },
         "Browse": "Procurar",
