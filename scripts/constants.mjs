@@ -45,6 +45,7 @@ const SETTINGS = {
   PENDING_APPROVALS_MENU: 'pendingApprovalsMenu',
   POINT_BUY_COST_MAP: 'pointBuyCostMap',
   PUBLISH_CREATION_SUMMARY: 'publishCreationSummary',
+  PUBLISH_HP_ROLLS: 'publishHpRolls',
   PUBLISH_LEVEL_UP_BROADCAST: 'publishLevelUpBroadcast',
   PUBLISH_WEALTH_ROLLS: 'publishWealthRolls',
   REFUND_UNCHOSEN_GOLD: 'refundUnchosenEquipmentGold',

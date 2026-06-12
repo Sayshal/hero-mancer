@@ -2376,6 +2376,11 @@ export class HeroMancer extends HMDialog {
     const roll = await new Roll(formula).evaluate();
     if (valueInput) valueInput.value = String(roll.total);
     if (attemptsInput) attemptsInput.value = String(attempts + (Number.isFinite(prior) && prior > 0 ? 1 : 0));
+    if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS)) {
+      const flavor = _loc('HEROMANCER.App.HP.RollFlavor', { class: classDoc.name, level });
+      const speaker = ChatMessage.getSpeaker(this.#mode === 'level_up' && this.#actor ? { actor: this.#actor } : { user: game.user });
+      await roll.toMessage({ flavor, speaker });
+    }
     this.render({ parts: ['hp'] });
     this.#refreshHud();
   }

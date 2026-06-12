@@ -57,6 +57,14 @@ export function registerSettings() {
     type: new BooleanField({ initial: true })
   });
 
+  r(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS, {
+    name: 'HEROMANCER.Settings.PublishHpRolls.Name',
+    hint: 'HEROMANCER.Settings.PublishHpRolls.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: true })
+  });
+
   r(MODULE.ID, MODULE.SETTINGS.PUBLISH_CREATION_SUMMARY, {
     name: 'HEROMANCER.Settings.PublishCreationSummary.Name',
     hint: 'HEROMANCER.Settings.PublishCreationSummary.Hint',

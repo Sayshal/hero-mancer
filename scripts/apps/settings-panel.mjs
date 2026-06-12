@@ -119,6 +119,7 @@ const TAB_SETTINGS = {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Publishing',
       settings: [
         { key: 'PUBLISH_WEALTH_ROLLS', type: 'boolean' },
+        { key: 'PUBLISH_HP_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_CREATION_SUMMARY', type: 'select' },
         { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' }
       ]

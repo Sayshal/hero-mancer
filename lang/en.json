@@ -650,7 +650,8 @@
         "block-total": "Total {total}",
         "reroll-title": "Reroll hit die?",
         "reroll-prompt": "Level {level} already rolled <strong>{value}</strong>. Reroll?",
-        "attempts-left": "{n} left"
+        "attempts-left": "{n} left",
+        "RollFlavor": "{class} level {level} hit points"
       }
     },
     "Components": {
@@ -756,6 +757,10 @@
       "PublishWealthRolls": {
         "Name": "Publish Starting Wealth Rolls",
         "Hint": "When enabled, starting wealth rolls will be published to chat for all users."
+      },
+      "PublishHpRolls": {
+        "Name": "Publish HP Rolls",
+        "Hint": "When enabled, manual hit point rolls will be published to chat for all users."
       },
       "PublishCreationSummary": {
         "Name": "Publish Creation Summary",
