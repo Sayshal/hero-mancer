@@ -4,7 +4,7 @@ import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
 import { log } from '../utils/logger.mjs';
 import { generateName } from '../utils/randomizer-grammar.mjs';
-import { pointBuyCost } from './ability-scores.mjs';
+import { buildStandardArrayPool, pointBuyCost } from './ability-scores.mjs';
 
 /** @returns {Promise<void>} Resolve after two animation frames so listener-driven re-renders flush. */
 const settle = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -111,7 +111,7 @@ async function randomizeAbilities(wizard) {
     return;
   }
   if (method === 'standardArray') {
-    const pool = shuffle(comboValues(blocks[0].root.querySelector('[data-mode="standardArray"] [data-combobox]')));
+    const pool = shuffle([...buildStandardArrayPool(blocks.length).entries()].flatMap(([value, count]) => Array(count).fill(value)));
     blocks.forEach((block, i) => {
       const combo = block.root.querySelector('[data-mode="standardArray"] [data-combobox]');
       if (combo && pool[i] != null) Combobox.attach(combo).select(pool[i]);

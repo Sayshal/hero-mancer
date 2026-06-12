@@ -47,24 +47,26 @@ export class AdvancementAsiDialog extends HMDialog {
     const context = await super._prepareContext(options);
     const used = Object.values(this.assignments).reduce((s, v) => s + (Number(v) || 0), 0);
     const remaining = Math.max(0, this.spec.points - used);
-    const inputs = Object.entries(CONFIG.DND5E.abilities).map(([key, cfg]) => {
-      const fixed = Number(this.spec.fixed?.[key]) || 0;
-      const value = Number(this.assignments[key]) || 0;
-      const base = Number(this.baseScores[key]) || 0;
-      const finalScore = base + fixed + value;
-      const finalMod = Math.floor((finalScore - 10) / 2);
-      const isDisabled = this.locked.has(key) || fixed > 0;
-      return {
-        key,
-        label: _loc(cfg.label),
-        value,
-        fixed,
-        finalScore,
-        finalModLabel: this.#formatMod(finalMod),
-        canIncrement: !isDisabled && value < this.spec.cap && remaining > 0 && finalScore < 20,
-        canDecrement: !isDisabled && value > 0
-      };
-    });
+    const inputs = Object.entries(CONFIG.DND5E.abilities)
+      .filter(([, cfg]) => cfg.improvement !== false)
+      .map(([key, cfg]) => {
+        const fixed = Number(this.spec.fixed?.[key]) || 0;
+        const value = Number(this.assignments[key]) || 0;
+        const base = Number(this.baseScores[key]) || 0;
+        const finalScore = base + fixed + value;
+        const finalMod = Math.floor((finalScore - 10) / 2);
+        const isDisabled = this.locked.has(key) || fixed > 0;
+        return {
+          key,
+          label: _loc(cfg.label),
+          value,
+          fixed,
+          finalScore,
+          finalModLabel: this.#formatMod(finalMod),
+          canIncrement: !isDisabled && value < this.spec.cap && remaining > 0 && finalScore < 20,
+          canDecrement: !isDisabled && value > 0
+        };
+      });
     return { ...context, inputs, remaining, total: this.spec.points };
   }
 
