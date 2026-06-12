@@ -738,6 +738,10 @@
         "Name": "Multiclass ability threshold",
         "Hint": "Minimum ability score required to multiclass into a class. Standard is 13."
       },
+      "DisableMulticlass": {
+        "Name": "Disable Multiclassing",
+        "Hint": "Prevent players from adding a second class during character creation or level-up."
+      },
       "Logger": {
         "Name": "Logging Level",
         "Hint": "How much Hero Mancer 2 logs to the browser console.",

@@ -73,7 +73,7 @@ function allowedByRuleset(entry, locked) {
 export function buildIdentityContext(draft = {}, { effectiveLevel = 1, abilityScores = null, activeClassSlotId = null, activeSubclassSlotId = null } = {}) {
   const order = [...game.settings.get(MODULE.ID, MODULE.SETTINGS.ADVANCEMENT_ORDER)].sort((a, b) => a.order - b.order);
   const roster = normalizeRoster(draft, effectiveLevel);
-  const isMulticlassMode = effectiveLevel > 1;
+  const isMulticlassMode = effectiveLevel > 1 && !game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_MULTICLASS);
   const locked = identityLockRuleset(draft);
   const sections = order.map((entry) => {
     const base = { id: entry.id, label: _loc(entry.label), icon: `fas ${SECTION_ICONS[entry.id]}` };

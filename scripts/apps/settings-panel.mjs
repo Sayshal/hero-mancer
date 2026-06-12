@@ -46,7 +46,8 @@ const TAB_SETTINGS = {
         { key: 'ABILITY_SCORE_DEFAULT', type: 'number' },
         { key: 'ABILITY_SCORE_MIN', type: 'number' },
         { key: 'ABILITY_SCORE_MAX', type: 'number' },
-        { key: 'MULTICLASS_THRESHOLD', type: 'number' }
+        { key: 'MULTICLASS_THRESHOLD', type: 'number' },
+        { key: 'DISABLE_MULTICLASS', type: 'boolean' }
       ]
     },
     {

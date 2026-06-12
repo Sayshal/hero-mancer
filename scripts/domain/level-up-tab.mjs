@@ -1,3 +1,4 @@
+import { MODULE } from '../constants.mjs';
 import { getEntries, getFullDocument } from '../data/document-loader.mjs';
 import { buildSubclassCombo } from './identity-tab.mjs';
 import { buildLevelUpPreview } from './level-up-preview.mjs';
@@ -20,7 +21,8 @@ export async function buildLevelUpContext({ actor, roster, pickedUuid, pickedSub
   const actorRules = roster.classes.map((c) => c.sourceRules).filter(Boolean);
   const primaryRules = actorRules[0] ?? null;
   const existingTiles = roster.classes.map((c) => ({ uuid: c.uuid, name: c.name, img: c.img, level: c.level, nextLevel: c.level + 1, selected: c.uuid === pickedUuid }));
-  const eligible = getEntries('class')
+  const disableMulticlass = game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_MULTICLASS);
+  const eligible = (disableMulticlass ? [] : getEntries('class'))
     .filter((entry) => {
       const id = entry.system?.identifier;
       return id && !existingIdentifiers.has(id);

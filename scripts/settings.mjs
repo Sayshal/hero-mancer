@@ -95,6 +95,14 @@ export function registerSettings() {
     type: new NumberField({ initial: 13, min: 0, max: 30, integer: true })
   });
 
+  r(MODULE.ID, MODULE.SETTINGS.DISABLE_MULTICLASS, {
+    name: 'HEROMANCER.Settings.DisableMulticlass.Name',
+    hint: 'HEROMANCER.Settings.DisableMulticlass.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: false })
+  });
+
   r(MODULE.ID, MODULE.SETTINGS.LOCK_IDENTITY_RULESET, {
     name: 'HEROMANCER.Settings.LockIdentityRuleset.Name',
     hint: 'HEROMANCER.Settings.LockIdentityRuleset.Hint',

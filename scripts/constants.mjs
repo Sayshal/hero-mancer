@@ -26,6 +26,7 @@ const SETTINGS = {
   CUSTOM_ROLL_FORMULA: 'customRollFormula',
   DICE_ROLLING_MENU: 'diceRollingMenu',
   DICE_ROLLING_METHOD: 'diceRollingMethod',
+  DISABLE_MULTICLASS: 'disableMulticlass',
   ENABLE_DICE_SO_NICE: 'enableDiceSoNice',
   ENABLE_PLAYER_CUSTOMIZATION: 'enablePlayerCustomization',
   ENABLE_RANDOMIZE: 'enableRandomize',
