@@ -1,3 +1,4 @@
+import { MODULE } from '../constants.mjs';
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
 import * as compare from './compare.mjs';
 
@@ -36,10 +37,12 @@ export function initFeatIndex({ force = false } = {}) {
   if (state.promise && !force) return state.promise;
   state.promise = (async () => {
     state.cache.clear();
+    const excluded = new Set((game.settings.get(MODULE.ID, MODULE.SETTINGS.EXCLUSION_LIST) ?? {}).feat ?? []);
     const results = await CompendiumBrowser.fetch(Item, { types: new Set(['feat']), indexFields: new Set(INDEX_FIELDS) });
     const jobs = [];
     for (const entry of results) {
       if (entry.system?.type?.value !== 'feat') continue;
+      if (excluded.has(entry.uuid)) continue;
       const normalized = normalizeEntry(entry);
       state.cache.set(entry.uuid, normalized);
       jobs.push(hydrateEntry(entry, normalized));

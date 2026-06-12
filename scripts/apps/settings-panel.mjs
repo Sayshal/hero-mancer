@@ -10,6 +10,7 @@ const EXCLUSION_BUCKETS = [
   { bucket: 'background', labelId: 'background', icon: 'fa-solid fa-scroll', types: new Set(['background']) },
   { bucket: 'class', labelId: 'class', icon: 'fa-solid fa-chess-knight', types: new Set(['class']) },
   { bucket: 'subclass', labelId: 'subclass', icon: 'fa-solid fa-sitemap', types: new Set(['subclass']) },
+  { bucket: 'feat', labelId: 'feat', icon: 'fa-solid fa-medal', types: new Set(['feat']), additional: { category: { feat: 1 } } },
   { bucket: 'equipment', labelId: 'items', icon: 'fa-solid fa-box-open', itemsTab: true }
 ];
 
@@ -487,7 +488,7 @@ export class SettingsPanel extends HMDialog {
     if (!config) return;
     const settingKey = MODULE.SETTINGS.EXCLUSION_LIST;
     const exclusions = game.settings.get(MODULE.ID, settingKey) ?? {};
-    const selection = await pickFromBrowser({ types: config.types, preselected: exclusions[config.bucket] ?? [], max: Infinity, itemsTab: config.itemsTab });
+    const selection = await pickFromBrowser({ types: config.types, additional: config.additional, preselected: exclusions[config.bucket] ?? [], max: Infinity, itemsTab: config.itemsTab });
     if (!selection) return;
     if (selection.size) exclusions[config.bucket] = [...selection];
     else delete exclusions[config.bucket];

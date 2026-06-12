@@ -4,6 +4,7 @@ import { Troubleshooter } from './apps/troubleshooter.mjs';
 import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
+import { clearFeatIndex } from './domain/feat-browser.mjs';
 import { mergeCustomFocusItems } from './integrations/dnd5e.mjs';
 
 const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foundry.data.fields;
@@ -12,6 +13,7 @@ const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foun
 function onExclusionListChange() {
   clearCaches();
   clearShopIndex();
+  clearFeatIndex();
 }
 
 /** Register all module game settings. Submenus are registered by their own apps. */

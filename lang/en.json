@@ -875,6 +875,7 @@
           "background": "Background",
           "class": "Class",
           "subclass": "Subclass",
+          "feat": "Feats",
           "items": "Items"
         },
         "Browse": "Browse",
