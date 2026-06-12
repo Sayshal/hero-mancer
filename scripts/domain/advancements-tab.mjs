@@ -530,15 +530,25 @@ function groupRowsByOrigin(rows, { roster, speciesName, backgroundName }) {
 }
 
 /**
- * Stable-sort rows by level ascending, preserving original order within a level.
+ * Stable-sort rows by level ascending, then push expertise-style Trait rows after the rest of their level (expertise depends on proficiencies chosen earlier), preserving original order otherwise.
  * @param {Array<object>} rows Rows from a single origin bucket.
  * @returns {Array<object>} Sorted rows.
  */
 function sortRowsByLevel(rows) {
   return rows
     .map((row, idx) => ({ row, idx }))
-    .sort((a, b) => (Number(a.row.displayLevel ?? a.row.level) || 0) - (Number(b.row.displayLevel ?? b.row.level) || 0) || a.idx - b.idx)
+    .sort((a, b) => (Number(a.row.displayLevel ?? a.row.level) || 0) - (Number(b.row.displayLevel ?? b.row.level) || 0) || expertiseRank(a.row) - expertiseRank(b.row) || a.idx - b.idx)
     .map((entry) => entry.row);
+}
+
+/**
+ * Sort rank that orders expertise-style Trait rows last within their level.
+ * @param {object} row Advancement row.
+ * @returns {number} 1 for expertise/forcedExpertise Trait rows, else 0.
+ */
+function expertiseRank(row) {
+  const mode = row.spec?.kind === 'trait' ? row.spec.mode : null;
+  return mode === 'expertise' || mode === 'forcedExpertise' ? 1 : 0;
 }
 
 /** @type {Object<string,string>} Granted-tile foot kind → display bucket key. */
@@ -860,6 +870,7 @@ async function decorateTraitSpec(row) {
     const draftProficient = new Set([...(byMode.default ?? [])].filter((k) => !ownKeys.has(k)));
     if (sameModeExternal.size) baseChoices.exclude(sameModeExternal);
     if (row.actor) await restrictByActorProficiency(baseChoices, spec.mode, row.actor, draftProficient);
+    else if (spec.mode === 'expertise' || spec.mode === 'forcedExpertise') await restrictByActorProficiency(baseChoices, spec.mode, null, draftProficient);
   }
   const slots = [];
   for (let i = 0; i < spec.count; i++) {
@@ -921,7 +932,7 @@ async function enrichTraitKeyLabel(key, label) {
  * Restrict a Trait `SelectChoices` tree to keys the actor qualifies for under the advancement mode.
  * @param {object} choices SelectChoices instance to mutate in place.
  * @param {string} mode Trait advancement mode.
- * @param {object} actor Target actor.
+ * @param {?object} actor Target actor, or null at creation (proficiency comes from `draftProficient` alone).
  * @param {?Set<string>} [draftProficient] Trait keys granted/chosen by sibling Trait rows in the current draft, treated as proficient even before submit applies them.
  * @returns {Promise<void>}
  */
@@ -932,15 +943,15 @@ async function restrictByActorProficiency(choices, mode, actor, draftProficient 
   const eligible = new Set();
   for (const key of keys) {
     const trait = key.split(':')[0];
-    if (!valuesByTrait.has(trait)) valuesByTrait.set(trait, await actorValues(actor, trait));
-    const actorValue = valuesByTrait.get(trait)[key] ?? 0;
+    if (actor && !valuesByTrait.has(trait)) valuesByTrait.set(trait, await actorValues(actor, trait));
+    const actorValue = valuesByTrait.get(trait)?.[key] ?? 0;
     const draftValue = draftProficient?.has(key) ? 1 : 0;
     const value = Math.max(actorValue, draftValue);
     if (mode === 'expertise' && value === 1) eligible.add(key);
     else if (mode === 'upgrade' && value < 2) eligible.add(key);
     else if (mode === 'mastery') {
       const category = key.split(':').slice(0, -1).join(':');
-      const categoryProficient = (valuesByTrait.get(trait)[category] ?? 0) >= 1;
+      const categoryProficient = (valuesByTrait.get(trait)?.[category] ?? 0) >= 1;
       if (actorValue !== 2 && (value === 1 || categoryProficient)) eligible.add(key);
     } else if (mode === 'forcedExpertise' && value === 1) eligible.add(key);
     else if (mode === 'default' && value === 0) eligible.add(key);
