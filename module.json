@@ -13,7 +13,7 @@
     "minimum": "14",
     "verified": "14.363"
   },
-  "description": "Because rolling up a character shouldn't eat the whole first session.",
+  "description": "Rolling up a character shouldn't eat the whole first session. Hero Mancer walks the entire build in one window, species through equipment, with a live preview of hit points, saves, and proficiencies updating as you pick. It handles level-ups and multiclassing later from a button on the sheet, and GMs can drop an approval queue in front of it all.",
   "download": "",
   "esmodules": [
     "hero-mancer.mjs"
