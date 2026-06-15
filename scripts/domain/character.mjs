@@ -424,15 +424,27 @@ function findAdvancement(actor, advancementId) {
  * @returns {object[]} Deduped picks in first-seen order; quantity summed across duplicates.
  */
 export function aggregateByUuid(picks) {
-  const byUuid = new Map();
+  const byKey = new Map();
   for (const pick of picks) {
     if (!pick?.uuid) continue;
     const qty = Number(pick.quantity) || 1;
-    const existing = byUuid.get(pick.uuid);
+    const key = `${pick.uuid} ${pick.stack ? 1 : 0}`;
+    const existing = byKey.get(key);
     if (existing) existing.quantity += qty;
-    else byUuid.set(pick.uuid, { ...pick, quantity: qty });
+    else byKey.set(key, { ...pick, quantity: qty });
   }
-  return Array.from(byUuid.values());
+  return Array.from(byKey.values());
+}
+
+/**
+ * Resolve the granted stack size for a pick: shop purchases multiply the source stack quantity by the purchase count; grants stamp the pick quantity directly.
+ * @param {number} sourceQuantity Source item `system.quantity`.
+ * @param {{quantity:number, stack?:boolean}} pick Pick quantity plus shop-stack flag.
+ * @returns {number} Final `system.quantity` to stamp.
+ */
+export function grantedQuantity(sourceQuantity, { quantity, stack = false }) {
+  const qty = Number(quantity) || 1;
+  return stack ? (Number(sourceQuantity) || 1) * qty : qty;
 }
 
 /**
@@ -479,21 +491,21 @@ export async function createEquipmentItems(actor, picks) {
   for (const pick of aggregated) {
     let doc = fromUuidSync(pick.uuid);
     if (!doc?.toObject) doc = await fromUuid(pick.uuid);
-    if (doc?.toObject) resolved.push({ doc, quantity: pick.quantity });
+    if (doc?.toObject) resolved.push({ doc, quantity: pick.quantity, stack: pick.stack });
   }
   const regularData = [];
   const containers = [];
   for (const entry of resolved) {
     if (entry.doc.type === 'container') containers.push(entry);
-    else regularData.push(buildItemData(entry.doc, entry.quantity));
+    else regularData.push(buildItemData(entry.doc, entry.quantity, entry.stack));
   }
   const created = [];
   if (regularData.length) {
     const docs = await actor.createEmbeddedDocuments('Item', regularData);
     created.push(...docs);
   }
-  for (const { doc, quantity } of containers) {
-    const [parent] = await actor.createEmbeddedDocuments('Item', [buildItemData(doc, quantity)]);
+  for (const { doc, quantity, stack } of containers) {
+    const [parent] = await actor.createEmbeddedDocuments('Item', [buildItemData(doc, quantity, stack)]);
     if (!parent) continue;
     created.push(parent);
     const children = await expandContainerContents(doc, parent.id);
@@ -506,14 +518,15 @@ export async function createEquipmentItems(actor, picks) {
 }
 
 /**
- * Build item creation data from a source document with quantity stamped onto `system.quantity`.
+ * Build item creation data from a source document with the resolved stack size stamped onto `system.quantity`.
  * @param {object} doc Source Item Document.
- * @param {number} quantity Target stack size.
+ * @param {number} quantity Pick quantity (purchase count for shop stacks, absolute count for grants).
+ * @param {boolean} [stack] Whether the pick is a shop purchase that multiplies the source stack quantity.
  * @returns {object} Item data for `createEmbeddedDocuments`.
  */
-function buildItemData(doc, quantity) {
+function buildItemData(doc, quantity, stack = false) {
   const data = doc.toObject();
-  data.system = { ...data.system, quantity };
+  data.system = { ...data.system, quantity: grantedQuantity(data.system?.quantity, { quantity, stack }) };
   return data;
 }
 

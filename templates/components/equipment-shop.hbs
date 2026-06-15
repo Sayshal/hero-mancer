@@ -57,7 +57,7 @@
               data-cost-gp="{{this.costGp}}" {{#if this.costTier}}data-cost-tier="{{this.costTier}}" {{/if}}
               data-item-tooltip role="button" tabindex="0" {{#if this.inCart}}data-selected{{/if}}
               {{#unless this.affordable}}aria-disabled="true" {{/unless}}>
-              <input type="hidden" name="equipment.shop.cart.{{this.uuid}}" value="{{#if this.inCart}}1{{else}}0{{/if}}"
+              <input type="hidden" name="equipment.shop.cart.{{this.uuid}}" value="{{this.qty}}"
                 data-eq-cart-qty data-uuid="{{this.uuid}}" />
               <span class="hm-tile-ribbon" aria-hidden="true">{{this.typeLabel}}</span>
               <span class="hm-tile-stamp" aria-hidden="true"><i class="fas fa-check"></i></span>

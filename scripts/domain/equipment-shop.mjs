@@ -95,7 +95,7 @@ export async function buildShopContext({ draft = {}, classDoc, backgroundDoc, se
     const headroom = line.costGp > 0 ? Math.max(line.qty, line.qty + Math.floor((remaining + 0.0001) / line.costGp)) : line.qty + 99;
     line.qtyOptions = Array.from({ length: headroom + 1 }, (_, i) => ({ value: i, selected: i === line.qty }));
   }
-  const { items, filters } = buildShopItems(remaining, new Set(cart.map((c) => c.uuid)));
+  const { items, filters } = buildShopItems(remaining, new Map(cart.map((c) => [c.uuid, c.qty])));
   return {
     hasShop: pool.total > 0 || cart.length > 0,
     pool: { ...pool, formatted: formatCurrency(pool.total) },
@@ -371,10 +371,10 @@ function parseCart(draft) {
 /**
  * Build the flat shop item list + bucket-based filter strip.
  * @param {number} remaining Gold remaining for affordability marking.
- * @param {Set<string>} inCart UUIDs currently in the cart.
+ * @param {Map<string, number>} cartQty Cart quantities keyed by uuid.
  * @returns {{items:Array, filters:Array<{bucket:string,label:string,count:number}>}} Flat shop body.
  */
-function buildShopItems(remaining, inCart) {
+function buildShopItems(remaining, cartQty) {
   const items = [];
   const counts = new Map();
   for (const list of state.byCategory.values()) {
@@ -388,7 +388,8 @@ function buildShopItems(remaining, inCart) {
         affordable: it.costGp <= remaining + 0.0001,
         priceLabel: priceLabel(it),
         costTier: costTier(it.costGp),
-        inCart: inCart.has(it.uuid)
+        inCart: cartQty.has(it.uuid),
+        qty: cartQty.get(it.uuid) ?? 0
       });
     }
   }

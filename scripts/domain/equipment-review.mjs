@@ -1,4 +1,4 @@
-import { aggregateByUuid } from './character.mjs';
+import { aggregateByUuid, grantedQuantity } from './character.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
 import { formatCurrency } from './equipment-shop.mjs';
 
@@ -41,7 +41,7 @@ async function collectGroupItems(out, source, picks) {
  */
 async function resolveItem(pick, source) {
   const doc = fromUuidSync(pick.uuid) ?? (await fromUuid(pick.uuid));
-  return { uuid: pick.uuid, name: doc?.name ?? pick.uuid, img: doc?.img ?? null, qty: pick.quantity, source };
+  return { uuid: pick.uuid, name: doc?.name ?? pick.uuid, img: doc?.img ?? null, qty: grantedQuantity(doc?.system?.quantity, pick), source };
 }
 
 /**

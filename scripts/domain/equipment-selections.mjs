@@ -19,7 +19,7 @@ export function collectSectionPicks(section, draft = {}) {
  */
 export function collectShopPicks(shop) {
   if (!shop?.cart?.length) return [];
-  return shop.cart.map((line) => ({ uuid: line.uuid, quantity: Number(line.qty) || 1 }));
+  return shop.cart.map((line) => ({ uuid: line.uuid, quantity: Number(line.qty) || 1, stack: true }));
 }
 
 /**
