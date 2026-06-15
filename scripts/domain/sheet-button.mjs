@@ -3,7 +3,7 @@ import { openLevelUp } from './level-up.mjs';
 
 /** Per-host injection target spec for character sheets (icon-only buttons). */
 const CHARACTER_HOSTS = [
-  { hook: 'renderCharacterActorSheet', selector: '.sheet-header-buttons', buttonClasses: ['gold-button'] },
+  { hook: 'renderCharacterActorSheet', selector: '.sheet-header-buttons', fallback: '.right', buttonClasses: ['gold-button'] },
   { hook: 'renderTidy5eCharacterSheetQuadrone', selector: '[data-tidy-sheet-part="sheet-header-actions-container"]', buttonClasses: ['button', 'button-icon-only', 'button-gold'] }
 ];
 
@@ -30,20 +30,23 @@ function syncCharacterButton(app, element, spec) {
   element.querySelectorAll('[data-hm-level-up]').forEach((b) => b.remove());
   const actor = app.actor;
   if (!isEligible(actor)) return;
-  const host = element.querySelector(spec.selector);
+  const grouped = element.querySelector(spec.selector);
+  const host = grouped ?? (spec.fallback ? element.querySelector(spec.fallback) : null);
   if (!host) return;
+  const before = grouped ? null : host.querySelector('.level-badge');
+  const place = (button) => host.insertBefore(button, before);
   const flagged = hasPendingFlag(actor);
   if (game.user.isGM) {
-    host.appendChild(makeButton(spec, { aria: 'DND5E.LevelActionIncrease', tooltip: 'HEROMANCER.LevelUp.SheetButton.Tooltip', icon: 'fa-angles-up', onClick: () => openLevelUp(actor) }));
+    place(makeButton(spec, { aria: 'DND5E.LevelActionIncrease', tooltip: 'HEROMANCER.LevelUp.SheetButton.Tooltip', icon: 'fa-angles-up', onClick: () => openLevelUp(actor) }));
     if (!flagged) {
-      host.appendChild(
+      place(
         makeButton(spec, { aria: 'HEROMANCER.LevelUp.SheetButton.SendLabel', tooltip: 'HEROMANCER.LevelUp.SheetButton.SendTooltip', icon: 'fa-paper-plane', onClick: () => sendLevelUpToActor(actor) })
       );
     }
     return;
   }
   if (!flagged && !app.isEditMode) return;
-  host.appendChild(makeButton(spec, { aria: 'DND5E.LevelActionIncrease', tooltip: 'HEROMANCER.LevelUp.SheetButton.Tooltip', icon: 'fa-angles-up', glow: flagged, onClick: () => openLevelUp(actor) }));
+  place(makeButton(spec, { aria: 'DND5E.LevelActionIncrease', tooltip: 'HEROMANCER.LevelUp.SheetButton.Tooltip', icon: 'fa-angles-up', glow: flagged, onClick: () => openLevelUp(actor) }));
 }
 
 /**

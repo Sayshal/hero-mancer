@@ -1,3 +1,10 @@
+.sheet-header > .right > .hm-sheet-level-up-button {
+  position: absolute;
+  top: calc(var(--level-size) / 2);
+  right: calc(var(--level-size) + var(--padding-right) + 1.75rem);
+  transform: translateY(-50%);
+}
+
 .hm-sheet-level-up-button.is-glowing {
   animation: hm-level-up-pulse 1.6s ease-in-out infinite;
 }
