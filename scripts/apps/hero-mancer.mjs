@@ -35,6 +35,7 @@ import { getEffectiveStartingLevel } from '../domain/subclass.mjs';
 import { getPendingSubmission } from '../domain/submission-lock.mjs';
 import { computeAge } from '../integrations/calendaria.mjs';
 import { openTokenizer } from '../integrations/tokenizer.mjs';
+import { evaluateRoll } from '../utils/dice.mjs';
 import { safeEnrichHTML } from '../utils/html-text.mjs';
 import { applyItemLinks } from '../utils/item-link.mjs';
 import { log } from '../utils/logger.mjs';
@@ -1838,6 +1839,7 @@ export class HeroMancer extends HMDialog {
         if (n > 1) opt.badge = `${used.get(v) ?? 0}/${n}`;
         return opt;
       });
+      if (combo.dataset.value) opts.unshift({ value: '', label: _loc('HEROMANCER.App.Abilities.ClearAssignment') });
       Combobox.attach(combo).setOptions(opts);
     }
   }
@@ -2407,7 +2409,7 @@ export class HeroMancer extends HMDialog {
     }
     const rerollOnes = game.settings.get(MODULE.ID, MODULE.SETTINGS.HP_REROLL_ONES);
     const formula = rerollOnes ? `1d${die}rr1` : `1d${die}`;
-    const roll = await new Roll(formula).evaluate();
+    const roll = await evaluateRoll(formula);
     if (valueInput) valueInput.value = String(roll.total);
     if (attemptsInput) attemptsInput.value = String(attempts + (Number.isFinite(prior) && prior > 0 ? 1 : 0));
     if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS)) {
@@ -2431,7 +2433,7 @@ export class HeroMancer extends HMDialog {
     if (!tag || !formula) return;
     const hidden = this.element.querySelector(`input[name="equipment.${tag}.wealthRolled"]`);
     if (!hidden) return;
-    const roll = await new Roll(formula).evaluate();
+    const roll = await evaluateRoll(formula);
     hidden.value = String(roll.total);
     if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS)) {
       const flavor = _loc('HEROMANCER.App.Equipment.WealthRollFlavor', { source: _loc(`HEROMANCER.App.Equipment.section-${tag}`) });
@@ -2451,7 +2453,7 @@ export class HeroMancer extends HMDialog {
     if (!formula) return;
     const hidden = this.element.querySelector('input[name="equipment.bonusGoldRolled"]');
     if (!hidden) return;
-    const roll = await new Roll(formula).evaluate();
+    const roll = await evaluateRoll(formula);
     hidden.value = String(roll.total);
     if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS)) {
       const flavor = _loc('HEROMANCER.App.Equipment.BonusGoldName');

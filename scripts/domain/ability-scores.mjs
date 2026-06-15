@@ -1,4 +1,5 @@
 import { MODULE } from '../constants.mjs';
+import { evaluateRoll } from '../utils/dice.mjs';
 
 const METHODS = ['standardArray', 'pointBuy', 'manualFormula'];
 
@@ -67,7 +68,7 @@ export function getPrimaryAbilities(classDoc) {
  * @returns {Promise<number>} Total rolled.
  */
 export async function rollAbilityFormula(formula) {
-  const roll = await new Roll(formula).evaluate();
+  const roll = await evaluateRoll(formula);
   return Math.floor(roll.total);
 }
 

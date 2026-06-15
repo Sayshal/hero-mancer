@@ -241,7 +241,7 @@ async function bonusGoldSource(draft) {
     return null;
   }
   if (!roll.isDeterministic) return { tag: 'bonus', label, amount: 0, amountFormatted: formatCurrency(0), formula, isFormula: true };
-  await roll.evaluate();
+  await roll.evaluate({ allowInteractive: false });
   const amount = Number(roll.total) || 0;
   return { tag: 'bonus', label, amount, amountFormatted: formatCurrency(amount), formula, isFormula: false };
 }

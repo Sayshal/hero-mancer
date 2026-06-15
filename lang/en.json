@@ -401,7 +401,8 @@
         "RerollPool": "Reroll",
         "RerollPromptTitle": "Reroll which value?",
         "RerollExhausted": "No rerolls remaining.",
-        "RerollNoUnassigned": "All pool values are assigned to abilities. Free one before rerolling."
+        "RerollNoUnassigned": "All pool values are assigned to abilities. Unassign one from its dropdown before rerolling.",
+        "ClearAssignment": "Unassign"
       },
       "TabNames": {
         "background": "Background",
