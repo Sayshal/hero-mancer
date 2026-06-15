@@ -57,6 +57,18 @@ export function advancementApplyData(adv, data) {
 }
 
 /**
+ * Detect an ASI feat pick that applied without granting a feat item, i.e. its uuid failed to resolve at apply time.
+ * @param {object} adv Advancement just applied.
+ * @param {object} data HM draft pick data.
+ * @returns {boolean} True when a feat was picked but no item landed.
+ */
+export function featGrantMissing(adv, data) {
+  if (adv?.constructor?.typeName !== 'AbilityScoreImprovement') return false;
+  if (data?.type !== 'feat' || !data.feat) return false;
+  return foundry.utils.isEmpty(adv.value?.feat);
+}
+
+/**
  * Emit chooser rows across class, subclass, and optional extra docs.
  * @param {?object} classDoc Full class Document.
  * @param {number} targetLevel Class level cap.

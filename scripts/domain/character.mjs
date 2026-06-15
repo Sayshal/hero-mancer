@@ -3,7 +3,7 @@ import { createBirthdayNote } from '../integrations/calendaria.mjs';
 import { log } from '../utils/logger.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
-import { markAdvancementRowError } from './advancements-tab.mjs';
+import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
 import { buildEquipmentContext } from './equipment-tab.mjs';
 import { publishCharacterSummary } from './summary-message.mjs';
@@ -397,6 +397,7 @@ async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = n
           log(1, `Advancement ${advId} L${level} apply failed:`, err);
           return { ok: false, applied: appliedAny };
         }
+        reportFeatGrantFailure(advancement, data, advId, level, wizardElement);
       }
       appliedAny = true;
     }

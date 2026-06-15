@@ -4,7 +4,7 @@ import * as documentLoader from '../data/document-loader.mjs';
 import { log } from '../utils/logger.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
-import { markAdvancementRowError } from './advancements-tab.mjs';
+import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { applySubclassFromIdentity } from './character.mjs';
 
 /**
@@ -233,6 +233,7 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
         log(1, `Advancement ${advId} L${level} apply failed:`, err);
         return { ok: false, applied: appliedAny };
       }
+      reportFeatGrantFailure(adv, data, advId, level, wizardElement);
     }
     appliedAny = true;
   }

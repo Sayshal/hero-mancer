@@ -607,6 +607,7 @@
         },
         "NoOptions": "No valid options - this advancement is misconfigured. Skipped.",
         "ApplyFailed": "Advancement \"{title}\" failed to apply: {reason}",
+        "FeatGrantFailed": "Could not add the chosen feat: {uuid} did not resolve to an item. It may be from a compendium that is not installed.",
         "FeatBrowser": {
           "Empty": "No feats indexed. Configure feat compendiums in dnd5e source settings.",
           "EmptyFilter": "No feats match the current filters.",

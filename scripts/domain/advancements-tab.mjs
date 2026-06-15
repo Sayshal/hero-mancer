@@ -1,5 +1,6 @@
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
-import { buildAdvancementRows, expandNestedRows } from './advancement-chooser.mjs';
+import { log } from '../utils/logger.mjs';
+import { buildAdvancementRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
 import { advancementFieldName } from './advancement-draft.mjs';
 
 /**
@@ -1098,6 +1099,23 @@ export function markAdvancementRowError(root, advancementId, level, reason) {
   row.setAttribute('data-error-reason', reason);
   row.scrollIntoView({ block: 'center', behavior: 'smooth' });
   ui.notifications.error('HEROMANCER.App.Advancements.ApplyFailed', { localize: true, permanent: true, format: { title: row.querySelector('.hm-advancement-title')?.textContent ?? '', reason } });
+}
+
+/**
+ * Surface a loud, actionable error when an ASI feat pick applied but no feat item landed (its uuid failed to resolve).
+ * @param {object} adv Advancement just applied.
+ * @param {object} data HM draft pick data.
+ * @param {string} advancementId Advancement id.
+ * @param {number} level Class level applied.
+ * @param {?HTMLElement} root Wizard root for row error stamping; absent on the socket-replay path.
+ * @returns {void}
+ */
+export function reportFeatGrantFailure(adv, data, advancementId, level, root) {
+  if (!featGrantMissing(adv, data)) return;
+  const reason = _loc('HEROMANCER.App.Advancements.FeatGrantFailed', { uuid: data.feat });
+  if (root) markAdvancementRowError(root, advancementId, level, reason);
+  else ui.notifications.error(reason, { permanent: true });
+  log(1, `ASI feat grant failed: ${data.feat} did not resolve to an item`);
 }
 
 /**
