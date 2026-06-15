@@ -5,6 +5,7 @@ import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
 import { clearFeatIndex } from './domain/feat-browser.mjs';
+import { clearAllPending } from './domain/submission-lock.mjs';
 import { mergeCustomFocusItems } from './integrations/dnd5e.mjs';
 
 const { ArrayField, BooleanField, NumberField, ObjectField, StringField } = foundry.data.fields;
@@ -235,7 +236,10 @@ export function registerSettings() {
     hint: 'HEROMANCER.Settings.RequireApprovalForPlayers.Hint',
     scope: 'world',
     config: true,
-    type: new BooleanField({ initial: true })
+    type: new BooleanField({ initial: true }),
+    onChange: (value) => {
+      if (!value) clearAllPending();
+    }
   });
 
   r(MODULE.ID, MODULE.SETTINGS.KEEP_APPROVAL_ARCHIVE, {

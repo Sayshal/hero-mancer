@@ -11,30 +11,53 @@ export function registerSubmissionLock() {
 }
 
 /**
- * Read the current user's pending-submission marker, if any.
- * @returns {?{timestamp: number}} Stored marker, or null when unlocked.
+ * Read the current user's pending submission, if any. Holds the full submission flag data so it doubles as the durable copy a GM ingests on connect.
+ * @returns {?object} Stored submission flag data, or null when unlocked.
  */
 export function getPendingSubmission() {
   return game.user.getFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION) ?? null;
 }
 
 /**
- * Stash pending-submission state for the active user, then re-render any open wizard.
+ * Persist the submitter's full submission on their own user flag, then re-render any open wizard.
  * @param {{flagData: object}} payload Approval submission hook payload.
  * @returns {Promise<void>}
  */
 async function onSubmitted({ flagData }) {
-  await game.user.setFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION, { timestamp: flagData?.timestamp ?? Date.now() });
+  await game.user.setFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION, flagData ?? { timestamp: Date.now() });
   rerenderWizard();
 }
 
 /**
- * Clear pending-submission state, then re-render any open wizard.
+ * Clear the current user's pending submission, then re-render any open wizard.
  * @returns {Promise<void>}
  */
 async function onResolved() {
   await game.user.unsetFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
   rerenderWizard();
+}
+
+/**
+ * Clear the pending-submission lock on a specific user, so a GM resolving an offline submitter frees them.
+ * @param {?string} userId Submitter user id.
+ * @returns {Promise<void>}
+ */
+export async function clearPendingForUser(userId) {
+  if (!userId) return;
+  if (userId === game.user.id) return onResolved();
+  if (!game.user.isGM) return;
+  await game.users.get(userId)?.unsetFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
+}
+
+/**
+ * Clear every user's pending-submission lock (active GM only); used when approvals are turned off.
+ * @returns {Promise<void>}
+ */
+export async function clearAllPending() {
+  if (game.user !== game.users.activeGM) return;
+  for (const user of game.users) {
+    if (user.getFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION)) await user.unsetFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
+  }
 }
 
 /**

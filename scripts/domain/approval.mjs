@@ -3,6 +3,8 @@ import { MODULE } from '../constants.mjs';
 import { SOCKET_EVENTS, emitSocketEvent, onSocketEvent } from '../sockets.mjs';
 import { log } from '../utils/logger.mjs';
 import { publishApprovalEvent } from './approval-chat.mjs';
+import { createCharacter } from './character.mjs';
+import { clearPendingForUser } from './submission-lock.mjs';
 
 /** Foundry page-flag key under `flags['hero-mancer']`. */
 const SUBMISSION_FLAG = 'submission';
@@ -213,8 +215,17 @@ export async function approveSubmission(pageId) {
   const page = findApprovalJournal()?.pages.get(pageId);
   if (!page) return null;
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
-  emitSocketEvent(SOCKET_EVENTS.CHARACTER_APPROVED, { pageId, recipientUserId: flagData?.submitterUserId, payload: decodePayload(flagData?.payload), characterName: flagData?.characterName });
-  publishApprovalEvent({ variant: 'approved', characterName: flagData?.characterName, submitterUserId: flagData?.submitterUserId });
+  const submitterUserId = flagData?.submitterUserId;
+  const payload = decodePayload(flagData?.payload);
+  payload.startDraft = { ...(payload.startDraft ?? {}), player: payload.startDraft?.player || submitterUserId };
+  const actor = await createCharacter({ payload });
+  if (!actor) {
+    ui.notifications.error('HEROMANCER.Approval.Replay.Failed', { localize: true });
+    return null;
+  }
+  emitSocketEvent(SOCKET_EVENTS.CHARACTER_APPROVED, { pageId, recipientUserId: submitterUserId, payload: null, characterName: actor.name, actorUuid: actor.uuid });
+  publishApprovalEvent({ variant: 'approved', characterName: actor.name, submitterUserId, actorUuid: actor.uuid });
+  await clearPendingForUser(submitterUserId);
   await resolveSubmission(page, { outcome: 'approved' });
   return pageId;
 }
@@ -233,6 +244,7 @@ export async function approveSubmissionAfterEdit(pageId, characterName, actorUui
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
   emitSocketEvent(SOCKET_EVENTS.CHARACTER_APPROVED, { pageId, recipientUserId: flagData?.submitterUserId, payload: null, characterName, actorUuid });
   publishApprovalEvent({ variant: 'approved', characterName, submitterUserId: flagData?.submitterUserId, actorUuid });
+  await clearPendingForUser(flagData?.submitterUserId);
   await resolveSubmission(page, { outcome: 'approved' });
   return pageId;
 }
@@ -250,6 +262,7 @@ export async function rejectSubmission(pageId, reason = '') {
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
   emitSocketEvent(SOCKET_EVENTS.CHARACTER_REJECTED, { pageId, recipientUserId: flagData?.submitterUserId, reason, payload: flagData?.payload });
   publishApprovalEvent({ variant: 'rejected', characterName: flagData?.characterName, submitterUserId: flagData?.submitterUserId, reason, payload: flagData?.payload });
+  await clearPendingForUser(flagData?.submitterUserId);
   await resolveSubmission(page, { outcome: 'rejected', rejectionReason: reason });
   return pageId;
 }
@@ -281,6 +294,11 @@ async function createSubmissionPage(flagData) {
     log(1, 'Pending-approvals journal missing; cannot create submission page.');
     return null;
   }
+  const duplicate = journal.pages.find((p) => {
+    const existing = p.getFlag(MODULE.ID, SUBMISSION_FLAG);
+    return existing?.submitterUserId === flagData.submitterUserId && existing?.timestamp === flagData.timestamp;
+  });
+  if (duplicate) return duplicate;
   const content = await buildPageBody(flagData);
   const [page] = await journal.createEmbeddedDocuments('JournalEntryPage', [
     { name: flagData.characterName, type: 'text', text: { content, format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML }, flags: { [MODULE.ID]: { [SUBMISSION_FLAG]: flagData } } }
@@ -385,6 +403,23 @@ function refreshIfArchiveJournal(journal) {
  */
 function refreshQueueBrowser() {
   foundry.applications.instances.get(`${MODULE.ID}-pending-approvals`)?.render(false);
+}
+
+/**
+ * Active-GM recovery + migration: ingest durable player-flag submissions that never reached the journal (submitted while no GM was online), and clear legacy locks that carry no recoverable payload.
+ * @returns {Promise<void>}
+ */
+export async function recoverPendingSubmissions() {
+  if (game.user !== game.users.activeGM) return;
+  for (const user of game.users) {
+    const flagData = user.getFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
+    if (!flagData) continue;
+    if (!flagData.payload) {
+      await user.unsetFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
+      continue;
+    }
+    await createSubmissionPage(flagData);
+  }
 }
 
 /**

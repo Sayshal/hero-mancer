@@ -7,7 +7,7 @@ import './scripts/data/_module.mjs';
 import './scripts/domain/_module.mjs';
 import { registerApprovalChat } from './scripts/domain/approval-chat.mjs';
 import { registerApprovalReplay } from './scripts/domain/approval-replay.mjs';
-import { bootstrapApprovalJournal, registerApprovalDocumentHooks, registerApprovalSockets } from './scripts/domain/approval.mjs';
+import { bootstrapApprovalJournal, recoverPendingSubmissions, registerApprovalDocumentHooks, registerApprovalSockets } from './scripts/domain/approval.mjs';
 import { computeCompatibility } from './scripts/domain/compatibility.mjs';
 import { registerLevelUpBroadcast } from './scripts/domain/level-up-broadcast.mjs';
 import { registerPendingBanner } from './scripts/domain/pending-banner.mjs';
@@ -80,7 +80,7 @@ Hooks.once('ready', () => {
   registerApprovalReplay();
   registerRejectionHandler();
   registerSubmissionLock();
-  bootstrapApprovalJournal();
+  bootstrapApprovalJournal().then(() => recoverPendingSubmissions());
   registerPendingBanner();
   registerLevelUpSheetButton();
   registerLevelUpBroadcast();
