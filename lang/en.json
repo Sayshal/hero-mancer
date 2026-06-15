@@ -219,6 +219,7 @@
       }
     },
     "Chat": {
+      "ClassLabel": "{subclass} {class}",
       "CharacterSummary": {
         "Label": "Character created",
         "EquipmentHeading": "Carried",

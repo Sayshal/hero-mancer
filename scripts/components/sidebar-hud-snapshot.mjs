@@ -307,7 +307,16 @@ function buildLevelUpRoster(actor, shared) {
 }
 
 /**
- * Format the class-line display text. Single class: `[subclass ]<class>`. Multiclass: `[subclass ]<primary> (<lvl>) | [subclass ]<secondary> (<lvl>) | …` with secondaries sorted alphabetically by class name.
+ * Localized class label for one roster slot, or the class name alone when it has no subclass.
+ * @param {{name:string, subclassName:?string}} slot Roster slot.
+ * @returns {string} Display label.
+ */
+function formatClassName({ name, subclassName }) {
+  return subclassName ? _loc('HEROMANCER.Chat.ClassLabel', { subclass: subclassName, class: name }) : name;
+}
+
+/**
+ * Format the class-line display text from the localized class label; multiclass slots carry their level and join with ` | `, secondaries sorted alphabetically by class name.
  * @param {Array<{name:string, level:number, subclassName:?string}>} classes Roster slots.
  * @returns {?string} Formatted line, or null when empty.
  */
@@ -315,11 +324,8 @@ function formatClassLineText(classes) {
   if (!classes.length) return null;
   const primary = classes[0];
   const secondaries = classes.slice(1).sort((a, b) => a.name.localeCompare(b.name));
-  if (!secondaries.length) {
-    const sub = primary.subclassName ? `${primary.subclassName} ` : '';
-    return `${sub}${primary.name}`;
-  }
-  const fmt = (c) => `${c.subclassName ? `${c.subclassName} ` : ''}${c.name} (${c.level})`;
+  if (!secondaries.length) return formatClassName(primary);
+  const fmt = (c) => `${formatClassName(c)} (${c.level})`;
   return [primary, ...secondaries].map(fmt).join(' | ');
 }
 

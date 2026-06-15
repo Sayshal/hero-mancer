@@ -299,7 +299,13 @@ async function buildPageBody({ characterName, submitterUserName, timestamp, payl
   const level = decoded?.startDraft?.level ?? 1;
   const id = decoded?.identityDraft ?? {};
   const classes = Array.isArray(id.classes) && id.classes.length ? id.classes : id.class ? [{ uuid: id.class, level }] : [];
-  const classNames = await Promise.all(classes.map(async (c) => `${await resolveName(c.uuid)} (${c.level ?? level})`));
+  const classNames = await Promise.all(
+    classes.map(async (c) => {
+      const [className, subclassName] = await Promise.all([resolveName(c.uuid), c.subclassUuid ? resolveName(c.subclassUuid) : null]);
+      const label = subclassName ? _loc('HEROMANCER.Chat.ClassLabel', { subclass: subclassName, class: className }) : className;
+      return `${label} (${c.level ?? level})`;
+    })
+  );
   const classLine = classNames.length > 1 ? classNames.join(' | ') : (classNames[0] ?? '-');
   const [species, bg] = await Promise.all([resolveName(id.species), resolveName(id.background)]);
   return foundry.applications.handlebars.renderTemplate(MODULE.TEMPLATES.APPROVALS.PAGE_BODY, { characterName, submitterUserName, when, level, classLine, species, bg });
