@@ -201,6 +201,35 @@ export function registerSettings() {
     type: new StringField({ initial: '', blank: true })
   });
 
+  r(MODULE.ID, MODULE.SETTINGS.SHOP_INCLUDE_MAGIC_ITEMS, {
+    name: 'HEROMANCER.Settings.ShopIncludeMagicItems.Name',
+    hint: 'HEROMANCER.Settings.ShopIncludeMagicItems.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: false }),
+    onChange: clearShopIndex
+  });
+
+  r(MODULE.ID, MODULE.SETTINGS.SHOP_MAX_MAGIC_RARITY, {
+    name: 'HEROMANCER.Settings.ShopMaxMagicRarity.Name',
+    hint: 'HEROMANCER.Settings.ShopMaxMagicRarity.Hint',
+    scope: 'world',
+    config: false,
+    type: new StringField({
+      initial: 'uncommon',
+      blank: false,
+      choices: {
+        common: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Common',
+        uncommon: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Uncommon',
+        rare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Rare',
+        veryRare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.VeryRare',
+        legendary: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Legendary',
+        artifact: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Artifact'
+      }
+    }),
+    onChange: clearShopIndex
+  });
+
   r(MODULE.ID, MODULE.SETTINGS.REQUIRE_APPROVAL_FOR_PLAYERS, {
     name: 'HEROMANCER.Settings.RequireApprovalForPlayers.Name',
     hint: 'HEROMANCER.Settings.RequireApprovalForPlayers.Hint',

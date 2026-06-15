@@ -18,6 +18,7 @@ const INDEX_FIELDS = new Set([
   'system.properties',
   'system.price.value',
   'system.price.denomination',
+  'system.rarity',
   'system.damage.base.number',
   'system.damage.base.denomination',
   'system.damage.base.types',
@@ -55,7 +56,7 @@ export async function initShopIndex({ force = false } = {}) {
   const results = await CompendiumBrowser.fetch(Item, { types: SHOP_ITEM_TYPES, indexFields: new Set(INDEX_FIELDS) });
   for (const entry of results) {
     if (exclusionList.has(entry.uuid)) continue;
-    if (isMagicItem(entry)) continue;
+    if (isMagicItem(entry) && !magicItemAllowed(entry)) continue;
     if (isNaturalWeapon(entry)) continue;
     const item = normalizeEntry(entry);
     if (!item) continue;
@@ -467,6 +468,22 @@ function isMagicItem(entry) {
   if (props instanceof Set) return props.has('mgc');
   if (Array.isArray(props)) return props.includes('mgc');
   return false;
+}
+
+/** @type {string[]} dnd5e item rarities from lowest to highest. */
+const RARITY_ORDER = ['common', 'uncommon', 'rare', 'veryRare', 'legendary', 'artifact'];
+
+/**
+ * True when a magic item should appear in the shop: the GM enabled magic items and the item's rarity is within the configured ceiling.
+ * @param {object} entry Index entry.
+ * @returns {boolean} True when the magic item is admitted.
+ */
+function magicItemAllowed(entry) {
+  if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.SHOP_INCLUDE_MAGIC_ITEMS)) return false;
+  const rarity = entry.system?.rarity || 'common';
+  const max = game.settings.get(MODULE.ID, MODULE.SETTINGS.SHOP_MAX_MAGIC_RARITY) || 'uncommon';
+  const rarityRank = RARITY_ORDER.indexOf(rarity);
+  return rarityRank >= 0 && rarityRank <= RARITY_ORDER.indexOf(max);
 }
 
 /**

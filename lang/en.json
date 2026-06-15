@@ -855,7 +855,8 @@
           "ManualRoll": "Manual Roll",
           "StandardArray": "Standard Array",
           "PointBuy": "Point Buy",
-          "ScoreLimits": "Score Limits"
+          "ScoreLimits": "Score Limits",
+          "MagicItems": "Magic Items"
         },
         "AdvancementOrder": {
           "RowUp": "Move up",
@@ -997,6 +998,22 @@
       "BonusGoldFormula": {
         "Name": "Bonus Starting Gold Formula",
         "Hint": "Roll formula or fixed amount (e.g. '1d100*3' or '250') added to every character's starting gold pool. Leave blank to disable. Dice formulas require a player roll on the Granted Equipment tab; fixed amounts apply automatically."
+      },
+      "ShopIncludeMagicItems": {
+        "Name": "Sell Magic Items",
+        "Hint": "Add magic items to the equipment shop, bought from the same gold pool as ordinary gear. Useful for characters starting above level 1."
+      },
+      "ShopMaxMagicRarity": {
+        "Name": "Maximum Magic Item Rarity",
+        "Hint": "Highest rarity of magic item offered in the shop when magic items are enabled.",
+        "Choices": {
+          "Common": "Common",
+          "Uncommon": "Uncommon",
+          "Rare": "Rare",
+          "VeryRare": "Very Rare",
+          "Legendary": "Legendary",
+          "Artifact": "Artifact"
+        }
       },
       "Dicesonice": {
         "Name": "Enable 3D Dice for Ability Rolls",

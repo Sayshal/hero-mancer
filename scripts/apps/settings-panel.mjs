@@ -75,6 +75,13 @@ const TAB_SETTINGS = {
       ]
     },
     {
+      group: 'HEROMANCER.Settings.SettingsPanel.Group.MagicItems',
+      settings: [
+        { key: 'SHOP_INCLUDE_MAGIC_ITEMS', type: 'boolean' },
+        { key: 'SHOP_MAX_MAGIC_RARITY', type: 'select' }
+      ]
+    },
+    {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Identity',
       settings: [
         { key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' },

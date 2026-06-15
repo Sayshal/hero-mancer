@@ -35,6 +35,8 @@ const SETTINGS = {
   ENFORCE_BIOGRAPHY: 'enforceBiography',
   BONUS_GOLD_FORMULA: 'bonusGoldFormula',
   EXCLUSION_LIST: 'exclusionList',
+  SHOP_INCLUDE_MAGIC_ITEMS: 'shopIncludeMagicItems',
+  SHOP_MAX_MAGIC_RARITY: 'shopMaxMagicRarity',
   HIDE_OTHER_CREATE_ACTOR_OPTIONS: 'hideOtherCreateActorOptionsForPlayers',
   ALLOWED_HP_METHODS: 'allowedHpMethods',
   HP_L1_MAX_DIE: 'hpL1MaxDie',
