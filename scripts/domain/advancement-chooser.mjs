@@ -345,10 +345,10 @@ function itemChoiceSpec(adv, level, value, _context) {
     allowDrops: cfg.allowDrops !== false,
     selected: Object.values(value.added ?? {})
   };
-  if (!pool.length && cfg.type) {
+  if (!pool.length && (cfg.type || spec.allowDrops)) {
     const restriction = cfg.restriction ?? {};
     spec.open = true;
-    spec.restrictionType = cfg.type;
+    spec.restrictionType = cfg.type ?? null;
     spec.restrictionCategory = restriction.type || '';
     spec.restrictionSubtype = restriction.subtype || '';
     spec.restrictionLevel = restriction.level ?? '';

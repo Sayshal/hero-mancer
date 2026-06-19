@@ -2968,7 +2968,8 @@ export class HeroMancer extends HMDialog {
       ui.notifications.warn('HEROMANCER.App.Advancements.BrowseMax', { localize: true });
       return;
     }
-    const filters = { locked: { additional: {}, documentClass: 'Item', types: new Set([cfg.type]) } };
+    const filters = { locked: { additional: {}, documentClass: 'Item' } };
+    filters.locked.types = cfg.type ? new Set([cfg.type]) : CONFIG.DND5E.advancementTypes.ItemChoice.documentClass.VALID_TYPES;
     switch (cfg.type) {
       case 'spell':
         if (cfg.level !== '') filters.locked.additional.level = cfg.level === 'available' ? { max: cfg.maxSpellLevel } : { min: Number(cfg.level), max: Number(cfg.level) };
