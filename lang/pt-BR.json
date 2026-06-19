@@ -219,6 +219,7 @@
       }
     },
     "Chat": {
+      "ClassLabel": "{class} {subclass}",
       "CharacterSummary": {
         "Label": "Personagem Criado",
         "EquipmentHeading": "Carregando",
@@ -401,7 +402,8 @@
         "RerollPool": "Rerolar",
         "RerollPromptTitle": "Rerolar qual valor?",
         "RerollExhausted": "Sem rerolagens restantes.",
-        "RerollNoUnassigned": "Todos os valores do conjunto já foram atribuídos aos atributos. Libere um antes de rerolar."
+        "RerollNoUnassigned": "Todos os valores da reserva já foram atribuídos aos atributos. Remova a atribuição de um deles em seu menu suspenso antes de rerolar.",
+        "ClearAssignment": "Remover Atribuição"
       },
       "TabNames": {
         "background": "Antecedente",
@@ -605,6 +607,7 @@
         },
         "NoOptions": "Nenhuma opção válida. Esta progressão está configurada incorretamente. Será ignorada.",
         "ApplyFailed": "A progressão \"{title}\" falhou ao ser aplicada: {reason}",
+        "FeatGrantFailed": "Não foi possível adicionar o talento escolhido: {uuid} não corresponde a um item. Ele pode pertencer a um compêndio que não está instalado.",
         "FeatBrowser": {
           "Empty": "Nenhum talento indexado. Configure os compêndios de talentos nas configurações de fonte do D&D5e.",
           "EmptyFilter": "Nenhum talento corresponde aos filtros atuais.",
@@ -852,7 +855,8 @@
           "ManualRoll": "Rolagem Manual",
           "StandardArray": "Modo Fixo",
           "PointBuy": "Compra de Pontos",
-          "ScoreLimits": "Limites de Atributo"
+          "ScoreLimits": "Limites de Atributo",
+          "MagicItems": "Itens Mágicos"
         },
         "AdvancementOrder": {
           "RowUp": "Mover para Cima",
@@ -994,6 +998,22 @@
       "BonusGoldFormula": {
         "Name": "Fórmula de Ouro Inicial Bônus",
         "Hint": "Fórmula de rolagem ou valor fixo (ex: '1d100*3' ou '250') adicionado ao total de ouro inicial de todos os personagens. Deixe em branco para desativar. Fórmulas de dados exigem uma rolagem do jogador na aba Equipamentos Concedidos e valores fixos são aplicados automaticamente."
+      },
+      "ShopIncludeMagicItems": {
+        "Name": "Vender Itens Mágicos",
+        "Hint": "Adiciona itens mágicos à loja de equipamentos, adquiridos com a mesma reserva de ouro usada para equipamentos comuns. Útil para personagens que começam acima do 1º nível."
+      },
+      "ShopMaxMagicRarity": {
+        "Name": "Raridade Máxima dos Itens Mágicos",
+        "Hint": "Maior raridade de item mágico disponibilizada na loja quando os itens mágicos estiverem habilitados.",
+        "Choices": {
+          "Common": "Comum",
+          "Uncommon": "Incomum",
+          "Rare": "Raro",
+          "VeryRare": "Raríssimo",
+          "Legendary": "Lendário",
+          "Artifact": "Artefato"
+        }
       },
       "Dicesonice": {
         "Name": "Ativar Dados 3D para Rolagens de Atributos",
