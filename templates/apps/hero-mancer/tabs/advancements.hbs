@@ -117,7 +117,8 @@
                       data-state="{{tile.state}}" data-foot="{{tile.foot.kind}}" {{#if tile.uuid}}data-item-tooltip
                       data-uuid="{{tile.uuid}}" {{/if}} {{#if tile.picker}} data-picker-trigger
                       data-picker-name="{{tile.picker.name}}" data-picker-label="{{tile.picker.label}}"
-                      data-picker-options="{{tile.picker.optionsJson}}" data-picker-max="{{tile.picker.max}}" {{/if}}
+                      data-picker-options="{{tile.picker.optionsJson}}" data-picker-max="{{tile.picker.max}}"
+                      data-picker-origins="{{tile.picker.originsJson}}" {{/if}}
                       {{#if tile.browse}} data-action="browseAdvancementItems" data-browse="{{tile.browse}}" {{/if}}
                       {{#if tile.selected}}data-selected{{/if}}>
                       {{#if tile.inputName}}

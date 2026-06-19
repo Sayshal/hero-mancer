@@ -278,7 +278,16 @@ function itemChoiceTile(row) {
       name: inputName,
       label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
       max: spec.count,
-      optionsJson: JSON.stringify(pickerOptions.map((o) => ({ value: o.value, label: o.label, icon: o.icon ?? null })))
+      optionsJson: JSON.stringify(
+        pickerOptions.map((o) => ({
+          value: o.value,
+          label: o.label,
+          icon: o.icon ?? null,
+          identifier: spec.poolMeta?.[o.value]?.identifier ?? null,
+          reqItems: spec.poolMeta?.[o.value]?.reqItems ?? []
+        }))
+      ),
+      originsJson: spec.originIdentifiers ? JSON.stringify(spec.originIdentifiers) : ''
     };
   }
   return tile;
@@ -698,7 +707,7 @@ function isRowDone(spec) {
 }
 
 /**
- * Drop ItemChoice pool entries failing a level, required-item, or non-repeatable prerequisite, evaluated against the projected post-apply item set. Unresolved entries are kept.
+ * Drop ItemChoice pool entries failing a level or non-repeatable-owned check, retaining item-prerequisite entries for the picker to reveal on selection, and tag each kept entry with its prerequisite metadata.
  * @param {object} row Row record with `spec.kind === 'item-choice'`.
  * @returns {Promise<void>}
  */
@@ -708,20 +717,30 @@ async function filterItemChoicePool(row) {
   const { identifiers, owned } = row.projected ?? { identifiers: new Set(), owned: new Set() };
   const docs = await Promise.all(spec.pool.map((uuid) => fromUuid(uuid)));
   const indexByUuid = new Map(spec.pool.map((uuid, i) => [uuid, i]));
-  const meets = (i) => {
-    const pre = docs[i]?.system?.prerequisites;
-    if (!pre) return true;
-    if (Number.isFinite(Number(pre.level)) && Number(pre.level) > row.level) return false;
-    return !(pre.items?.size && ![...pre.items].some((id) => identifiers.has(leafIdentifier(id))));
+  const reqItemsAt = (i) => {
+    const items = docs[i]?.system?.prerequisites?.items;
+    return items?.size ? [...items].map(leafIdentifier) : [];
   };
-  const kept = new Set((spec.selected ?? []).filter((uuid) => !indexByUuid.has(uuid) || meets(indexByUuid.get(uuid))));
+  const meetsStatic = (i) => {
+    const lvl = docs[i]?.system?.prerequisites?.level;
+    return !(Number.isFinite(Number(lvl)) && Number(lvl) > row.level);
+  };
+  const kept = new Set((spec.selected ?? []).filter((uuid) => !indexByUuid.has(uuid) || meetsStatic(indexByUuid.get(uuid))));
   spec.selected = [...kept];
   spec.pool = spec.pool.filter((uuid, i) => {
     if (kept.has(uuid)) return true;
-    if (!meets(i)) return false;
+    if (!meetsStatic(i)) return false;
     const pre = docs[i]?.system?.prerequisites;
     return !(pre && !pre.repeatable && owned.has(uuid));
   });
+  const selectedIdentifiers = new Set();
+  for (const uuid of spec.selected) {
+    const id = docs[indexByUuid.get(uuid)]?.identifier;
+    if (id) selectedIdentifiers.add(id);
+  }
+  spec.poolMeta = {};
+  for (const uuid of spec.pool) spec.poolMeta[uuid] = { identifier: docs[indexByUuid.get(uuid)]?.identifier ?? null, reqItems: reqItemsAt(indexByUuid.get(uuid)) };
+  spec.originIdentifiers = Object.values(spec.poolMeta).some((m) => m.reqItems.length) ? [...identifiers].filter((id) => !selectedIdentifiers.has(id)) : null;
 }
 
 /**
@@ -732,11 +751,12 @@ async function filterItemChoicePool(row) {
  */
 async function collectProjectedItems(rows, actor) {
   const uuids = new Set();
+  const identifiers = new Set();
   for (const row of rows) {
+    if (row.parentIdentifier) identifiers.add(row.parentIdentifier);
     if (row.type === 'ItemGrant') for (const g of row.grants ?? []) if (g.uuid) uuids.add(g.uuid);
     if (row.spec?.kind === 'item-choice') for (const u of row.spec.selected ?? []) if (u) uuids.add(u);
   }
-  const identifiers = new Set();
   const owned = new Set(uuids);
   for (const item of actor?.items ?? []) {
     if (item.identifier) identifiers.add(item.identifier);

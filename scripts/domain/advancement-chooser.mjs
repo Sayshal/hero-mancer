@@ -121,7 +121,7 @@ function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
   const spec = auto ? null : RENDERERS[type](adv, lvl, value, context);
   const grants = type === 'ItemGrant' ? resolveItemGrantEntries(adv) : null;
   const scale = type === 'ScaleValue' ? resolveScaleDelta(adv, lvl) : null;
-  return { advancementId: id, level: lvl, type, title, icon: adv.icon ?? null, spec, auto, origin, grants, scale, source: adv.item?.name ?? null };
+  return { advancementId: id, level: lvl, type, title, icon: adv.icon ?? null, spec, auto, origin, grants, scale, source: adv.item?.name ?? null, parentIdentifier: adv.item?.identifier ?? null };
 }
 
 /** @type {number} Max grant-recursion depth, guarding feat→feat cycles. */
@@ -345,10 +345,10 @@ function itemChoiceSpec(adv, level, value, _context) {
     allowDrops: cfg.allowDrops !== false,
     selected: Object.values(value.added ?? {})
   };
-  if (!pool.length && cfg.type) {
+  if (!pool.length && (cfg.type || spec.allowDrops)) {
     const restriction = cfg.restriction ?? {};
     spec.open = true;
-    spec.restrictionType = cfg.type;
+    spec.restrictionType = cfg.type ?? null;
     spec.restrictionCategory = restriction.type || '';
     spec.restrictionSubtype = restriction.subtype || '';
     spec.restrictionLevel = restriction.level ?? '';

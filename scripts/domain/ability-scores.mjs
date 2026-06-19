@@ -139,8 +139,9 @@ export function buildAbilitiesContext(draft = {}, classDoc = null) {
   const blocks = abilityKeys.map((key) => {
     const cfg = CONFIG.DND5E.abilities[key];
     const raw = abilityValues[key]?.value;
-    const isEmpty = raw === '' || raw == null;
-    const numericValue = isEmpty ? dflt : Number(raw);
+    const rawEmpty = raw === '' || raw == null;
+    const isEmpty = rawEmpty && method !== 'pointBuy';
+    const numericValue = rawEmpty ? dflt : Number(raw);
     const cost = isEmpty ? 0 : pointBuyCost(numericValue, min);
     if (method === 'pointBuy' && !isEmpty) usedPoints += cost;
     const isPrimary = primary.has(key);
@@ -162,8 +163,8 @@ export function buildAbilitiesContext(draft = {}, classDoc = null) {
       isPrimary,
       primaryTooltip: isPrimary ? _loc('HEROMANCER.App.Abilities.PrimaryTooltip', { ability: _loc(cfg.label), class: className }) : '',
       formulaPlaceholder: customFormula,
-      standardArray: { id: `ability-${key}-sa`, name: `abilities-sa.${key}`, value: isEmpty ? '' : String(raw), placeholder: '—', searchable: false, options: standardArrayUniqueOptions },
-      manualFormulaPool: { id: `ability-${key}-mfp`, name: `abilities-mfp.${key}`, value: isEmpty ? '' : String(raw), placeholder: '—', searchable: false, options: [] }
+      standardArray: { id: `ability-${key}-sa`, name: `abilities-sa.${key}`, value: rawEmpty ? '' : String(raw), placeholder: '—', searchable: false, options: standardArrayUniqueOptions },
+      manualFormulaPool: { id: `ability-${key}-mfp`, name: `abilities-mfp.${key}`, value: rawEmpty ? '' : String(raw), placeholder: '—', searchable: false, options: [] }
     };
   });
   return {
