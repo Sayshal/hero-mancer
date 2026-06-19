@@ -121,7 +121,7 @@ function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
   const spec = auto ? null : RENDERERS[type](adv, lvl, value, context);
   const grants = type === 'ItemGrant' ? resolveItemGrantEntries(adv) : null;
   const scale = type === 'ScaleValue' ? resolveScaleDelta(adv, lvl) : null;
-  return { advancementId: id, level: lvl, type, title, icon: adv.icon ?? null, spec, auto, origin, grants, scale, source: adv.item?.name ?? null };
+  return { advancementId: id, level: lvl, type, title, icon: adv.icon ?? null, spec, auto, origin, grants, scale, source: adv.item?.name ?? null, parentIdentifier: adv.item?.identifier ?? null };
 }
 
 /** @type {number} Max grant-recursion depth, guarding feat→feat cycles. */

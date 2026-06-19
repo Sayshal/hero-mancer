@@ -732,11 +732,12 @@ async function filterItemChoicePool(row) {
  */
 async function collectProjectedItems(rows, actor) {
   const uuids = new Set();
+  const identifiers = new Set();
   for (const row of rows) {
+    if (row.parentIdentifier) identifiers.add(row.parentIdentifier);
     if (row.type === 'ItemGrant') for (const g of row.grants ?? []) if (g.uuid) uuids.add(g.uuid);
     if (row.spec?.kind === 'item-choice') for (const u of row.spec.selected ?? []) if (u) uuids.add(u);
   }
-  const identifiers = new Set();
   const owned = new Set(uuids);
   for (const item of actor?.items ?? []) {
     if (item.identifier) identifiers.add(item.identifier);
