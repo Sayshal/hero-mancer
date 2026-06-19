@@ -129,15 +129,23 @@ export class EquipmentDetailPanel {
       options = [];
     }
     const max = Math.max(1, Number(trig.dataset.pickerMax) || 1);
+    let origins = null;
+    try {
+      origins = trig.dataset.pickerOrigins ? new Set(JSON.parse(trig.dataset.pickerOrigins)) : null;
+    } catch {
+      origins = null;
+    }
     this.activeName = name;
     this.activeTrigger = trig;
     this.activeOptions = options;
     this.activeMax = max;
     this.activeLabel = trig.dataset.pickerLabel ?? '';
+    this.activeOrigins = origins;
     const currentValues = max > 1 ? (input.value ? input.value.split(',').filter(Boolean) : []) : input.value;
     this.#refreshMultiTitle(Array.isArray(currentValues) ? currentValues.length : 0);
     this.searchInput.value = '';
     this.#renderOptions(options, currentValues);
+    this.#filter();
     if (max > 1) this.#applyMultiCapacityState(Array.isArray(currentValues) ? currentValues.length : 0);
     this.root.hidden = false;
     requestAnimationFrame(() => this.root.classList.add('is-open'));
@@ -262,14 +270,15 @@ export class EquipmentDetailPanel {
     applyItemLinks(this.list);
   }
 
-  /** Filter rendered options by the search input value. */
+  /** Filter rendered options by the search input value, hiding options gated by an unmet prerequisite. */
   #filter() {
     const q = this.searchInput.value.trim().toLowerCase();
+    const gated = this.#gatedValues();
     let visible = 0;
     for (const btn of this.list.querySelectorAll('[data-detail-option]')) {
-      const match = !q || btn.dataset.label.includes(q);
-      btn.parentElement.hidden = !match;
-      if (match) visible++;
+      const show = (!q || btn.dataset.label.includes(q)) && !gated.has(btn.dataset.value);
+      btn.parentElement.hidden = !show;
+      if (show) visible++;
     }
     this.emptyEl.hidden = visible > 0;
   }
@@ -301,22 +310,20 @@ export class EquipmentDetailPanel {
       this.close();
       return;
     }
-    const current = new Set(input.value ? input.value.split(',').filter(Boolean) : []);
+    let current = new Set(input.value ? input.value.split(',').filter(Boolean) : []);
     if (current.has(value)) current.delete(value);
     else {
       if (current.size >= max) return;
       current.add(value);
     }
+    current = this.#pruneSelection(current);
     input.value = [...current].join(',');
     input.dispatchEvent(new Event('change', { bubbles: true }));
-    const btn = this.list.querySelector(`[data-detail-option][data-value="${CSS.escape(value)}"]`);
-    if (btn) {
-      btn.toggleAttribute('data-selected', current.has(value));
-      btn.setAttribute('aria-selected', current.has(value) ? 'true' : 'false');
-    }
+    this.#syncSelectedButtons(current);
     this.#refreshMultiTitle(current.size);
     this.#applyMultiCapacityState(current.size);
     this.#updateMultiTriggerLabel([...current]);
+    if (this.activeOrigins) this.#filter();
   }
 
   /**
@@ -452,5 +459,63 @@ export class EquipmentDetailPanel {
     this.activeSections = null;
     this.activeMax = null;
     this.activeLabel = null;
+    this.activeOrigins = null;
+  }
+
+  /**
+   * Drop selected options whose item prerequisite is no longer met, cascading through dependent tiers.
+   * @param {Set<string>} selected Currently-selected option values.
+   * @returns {Set<string>} The pruned selection.
+   */
+  #pruneSelection(selected) {
+    if (!this.activeOrigins) return selected;
+    const metaByValue = new Map((this.activeOptions ?? []).map((o) => [o.value, o]));
+    const set = new Set(selected);
+    for (let changed = true; changed; ) {
+      changed = false;
+      const available = new Set(this.activeOrigins);
+      for (const v of set) {
+        const id = metaByValue.get(v)?.identifier;
+        if (id) available.add(id);
+      }
+      for (const v of [...set]) {
+        const req = metaByValue.get(v)?.reqItems ?? [];
+        if (req.length && !req.some((id) => available.has(id))) {
+          set.delete(v);
+          changed = true;
+        }
+      }
+    }
+    return set;
+  }
+
+  /**
+   * Reflect a selection set onto every option button's selected state.
+   * @param {Set<string>} selected Selected option values.
+   */
+  #syncSelectedButtons(selected) {
+    for (const btn of this.list.querySelectorAll('[data-detail-option]')) {
+      const on = selected.has(btn.dataset.value);
+      btn.toggleAttribute('data-selected', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+  }
+
+  /**
+   * Option values to hide because their item prerequisite is unmet by the current live selection.
+   * @returns {Set<string>} Gated values; empty unless the active picker carries prerequisite metadata.
+   */
+  #gatedValues() {
+    const gated = new Set();
+    if (!this.activeOrigins || !this.activeName) return gated;
+    const input = this.scope.querySelector(`input[type="hidden"][name="${CSS.escape(this.activeName)}"]`);
+    const selected = new Set(input?.value ? input.value.split(',').filter(Boolean) : []);
+    const available = new Set(this.activeOrigins);
+    for (const opt of this.activeOptions ?? []) if (selected.has(opt.value) && opt.identifier) available.add(opt.identifier);
+    for (const opt of this.activeOptions ?? []) {
+      if (selected.has(opt.value)) continue;
+      if (opt.reqItems?.length && !opt.reqItems.some((id) => available.has(id))) gated.add(opt.value);
+    }
+    return gated;
   }
 }
