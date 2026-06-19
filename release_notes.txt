@@ -1,31 +1,5 @@
-**New Features**
-- A new world setting, Disable Multiclassing, lets GMs prevent players from adding a second class. When enabled, the add-class UI is hidden during character creation and multiclass options are removed on level-up.
-- A new world setting, Disable Welcome Popup, lets GMs suppress the welcome dialog for every player in the world, overriding each player's own Show Welcome setting.
-- A new world setting, Publish HP Rolls (on by default), posts each manual hit-die roll to chat, flavored with the rolling character's class and level.
-- Background options in the identity dropdown now show searchable pills for their ability score increase and origin feat, and skip non-improvable abilities like Honor and Sanity.
-- Brazilian Portuguese (pt-BR) is now available as a module language.
-- The Exclusion List now has a Feats tab so GMs can exclude specific feats; excluded feats are dropped from the feat picker.
-- The feat browser has a new Ability increase filter so you can narrow feats down to those whose ability score increase can raise a chosen ability.
-
 **Bug Fixes**
-- Advancements that come with a granted feat, including any choices they ask for, now apply during the same level up instead of being skipped.
-- Changing a class in one of your roster slots now clears that slot's subclass and advancement picks so they cannot stay mismatched, while your other multiclass slots are left untouched and saved drafts keep their picks on restore.
-- Combobox pills are now trimmed responsively so the identity label is never clipped when an option carries many tags.
-- Currency bundled into a class or background equipment package that is always granted (not behind an either/or choice) is now added to your starting gold pool.
-- Equipment choices that grant more than one pick now show a separate slot for each pick, so you can choose the same option in multiple slots.
-- Feat choices in advancement steps now only show feats your character qualifies for at that level, matching the core dnd5e level requirement.
-- Feats granted by an Ability Score Improvement choice are now actually added to your character on level up.
-- Newly created characters now show correct walk speed instead of 0, with movement, senses, and creature type derived properly from their race.
-- Optional abilities such as Honor and Sanity are now handled correctly: the standard array sizes to your full ability count so the randomizer assigns every ability, and the Ability Score Improvement grid hides abilities that cannot be improved.
-- Skill Expertise choices during character creation now only offer skills you are already proficient in, drawn from the proficiencies you picked earlier in the same draft.
-- The Browse button in the Art Directory setting now opens the file picker as expected.
-- The Finalize tab proficiency review now lists the skills, tools, and languages you picked during advancement steps, not just the ones granted automatically.
-- The Level Up button no longer piles up into duplicates on character and group sheets each time the sheet re-renders.
-- The level-up portrait now crops from the top so the character's head stays visible instead of being cut off in short frames.
-
-**Changes**
-- Expertise picks now sort after the proficiency choices they depend on, so you select your proficiencies before being asked which to make expert.
-- Players choosing their character art are now locked to the GM-configured art folder, while GMs can still browse anywhere.
-- The Publish Level-Up Summary whisper option is now labeled "Whisper GM + Owner" to make clear the summary goes to the GM and the character's owners.
-
-Full changelog: https://github.com/Sayshal/hero-mancer/releases
+- Point Buy now seeds each ability score at the configured default value instead of starting blank, with cost, points used, and modifier derived from that default. Standard Array and Manual Formula stay blank.
+- Race advancement choices that require the character's own race, such as the Dragonborn Draconic Ancestry breath weapon, now list their valid options instead of showing "No valid options".
+- Tiered item-choice options that require a base option first, such as Grim Hollow heritage traits where Maximum Critical requires Awesome Critical, now appear in the picker the moment you select the base option and cascade-remove when you unselect it, instead of staying hidden until the picker is closed and reopened.
+- Untyped "choose any item" advancement choices that allow drops, such as Grim Hollow's Rare Find on the Agent of the Augustine background, now open a compendium browser of grantable item types instead of showing "No valid options".
