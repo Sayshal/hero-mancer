@@ -1,5 +1,10 @@
+**New Features**
+- Added a Manual Entry ability score method that lets players type scores directly, clamped to the configured minimum and maximum.
+
 **Bug Fixes**
-- Point Buy now seeds each ability score at the configured default value instead of starting blank, with cost, points used, and modifier derived from that default. Standard Array and Manual Formula stay blank.
-- Race advancement choices that require the character's own race, such as the Dragonborn Draconic Ancestry breath weapon, now list their valid options instead of showing "No valid options".
-- Tiered item-choice options that require a base option first, such as Grim Hollow heritage traits where Maximum Critical requires Awesome Critical, now appear in the picker the moment you select the base option and cascade-remove when you unselect it, instead of staying hidden until the picker is closed and reopened.
-- Untyped "choose any item" advancement choices that allow drops, such as Grim Hollow's Rare Find on the Agent of the Augustine background, now open a compendium browser of grantable item types instead of showing "No valid options".
+- Fixed a crash when selecting a class whose starting equipment offers an open category choice, such as any spellcasting focus.
+- Fixed the equipment purchase filter and sort menus clipping behind the sidebar on narrow windows.
+
+**Changes**
+- Locked abilities in the ability score improvement dialog are now greyed out with a tooltip, and abilities open for assignment are highlighted.
+- Updated the Brazilian Portuguese (pt-BR) translation.
