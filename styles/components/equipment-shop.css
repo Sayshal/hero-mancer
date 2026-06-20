@@ -64,6 +64,7 @@
   gap: 0.6rem;
   display: flex;
   flex-direction: column;
+  container-type: inline-size;
   min-width: 0;
 }
 
@@ -186,14 +187,15 @@
   gap: 0.35rem;
   display: flex;
   flex-wrap: wrap;
-  width: 22rem;
+  width: min(22rem, 90cqi);
 }
 
 .hm-eq-shop-sort-panel {
   gap: 0.2rem;
   display: flex;
   flex-direction: column;
-  min-width: 12rem;
+  width: min(16rem, 90cqi);
+  min-width: 0;
 }
 
 .hm-eq-shop-filter-chip,

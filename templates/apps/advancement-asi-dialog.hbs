@@ -1,7 +1,8 @@
 <section class="standard-form hm-dialog-body hm-asi-dialog-body">
   <div class="hm-asi-grid">
     {{#each inputs as |inp|}}
-      <div class="hm-asi-ability">
+      <div class="hm-asi-ability{{#if inp.locked}} is-locked{{/if}}{{#if inp.assignable}} is-assignable{{/if}}"
+        {{#if inp.locked}}data-tooltip aria-label="{{localize 'HEROMANCER.App.Advancements.ASIDialog.Locked'}}"{{/if}}>
         <span class="hm-asi-label">{{inp.label}}</span>
         <div class="hm-asi-stepper">
           <button type="button" data-action="asiAdjust" data-key="{{inp.key}}" data-delta="-1"

@@ -318,7 +318,7 @@ export function registerSettings() {
   r(MODULE.ID, MODULE.SETTINGS.ALLOWED_METHODS, {
     scope: 'world',
     config: false,
-    type: new ObjectField({ initial: { standardArray: true, pointBuy: true, manualFormula: true } })
+    type: new ObjectField({ initial: { standardArray: true, pointBuy: true, manualFormula: true, manualEntry: true } })
   });
 
   r(MODULE.ID, MODULE.SETTINGS.CUSTOM_ROLL_FORMULA, {

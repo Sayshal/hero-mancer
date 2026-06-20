@@ -20,6 +20,15 @@
   background: linear-gradient(180deg, var(--hero-mancer-bg), var(--hero-mancer-bg-elev));
 }
 
+.hm-asi-ability.is-assignable {
+  border-color: var(--hero-mancer-accent);
+}
+
+.hm-asi-ability.is-locked {
+  opacity: 0.45;
+  background: var(--hero-mancer-bg-elev);
+}
+
 .hm-asi-label {
   color: var(--hero-mancer-fg-muted);
   font-weight: 700;

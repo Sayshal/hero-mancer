@@ -36,7 +36,7 @@ async function buildNode(entry, allEntries, source) {
   if (entry.type === 'currency') return { ...common, kind: 'currency', key: entry.key, count: entry.count || 0 };
   const node = { ...common, categoryType: entry.type, count: entry.count || 1, requiresProficiency: entry.requiresProficiency };
   if (entry.key) return { ...node, kind: 'category', key: entry.key };
-  return { ...node, kind: 'choice', keyOptions: entry.keyOptions };
+  return { ...node, kind: 'choice', keyOptions: Object.keys(entry.keyOptions) };
 }
 
 /**
