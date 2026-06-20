@@ -328,6 +328,7 @@
         "PointBuy": "Pontos da Compra de Pontos não foram totalmente utilizados",
         "StandardArray": "Atribua todos os valores fixos a um atributo",
         "ManualFormula": "Rolar Todos os Atributos",
+        "ManualEntry": "Insira um valor dentro do intervalo permitido de cada atributo",
         "ConfirmIncomplete": {
           "Title": "Criar Mesmo Assim?",
           "Body": "Algumas escolhas obrigatórias ainda não foram concluídas:",
@@ -394,7 +395,8 @@
         "Method": {
           "standardArray": "Modo Fixo",
           "pointBuy": "Compra de Pontos",
-          "manualFormula": "Fórmula Manual"
+          "manualFormula": "Fórmula Manual",
+          "manualEntry": "Entrada Manual"
         },
         "PointsRemaining": "Pontos Restantes",
         "RollAll": "Rolar Atributos",
@@ -554,6 +556,7 @@
           "Title": "Aumento de Atributo",
           "Remaining": "{remaining} / {total} pontos restantes",
           "FixedTag": "+{value} concedido",
+          "Locked": "O atributo não pode ser aprimorado.",
           "Undo": "Redefinir escolha"
         },
         "FeatDialog": {
@@ -865,7 +868,8 @@
         "AllowedMethods": {
           "StandardArray": "Modo Fixo",
           "PointBuy": "Compra de Pontos",
-          "Manual": "Rolagem Manual"
+          "Manual": "Rolagem Manual",
+          "ManualEntry": "Entrada Manual"
         },
         "ArtPickerRoot": {
           "Browse": "Procurar"
