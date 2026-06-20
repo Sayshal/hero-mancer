@@ -5,7 +5,7 @@
  * @property {Function} [modifierFn] Maps a value to its ability modifier. Default: `Math.floor((v - 10) / 2)`.
  */
 
-const METHODS = ['standardArray', 'pointBuy', 'manualFormula'];
+const METHODS = ['standardArray', 'pointBuy', 'manualFormula', 'manualEntry'];
 
 /** Per-ability score editor with three input modes. */
 export class AbilityBlock {
@@ -49,6 +49,7 @@ export class AbilityBlock {
     this.valueDisplays = root.querySelectorAll('[data-value-display]');
     this.costEl = root.querySelector('[data-cost]');
     this.formulaInput = root.querySelector('[data-formula]');
+    this.manualInput = root.querySelector('[data-manual-input]');
     this.modes = Object.fromEntries(Array.from(root.querySelectorAll('[data-mode]')).map((el) => [el.dataset.mode, el]));
     this.#bind();
     this.#applyHue();
@@ -61,6 +62,7 @@ export class AbilityBlock {
     this.root.addEventListener('click', (e) => this.#onStepClick(e));
     this.root.addEventListener('keydown', (e) => this.#onStepKey(e));
     if (this.formulaInput) this.formulaInput.addEventListener('input', () => this.#onFormulaInput());
+    if (this.manualInput) this.manualInput.addEventListener('change', () => this.#onManualInput());
     const standardArrayHidden = this.modes.standardArray?.querySelector('input[type="hidden"]');
     standardArrayHidden?.addEventListener('change', () => this.#onStandardArrayChange(standardArrayHidden.value));
     const poolCombo = this.modes.manualFormula?.querySelector('[data-combobox] input[type="hidden"]');
@@ -229,6 +231,19 @@ export class AbilityBlock {
   /** Sync formula → bubble change. Value input stays untouched in this mode. */
   #onFormulaInput() {
     this.#fireChange();
+  }
+
+  /** Commit direct numeric entry on blur; empty clears the block, otherwise the value is clamped to bounds and written back to the field. */
+  #onManualInput() {
+    const raw = this.manualInput.value;
+    if (raw === '' || raw == null) {
+      this.clear();
+      return;
+    }
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return;
+    this.setValue(num);
+    this.manualInput.value = String(this.value);
   }
 
   /**

@@ -40,6 +40,12 @@
       {{> hmCombobox manualFormulaPool}}
     </div>
 
+    <div class="hm-ability-card-selector hm-ability-block-mode hm-ability-block-mode--manual-entry"
+      data-mode="manualEntry" {{#unless (eq method 'manualEntry')}}hidden{{/unless}}>
+      <input type="number" class="hm-ability-card-manual-input" data-manual-input inputmode="numeric"
+        min="{{min}}" max="{{max}}" value="{{value}}" aria-labelledby="{{id}}-label">
+    </div>
+
     <p class="hm-ability-card-blurb">{{localize blurbKey}}</p>
   </div>
 </div>

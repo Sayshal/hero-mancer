@@ -1,7 +1,7 @@
 import { MODULE } from '../constants.mjs';
 import { evaluateRoll } from '../utils/dice.mjs';
 
-const METHODS = ['standardArray', 'pointBuy', 'manualFormula'];
+const METHODS = ['standardArray', 'pointBuy', 'manualFormula', 'manualEntry'];
 
 /** @type {Object<string, string>} FontAwesome fallback per ability key for stats dnd5e doesn't ship an SVG icon for. */
 const ABILITY_ICON_FA_FALLBACKS = { hon: 'fa-solid fa-handshake', san: 'fa-solid fa-brain' };
@@ -108,7 +108,7 @@ export function buildStandardArrayPool(abilityCount) {
  * @returns {object} Render-ready abilities-tab context.
  */
 export function buildAbilitiesContext(draft = {}, classDoc = null) {
-  const allowed = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOWED_METHODS) ?? { standardArray: true, pointBuy: true, manualFormula: true };
+  const allowed = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOWED_METHODS) ?? { standardArray: true, pointBuy: true, manualFormula: true, manualEntry: true };
   const enabledMethods = METHODS.filter((m) => allowed[m] !== false);
   const method = enabledMethods.includes(draft.method) ? draft.method : (enabledMethods[0] ?? 'pointBuy');
   const abilityKeys = Object.keys(CONFIG.DND5E.abilities ?? {});

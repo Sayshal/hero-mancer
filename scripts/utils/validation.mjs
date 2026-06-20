@@ -185,7 +185,14 @@ function validateAbilities(root) {
   const method = root.querySelector('[data-abilities-method]')?.value ?? 'pointBuy';
   const blocks = [...root.querySelectorAll('[data-ability-block]')];
   if (!blocks.length) return { valid: true, missing: [], progress: 0, weight: 0 };
-  const result = method === 'pointBuy' ? validatePointBuy(root, blocks) : method === 'standardArray' ? validateStandardArray(root, blocks) : validateManualFormula(blocks);
+  const result =
+    method === 'pointBuy'
+      ? validatePointBuy(root, blocks)
+      : method === 'standardArray'
+        ? validateStandardArray(root, blocks)
+        : method === 'manualEntry'
+          ? validateManualEntry(blocks)
+          : validateManualFormula(blocks);
   return { ...result, weight: blocks.length };
 }
 
@@ -228,6 +235,22 @@ function validateManualFormula(blocks) {
   const rolled = blocks.filter((b) => b.dataset.rolled === '1').length;
   const valid = rolled === blocks.length;
   return { valid, missing: valid ? [] : ['HEROMANCER.App.Validation.ManualFormula'], progress: rolled / blocks.length };
+}
+
+/**
+ * Manual-entry completion: every block holds an integer within the configured MIN/MAX bounds.
+ * @param {HTMLElement[]} blocks Ability-block elements.
+ * @returns {TabValidation} Result.
+ */
+function validateManualEntry(blocks) {
+  const min = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.ABILITY_SCORE_MIN) ?? 8);
+  const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.ABILITY_SCORE_MAX) ?? 15);
+  const filled = blocks.filter((b) => {
+    const v = Number(b.querySelector('[data-value-input]')?.value);
+    return Number.isFinite(v) && v >= min && v <= max;
+  }).length;
+  const valid = filled === blocks.length;
+  return { valid, missing: valid ? [] : ['HEROMANCER.App.Validation.ManualEntry'], progress: filled / blocks.length };
 }
 
 /**

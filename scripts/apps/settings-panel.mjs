@@ -313,7 +313,8 @@ export class SettingsPanel extends HMDialog {
       ctx.methods = [
         { key: 'standardArray', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.StandardArray', checked: v.standardArray !== false },
         { key: 'pointBuy', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.PointBuy', checked: v.pointBuy !== false },
-        { key: 'manualFormula', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.Manual', checked: v.manualFormula !== false }
+        { key: 'manualFormula', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.Manual', checked: v.manualFormula !== false },
+        { key: 'manualEntry', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.ManualEntry', checked: v.manualEntry !== false }
       ];
     }
     if (row.type === 'allowedHpMethods') {
@@ -650,7 +651,7 @@ export class SettingsPanel extends HMDialog {
       if (select) select.value = value ?? '';
     } else if (type === 'allowedMethods') {
       const v = value || {};
-      for (const m of ['standardArray', 'pointBuy', 'manualFormula']) {
+      for (const m of ['standardArray', 'pointBuy', 'manualFormula', 'manualEntry']) {
         const input = form.querySelector(`input[name="allowedMethods.${m}"]`);
         if (input) input.checked = v[m] !== false;
       }
@@ -729,7 +730,7 @@ export class SettingsPanel extends HMDialog {
       if (!Number.isFinite(value)) return;
     } else if (type === 'allowedMethods') {
       const flat = data.allowedMethods || {};
-      value = { standardArray: !!flat.standardArray, pointBuy: !!flat.pointBuy, manualFormula: !!flat.manualFormula };
+      value = { standardArray: !!flat.standardArray, pointBuy: !!flat.pointBuy, manualFormula: !!flat.manualFormula, manualEntry: !!flat.manualEntry };
     } else if (type === 'allowedHpMethods') {
       const flat = data.allowedHpMethods || {};
       value = { average: !!flat.average, max: !!flat.max, manual: !!flat.manual };

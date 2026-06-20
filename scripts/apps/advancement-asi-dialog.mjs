@@ -55,12 +55,15 @@ export class AdvancementAsiDialog extends HMDialog {
         const base = Number(this.baseScores[key]) || 0;
         const finalScore = base + fixed + value;
         const finalMod = Math.floor((finalScore - 10) / 2);
-        const isDisabled = this.locked.has(key) || fixed > 0;
+        const locked = this.locked.has(key);
+        const isDisabled = locked || fixed > 0;
         return {
           key,
           label: _loc(cfg.label),
           value,
           fixed,
+          locked,
+          assignable: !locked && fixed === 0 && this.spec.cap > 0,
           finalScore,
           finalModLabel: this.#formatMod(finalMod),
           canIncrement: !isDisabled && value < this.spec.cap && remaining > 0 && finalScore < 20,

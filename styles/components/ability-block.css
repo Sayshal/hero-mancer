@@ -300,6 +300,11 @@
   width: 8rem;
 }
 
+.hm-ability-card-manual-input {
+  width: 8rem;
+  text-align: center;
+}
+
 .hm-ability-card .hm-combobox-option {
   text-align: left;
 }

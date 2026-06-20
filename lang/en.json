@@ -328,6 +328,7 @@
         "PointBuy": "Point buy budget not fully spent",
         "StandardArray": "Assign every standard-array value to an ability",
         "ManualFormula": "Roll every ability",
+        "ManualEntry": "Enter a value within range for every ability",
         "ConfirmIncomplete": {
           "Title": "Create anyway?",
           "Body": "Some required choices are still incomplete:",
@@ -394,7 +395,8 @@
         "Method": {
           "standardArray": "Standard Array",
           "pointBuy": "Point Buy",
-          "manualFormula": "Manual Formula"
+          "manualFormula": "Manual Formula",
+          "manualEntry": "Manual Entry"
         },
         "PointsRemaining": "Points remaining",
         "RollAll": "Roll stats",
@@ -554,6 +556,7 @@
           "Title": "Ability Score Improvement",
           "Remaining": "{remaining} / {total} points remaining",
           "FixedTag": "+{value} granted",
+          "Locked": "Ability cannot be improved.",
           "Undo": "Reset choice"
         },
         "FeatDialog": {
@@ -865,7 +868,8 @@
         "AllowedMethods": {
           "StandardArray": "Standard Array",
           "PointBuy": "Point Buy",
-          "Manual": "Manual Roll"
+          "Manual": "Manual Roll",
+          "ManualEntry": "Manual Entry"
         },
         "ArtPickerRoot": {
           "Browse": "Browse"
