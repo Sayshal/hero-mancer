@@ -1338,6 +1338,9 @@ export class HeroMancer extends HMDialog {
       this.#hpMethodReset = true;
       this.render({ parts: ['hp'] });
     });
+    select.closest('.hm-hp-summary-method')?.addEventListener('click', (event) => {
+      if (event.target !== select) select.showPicker();
+    });
   }
 
   /** Re-render the level-up + dependent tabs when the class picker selection changes so preview, advancements, hp, and finalize refresh for the new pick. */
