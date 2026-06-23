@@ -28,7 +28,7 @@ export function applyDraft(draft, formElement) {
  */
 function applySingle(elem, value) {
   const tag = elem.tagName.toLowerCase();
-  if (elem.type === 'checkbox') elem.checked = Boolean(value);
+  if (elem.type === 'checkbox') elem.checked = Array.isArray(value) ? value.includes(elem.value) : Boolean(value);
   else if (elem.type === 'radio') elem.checked = String(elem.value) === String(value);
   else if (tag === 'color-picker' || elem.type === 'color') elem.value = value || '#000000';
   else elem.value = value ?? '';

@@ -54,7 +54,7 @@ export async function buildEquipmentContext({ classDoc, backgroundDoc, speciesDo
     const sectionGroups = [];
     const traitLinks = buildTraitLinkMap(doc);
     for (const node of nodes) walkNode(node, tag, draft, sectionGroups, grants, profs, noneRefunds, traitLinks);
-    if (grants.length) sectionGroups.push(buildGrantsGroup(grants, tag));
+    if (grants.length) sectionGroups.push(buildGrantsGroup(grants, tag, draft));
     section.groups = sectionGroups;
     section.noneRefunds = noneRefunds;
     for (const g of sectionGroups) groups.push({ ...g, sourceTag: tag });
@@ -205,18 +205,21 @@ function buildCategoryTileGroup(node, tag, draft, profs, refund, traitLinks) {
 }
 
 /**
- * Build the per-source "grants" multi-select tile group, pre-checked with every linked grant.
+ * Build the per-source "grants" multi-select tile group. Restores the saved selection when present, else pre-checks every linked grant.
  * @param {object[]} tiles Linked-grant tile specs.
  * @param {string} tag Source tag.
+ * @param {object} draft Saved equipment draft.
  * @returns {object} Tile-template context (`mode:'check'`).
  */
-function buildGrantsGroup(tiles, tag) {
+function buildGrantsGroup(tiles, tag, draft) {
   const name = `equipment.${tag}.grants`;
-  const value = tiles
-    .filter((t) => !t.disabled)
+  const stored = draft[`${tag}.grants`];
+  const selectedSet = stored === undefined ? null : new Set(String(stored).split(',').filter(Boolean));
+  const marked = tiles.map((t) => ({ ...t, selected: !t.disabled && (selectedSet ? selectedSet.has(t.value) : true) }));
+  const value = marked
+    .filter((t) => t.selected)
     .map((t) => t.value)
     .join(',');
-  const marked = tiles.map((t) => ({ ...t, selected: !t.disabled }));
   return { id: `hm-eq-${tag}-grants`, name, value, label: _loc(`HEROMANCER.App.Equipment.granted-${tag}`), mode: 'check', required: false, tiles: marked };
 }
 

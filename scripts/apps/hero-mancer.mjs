@@ -916,7 +916,7 @@ export class HeroMancer extends HMDialog {
    */
   #snapshotForm() {
     const out = {};
-    for (const el of this.element.querySelectorAll('input[name], select[name], textarea[name], prose-mirror[name]')) {
+    for (const el of this.element.querySelectorAll('input[name], select[name], textarea[name], prose-mirror[name], color-picker[name]')) {
       if (el.type === 'checkbox') {
         if (!Array.isArray(out[el.name])) out[el.name] = [];
         if (el.checked) out[el.name].push(el.value);
