@@ -1,10 +1,17 @@
 **New Features**
-- Added a Manual Entry ability score method that lets players type scores directly, clamped to the configured minimum and maximum.
+- Added a Custom Background entry to the background picker that opens a builder for abilities, skills, tools, and an origin feat, then stores the generated background in a world pack.
+- Added GM settings for the custom background limits: ability choices, points, cap, skill/tool/feat counts, and starting gold.
 
 **Bug Fixes**
-- Fixed a crash when selecting a class whose starting equipment offers an open category choice, such as any spellcasting focus.
-- Fixed the equipment purchase filter and sort menus clipping behind the sidebar on narrow windows.
+- An out-of-range manually entered ability score no longer blocks Approve in GM review.
+- Fixed character data loss in the GM review flow: player color-picker values now persist, equipment grants restore from the draft, and single checkboxes restore correctly.
+- Fixed the expertise tile so stale picks auto-clear when a skill is no longer proficient, and current picks are listed in the picker.
+- Made the HP method caret clickable so clicking anywhere on the method chip opens the method select.
 
 **Changes**
-- Locked abilities in the ability score improvement dialog are now greyed out with a tooltip, and abilities open for assignment are highlighted.
+- Fixed Ability Score Improvements now auto-apply, and ScaleValue and ModifyItem advancements auto-apply.
+- Prewarmed identity and equipment indexes for faster cold GM review opens, with a loading splash on cold open and a Randomization complete toast after Randomize All.
+- Reopening Tokenize now reloads saved Tokenizer 2 layers for non-destructive re-edit.
+- Reworded the equipment wealth note to say remaining gold will be added to sheet.
+- The skip-spell-handoff checkbox in Finalize now shows only for spellcasters when the Spell Book module is active.
 - Updated the Brazilian Portuguese (pt-BR) translation.
