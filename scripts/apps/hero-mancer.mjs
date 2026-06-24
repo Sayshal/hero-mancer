@@ -1318,6 +1318,7 @@ export class HeroMancer extends HMDialog {
     this.#wireEquipmentShop();
     this.#wireEquipmentGrants();
     this.#wireAdvancementChoosers();
+    this.#reconcileAdvancementPickers();
     this.#wireAdvancementAsiMode();
     this.#wireLevelUpPicker();
     applyItemLinks(this.element);
@@ -1468,6 +1469,33 @@ export class HeroMancer extends HMDialog {
     });
     const rect = this.element.getBoundingClientRect();
     dialog.render({ force: true, position: { left: rect.left, top: rect.top, width: rect.width, height: rect.height } });
+  }
+
+  /** Reconcile advancement picker inputs after a re-render, dropping any selection no longer offered as an option (Foundry preserves the stale form value otherwise). */
+  #reconcileAdvancementPickers() {
+    for (const trigger of this.element.querySelectorAll('[data-tab="advancements"] [data-picker-trigger][data-picker-name]')) {
+      const input = this.element.querySelector(`input[type="hidden"][name="${CSS.escape(trigger.dataset.pickerName)}"]`);
+      if (!input?.value) continue;
+      let allowed;
+      try {
+        allowed = new Set(JSON.parse(trigger.dataset.pickerOptions ?? '[]').map((o) => o.value));
+      } catch {
+        continue;
+      }
+      const next = input.value
+        .split(',')
+        .filter((v) => v && allowed.has(v))
+        .join(',');
+      if (next === input.value) continue;
+      input.value = next;
+      const row = trigger.closest('[data-advancement-row]');
+      const body = row?.querySelector('[data-advancement-body]');
+      const hidden = body?.querySelector('input[data-advancement-hidden]');
+      if (body && hidden) {
+        const payload = picksFromRow(row, body.dataset.kind);
+        hidden.value = payload ? JSON.stringify(payload) : '';
+      }
+    }
   }
 
   /** Bridge per-kind chooser inputs on the advancements tab into the row's JSON-payload hidden input. Delegated so partial re-renders don't drop the binding. */
