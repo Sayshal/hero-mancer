@@ -27,6 +27,7 @@ import { initializeLogger } from './scripts/utils/logger.mjs';
 import { checkReleaseMessage } from './scripts/utils/release-message.mjs';
 import './scripts/wizard/_module.mjs';
 import './styles/apps/advancement-asi-dialog.css';
+import './styles/apps/background-builder-dialog.css';
 import './styles/apps/hero-mancer.css';
 import './styles/apps/pending-approvals.css';
 import './styles/apps/settings-panel.css';

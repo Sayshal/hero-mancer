@@ -1,0 +1,72 @@
+<div class="hm-dialog-body hm-background-builder-body standard-form">
+  <div class="form-group">
+    <label for="hm-bg-name">{{localize 'HEROMANCER.App.Identity.CustomBackground.Name'}}</label>
+    <div class="form-fields">
+      <input id="hm-bg-name" type="text" name="name"
+        placeholder="{{localize 'HEROMANCER.App.Identity.CustomBackground.DefaultName'}}">
+    </div>
+  </div>
+  <div class="form-group stacked">
+    <label for="hm-bg-desc">{{localize 'HEROMANCER.App.Identity.CustomBackground.Description.Field'}}</label>
+    <p class="hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.Description.Hint'}}</p>
+    <textarea id="hm-bg-desc" name="description" rows="3"
+      placeholder="{{localize 'HEROMANCER.App.Identity.CustomBackground.Description.Placeholder'}}"></textarea>
+  </div>
+  <fieldset class="hm-fieldset">
+    <legend>{{localize 'HEROMANCER.App.Identity.CustomBackground.Abilities'}}
+      <span
+        class="hm-bg-hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.AbilityHint' choose=abilityChoices points=abilityPoints cap=abilityCap}}</span>
+    </legend>
+    <div class="hm-bg-checks">
+      {{#each abilities}}
+        <label class="hm-bg-check"><input type="checkbox" name="abilities" value="{{this.value}}">
+          {{this.label}}</label>
+      {{/each}}
+    </div>
+  </fieldset>
+  <fieldset class="hm-fieldset">
+    <legend>{{localize 'HEROMANCER.App.Identity.CustomBackground.Skills'}}
+      <span class="hm-bg-hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.PickN' count=skillCount}}</span>
+    </legend>
+    <div class="hm-bg-checks">
+      {{#each skills}}
+        <label class="hm-bg-check"><input type="checkbox" name="skills" value="{{this.value}}"> {{this.label}}</label>
+      {{/each}}
+    </div>
+  </fieldset>
+  {{#if showTool}}
+    <fieldset class="hm-fieldset hm-bg-tool">
+      <legend>{{localize 'HEROMANCER.App.Identity.CustomBackground.Tool'}}
+        <span class="hm-bg-hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.PickN' count=toolCount}}</span>
+      </legend>
+      <multi-select id="hm-bg-tool" name="tool">
+        {{#each tools}}
+          {{#if this.label}}
+            <optgroup label="{{this.label}}">
+              {{#each this.options}}
+                <option value="{{this.value}}">{{this.label}}</option>
+              {{/each}}
+            </optgroup>
+          {{else}}
+            {{#each this.options}}
+              <option value="{{this.value}}">{{this.label}}</option>
+            {{/each}}
+          {{/if}}
+        {{/each}}
+      </multi-select>
+      <ul class="hm-bg-feats" data-bg-tools></ul>
+    </fieldset>
+  {{/if}}
+  {{#if showFeat}}
+    <fieldset class="hm-fieldset">
+      <legend>{{localize 'HEROMANCER.App.Identity.CustomBackground.Feat'}}
+        <span class="hm-bg-hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.PickN' count=featCount}}</span>
+      </legend>
+      <button type="button" class="hm-bg-feat-add" data-bg-feat-add>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        {{localize 'HEROMANCER.App.Identity.CustomBackground.ChooseFeat'}}
+      </button>
+      <ul class="hm-bg-feats" data-bg-feats></ul>
+    </fieldset>
+  {{/if}}
+</div>

@@ -1,0 +1,90 @@
+.hm-background-builder-body {
+  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  padding: 0.75rem 1rem 1rem;
+  overflow-y: auto;
+}
+
+.hm-background-builder-body .hm-bg-hint {
+  color: var(--hero-mancer-fg-muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.hm-bg-checks {
+  gap: 0.25rem 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  display: grid;
+}
+
+.hm-bg-check {
+  gap: 0.4rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.hm-bg-check input:disabled + * {
+  opacity: 0.4;
+}
+
+.hm-bg-check:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-bg-feat-add {
+  align-self: flex-start;
+  width: auto;
+  margin-top: 0.35rem;
+}
+
+.hm-bg-tool multi-select > .tags {
+  display: none;
+}
+
+.hm-bg-feats {
+  gap: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-bg-feat-line {
+  gap: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.3rem 0.15rem 0.5rem;
+  border: 0.0625rem solid var(--hero-mancer-border);
+  border-radius: 0.4rem;
+  white-space: nowrap;
+  background: none;
+}
+
+.hm-bg-remove {
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: center;
+  width: 1rem;
+  height: 1rem;
+  color: var(--hero-mancer-fg-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.hm-bg-remove:hover {
+  color: var(--hero-mancer-danger-fg);
+}
+
+.hm-background-builder-footer {
+  gap: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 0.0625rem solid var(--hero-mancer-border);
+}

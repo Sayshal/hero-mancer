@@ -45,6 +45,7 @@ import { applyDraft } from '../wizard/restore.mjs';
 import { WizardStateMachine } from '../wizard/state-machine.mjs';
 import { AdvancementAsiDialog } from './advancement-asi-dialog.mjs';
 import { AdvancementFeatDialog } from './advancement-feat-dialog.mjs';
+import { BackgroundBuilderDialog } from './background-builder-dialog.mjs';
 import { CompareDialog } from './compare-dialog.mjs';
 import { HMDialog, HMPrompt } from './dialog.mjs';
 
@@ -2061,6 +2062,10 @@ export class HeroMancer extends HMDialog {
       if (!hidden.dataset.identityWired) {
         hidden.dataset.identityWired = '1';
         hidden.addEventListener('change', () => {
+          if (sectionId === 'background' && hidden.value === MODULE.CUSTOM_BACKGROUND_VALUE) {
+            this.#openBackgroundBuilder(section);
+            return;
+          }
           this.#renderIdentityDetail(sectionId, hidden.value);
           this.#syncIdentitySubtab(sectionId, hidden.value);
           if (sectionId === 'background') requestAnimationFrame(() => this.render({ parts: ['equipment'] }));
@@ -2122,6 +2127,23 @@ export class HeroMancer extends HMDialog {
       const activeUuid = descEmbed?.dataset.uuid;
       if (activeUuid && descEmbed.children.length === 0) this.#renderIdentityDetail('subclass', activeUuid);
     }
+  }
+
+  /**
+   * Open the custom-background builder. Clears the sentinel selection first so cancelling leaves no background chosen; on create, reindexes backgrounds and selects the new item.
+   * @param {HTMLElement} section Background identity section element.
+   */
+  #openBackgroundBuilder(section) {
+    const combo = section.querySelector('[data-combobox]');
+    if (combo) Combobox.attach(combo).clear();
+    new BackgroundBuilderDialog({
+      onCreate: async (item) => {
+        await documentLoader.reindex('background');
+        await this.render({ parts: ['identity'] });
+        const fresh = this.element.querySelector('[data-identity-section="background"] [data-combobox]');
+        if (fresh) Combobox.attach(fresh).select(item.uuid);
+      }
+    }).render({ force: true });
   }
 
   /**

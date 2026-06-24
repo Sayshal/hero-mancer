@@ -27,14 +27,16 @@ export class AdvancementFeatDialog extends HMDialog {
    * @param {object} args.filters Shared filter state (mutated on user interaction).
    * @param {HTMLInputElement} args.hiddenInput Row's serialized-pick hidden input.
    * @param {Function} [args.onCommit] Optional callback after commit.
+   * @param {boolean} [args.keepOpen] Stay open after a pick so several feats can be chosen in one session.
    * @param {object} [options] AppV2 options.
    */
-  constructor({ buildContext, filters, hiddenInput, onCommit }, options = {}) {
+  constructor({ buildContext, filters, hiddenInput, onCommit, keepOpen = false }, options = {}) {
     super(options);
     this.buildContext = buildContext;
     this.filters = filters;
     this.hiddenInput = hiddenInput;
     this.onCommit = onCommit;
+    this.keepOpen = keepOpen;
   }
 
   /** @inheritdoc */
@@ -105,7 +107,7 @@ export class AdvancementFeatDialog extends HMDialog {
     this.hiddenInput.value = JSON.stringify({ type: 'feat', assignments: {}, feat: uuid });
     this.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
     this.onCommit?.();
-    this.close();
+    if (!this.keepOpen) this.close();
   }
 
   /**

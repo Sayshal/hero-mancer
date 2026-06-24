@@ -257,6 +257,41 @@
       "Identity": {
         "PickPlaceholder": "Pick one...",
         "SubclassPlaceholder": "Pick a subclass...",
+        "CustomBackground": {
+          "Option": "Custom Background",
+          "OptionHint": "Build your own background.",
+          "Title": "Custom Background Builder",
+          "PackLabel": "Hero Mancer 2",
+          "FolderName": "Custom Backgrounds",
+          "Name": "Name",
+          "DefaultName": "Custom Background",
+          "Abilities": "Ability Scores",
+          "Skills": "Skill Proficiencies",
+          "Tool": "Tool Proficiency",
+          "Feat": "Origin Feat",
+          "PickN": "(choose {count})",
+          "AbilityHint": "(choose {choose}; spend {points}, max {cap} each)",
+          "Description": {
+            "Field": "Description",
+            "Placeholder": "Describe your background's story...",
+            "Hint": "A summary of the abilities, feat, proficiencies, and gold is added automatically.",
+            "Abilities": "Ability Scores",
+            "Feat": "Feat",
+            "Skills": "Skill Proficiencies",
+            "Tool": "Tool Proficiency",
+            "Equipment": "Equipment"
+          },
+          "ChooseFeat": "Choose Feat",
+          "Remove": "Remove",
+          "Create": "Create Background",
+          "Cancel": "Cancel",
+          "Errors": {
+            "Abilities": "Choose exactly {count} ability scores.",
+            "Skills": "Choose exactly {count} skills.",
+            "Tool": "Choose exactly {count} tool proficiencies.",
+            "Feat": "Choose exactly {count} origin feats."
+          }
+        },
         "Caster": {
           "full": "Full Caster",
           "half": "Half Caster",
@@ -848,6 +883,7 @@
         "Group": {
           "General": "General",
           "Identity": "Identity",
+          "CustomBackground": "Custom Background",
           "Content": "Content",
           "RequiredFields": "Required Fields",
           "Approval": "Approval",
@@ -958,6 +994,36 @@
       "StandardArrayValues": {
         "Name": "Standard Array Formula",
         "Hint": "Comma separated scores your players must choose from."
+      },
+      "CustomBackground": {
+        "AbilityChoices": {
+          "Name": "Ability Choices",
+          "Hint": "How many ability scores a player selects when building a custom background."
+        },
+        "AbilityPoints": {
+          "Name": "Ability Points",
+          "Hint": "Total ability-score points distributed across the chosen abilities."
+        },
+        "AbilityCap": {
+          "Name": "Ability Cap",
+          "Hint": "Maximum points that may be placed in a single ability."
+        },
+        "SkillCount": {
+          "Name": "Skill Proficiencies",
+          "Hint": "How many skill proficiencies a custom background grants."
+        },
+        "ToolCount": {
+          "Name": "Tool Proficiencies",
+          "Hint": "How many tool proficiencies a custom background grants."
+        },
+        "FeatCount": {
+          "Name": "Origin Feats",
+          "Hint": "How many origin feats a custom background grants."
+        },
+        "Budget": {
+          "Name": "Starting Gold",
+          "Hint": "Gold pieces a custom background grants."
+        }
       },
       "AbilityScores": {
         "Default": {
