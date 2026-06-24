@@ -1,4 +1,5 @@
 import { buildProficiencyCategories } from '../data/proficiency-extractor.mjs';
+import { isSpellBookActive } from '../integrations/spell-book.mjs';
 
 /**
  * Format a race document's movement block into a readable string.
@@ -114,6 +115,7 @@ export function buildFinalizeContext({
   return {
     effectiveLevel,
     isSpellcaster,
+    showSpellHandoff: isSpellcaster && isSpellBookActive(),
     skipSpellHandoff,
     basicInfo: {
       characterName: start.characterName || start['character-name'] || '',
