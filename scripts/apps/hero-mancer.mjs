@@ -2642,7 +2642,16 @@ export class HeroMancer extends HMDialog {
   static async #onTokenize() {
     const root = this.element;
     const characterArt = root.querySelector('#character-art-path');
-    const result = await openTokenizer({ name: root.querySelector('#character-name')?.value?.trim(), sourceImage: characterArt?.value?.trim() });
+    let layerStack;
+    const layersRaw = root.querySelector('[data-tokenizer-layers]')?.value?.trim();
+    if (layersRaw) {
+      try {
+        layerStack = JSON.parse(layersRaw);
+      } catch {
+        layerStack = undefined;
+      }
+    }
+    const result = await openTokenizer({ name: root.querySelector('#character-name')?.value?.trim(), sourceImage: characterArt?.value?.trim(), layerStack });
     if (!result) return;
     const write = (input, value) => {
       if (!input || !value) return;
