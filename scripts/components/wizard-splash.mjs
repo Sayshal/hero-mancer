@@ -8,13 +8,15 @@ export function showWizardSplash() {
   overlay.innerHTML = Handlebars.partials.hmWizardSplash({});
   document.body.appendChild(overlay);
   const fill = overlay.querySelector('[data-splash-fill]');
+  fill.classList.add('is-indeterminate');
 
   /**
-   * Advance the progress bar.
+   * Advance the progress bar, switching it from indeterminate to determinate.
    * @param {number} done Completed steps.
    * @param {number} total Total steps.
    */
   function setProgress(done, total) {
+    fill.classList.remove('is-indeterminate');
     fill.style.width = `${total ? Math.round((Math.min(done, total) / total) * 100) : 100}%`;
   }
 
@@ -23,6 +25,7 @@ export function showWizardSplash() {
    * @returns {Promise<void>}
    */
   async function reveal() {
+    fill.classList.remove('is-indeterminate');
     fill.style.width = '100%';
     overlay.classList.add('is-done');
     await new Promise((resolve) => {

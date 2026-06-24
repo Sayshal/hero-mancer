@@ -1,4 +1,5 @@
 import { MODULE } from '../constants.mjs';
+import { log } from '../utils/logger.mjs';
 import {
   approveSubmission,
   clearArchive,
@@ -10,6 +11,10 @@ import {
   rejectSubmission,
   restoreFromArchive
 } from '../domain/approval.mjs';
+import { showWizardSplash } from '../components/wizard-splash.mjs';
+import { initShopIndex } from '../domain/equipment-shop.mjs';
+import { identityIndexesReady, preloadIdentityDocs } from '../domain/identity-tab.mjs';
+import { initLookup } from '../domain/quartermaster.mjs';
 import { HMDialog, HMPrompt } from './dialog.mjs';
 import { HeroMancer } from './hero-mancer.mjs';
 
@@ -38,6 +43,12 @@ export class PendingApprovals extends HMDialog {
   };
 
   #showArchive = false;
+
+  /** @inheritdoc */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    Promise.all([preloadIdentityDocs(), initLookup(), initShopIndex()]).catch((err) => log(2, 'approval prewarm failed:', err));
+  }
 
   /** @inheritdoc */
   async _prepareContext(options) {
@@ -104,12 +115,12 @@ export class PendingApprovals extends HMDialog {
   }
 
   /**
-   * Per-row Review action. Opens the per-submission review window when available.
+   * Per-row Review action. Shows the loading splash, then opens the per-submission review window.
    * @param {Event} _event Click event.
    * @param {HTMLElement} target Action element.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  static #onReview(_event, target) {
+  static async #onReview(_event, target) {
     const pageId = target.closest('[data-page-id]')?.dataset.pageId;
     if (!pageId) return;
     const id = `${MODULE.ID}-wizard-review-${pageId}`;
@@ -121,7 +132,18 @@ export class PendingApprovals extends HMDialog {
     const page = getPendingSubmissions().find((p) => p.id === pageId);
     const flagData = page?.getFlag(MODULE.ID, SUBMISSION_FLAG);
     const payload = decodePayload(flagData?.payload);
-    new HeroMancer({ reviewMode: { pageId, payload, submitterUserId: flagData?.submitterUserId } }).render({ force: true });
+    const reviewMode = { pageId, payload, submitterUserId: flagData?.submitterUserId };
+    if (identityIndexesReady()) {
+      await new HeroMancer({ reviewMode }).render({ force: true });
+      return;
+    }
+    const splash = showWizardSplash();
+    try {
+      await preloadIdentityDocs((done, total) => splash.setProgress(done, total)).catch(() => {});
+      await new HeroMancer({ reviewMode }).render({ force: true });
+    } finally {
+      await splash.reveal();
+    }
   }
 
   /**

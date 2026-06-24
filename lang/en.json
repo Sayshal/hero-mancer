@@ -326,6 +326,7 @@
       "Randomize": {
         "All": "Randomize",
         "Failed": "Randomize could not finish. Some selections may be incomplete.",
+        "Complete": "Randomization complete.",
         "ConfirmTitle": "Randomize",
         "ConfirmBody": "Randomizes: name, identity, ability scores, and hit points.\nNot touched: Equipment, Biography, and Advancements."
       },

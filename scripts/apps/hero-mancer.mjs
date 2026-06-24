@@ -2615,6 +2615,7 @@ export class HeroMancer extends HMDialog {
     const proceed = await HMPrompt.confirm({ window: { title: 'HEROMANCER.App.Randomize.ConfirmTitle' }, body: _loc('HEROMANCER.App.Randomize.ConfirmBody'), modal: true });
     if (!proceed) return;
     await randomizeAll(this);
+    ui.notifications.info('HEROMANCER.App.Randomize.Complete', { localize: true });
   }
 
   /**
