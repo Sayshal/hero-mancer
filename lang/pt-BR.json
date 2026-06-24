@@ -257,6 +257,41 @@
       "Identity": {
         "PickPlaceholder": "Escolha um...",
         "SubclassPlaceholder": "Escolha uma subclasse...",
+        "CustomBackground": {
+          "Option": "Antecedente Personalizado",
+          "OptionHint": "Crie seu próprio antecedente.",
+          "Title": "Construtor de Antecedente Personalizado",
+          "PackLabel": "Hero Mancer 2",
+          "FolderName": "Antecedentes Personalizados",
+          "Name": "Nome",
+          "DefaultName": "Antecedente Personalizado",
+          "Abilities": "Valores de Atributos",
+          "Skills": "Proficiências em Perícias",
+          "Tool": "Proficiência com Ferramenta",
+          "Feat": "Talento de Origem",
+          "PickN": "(escolha {count})",
+          "AbilityHint": "(escolha {choose}; distribua {points}, máx. {cap} cada)",
+          "Description": {
+            "Field": "Descrição",
+            "Placeholder": "Descreva a história do seu antecedente...",
+            "Hint": "Um resumo dos atributos, talento, proficiências e ouro é adicionado automaticamente.",
+            "Abilities": "Valores de Atributos",
+            "Feat": "Talento",
+            "Skills": "Proficiências em Perícias",
+            "Tool": "Proficiência com Ferramenta",
+            "Equipment": "Equipamento"
+          },
+          "ChooseFeat": "Escolher Talento",
+          "Remove": "Remover",
+          "Create": "Criar Antecedente",
+          "Cancel": "Cancelar",
+          "Errors": {
+            "Abilities": "Escolha exatamente {count} atributos.",
+            "Skills": "Escolha exatamente {count} perícias.",
+            "Tool": "Escolha exatamente {count} proficiência(s) com ferramenta.",
+            "Feat": "Escolha exatamente {count} talento(s) de origem."
+          }
+        },
         "Caster": {
           "full": "Full Caster",
           "half": "Half Caster",
@@ -291,6 +326,7 @@
       "Randomize": {
         "All": "Aleatorizar",
         "Failed": "A aleatorização não pôde ser concluída. Algumas seleções podem estar incompletas.",
+        "Complete": "Aleatorização concluída.",
         "ConfirmTitle": "Aleatorizar",
         "ConfirmBody": "Aleatoriza: nome, identidade, atributos e pontos de vida.\nNão altera: Equipamentos, Biografia e Progressões."
       },
@@ -429,7 +465,7 @@
         "WealthToggleLabel": "Usar Riqueza Inicial",
         "WealthSummaryRoll": "Rolar {formula} (média de {average} PO)",
         "WealthSummaryFlat": "{average} PO",
-        "WealthActiveNote": "Equipamento ignorado. A riqueza será concedida ao finalizar.",
+        "WealthActiveNote": "Equipamento ignorado. O ouro restante será adicionado à ficha.",
         "WealthRollButton": "Rolar Riqueza",
         "WealthRolledSummary": "Rolou {formula} = {value}",
         "WealthRollFlavor": "Riqueza inicial de {source}",
@@ -848,6 +884,7 @@
         "Group": {
           "General": "Geral",
           "Identity": "Identidade",
+          "CustomBackground": "Antecedente Personalizado",
           "Content": "Conteúdo",
           "RequiredFields": "Campos Obrigatórios",
           "Approval": "Aprovação",
@@ -958,6 +995,36 @@
       "StandardArrayValues": {
         "Name": "Fórmula do Modo Fixo",
         "Hint": "Valores separados por vírgulas que os jogadores devem escolher."
+      },
+      "CustomBackground": {
+        "AbilityChoices": {
+          "Name": "Escolhas de Atributos",
+          "Hint": "Quantos atributos um jogador pode selecionar ao criar um antecedente personalizado."
+        },
+        "AbilityPoints": {
+          "Name": "Pontos de Atributo",
+          "Hint": "Total de pontos de atributo distribuídos entre os atributos escolhidos."
+        },
+        "AbilityCap": {
+          "Name": "Limite de Atributo",
+          "Hint": "Máximo de pontos que podem ser atribuídos a um único atributo."
+        },
+        "SkillCount": {
+          "Name": "Proficiências em Perícias",
+          "Hint": "Quantas proficiências em perícias um antecedente personalizado concede."
+        },
+        "ToolCount": {
+          "Name": "Proficiências com Ferramenta",
+          "Hint": "Quantas proficiências em ferramentas um antecedente personalizado concede."
+        },
+        "FeatCount": {
+          "Name": "Talentos de Origem",
+          "Hint": "Quantos talentos de origem um antecedente personalizado concede."
+        },
+        "Budget": {
+          "Name": "Riqueza Inicial",
+          "Hint": "Peças de ouro concedidas por um antecedente personalizado."
+        }
       },
       "AbilityScores": {
         "Default": {
