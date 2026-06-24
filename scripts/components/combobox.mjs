@@ -204,22 +204,36 @@ export class Combobox {
   }
 
   /**
-   * Restore every row's pills, then hide trailing ones until each label fits. Reads are batched before writes so a full option list reflows once, not once per pill.
+   * Restore every row's pills, then hide trailing ones that overflow the tag track on a single line, collapsing the remainder into a `+N` chip.
    * @param {{label: ?HTMLElement, tags: ?HTMLElement}[]} rows Label/tags pairs to fit.
    */
   #fitRows(rows) {
+    const GAP = 4;
+    const MORE_RESERVE = 36;
     const valid = rows.filter((r) => r.label && r.tags);
-    for (const { tags } of valid) for (const pill of tags.querySelectorAll('.hm-combobox-option-tag')) pill.style.display = '';
-    const plans = valid.map(({ label, tags }) => {
+    for (const { tags } of valid) {
+      tags.querySelector('[data-tag-more]')?.remove();
+      for (const pill of tags.querySelectorAll('.hm-combobox-option-tag')) pill.style.display = '';
+    }
+    const plans = valid.map(({ tags }) => {
       const pills = Array.from(tags.querySelectorAll('.hm-combobox-option-tag'));
-      return { pills, overflow: label.scrollWidth - label.clientWidth, widths: pills.map((p) => p.offsetWidth + 4) };
+      return { tags, pills, avail: tags.clientWidth, total: tags.scrollWidth, widths: pills.map((p) => p.offsetWidth + GAP) };
     });
-    for (const { pills, overflow, widths } of plans) {
-      let freed = 0;
-      for (let i = pills.length - 1; i >= 0 && freed < overflow; i--) {
-        freed += widths[i];
+    for (const { tags, pills, avail, total, widths } of plans) {
+      if (!pills.length || total <= avail) continue;
+      let running = total;
+      let hidden = 0;
+      for (let i = pills.length - 1; i >= 0 && running > avail - MORE_RESERVE; i--) {
+        running -= widths[i];
         pills[i].style.display = 'none';
+        hidden++;
       }
+      if (!hidden) continue;
+      const more = document.createElement('span');
+      more.className = 'hm-combobox-option-tag';
+      more.dataset.tagMore = '';
+      more.textContent = `+${hidden}`;
+      (pills[0].parentElement ?? tags).append(more);
     }
   }
 

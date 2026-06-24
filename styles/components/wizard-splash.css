@@ -58,3 +58,19 @@
   background: var(--hero-mancer-accent);
   transition: width 0.3s ease;
 }
+
+.hm-wizard-splash-fill.is-indeterminate {
+  width: 40%;
+  animation: hm-splash-indeterminate 1.1s ease-in-out infinite;
+  transition: none;
+}
+
+@keyframes hm-splash-indeterminate {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(275%);
+  }
+}

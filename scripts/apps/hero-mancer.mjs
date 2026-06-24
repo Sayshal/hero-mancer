@@ -45,6 +45,7 @@ import { applyDraft } from '../wizard/restore.mjs';
 import { WizardStateMachine } from '../wizard/state-machine.mjs';
 import { AdvancementAsiDialog } from './advancement-asi-dialog.mjs';
 import { AdvancementFeatDialog } from './advancement-feat-dialog.mjs';
+import { BackgroundBuilderDialog } from './background-builder-dialog.mjs';
 import { CompareDialog } from './compare-dialog.mjs';
 import { HMDialog, HMPrompt } from './dialog.mjs';
 
@@ -916,7 +917,7 @@ export class HeroMancer extends HMDialog {
    */
   #snapshotForm() {
     const out = {};
-    for (const el of this.element.querySelectorAll('input[name], select[name], textarea[name], prose-mirror[name]')) {
+    for (const el of this.element.querySelectorAll('input[name], select[name], textarea[name], prose-mirror[name], color-picker[name]')) {
       if (el.type === 'checkbox') {
         if (!Array.isArray(out[el.name])) out[el.name] = [];
         if (el.checked) out[el.name].push(el.value);
@@ -1317,6 +1318,7 @@ export class HeroMancer extends HMDialog {
     this.#wireEquipmentShop();
     this.#wireEquipmentGrants();
     this.#wireAdvancementChoosers();
+    this.#reconcileAdvancementPickers();
     this.#wireAdvancementAsiMode();
     this.#wireLevelUpPicker();
     applyItemLinks(this.element);
@@ -1337,6 +1339,9 @@ export class HeroMancer extends HMDialog {
     select.addEventListener('change', () => {
       this.#hpMethodReset = true;
       this.render({ parts: ['hp'] });
+    });
+    select.closest('.hm-hp-summary-method')?.addEventListener('click', (event) => {
+      if (event.target !== select) select.showPicker();
     });
   }
 
@@ -1464,6 +1469,33 @@ export class HeroMancer extends HMDialog {
     });
     const rect = this.element.getBoundingClientRect();
     dialog.render({ force: true, position: { left: rect.left, top: rect.top, width: rect.width, height: rect.height } });
+  }
+
+  /** Reconcile advancement picker inputs after a re-render, dropping any selection no longer offered as an option (Foundry preserves the stale form value otherwise). */
+  #reconcileAdvancementPickers() {
+    for (const trigger of this.element.querySelectorAll('[data-tab="advancements"] [data-picker-trigger][data-picker-name]')) {
+      const input = this.element.querySelector(`input[type="hidden"][name="${CSS.escape(trigger.dataset.pickerName)}"]`);
+      if (!input?.value) continue;
+      let allowed;
+      try {
+        allowed = new Set(JSON.parse(trigger.dataset.pickerOptions ?? '[]').map((o) => o.value));
+      } catch {
+        continue;
+      }
+      const next = input.value
+        .split(',')
+        .filter((v) => v && allowed.has(v))
+        .join(',');
+      if (next === input.value) continue;
+      input.value = next;
+      const row = trigger.closest('[data-advancement-row]');
+      const body = row?.querySelector('[data-advancement-body]');
+      const hidden = body?.querySelector('input[data-advancement-hidden]');
+      if (body && hidden) {
+        const payload = picksFromRow(row, body.dataset.kind);
+        hidden.value = payload ? JSON.stringify(payload) : '';
+      }
+    }
   }
 
   /** Bridge per-kind chooser inputs on the advancements tab into the row's JSON-payload hidden input. Delegated so partial re-renders don't drop the binding. */
@@ -2058,6 +2090,10 @@ export class HeroMancer extends HMDialog {
       if (!hidden.dataset.identityWired) {
         hidden.dataset.identityWired = '1';
         hidden.addEventListener('change', () => {
+          if (sectionId === 'background' && hidden.value === MODULE.CUSTOM_BACKGROUND_VALUE) {
+            this.#openBackgroundBuilder(section);
+            return;
+          }
           this.#renderIdentityDetail(sectionId, hidden.value);
           this.#syncIdentitySubtab(sectionId, hidden.value);
           if (sectionId === 'background') requestAnimationFrame(() => this.render({ parts: ['equipment'] }));
@@ -2119,6 +2155,23 @@ export class HeroMancer extends HMDialog {
       const activeUuid = descEmbed?.dataset.uuid;
       if (activeUuid && descEmbed.children.length === 0) this.#renderIdentityDetail('subclass', activeUuid);
     }
+  }
+
+  /**
+   * Open the custom-background builder. Clears the sentinel selection first so cancelling leaves no background chosen; on create, reindexes backgrounds and selects the new item.
+   * @param {HTMLElement} section Background identity section element.
+   */
+  #openBackgroundBuilder(section) {
+    const combo = section.querySelector('[data-combobox]');
+    if (combo) Combobox.attach(combo).clear();
+    new BackgroundBuilderDialog({
+      onCreate: async (item) => {
+        await documentLoader.reindex('background');
+        await this.render({ parts: ['identity'] });
+        const fresh = this.element.querySelector('[data-identity-section="background"] [data-combobox]');
+        if (fresh) Combobox.attach(fresh).select(item.uuid);
+      }
+    }).render({ force: true });
   }
 
   /**
@@ -2590,6 +2643,7 @@ export class HeroMancer extends HMDialog {
     const proceed = await HMPrompt.confirm({ window: { title: 'HEROMANCER.App.Randomize.ConfirmTitle' }, body: _loc('HEROMANCER.App.Randomize.ConfirmBody'), modal: true });
     if (!proceed) return;
     await randomizeAll(this);
+    ui.notifications.info('HEROMANCER.App.Randomize.Complete', { localize: true });
   }
 
   /**
@@ -2617,7 +2671,16 @@ export class HeroMancer extends HMDialog {
   static async #onTokenize() {
     const root = this.element;
     const characterArt = root.querySelector('#character-art-path');
-    const result = await openTokenizer({ name: root.querySelector('#character-name')?.value?.trim(), sourceImage: characterArt?.value?.trim() });
+    let layerStack;
+    const layersRaw = root.querySelector('[data-tokenizer-layers]')?.value?.trim();
+    if (layersRaw) {
+      try {
+        layerStack = JSON.parse(layersRaw);
+      } catch {
+        layerStack = undefined;
+      }
+    }
+    const result = await openTokenizer({ name: root.querySelector('#character-name')?.value?.trim(), sourceImage: characterArt?.value?.trim(), layerStack });
     if (!result) return;
     const write = (input, value) => {
       if (!input || !value) return;

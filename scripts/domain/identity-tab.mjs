@@ -337,6 +337,14 @@ function buildSectionCombo(sectionId, type, selected, locked = null) {
   const entries = (documentLoader.getEntries(type) ?? []).filter((d) => d.uuid === selected || allowedByRuleset(d, locked));
   const options = entries.map((d) => ({ value: d.uuid, label: d.name, icon: d.img, description: shortDescription(d.system), ...buildIdentityTags(d, type) }));
   decoratePinnedOptions(options, sectionId);
+  if (type === 'background')
+    options.unshift({
+      value: MODULE.CUSTOM_BACKGROUND_VALUE,
+      label: _loc('HEROMANCER.App.Identity.CustomBackground.Option'),
+      iconClass: 'fa-solid fa-wand-magic-sparkles',
+      description: _loc('HEROMANCER.App.Identity.CustomBackground.OptionHint'),
+      noPin: true
+    });
   return {
     id: `identity-${sectionId}`,
     name: `identity.${sectionId}`,

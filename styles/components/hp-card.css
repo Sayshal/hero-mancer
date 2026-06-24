@@ -59,7 +59,6 @@
 .hm-hp-summary-method-caret {
   opacity: 0.7;
   font-size: 0.7em;
-  pointer-events: none;
 }
 
 .hm-wizard .hm-hp-summary-method select option {

@@ -13,10 +13,12 @@
           class="hm-combobox-option-tag">{{this}}</span>{{/each}}</span>{{/if}}
   {{#if opt.badge}}<span class="hm-combobox-option-badge">{{opt.badge}}</span>{{/if}}
   {{#if pinning.enabled}}
-    <button type="button" class="hm-combobox-option-pin {{#if opt.pinned}}is-pinned{{/if}}" data-pin-toggle
-      data-action="togglePin" data-category="{{pinning.category}}" data-uuid="{{opt.value}}" data-tooltip=""
-      aria-label="{{#if opt.pinned}}{{pinning.unpinTooltip}}{{else}}{{pinning.pinTooltip}}{{/if}}" tabindex="-1">
-      <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
-    </button>
+    {{#unless opt.noPin}}
+      <button type="button" class="hm-combobox-option-pin {{#if opt.pinned}}is-pinned{{/if}}" data-pin-toggle
+        data-action="togglePin" data-category="{{pinning.category}}" data-uuid="{{opt.value}}" data-tooltip=""
+        aria-label="{{#if opt.pinned}}{{pinning.unpinTooltip}}{{else}}{{pinning.pinTooltip}}{{/if}}" tabindex="-1">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+      </button>
+    {{/unless}}
   {{/if}}
 </li>

@@ -89,6 +89,18 @@ const TAB_SETTINGS = {
       ]
     },
     {
+      group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',
+      settings: [
+        { key: 'CUSTOM_BG_ABILITY_CHOICES', type: 'number' },
+        { key: 'CUSTOM_BG_ABILITY_POINTS', type: 'number' },
+        { key: 'CUSTOM_BG_ABILITY_CAP', type: 'number' },
+        { key: 'CUSTOM_BG_SKILL_COUNT', type: 'number' },
+        { key: 'CUSTOM_BG_TOOL_COUNT', type: 'number' },
+        { key: 'CUSTOM_BG_FEAT_COUNT', type: 'number' },
+        { key: 'CUSTOM_BG_BUDGET', type: 'number' }
+      ]
+    },
+    {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Content',
       settings: [
         { key: 'ENABLE_RANDOMIZE', type: 'boolean' },

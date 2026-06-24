@@ -294,7 +294,16 @@ export async function applySubclassFromIdentity(classItem, subclassUuid, effecti
 }
 
 /** @type {Set<string>} Advancement types whose grants/values dnd5e can populate from configuration alone (no user data). */
-const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
+const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait', 'ScaleValue', 'ModifyItem']);
+
+/**
+ * Whether an advancement is a fixed-value Ability Score Improvement (preset bonuses, no player choice). dnd5e fills these from `configuration.fixed` on an `initial` apply, so they belong on the auto path.
+ * @param {object} adv Advancement instance.
+ * @returns {boolean} True for a fixed ASI.
+ */
+function isFixedAsi(adv) {
+  return adv?.constructor?.typeName === 'AbilityScoreImprovement' && Object.values(adv.configuration?.fixed ?? {}).some((v) => v);
+}
 
 /**
  * Apply the HP advancement on a class item across every level up to its class level, using the per-slot HP-tab draft rolls.
@@ -352,7 +361,7 @@ async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, pr
       } else cap = totalLevel;
       for (const adv of Object.values(item.advancement?.byId ?? {})) {
         const type = adv.constructor?.typeName;
-        if (!AUTO_APPLY_TYPES.has(type)) continue;
+        if (!AUTO_APPLY_TYPES.has(type) && !isFixedAsi(adv)) continue;
         if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
         for (const level of advancementLevels(adv)) {
           if (level < 0 || level > cap) continue;

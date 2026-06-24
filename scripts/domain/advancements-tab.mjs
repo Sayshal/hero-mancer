@@ -696,7 +696,7 @@ function isRowDone(spec) {
     case 'item-choice':
       return spec.selected.length === spec.count && spec.selected.every(Boolean);
     case 'trait':
-      return spec.chosen.length === spec.count;
+      return spec.chosen.filter(Boolean).length === spec.count;
     case 'asi':
       if (spec.mode === 'asi') return spec.remaining === 0;
       if (spec.mode === 'feat') return Boolean(spec.feat);
@@ -883,6 +883,8 @@ async function decorateTraitSpec(row) {
   const poolSet = new Set(spec.pool);
   const baseChoices = poolSet.size ? await mixedChoices(poolSet) : null;
   let excludeKeys = grantedSet;
+  let pickerChoices = null;
+  const isExpertise = spec.mode === 'expertise' || spec.mode === 'forcedExpertise';
   if (baseChoices) {
     excludeKeys = expandGrantsToPoolKeys(grantedSet, baseChoices.asSet());
     const ownKeys = new Set([...excludeKeys, ...chosenList].filter(Boolean));
@@ -890,8 +892,24 @@ async function decorateTraitSpec(row) {
     const sameModeExternal = new Set([...(byMode[spec.mode] ?? [])].filter((k) => !ownKeys.has(k)));
     const draftProficient = new Set([...(byMode.default ?? [])].filter((k) => !ownKeys.has(k)));
     if (sameModeExternal.size) baseChoices.exclude(sameModeExternal);
+    const proficient = new Set(byMode.default ?? []);
+    if (isExpertise && row.actor) {
+      const { actorValues } = dnd5e.documents.Trait;
+      for (const trait of new Set([...baseChoices.asSet()].map((k) => k.split(':')[0]))) {
+        for (const [key, value] of Object.entries(await actorValues(row.actor, trait))) if (value >= 1) proficient.add(key);
+      }
+    }
+    if (isExpertise) {
+      pickerChoices = baseChoices.clone();
+      await restrictByActorProficiency(pickerChoices, spec.mode, row.actor, proficient);
+    }
     if (row.actor) await restrictByActorProficiency(baseChoices, spec.mode, row.actor, draftProficient);
-    else if (spec.mode === 'expertise' || spec.mode === 'forcedExpertise') await restrictByActorProficiency(baseChoices, spec.mode, null, draftProficient);
+    else if (isExpertise) await restrictByActorProficiency(baseChoices, spec.mode, null, draftProficient);
+    if (isExpertise) {
+      for (let i = 0; i < chosenList.length; i++) {
+        if (chosenList[i] && !lockedSlots.has(i) && !proficient.has(chosenList[i])) chosenList[i] = '';
+      }
+    }
   }
   const slots = [];
   for (let i = 0; i < spec.count; i++) {
@@ -922,7 +940,7 @@ async function decorateTraitSpec(row) {
   spec.chosen = chosenList;
   spec.remaining = Math.max(0, spec.count - chosenList.filter(Boolean).length);
   if (baseChoices) {
-    const fullPool = baseChoices.clone();
+    const fullPool = (pickerChoices ?? baseChoices).clone();
     fullPool.exclude(new Set([...excludeKeys]));
     spec.fullOptions = fullPool.asOptions();
   } else {
