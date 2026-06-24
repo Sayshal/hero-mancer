@@ -465,7 +465,7 @@
         "WealthToggleLabel": "Take starting wealth instead",
         "WealthSummaryRoll": "Roll {formula} (avg {average} gp)",
         "WealthSummaryFlat": "{average} gp",
-        "WealthActiveNote": "Equipment skipped - wealth will be granted on finalize.",
+        "WealthActiveNote": "Equipment skipped - remaining gold will be added to sheet.",
         "WealthRollButton": "Roll wealth",
         "WealthRolledSummary": "Rolled {formula} = {value}",
         "WealthRollFlavor": "{source} starting wealth",
