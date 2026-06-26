@@ -1,17 +1,9 @@
 **New Features**
-- Added a Custom Background entry to the background picker that opens a builder for abilities, skills, tools, and an origin feat, then stores the generated background in a world pack.
-- Added GM settings for the custom background limits: ability choices, points, cap, skill/tool/feat counts, and starting gold.
+- Added a GM setting to disable custom backgrounds, removing the Custom Background option from the background picker.
+- Added a size picker on the Advancements tab for species that offer more than one size; single-size species apply automatically.
 
 **Bug Fixes**
-- An out-of-range manually entered ability score no longer blocks Approve in GM review.
-- Fixed character data loss in the GM review flow: player color-picker values now persist, equipment grants restore from the draft, and single checkboxes restore correctly.
-- Fixed the expertise tile so stale picks auto-clear when a skill is no longer proficient, and current picks are listed in the picker.
-- Made the HP method caret clickable so clicking anywhere on the method chip opens the method select.
+- Fixed item-choice advancement picks, such as a Druid's Primal Order, being silently dropped on dnd5e 5.x.
 
 **Changes**
-- Fixed Ability Score Improvements now auto-apply, and ScaleValue and ModifyItem advancements auto-apply.
-- Prewarmed identity and equipment indexes for faster cold GM review opens, with a loading splash on cold open and a Randomization complete toast after Randomize All.
-- Reopening Tokenize now reloads saved Tokenizer 2 layers for non-destructive re-edit.
-- Reworded the equipment wealth note to say remaining gold will be added to sheet.
-- The skip-spell-handoff checkbox in Finalize now shows only for spellcasters when the Spell Book module is active.
 - Updated the Brazilian Portuguese (pt-BR) translation.
