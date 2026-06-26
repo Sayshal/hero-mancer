@@ -1520,7 +1520,7 @@ export class HeroMancer extends HMDialog {
         this.#pendingAdvancementRerender = true;
         return;
       }
-      if (['ItemChoice', 'Trait', 'AbilityScoreImprovement'].includes(row.dataset.type)) this.render({ parts: ['advancements'] });
+      if (['ItemChoice', 'Trait', 'AbilityScoreImprovement', 'Size'].includes(row.dataset.type)) this.render({ parts: ['advancements'] });
     });
     this.element.addEventListener('hm-drawer-close', () => {
       if (!this.#pendingAdvancementRerender) return;

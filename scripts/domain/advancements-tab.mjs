@@ -152,7 +152,37 @@ function buildPickTiles(row) {
     out.push(asiTile(row));
     return out;
   }
+  if (spec.kind === 'size') {
+    out.push(sizeTile(row));
+    return out;
+  }
   return out;
+}
+
+/**
+ * Build a single-pick tile for a Size advancement, reusing the generic picker drawer.
+ * @param {object} row Parent row.
+ * @returns {object} Tile context.
+ */
+function sizeTile(row) {
+  const spec = row.spec;
+  const title = row.title || _loc('DND5E.ADVANCEMENT.Size.Title');
+  const options = spec.sizes.map((key) => ({ value: key, label: _loc(CONFIG.DND5E.actorSizes[key]?.label ?? key) }));
+  const selected = spec.selected || '';
+  const picked = options.find((o) => o.value === selected) ?? null;
+  const inputName = `adv-size.${row.advancementId}.${row.level}`;
+  return {
+    key: `${row.advancementId}-${row.level}-size`,
+    foot: { label: title, kind: 'size' },
+    state: 'choice',
+    label: picked ? picked.label : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: 1 }),
+    icon: row.icon,
+    selected: !!picked,
+    isPlaceholder: !picked,
+    inputName,
+    inputValue: selected,
+    picker: { name: inputName, label: title, max: 1, optionsJson: JSON.stringify(options), originsJson: '' }
+  };
 }
 
 /**
@@ -650,6 +680,8 @@ function requiredCountFor(spec) {
       return spec.count;
     case 'asi':
       return spec.mode === 'feat' ? 1 : spec.points;
+    case 'size':
+      return 1;
     default:
       return 0;
   }
@@ -681,6 +713,8 @@ function filledCount(spec) {
     case 'asi':
       if (spec.mode !== 'asi') return 0;
       return Object.values(spec.assignments).reduce((s, v) => s + (Number(v) || 0), 0);
+    case 'size':
+      return spec.selected ? 1 : 0;
     default:
       return 0;
   }
@@ -701,6 +735,8 @@ function isRowDone(spec) {
       if (spec.mode === 'asi') return spec.remaining === 0;
       if (spec.mode === 'feat') return Boolean(spec.feat);
       return false;
+    case 'size':
+      return Boolean(spec.selected);
     default:
       return false;
   }
@@ -1181,6 +1217,10 @@ export function picksFromRow(row, kind) {
       }
       return chosen.length ? { chosen } : null;
     }
+    case 'size': {
+      const el = body.querySelector('input[type="hidden"][name^="adv-size."]');
+      return el?.value ? { size: el.value } : null;
+    }
     case 'asi':
       return null;
     default:
@@ -1201,6 +1241,8 @@ function serializePick(spec) {
       return spec.selected?.length ? JSON.stringify({ added: spec.selected }) : '';
     case 'trait':
       return spec.chosen?.length ? JSON.stringify({ chosen: spec.chosen }) : '';
+    case 'size':
+      return spec.selected ? JSON.stringify({ size: spec.selected }) : '';
     default:
       return '';
   }

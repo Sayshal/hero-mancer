@@ -4,10 +4,10 @@ import { stripHtml, stripNoiseParenthetical } from '../utils/html-text.mjs';
 const HM_OWNED = new Set(['HitPoints', 'Subclass']);
 
 /** @type {Set<string>} Advancement types that auto-apply (no UI). */
-const AUTO = new Set(['ItemGrant', 'ScaleValue', 'Size']);
+const AUTO = new Set(['ItemGrant', 'ScaleValue']);
 
 /** @type {Object<string, Function>} Per-type renderer registry; each entry returns a chooser spec or null. */
-const RENDERERS = { AbilityScoreImprovement: asiSpec, ItemChoice: itemChoiceSpec, Trait: traitSpec };
+const RENDERERS = { AbilityScoreImprovement: asiSpec, ItemChoice: itemChoiceSpec, Trait: traitSpec, Size: sizeSpec };
 
 /** @type {Object<string, number>} Display sort weight per origin */
 const ORIGIN_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
@@ -53,6 +53,7 @@ export function advancementApplyData(adv, data) {
   const type = adv?.constructor?.typeName;
   if (type === 'ItemChoice' && Array.isArray(data?.added)) return { ...data, selected: data.added };
   if (type === 'AbilityScoreImprovement' && data?.type === 'feat' && data.feat) return { ...data, uuid: data.feat };
+  if (type === 'Size') return { size: data?.size };
   return data;
 }
 
@@ -377,6 +378,20 @@ function maxSpellSlotLevelFor(item, level) {
   Actor5e.computeClassProgression(progression, item, { spellcasting });
   Actor5e.prepareSpellcastingSlots(spells, sc.type, progression);
   return Object.values(spells).reduce((slot, s) => (s.max ? Math.max(slot, s.level || -1) : slot), 0) || maxSpellLevel;
+}
+
+/**
+ * Build a Size chooser spec. Returns null for single-size races so the row stays auto (dnd5e applies the lone size itself).
+ * @param {object} adv Advancement instance.
+ * @param {number} _level Level being applied.
+ * @param {object} value Stored selection.
+ * @param {object} _context Renderer context (unused).
+ * @returns {?object} Chooser spec, or null when there's no real choice.
+ */
+function sizeSpec(adv, _level, value, _context) {
+  const sizes = [...(adv.configuration?.sizes ?? [])];
+  if (sizes.length < 2) return null;
+  return { kind: 'size', sizes, selected: value.size ?? '' };
 }
 
 /**
