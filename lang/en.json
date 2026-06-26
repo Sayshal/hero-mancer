@@ -997,6 +997,10 @@
         "Hint": "Comma separated scores your players must choose from."
       },
       "CustomBackground": {
+        "Disable": {
+          "Name": "Disable Custom Backgrounds",
+          "Hint": "Remove the custom-background builder option from the background picker. Players can only choose an existing background."
+        },
         "AbilityChoices": {
           "Name": "Ability Choices",
           "Hint": "How many ability scores a player selects when building a custom background."

@@ -91,6 +91,7 @@ const TAB_SETTINGS = {
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',
       settings: [
+        { key: 'DISABLE_CUSTOM_BACKGROUND', type: 'boolean' },
         { key: 'CUSTOM_BG_ABILITY_CHOICES', type: 'number' },
         { key: 'CUSTOM_BG_ABILITY_POINTS', type: 'number' },
         { key: 'CUSTOM_BG_ABILITY_CAP', type: 'number' },

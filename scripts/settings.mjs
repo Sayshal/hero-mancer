@@ -322,6 +322,13 @@ export function registerSettings() {
     config: false,
     type: new NumberField({ initial: 8, min: 3, max: 18, step: 1, integer: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.DISABLE_CUSTOM_BACKGROUND, {
+    name: 'HEROMANCER.Settings.CustomBackground.Disable.Name',
+    hint: 'HEROMANCER.Settings.CustomBackground.Disable.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: false })
+  });
   r(MODULE.ID, MODULE.SETTINGS.CUSTOM_BG_ABILITY_CHOICES, {
     name: 'HEROMANCER.Settings.CustomBackground.AbilityChoices.Name',
     hint: 'HEROMANCER.Settings.CustomBackground.AbilityChoices.Hint',

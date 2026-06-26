@@ -21,6 +21,7 @@ const SETTINGS = {
   CUSTOM_BG_TOOL_COUNT: 'customBgToolCount',
   CUSTOM_BG_FEAT_COUNT: 'customBgFeatCount',
   CUSTOM_BG_BUDGET: 'customBgBudget',
+  DISABLE_CUSTOM_BACKGROUND: 'disableCustomBackground',
   ADVANCEMENT_ORDER: 'advancementOrder',
   ALLOW_PLAYER_LEVEL_OVERRIDE: 'allowPlayerLevelOverride',
   ALLOWED_METHODS: 'allowedMethods',
