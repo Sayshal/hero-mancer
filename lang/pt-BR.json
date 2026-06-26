@@ -997,6 +997,10 @@
         "Hint": "Valores separados por vírgulas que os jogadores devem escolher."
       },
       "CustomBackground": {
+        "Disable": {
+          "Name": "Desativar Antecedentes Personalizados",
+          "Hint": "Remove a opção de criar um antecedente personalizado da seleção de antecedentes. Os jogadores poderão escolher apenas um antecedente existente."
+        },
         "AbilityChoices": {
           "Name": "Escolhas de Atributos",
           "Hint": "Quantos atributos um jogador pode selecionar ao criar um antecedente personalizado."
