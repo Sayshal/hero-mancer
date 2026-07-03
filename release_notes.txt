@@ -1,9 +1,3 @@
-**New Features**
-- Added a GM setting to disable custom backgrounds, removing the Custom Background option from the background picker.
-- Added a size picker on the Advancements tab for species that offer more than one size; single-size species apply automatically.
-
-**Bug Fixes**
-- Fixed item-choice advancement picks, such as a Druid's Primal Order, being silently dropped on dnd5e 5.x.
-
 **Changes**
-- Updated the Brazilian Portuguese (pt-BR) translation.
+- Removed the `recommends` list from module.json, so Foundry's dependency dialog no longer offers to enable Spell Book, Dice So Nice, Tokenizer 2, or Calendaria when you turn on Hero Mancer in Manage Modules.
+- The integrations with those modules still work when installed; only the automatic companion-module suggestions in the dependency dialog are gone.
