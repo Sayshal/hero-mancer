@@ -323,6 +323,13 @@
         "DialogLabel": "Create with Hero Mancer 2",
         "Loading": "Gathering your character options..."
       },
+      "OpenForPlayer": {
+        "NotGM": "Only a GM can open Hero Mancer 2 for another player.",
+        "UnknownUser": "That player could not be found.",
+        "Offline": "{name} is not connected. They need to be online to open Hero Mancer 2.",
+        "Sent": "Opened Hero Mancer 2 for {name}.",
+        "Failed": "Could not open Hero Mancer 2 for {name}."
+      },
       "Randomize": {
         "All": "Randomize",
         "Failed": "Randomize could not finish. Some selections may be incomplete.",

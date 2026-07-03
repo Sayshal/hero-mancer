@@ -69,7 +69,7 @@ Public API at `HEROMANCER.api` (also at `game.modules.get('hero-mancer').api`):
 // Open the creation wizard, optionally seeded with a name
 HEROMANCER.api.openWizard({ initialName: 'Tyrla' });
 
-// GM: open the wizard pre-assigned to a player
+// GM: open the wizard on a specific player's client
 await HEROMANCER.api.openWizardForPlayer(userId);
 
 // Start a level-up for an existing actor

@@ -10,6 +10,7 @@ import { registerApprovalReplay } from './scripts/domain/approval-replay.mjs';
 import { bootstrapApprovalJournal, recoverPendingSubmissions, registerApprovalDocumentHooks, registerApprovalSockets } from './scripts/domain/approval.mjs';
 import { computeCompatibility } from './scripts/domain/compatibility.mjs';
 import { registerLevelUpBroadcast } from './scripts/domain/level-up-broadcast.mjs';
+import { registerOpenForPlayer } from './scripts/domain/open-for-player.mjs';
 import { registerPendingBanner } from './scripts/domain/pending-banner.mjs';
 import { registerRejectionHandler } from './scripts/domain/rejection-handler.mjs';
 import { registerLevelUpSheetButton } from './scripts/domain/sheet-button.mjs';
@@ -74,6 +75,7 @@ Hooks.once('ready', () => {
   migrateLegacySettings();
   computeCompatibility();
   registerSocket();
+  registerOpenForPlayer();
   registerSpellHandoff();
   registerApprovalSockets();
   registerApprovalChat();

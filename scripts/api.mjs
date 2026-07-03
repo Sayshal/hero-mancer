@@ -1,34 +1,15 @@
 import { HeroMancer } from './apps/hero-mancer.mjs';
 import { PendingApprovals } from './apps/pending-approvals.mjs';
-import { showWizardSplash } from './components/wizard-splash.mjs';
 import { MODULE } from './constants.mjs';
 import * as documentLoader from './data/document-loader.mjs';
 import { groupByTopLevelFolder } from './data/folder-grouper.mjs';
 import { findRelatedJournalPage } from './data/journal-finder.mjs';
 import { buildProficiencyCategories } from './data/proficiency-extractor.mjs';
 import * as approval from './domain/approval.mjs';
-import { identityIndexesReady, preloadIdentityDocs } from './domain/identity-tab.mjs';
 import { openLevelUp } from './domain/level-up.mjs';
+import { openWizardForPlayer } from './domain/open-for-player.mjs';
 import * as savedOptions from './domain/saved-options.mjs';
-
-/**
- * Open the wizard. When compendium indexes aren't cached yet, show a blurred progress splash while they build, then reveal the fully-rendered window.
- * @param {object} seed Initial draft seed.
- * @returns {Promise<void>}
- */
-async function launchWizard(seed) {
-  if (identityIndexesReady()) {
-    new HeroMancer({ seed }).render({ force: true });
-    return;
-  }
-  const splash = showWizardSplash();
-  try {
-    await preloadIdentityDocs((done, total) => splash.setProgress(done, total)).catch(() => {});
-    await new HeroMancer({ seed }).render({ force: true });
-  } finally {
-    await splash.reveal();
-  }
-}
+import { launchWizard } from './domain/wizard-launch.mjs';
 
 /** Public API surface for Hero Mancer. */
 export const HeroMancerAPI = {
@@ -42,13 +23,16 @@ export const HeroMancerAPI = {
   },
 
   /**
-   * Open the Hero Mancer wizard on behalf of a specific player (GM-only).
+   * Open the Hero Mancer wizard on a specific player's client (GM-only). Sends the request via
+   * Foundry's user query API and resolves once that client opens the wizard.
    * @param {string} userId Target user ID.
-   * @returns {Promise<void>}
+   * @param {object} [opts] Launch options.
+   * @param {string} [opts.initialName] Pre-fill the character name field.
+   * @returns {Promise<void>} Resolves when the target opens the wizard.
+   * @throws {Error} When the caller is not a GM, or the target is unknown, offline, or declines.
    */
-  async openWizardForPlayer(userId) {
-    void userId;
-    throw new Error('openWizardForPlayer is not yet implemented.');
+  openWizardForPlayer(userId, { initialName = '' } = {}) {
+    return openWizardForPlayer(userId, { initialName });
   },
 
   /**
