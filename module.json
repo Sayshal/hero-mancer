@@ -51,40 +51,6 @@
   "manifest": "https://github.com/Sayshal/hero-mancer/releases/latest/download/module.json",
   "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
   "relationships": {
-    "recommends": [
-      {
-        "id": "spell-book",
-        "type": "module",
-        "compatibility": {
-          "minimum": "2.0.0",
-          "verified": "2.0.3"
-        },
-        "reason": "Hero Mancer 2 hands spell selection off to Spell Book after character creation."
-      },
-      {
-        "id": "dice-so-nice",
-        "type": "module",
-        "compatibility": {
-          "minimum": "5.3.0",
-          "verified": "6.2.3"
-        },
-        "reason": "Hero Mancer 2 integrates with Dice So Nice for per-character 3D dice appearance set during creation."
-      },
-      {
-        "id": "tokenizer-2",
-        "type": "module",
-        "compatibility": {
-          "minimum": "1.1.0",
-          "verified": "1.1.0"
-        },
-        "reason": "Hero Mancer 2 uses Tokenizer 2's editor for character portrait and token art during creation."
-      },
-      {
-        "id": "calendaria",
-        "type": "module",
-        "reason": "Hero Mancer 2 adds a birthday picker and a recurring birthday note when Calendaria is active."
-      }
-    ],
     "systems": [
       {
         "compatibility": {
