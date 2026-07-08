@@ -1,7 +1,7 @@
 name: Bug Report
 description: File a bug report
 title: '[BUG] '
-labels: ['bug']
+labels: ['type:bug']
 assignees:
   - Sayshal
 body:
@@ -15,7 +15,7 @@ body:
       label: Hero Mancer Troubleshooter
       description: Recreate the issue being reported in Hero Mancer, and without closing the application, open the troubleshooter from the Settings menu. Download the troubleshooter file and attach it below.
       options:
-        - label: I understand that I will not recieve support until a troubleshooter file has been uploaded.
+        - label: I understand that I will not receive support until a troubleshooter file has been uploaded.
           required: true
   - type: textarea
     id: what-happened
@@ -25,3 +25,25 @@ body:
       placeholder: Tell us what you see!
     validations:
       required: true
+  - type: input
+    id: module-version
+    attributes:
+      label: Module Version
+      description: What version of the package?
+      placeholder: '1.0.0'
+    validations:
+      required: true
+  - type: input
+    id: core-version
+    attributes:
+      label: Foundry Version
+      description: What version of foundry?
+      placeholder: '14.364'
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
