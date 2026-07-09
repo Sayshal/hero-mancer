@@ -1,5 +1,4 @@
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
-import { log } from '../utils/logger.mjs';
 import { buildAdvancementRows, buildOwnedItemRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
 import { advancementFieldName } from './advancement-draft.mjs';
 
@@ -1224,7 +1223,7 @@ export function reportFeatGrantFailure(adv, data, advancementId, level, root) {
   const reason = _loc('HEROMANCER.App.Advancements.FeatGrantFailed', { uuid: data.feat });
   if (root) markAdvancementRowError(root, advancementId, level, reason);
   else ui.notifications.error(reason, { permanent: true });
-  log(1, `ASI feat grant failed: ${data.feat} did not resolve to an item`);
+  ATLAS.log(1, `ASI feat grant failed: ${data.feat} did not resolve to an item`);
 }
 
 /**

@@ -1,5 +1,3 @@
-import { log } from '../utils/logger.mjs';
-
 /** @type {string[]} Fallback compound-race names when `system.type.subtype` is empty. */
 const FALLBACK_SPECIES = ['elf', 'gnome', 'tiefling', 'dwarf', 'halfling'];
 
@@ -139,14 +137,14 @@ async function searchCompendiumsForPage(packs, itemName, itemUuid, baseSpecies, 
   const normalized = itemName.toLowerCase();
   const modulePrefix = foundry.utils.parseUuid(itemUuid)?.collection?.metadata?.packageName ?? null;
   const prioritized = prioritizeJournalPacks(packs, modulePrefix, sourcePack);
-  log(3, `[journal-finder] searching "${itemName}" — source=${sourcePack?.metadata.name}, candidates=[${prioritized.map((p) => p.metadata.name).join(', ')}]`);
+  ATLAS.log(3, `[journal-finder] searching "${itemName}" — source=${sourcePack?.metadata.name}, candidates=[${prioritized.map((p) => p.metadata.name).join(', ')}]`);
   for (const pack of prioritized) {
     const match = await searchSingleCompendium(pack, normalized, baseSpecies, docType, itemUuid);
     if (!match) continue;
-    log(3, `[journal-finder] matched "${itemName}" → ${match.uuid} (kind=${match.kind}, pack=${pack.metadata.name})`);
+    ATLAS.log(3, `[journal-finder] matched "${itemName}" → ${match.uuid} (kind=${match.kind}, pack=${pack.metadata.name})`);
     return match.uuid;
   }
-  log(3, `[journal-finder] no match for "${itemName}" in [${prioritized.map((p) => p.metadata.name).join(', ')}]`);
+  ATLAS.log(3, `[journal-finder] no match for "${itemName}" in [${prioritized.map((p) => p.metadata.name).join(', ')}]`);
   return null;
 }
 

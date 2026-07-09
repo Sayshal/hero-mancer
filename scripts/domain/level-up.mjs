@@ -1,7 +1,6 @@
 import { HeroMancer } from '../apps/hero-mancer.mjs';
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
-import { log } from '../utils/logger.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
@@ -99,7 +98,7 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     }
     await commitClone(actor, clone);
   } catch (err) {
-    log(1, 'applyLevelUp aborted (no actor mutation):', err);
+    ATLAS.log(1, 'applyLevelUp aborted (no actor mutation):', err);
     return null;
   }
   Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel });
@@ -230,7 +229,7 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
       } catch (err) {
         const reason = err?.message ?? String(err);
         if (wizardElement) markAdvancementRowError(wizardElement, advId, level, reason);
-        log(1, `Advancement ${advId} L${level} apply failed:`, err);
+        ATLAS.log(1, `Advancement ${advId} L${level} apply failed:`, err);
         return { ok: false, applied: appliedAny };
       }
       reportFeatGrantFailure(adv, data, advId, level, wizardElement);

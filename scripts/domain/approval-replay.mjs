@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 import { createCharacter } from './character.mjs';
 import * as savedOptions from './saved-options.mjs';
 
@@ -25,7 +24,7 @@ async function openSheetWhenAvailable(actorUuid) {
     }
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
-  log(1, `approval replay: timed out waiting for actor ${actorUuid} to replicate`);
+  ATLAS.log(1, `approval replay: timed out waiting for actor ${actorUuid} to replicate`);
 }
 
 /**
@@ -45,14 +44,14 @@ async function onApproved({ payload, characterName, actorUuid }) {
     const actor = await createCharacter({ payload });
     if (!actor) {
       ui.notifications.error('HEROMANCER.Approval.Replay.Failed', { localize: true });
-      log(1, 'approval replay produced no actor');
+      ATLAS.log(1, 'approval replay produced no actor');
       return;
     }
     await Promise.all([savedOptions.clear('approval-replay'), game.user.unsetFlag(MODULE.ID, MODULE.FLAGS.LAST_REJECTION)]);
     ui.notifications.info('HEROMANCER.Approval.Replay.Created', { localize: true, format: { name: actor.name } });
     actor.sheet?.render(true);
   } catch (err) {
-    log(1, 'approval replay threw:', err);
+    ATLAS.log(1, 'approval replay threw:', err);
     ui.notifications.error('HEROMANCER.Approval.Replay.Failed', { localize: true });
   }
 }

@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 /**
  * Compute `MODULE.COMPAT` from active modules and client settings.
@@ -13,6 +12,6 @@ export function computeCompatibility() {
     SPELL_BOOK: !!game.modules.get('spell-book')?.active,
     CALENDARIA: !!game.modules.get('calendaria')?.active
   };
-  log(3, 'compat:', MODULE.COMPAT);
+  ATLAS.log(3, 'compat:', MODULE.COMPAT);
   return MODULE.COMPAT;
 }

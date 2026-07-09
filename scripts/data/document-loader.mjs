@@ -1,6 +1,5 @@
 import { MODULE } from '../constants.mjs';
 import { firstProseParagraph, stripNoiseParenthetical } from '../utils/html-text.mjs';
-import { log } from '../utils/logger.mjs';
 
 const CompendiumBrowser = dnd5e.applications.CompendiumBrowser;
 
@@ -95,7 +94,7 @@ export async function reindex(type) {
   if (promises.length > 0) await Promise.all(promises);
   entries.sort((a, b) => a.name.localeCompare(b.name) || a.packName.localeCompare(b.packName));
   entriesByType.set(type, entries);
-  log(3, `reindex(${type}): ${entries.length} entries`);
+  ATLAS.log(3, `reindex(${type}): ${entries.length} entries`);
   return { entries };
 }
 
@@ -121,7 +120,7 @@ async function populateEmbeddedShortDescriptions(entries) {
         entry.system.description ??= {};
         entry.system.description.short = prose;
       } catch (err) {
-        log(2, `embedded-page resolve failed for ${entry.uuid}:`, err.message);
+        ATLAS.log(2, `embedded-page resolve failed for ${entry.uuid}:`, err.message);
       }
     })
   );
@@ -153,5 +152,5 @@ export async function getFullDocument(uuid) {
 export function clearCaches() {
   entriesByType.clear();
   documentCache.clear();
-  log(3, 'document-loader caches cleared');
+  ATLAS.log(3, 'document-loader caches cleared');
 }

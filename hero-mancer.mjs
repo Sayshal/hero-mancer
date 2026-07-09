@@ -23,8 +23,6 @@ import { migrateLegacySettings } from './scripts/migrations.mjs';
 import { registerSettings } from './scripts/settings.mjs';
 import { registerSocket } from './scripts/sockets.mjs';
 import './scripts/utils/_module.mjs';
-import { initializeLogger } from './scripts/utils/logger.mjs';
-import { checkReleaseMessage } from './scripts/utils/release-message.mjs';
 import './scripts/wizard/_module.mjs';
 import './styles/apps/advancement-asi-dialog.css';
 import './styles/apps/background-builder-dialog.css';
@@ -59,6 +57,7 @@ import './styles/components/wizard-splash.css';
 import './styles/hero-mancer.css';
 
 Hooks.once('init', () => {
+  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer' });
   registerSettings();
   createGlobalNamespace();
   registerComponentPartials();
@@ -70,7 +69,6 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', () => {
-  initializeLogger();
   migrateLegacySettings();
   computeCompatibility();
   registerSocket();
@@ -87,7 +85,6 @@ Hooks.once('ready', () => {
   registerLevelUpBroadcast();
   registerAdvancementConsentListener();
   Hooks.callAll(MODULE.HOOKS.READY, MODULE);
-  checkReleaseMessage();
   checkAdvancementAutomation();
   maybeShowWelcome();
 });

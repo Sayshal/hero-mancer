@@ -28,25 +28,12 @@
       ],
       "paths": [
         "styles",
-        "lang",
         "templates"
       ]
     }
   },
   "id": "hero-mancer",
   "socket": true,
-  "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "lang/en.json"
-    },
-    {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "lang/pt-BR.json"
-    }
-  ],
   "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
   "manifest": "https://github.com/Sayshal/hero-mancer/releases/latest/download/module.json",
   "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
@@ -59,6 +46,12 @@
         },
         "id": "dnd5e",
         "type": "system"
+      }
+    ],
+    "requires": [
+      {
+        "id": "3ds-atlas",
+        "type": "module"
       }
     ]
   },

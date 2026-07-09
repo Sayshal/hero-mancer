@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 /** Merge `CUSTOM_FOCUS_ITEMS` into `CONFIG.DND5E.focusTypes[*].itemIds` so they flow into quartermaster focus pools. Idempotent — clears previous `hm:*` keys before re-applying. */
 export function mergeCustomFocusItems() {
@@ -29,7 +28,7 @@ export async function checkAdvancementAutomation() {
     const recipients = game.users.filter((u) => u.isGM && u.active).map((u) => u.id);
     await ChatMessage.create({ content, whisper: recipients, speaker: { alias: MODULE.NAME } });
   } catch (err) {
-    log(1, 'Failed to whisper advancement-consent prompt:', err);
+    ATLAS.log(1, 'Failed to whisper advancement-consent prompt:', err);
   }
 }
 

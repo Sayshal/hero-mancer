@@ -1,6 +1,5 @@
 import { HMPrompt } from '../apps/dialog.mjs';
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 /** Subscribe to LEVEL_UP_COMPLETED: clear the pending flag and post the completion broadcast on the committer's session. */
 export function registerLevelUpBroadcast() {
@@ -67,7 +66,7 @@ export async function sendLevelUpToGroup(groupActor) {
       await actor.setFlag(MODULE.ID, MODULE.FLAGS.LEVEL_UP_READY, true);
       granted.push(actor);
     } catch (err) {
-      log(1, `level-up flag set failed for ${actor.name}:`, err);
+      ATLAS.log(1, `level-up flag set failed for ${actor.name}:`, err);
     }
   }
   if (granted.length) await publishGrant(granted);

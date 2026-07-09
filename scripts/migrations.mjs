@@ -1,5 +1,4 @@
 import { MODULE } from './constants.mjs';
-import { log } from './utils/logger.mjs';
 
 // TODO(3.2.0): remove this module and its `ready` call once all active worlds have loaded a 3.x build at least once.
 
@@ -58,7 +57,7 @@ async function renameCustomStandardArray() {
     value = doc.value;
   }
   await game.settings.set(MODULE.ID, MODULE.SETTINGS.STANDARD_ARRAY_VALUES, value);
-  log(3, 'migration: customStandardArray -> standardArrayValues');
+  ATLAS.log(3, 'migration: customStandardArray -> standardArrayValues');
   return true;
 }
 
@@ -84,7 +83,7 @@ async function repairAdvancementOrder() {
   }
   if (!changed) return false;
   await game.settings.set(MODULE.ID, MODULE.SETTINGS.ADVANCEMENT_ORDER, repaired);
-  log(3, 'migration: repaired advancementOrder');
+  ATLAS.log(3, 'migration: repaired advancementOrder');
   return true;
 }
 
@@ -97,7 +96,7 @@ async function repairAllowedMethods() {
   if (!methods || !('manual' in methods)) return false;
   const { manual, ...rest } = methods;
   await game.settings.set(MODULE.ID, MODULE.SETTINGS.ALLOWED_METHODS, { ...rest, manualFormula: rest.manualFormula ?? manual });
-  log(3, 'migration: allowedMethods.manual -> manualFormula');
+  ATLAS.log(3, 'migration: allowedMethods.manual -> manualFormula');
   return true;
 }
 
@@ -112,7 +111,7 @@ async function deleteRemovedKeys() {
     const doc = storage.find((s) => s.key === `${MODULE.ID}.${key}`);
     if (!doc) continue;
     await doc.delete();
-    log(3, `migration: removed stale setting ${key}`);
+    ATLAS.log(3, `migration: removed stale setting ${key}`);
     removed = true;
   }
   return removed;

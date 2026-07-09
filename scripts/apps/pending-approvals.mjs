@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 import {
   approveSubmission,
   clearArchive,
@@ -47,7 +46,7 @@ export class PendingApprovals extends HMDialog {
   /** @inheritdoc */
   _onRender(context, options) {
     super._onRender(context, options);
-    Promise.all([preloadIdentityDocs(), initLookup(), initShopIndex()]).catch((err) => log(2, 'approval prewarm failed:', err));
+    Promise.all([preloadIdentityDocs(), initLookup(), initShopIndex()]).catch((err) => ATLAS.log(2, 'approval prewarm failed:', err));
   }
 
   /** @inheritdoc */

@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 const FLAG = MODULE.FLAGS.WIZARD_DRAFT;
 
@@ -10,7 +9,7 @@ const FLAG = MODULE.FLAGS.WIZARD_DRAFT;
  */
 export async function save(draft) {
   if (!draft) return null;
-  log(3, `saved-options.save: ${Object.keys(draft).length} field(s)`);
+  ATLAS.log(3, `saved-options.save: ${Object.keys(draft).length} field(s)`);
   return game.user.setFlag(MODULE.ID, FLAG, { json: JSON.stringify(draft) });
 }
 
@@ -22,7 +21,7 @@ export async function load() {
   const stored = game.user.getFlag(MODULE.ID, FLAG);
   if (!stored?.json) return null;
   const draft = JSON.parse(stored.json);
-  log(3, `saved-options.load: ${draft ? Object.keys(draft).length : 0} field(s)`);
+  ATLAS.log(3, `saved-options.load: ${draft ? Object.keys(draft).length : 0} field(s)`);
   return draft ?? null;
 }
 
@@ -32,6 +31,6 @@ export async function load() {
  * @returns {Promise<*>} Foundry's `unsetFlag` result.
  */
 export async function clear(reason) {
-  log(3, reason ? `saved-options.clear (${reason})` : 'saved-options.clear');
+  ATLAS.log(3, reason ? `saved-options.clear (${reason})` : 'saved-options.clear');
   return game.user.unsetFlag(MODULE.ID, FLAG);
 }

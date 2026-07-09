@@ -4,7 +4,6 @@ import { aggregateProficiencies, dedupCategory } from '../data/proficiency-extra
 import * as compare from '../domain/compare.mjs';
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
 import { applyItemLinks } from '../utils/item-link.mjs';
-import { log } from '../utils/logger.mjs';
 import { HMDialog } from './dialog.mjs';
 
 /** @type {Object<string,string>} Category → localization key for the window title. */
@@ -77,9 +76,9 @@ export class CompareDialog extends HMDialog {
       try {
         const doc = await documentLoader.getFullDocument(uuid);
         if (doc) cols.push({ uuid, name: stripNoiseParenthetical(doc.name, { sourceBook: doc.system?.source?.book }), img: doc.img, doc });
-        else log(2, `compare: pin ${uuid} no longer resolves`);
+        else ATLAS.log(2, `compare: pin ${uuid} no longer resolves`);
       } catch (err) {
-        log(1, 'compare: pin resolve failed', uuid, err);
+        ATLAS.log(1, 'compare: pin resolve failed', uuid, err);
       }
     }
     return cols;

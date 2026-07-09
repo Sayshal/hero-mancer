@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 const { STATES, EVENTS } = MODULE.WIZARD;
 
@@ -91,7 +90,7 @@ export class WizardStateMachine {
     const from = this.#state;
     const to = this.#transitions[from]?.[event];
     if (!to) throw new Error(`hero-mancer FSM: invalid event "${event}" in state "${from}"`);
-    log(3, `FSM ${from} --${event}--> ${to}`);
+    ATLAS.log(3, `FSM ${from} --${event}--> ${to}`);
     this.#fire(this.#onLeave.get(from), from, to, event, payload);
     this.#state = to;
     this.#onTransition.forEach((cb) => this.#safe(cb, from, to, event, payload));
@@ -184,7 +183,7 @@ export class WizardStateMachine {
     try {
       cb(...args);
     } catch (err) {
-      log(1, 'FSM listener threw:', err);
+      ATLAS.log(1, 'FSM listener threw:', err);
     }
   }
 }

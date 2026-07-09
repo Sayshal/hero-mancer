@@ -1,6 +1,5 @@
 import { MODULE } from '../constants.mjs';
 import { safeEnrichHTML } from '../utils/html-text.mjs';
-import { log } from '../utils/logger.mjs';
 
 /** Embed a JournalEntry / JournalEntryPage into a host container with a fallback cascade. */
 export class JournalPageEmbed {
@@ -47,7 +46,7 @@ export class JournalPageEmbed {
       this.pageId = page.id;
       return this;
     } catch (error) {
-      log(1, `Error rendering journal page ${pageId}: ${error.message}`, error);
+      ATLAS.log(1, `Error rendering journal page ${pageId}: ${error.message}`, error);
       this.#showErrorMessage(`${_loc('HEROMANCER.App.Journal.RenderError')}: ${error.message}`);
       return null;
     }

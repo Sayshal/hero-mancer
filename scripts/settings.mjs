@@ -20,25 +20,6 @@ function onExclusionListChange() {
 /** Register all module game settings. Submenus are registered by their own apps. */
 export function registerSettings() {
   const r = game.settings.register.bind(game.settings);
-  r(MODULE.ID, MODULE.SETTINGS.LOGGING_LEVEL, {
-    name: 'HEROMANCER.Settings.Logger.Name',
-    hint: 'HEROMANCER.Settings.Logger.Hint',
-    scope: 'client',
-    config: true,
-    type: new StringField({
-      initial: '2',
-      blank: false,
-      choices: {
-        0: 'HEROMANCER.Settings.Logger.Choices.Off',
-        1: 'HEROMANCER.Settings.Logger.Choices.Errors',
-        2: 'HEROMANCER.Settings.Logger.Choices.Warnings',
-        3: 'HEROMANCER.Settings.Logger.Choices.Verbose'
-      }
-    }),
-    onChange: (value) => {
-      MODULE.LOG_LEVEL = parseInt(value);
-    }
-  });
   game.settings.registerMenu(MODULE.ID, MODULE.SETTINGS.SETTINGS_PANEL_MENU, {
     name: 'HEROMANCER.Settings.SettingsPanel.Menu.Name',
     hint: 'HEROMANCER.Settings.SettingsPanel.Menu.Hint',
