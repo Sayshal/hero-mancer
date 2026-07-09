@@ -51,7 +51,7 @@ export function advancementLevels(adv) {
  */
 export function advancementApplyData(adv, data) {
   const type = adv?.constructor?.typeName;
-  if (type === 'ItemChoice' && Array.isArray(data?.added)) return { selected: data.added };
+  if (type === 'ItemChoice' && Array.isArray(data?.added)) return data.replace ? { selected: data.added, replace: data.replace } : { selected: data.added };
   if (type === 'AbilityScoreImprovement' && data?.type === 'feat' && data.feat) return { ...data, uuid: data.feat };
   if (type === 'Size') return { size: data?.size };
   return data;
@@ -100,6 +100,32 @@ export function buildAdvancementRows(classDoc, targetLevel, context = {}, mode =
     }
   }
   rows.sort((a, b) => a.level - b.level || ORIGIN_ORDER[a.origin] - ORIGIN_ORDER[b.origin]);
+  return rows;
+}
+
+/**
+ * Chooser rows from the actor's already-owned items whose advancements key to character level (general feats, etc.), scoped to the level just gained. Class-linked items (keyed to class level) are left to the class walk.
+ * @param {object} actor Level-up actor.
+ * @param {number} characterLevel Character level being gained.
+ * @param {Object<string, Object<number, object>>} draft Advancement-pick map.
+ * @returns {Array<object>} Chooser rows tagged with origin `feature`.
+ */
+export function buildOwnedItemRows(actor, characterLevel, draft) {
+  const rows = [];
+  for (const item of actor.items) {
+    if (item.type === 'class' || item.type === 'subclass' || item.type === 'race' || item.type === 'background') continue;
+    if (item.system?.advancementClassLinked !== false) continue;
+    for (const adv of Object.values(item.advancement?.byId ?? {})) {
+      const type = adv.constructor?.typeName;
+      if (!type || HM_OWNED.has(type) || !RENDERERS[type]) continue;
+      if (!classAdvApplies(adv.classRestriction, true)) continue;
+      if (!advancementLevels(adv).includes(characterLevel)) continue;
+      const row = advancementRow(adv, characterLevel, { origin: 'feature', draft });
+      row.title = nestedTitle(item.name, adv, characterLevel);
+      row.icon = adv.icon ?? item.img ?? row.icon;
+      rows.push(row);
+    }
+  }
   return rows;
 }
 
@@ -339,9 +365,15 @@ function itemChoiceSpec(adv, level, value, _context) {
   const slot = cfg.choices?.[level] ?? {};
   const count = slot.count ?? 0;
   const pool = (cfg.pool ?? []).map((p) => p.uuid).filter(Boolean);
+  const replaceableItems = slot.replacement ? itemChoiceReplaceable(adv, level) : [];
+  const replaceTarget = replaceableItems.some((i) => i.id === value.replace) ? value.replace : null;
   const spec = {
     kind: 'item-choice',
     count,
+    replacement: !!slot.replacement,
+    replaceableItems,
+    replaceTarget,
+    effectiveCount: count + (replaceTarget ? 1 : 0),
     pool,
     allowDrops: cfg.allowDrops !== false,
     selected: Object.values(value.added ?? {})
@@ -358,6 +390,32 @@ function itemChoiceSpec(adv, level, value, _context) {
     spec.maxSpellLevel = cfg.type === 'spell' ? maxSpellSlotLevelFor(adv.item, level) : null;
   }
   return spec;
+}
+
+/**
+ * Owned items from an ItemChoice's earlier-level picks that are eligible to be swapped out at this level.
+ * @param {object} adv ItemChoice advancement instance (live actor copy in level-up; empty value at creation).
+ * @param {number} level Level being applied.
+ * @returns {Array<{id:string, uuid:string, name:string, img:?string}>} Replaceable owned items.
+ */
+function itemChoiceReplaceable(adv, level) {
+  const added = adv.value?.added ?? {};
+  const replaced = new Set(
+    Object.values(adv.value?.replaced ?? {})
+      .map((r) => r.original)
+      .filter(Boolean)
+  );
+  const actor = adv.actor;
+  const out = [];
+  for (const [levelKey, entries] of Object.entries(added)) {
+    if (Number(levelKey) >= level) continue;
+    for (const [id, uuid] of Object.entries(entries ?? {})) {
+      if (replaced.has(id)) continue;
+      const doc = actor?.items?.get(id) ?? fromUuidSync(uuid);
+      if (doc) out.push({ id, uuid, name: doc.name, img: doc.img ?? null });
+    }
+  }
+  return out;
 }
 
 /**

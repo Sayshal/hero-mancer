@@ -1,6 +1,6 @@
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
 import { log } from '../utils/logger.mjs';
-import { buildAdvancementRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
+import { buildAdvancementRows, buildOwnedItemRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
 import { advancementFieldName } from './advancement-draft.mjs';
 
 /**
@@ -50,6 +50,7 @@ export async function buildAdvancementsContext({
       rows.push(row);
     }
   }
+  if (mode === 'level_up' && actor) rows.push(...buildOwnedItemRows(actor, totalCharLevel, draft));
   rows = await expandNestedRows(rows, { draft, characterLevel: totalCharLevel });
   const draftPicks = collectDraftPicks(rows);
   const projected = await collectProjectedItems(rows, actor);
@@ -132,7 +133,8 @@ function buildPickTiles(row) {
   const out = [];
   const spec = row.spec;
   if (spec.kind === 'item-choice') {
-    if (spec.count > 0) out.push(itemChoiceTile(row));
+    if (spec.replacement && spec.replaceableItems.length) out.push(itemChoiceReplaceTile(row));
+    if (spec.effectiveCount > 0) out.push(itemChoiceTile(row));
     return out;
   }
   if (spec.kind === 'trait') {
@@ -282,7 +284,7 @@ function itemChoiceTile(row) {
           .sort((a, b) => a.label.localeCompare(b.label))
           .map((o) => o.label)
           .join(', ')
-      : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: spec.count }),
+      : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: spec.effectiveCount }),
     icon: pickedOpts[0]?.icon ?? row.icon,
     uuid: pickedOpts[0]?.value ?? null,
     selected: pickedOpts.length > 0,
@@ -291,10 +293,10 @@ function itemChoiceTile(row) {
     inputValue: selected.join(',')
   };
   if (spec.open) {
-    tile.browseDone = selected.length >= spec.count;
+    tile.browseDone = selected.length >= spec.effectiveCount;
     tile.browse = JSON.stringify({
       name: inputName,
-      max: spec.count,
+      max: spec.effectiveCount,
       type: spec.restrictionType,
       category: spec.restrictionCategory,
       subtype: spec.restrictionSubtype,
@@ -307,7 +309,7 @@ function itemChoiceTile(row) {
     tile.picker = {
       name: inputName,
       label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
-      max: spec.count,
+      max: spec.effectiveCount,
       optionsJson: JSON.stringify(
         pickerOptions.map((o) => ({
           value: o.value,
@@ -321,6 +323,38 @@ function itemChoiceTile(row) {
     };
   }
   return tile;
+}
+
+/**
+ * Build the optional replace-target tile for an ItemChoice level with `replacement`: pick one prior-level item to drop.
+ * @param {object} row Row record with `spec.kind === 'item-choice'`.
+ * @returns {object} Tile context.
+ */
+function itemChoiceReplaceTile(row) {
+  const spec = row.spec;
+  const selected = spec.replaceableItems.find((i) => i.id === spec.replaceTarget) ?? null;
+  const inputName = `adv-replace.${row.advancementId}.${row.level}`;
+  return {
+    key: `${row.advancementId}-${row.level}-replace`,
+    foot: { label: _loc('HEROMANCER.App.Advancements.ReplaceFoot'), kind: 'replace' },
+    state: 'choice',
+    label: selected ? selected.name : _loc('HEROMANCER.App.Advancements.ReplaceNone'),
+    icon: selected?.img ?? row.icon,
+    selected: !!selected,
+    isPlaceholder: !selected,
+    inputName,
+    inputValue: spec.replaceTarget ?? '',
+    picker: {
+      name: inputName,
+      label: _loc('HEROMANCER.App.Advancements.ReplaceLabel'),
+      max: 1,
+      optionsJson: JSON.stringify([
+        { value: '', label: _loc('HEROMANCER.App.Advancements.ReplaceNone'), icon: null },
+        ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))
+      ]),
+      originsJson: ''
+    }
+  };
 }
 
 /**
@@ -548,11 +582,11 @@ function traitReference(key) {
  * @returns {Array<{id: string, legend: string, rows: Array<object>}>} Non-empty groups in display order.
  */
 function groupRowsByOrigin(rows, { roster, speciesName, backgroundName }) {
-  const buckets = { race: [], background: [] };
+  const buckets = { race: [], background: [], feature: [] };
   const classBuckets = new Map();
   for (const slot of roster) classBuckets.set(slot.slotId, { slot, rows: [] });
   for (const row of rows) {
-    if (row.origin === 'race' || row.origin === 'background') buckets[row.origin].push(row);
+    if (row.origin === 'race' || row.origin === 'background' || row.origin === 'feature') buckets[row.origin].push(row);
     else if (row.classKey && classBuckets.has(row.classKey)) classBuckets.get(row.classKey).rows.push(row);
   }
   const typeLabel = (key) => _loc(CONFIG.Item.typeLabels[key]);
@@ -566,6 +600,7 @@ function groupRowsByOrigin(rows, { roster, speciesName, backgroundName }) {
     const legend = isMulticlass ? _loc('HEROMANCER.App.Advancements.ClassLegend', { className, level: bucket.slot.level }) : className;
     groups.push({ id: `class-${slotId}`, legend, rows: sortRowsByLevel(bucket.rows) });
   }
+  if (buckets.feature.length) groups.push({ id: 'feature', legend: _loc('HEROMANCER.App.Advancements.FeaturesLegend'), rows: sortRowsByLevel(buckets.feature) });
   return groups;
 }
 
@@ -675,7 +710,7 @@ function buildGrantedList(tiles) {
 function requiredCountFor(spec) {
   switch (spec.kind) {
     case 'item-choice':
-      return spec.count;
+      return spec.effectiveCount;
     case 'trait':
       return spec.count;
     case 'asi':
@@ -728,7 +763,7 @@ function filledCount(spec) {
 function isRowDone(spec) {
   switch (spec.kind) {
     case 'item-choice':
-      return spec.selected.length === spec.count && spec.selected.every(Boolean);
+      return spec.selected.length === spec.effectiveCount && spec.selected.every(Boolean);
     case 'trait':
       return spec.chosen.filter(Boolean).length === spec.count;
     case 'asi':
@@ -843,7 +878,7 @@ function buildItemChoiceSlots(row) {
   const ownSelected = new Set(spec.selected ?? []);
   const externalItems = new Set([...(row.draftPicks?.itemUuids ?? [])].filter((uuid) => !ownSelected.has(uuid)));
   const slots = [];
-  const count = Math.max(0, spec.count);
+  const count = Math.max(0, spec.effectiveCount);
   for (let i = 0; i < count; i++) {
     const selected = spec.selected[i] ?? '';
     const exclude = new Set([...externalItems, ...spec.selected.filter((v, j) => v && j !== i)]);
@@ -1207,7 +1242,9 @@ export function picksFromRow(row, kind) {
         if (!i.value) continue;
         for (const v of i.value.split(',')) if (v) added.push(v);
       }
-      return added.length ? { added } : null;
+      const replace = body.querySelector('input[type="hidden"][name^="adv-replace."]')?.value || null;
+      if (!added.length && !replace) return null;
+      return replace ? { added, replace } : { added };
     }
     case 'trait': {
       const chosen = [];
@@ -1238,7 +1275,8 @@ function serializePick(spec) {
     case 'asi':
       return spec.mode ? JSON.stringify({ type: spec.mode, assignments: spec.assignments, feat: spec.feat }) : '';
     case 'item-choice':
-      return spec.selected?.length ? JSON.stringify({ added: spec.selected }) : '';
+      if (!spec.selected?.length && !spec.replaceTarget) return '';
+      return JSON.stringify(spec.replaceTarget ? { added: spec.selected ?? [], replace: spec.replaceTarget } : { added: spec.selected });
     case 'trait':
       return spec.chosen?.length ? JSON.stringify({ chosen: spec.chosen }) : '';
     case 'size':
