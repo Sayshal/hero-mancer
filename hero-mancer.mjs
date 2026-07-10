@@ -57,7 +57,7 @@ import './styles/components/wizard-splash.css';
 import './styles/hero-mancer.css';
 
 Hooks.once('init', () => {
-  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer' });
+  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer', theme: { scope: '.hero-mancer', default: 'heromancer' } });
   registerSettings();
   createGlobalNamespace();
   registerComponentPartials();
