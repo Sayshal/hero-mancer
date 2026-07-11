@@ -2462,10 +2462,11 @@ export class HeroMancer extends HMDialog {
     }
     const rerollOnes = game.settings.get(MODULE.ID, MODULE.SETTINGS.HP_REROLL_ONES);
     const formula = rerollOnes ? `1d${die}rr1` : `1d${die}`;
-    const roll = await evaluateRoll(formula);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS);
+    const roll = await evaluateRoll(formula, { publish });
     if (valueInput) valueInput.value = String(roll.total);
     if (attemptsInput) attemptsInput.value = String(attempts + (Number.isFinite(prior) && prior > 0 ? 1 : 0));
-    if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS)) {
+    if (publish) {
       const flavor = _loc('HEROMANCER.App.HP.RollFlavor', { class: classDoc.name, level });
       const speaker = ChatMessage.getSpeaker(this.#mode === 'level_up' && this.#actor ? { actor: this.#actor } : { user: game.user });
       await roll.toMessage({ flavor, speaker });
@@ -2486,9 +2487,10 @@ export class HeroMancer extends HMDialog {
     if (!tag || !formula) return;
     const hidden = this.element.querySelector(`input[name="equipment.${tag}.wealthRolled"]`);
     if (!hidden) return;
-    const roll = await evaluateRoll(formula);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS);
+    const roll = await evaluateRoll(formula, { publish });
     hidden.value = String(roll.total);
-    if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS)) {
+    if (publish) {
       const flavor = _loc('HEROMANCER.App.Equipment.WealthRollFlavor', { source: _loc(`HEROMANCER.App.Equipment.section-${tag}`) });
       await roll.toMessage({ flavor, speaker: ChatMessage.getSpeaker({ user: game.user }) });
     }
@@ -2506,9 +2508,10 @@ export class HeroMancer extends HMDialog {
     if (!formula) return;
     const hidden = this.element.querySelector('input[name="equipment.bonusGoldRolled"]');
     if (!hidden) return;
-    const roll = await evaluateRoll(formula);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS);
+    const roll = await evaluateRoll(formula, { publish });
     hidden.value = String(roll.total);
-    if (game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS)) {
+    if (publish) {
       const flavor = _loc('HEROMANCER.App.Equipment.BonusGoldName');
       await roll.toMessage({ flavor, speaker: ChatMessage.getSpeaker({ user: game.user }) });
     }
