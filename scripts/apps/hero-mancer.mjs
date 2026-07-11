@@ -3041,7 +3041,7 @@ export class HeroMancer extends HMDialog {
       case 'feat':
         if (cfg.category) filters.locked.additional.category = { [cfg.category]: 1 };
         if (cfg.subtype) filters.locked.additional.subtype = { [cfg.subtype]: 1 };
-        filters.locked.arbitrary = [{ k: 'system.prerequisites.level', o: 'lte', v: cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped()) }];
+        filters.locked.arbitrary = [{ o: 'NOT', v: { k: 'system.prerequisites.level', o: 'gt', v: cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped()) } }];
         break;
     }
     const result = await dnd5e.applications.CompendiumBrowser.select({ filters, selection: { min: 1, max: cfg.max - current.length } });
