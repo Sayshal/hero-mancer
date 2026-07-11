@@ -2219,7 +2219,7 @@ export class HeroMancer extends HMDialog {
         return;
       }
       if (doc.type === 'subclass') {
-        const synthPage = new JournalEntryPage({ name: doc.name, type: 'subclass', system: { item: doc.uuid } });
+        const synthPage = new JournalEntryPage({ name: doc.name, type: 'subclass', system: { item: doc.uuid, description: { value: doc.system?.description?.value ?? '' } } });
         const rendered = await new JournalPageEmbed(descContainer).renderSyntheticPage(synthPage);
         if (!isCurrent()) return;
         if (rendered) return;
