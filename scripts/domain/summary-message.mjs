@@ -2,7 +2,6 @@ import { getClassColor } from '../components/class-color.mjs';
 import { buildHudSnapshotFromActor, DEFAULT_PALETTE } from '../components/sidebar-hud-snapshot.mjs';
 import { MODULE } from '../constants.mjs';
 import { safeEnrichHTML } from '../utils/html-text.mjs';
-import { log } from '../utils/logger.mjs';
 
 /**
  * Post a chat card mirroring the live HUD for a newly-created actor.
@@ -23,7 +22,7 @@ export async function publishCharacterSummary(actor) {
     if (mode === 'whisper-gm') message.whisper = collectWhisperRecipients(actor);
     await ChatMessage.create(message);
   } catch (err) {
-    log(1, 'publishCharacterSummary failed:', err);
+    ATLAS.log(1, 'publishCharacterSummary failed:', err);
   }
 }
 

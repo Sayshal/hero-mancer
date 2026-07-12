@@ -2,7 +2,6 @@ import { AbilityBlock } from '../components/ability-block.mjs';
 import { Combobox } from '../components/combobox.mjs';
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
-import { log } from '../utils/logger.mjs';
 import { generateName } from '../utils/randomizer-grammar.mjs';
 import { buildStandardArrayPool, pointBuyCost } from './ability-scores.mjs';
 
@@ -52,7 +51,7 @@ export async function randomizeAll(wizard) {
     await randomizeAbilities(wizard);
     randomizeHitPoints(wizard);
   } catch (err) {
-    log(1, 'randomizeAll failed:', err);
+    ATLAS.log(1, 'randomizeAll failed:', err);
     ui.notifications.error('HEROMANCER.App.Randomize.Failed', { localize: true });
   }
 }

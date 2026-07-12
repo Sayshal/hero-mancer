@@ -1,22 +1,22 @@
-:root {
-  --hero-mancer-accent: rgb(245 195 95);
-  --hero-mancer-accent-faint: rgb(245 195 95 / 6%);
-  --hero-mancer-accent-glow: rgb(245 195 95 / 35%);
-  --hero-mancer-accent-hover: rgb(245 195 95 / 8%);
-  --hero-mancer-accent-soft: rgb(245 195 95 / 14%);
-  --hero-mancer-bg: rgb(16 22 38);
-  --hero-mancer-bg-elev: rgb(24 32 52);
+.hero-mancer {
+  --hero-mancer-accent: var(--atlas-accent, rgb(245 195 95));
+  --hero-mancer-accent-faint: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 6%);
+  --hero-mancer-accent-glow: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 35%);
+  --hero-mancer-accent-hover: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 8%);
+  --hero-mancer-accent-soft: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 14%);
+  --hero-mancer-bg: var(--atlas-bg, rgb(16 22 38));
+  --hero-mancer-bg-elev: var(--atlas-bg-lighter, rgb(24 32 52));
   --hero-mancer-bg-inset: rgb(0 0 0 / 30%);
-  --hero-mancer-border: rgb(64 78 102);
-  --hero-mancer-border-strong: rgb(245 195 95);
+  --hero-mancer-border: var(--atlas-border, rgb(64 78 102));
+  --hero-mancer-border-strong: var(--atlas-accent, rgb(245 195 95));
   --hero-mancer-currency-copper: rgb(210 135 75);
   --hero-mancer-currency-gold: rgb(245 195 95);
   --hero-mancer-currency-silver: rgb(200 205 215);
-  --hero-mancer-danger: rgb(240 90 80);
-  --hero-mancer-danger-fg: rgb(240 90 80);
-  --hero-mancer-danger-soft: rgb(240 90 80 / 18%);
-  --hero-mancer-fg: rgb(232 236 246);
-  --hero-mancer-fg-muted: rgb(160 170 190);
+  --hero-mancer-danger: var(--atlas-error, rgb(240 90 80));
+  --hero-mancer-danger-fg: var(--atlas-error, rgb(240 90 80));
+  --hero-mancer-danger-soft: rgb(from var(--atlas-error, rgb(240 90 80)) r g b / 18%);
+  --hero-mancer-fg: var(--atlas-text, rgb(232 236 246));
+  --hero-mancer-fg-muted: var(--atlas-text-dim, rgb(160 170 190));
   --hero-mancer-fg-on-accent: rgb(20 22 38);
   --hero-mancer-font-header: var(--dnd5e-font-roboto-slab, 'Roboto Slab', serif);
   --hero-mancer-info: rgb(120 170 255);
@@ -36,12 +36,12 @@
   --hero-mancer-rarity-weapon: rgb(180 60 50);
   --hero-mancer-shadow: rgb(0 0 0 / 65%);
   --hero-mancer-shadow-soft: rgb(0 0 0 / 35%);
-  --hero-mancer-success: rgb(120 200 140);
+  --hero-mancer-success: var(--atlas-success, rgb(120 200 140));
   --hero-mancer-success-fg: rgb(160 230 180);
-  --hero-mancer-success-soft: rgb(120 200 140 / 18%);
-  --hero-mancer-warn: rgb(255 165 50);
+  --hero-mancer-success-soft: rgb(from var(--atlas-success, rgb(120 200 140)) r g b / 18%);
+  --hero-mancer-warn: var(--atlas-warning, rgb(255 165 50));
   --hero-mancer-warn-fg: rgb(255 175 60);
-  --hero-mancer-warn-soft: rgb(255 165 50 / 15%);
+  --hero-mancer-warn-soft: rgb(from var(--atlas-warning, rgb(255 165 50)) r g b / 15%);
 }
 
 :where(.hero-mancer) ul li,

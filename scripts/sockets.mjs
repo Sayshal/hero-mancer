@@ -1,5 +1,4 @@
 import { MODULE } from './constants.mjs';
-import { log } from './utils/logger.mjs';
 
 const CHANNEL = `module.${MODULE.ID}`;
 
@@ -30,7 +29,7 @@ function dispatch(data) {
     try {
       handler(data);
     } catch (error) {
-      log(1, `Socket handler for "${data.type}" threw:`, error);
+      ATLAS.log(1, `Socket handler for "${data.type}" threw:`, error);
     }
   }
 }

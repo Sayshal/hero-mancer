@@ -51,7 +51,6 @@ const SETTINGS = {
   HP_L1_MAX_DIE: 'hpL1MaxDie',
   HP_REROLL_ONES: 'hpRerollOnes',
   KEEP_APPROVAL_ARCHIVE: 'keepApprovalArchive',
-  LOGGING_LEVEL: 'loggingLevel',
   MULTICLASS_THRESHOLD: 'multiclassThreshold',
   PENDING_APPROVALS_MENU: 'pendingApprovalsMenu',
   POINT_BUY_COST_MAP: 'pointBuyCostMap',
@@ -170,7 +169,6 @@ const TEMPLATES = {
     ADVANCEMENT_CONSENT: `${TEMPLATE_ROOT}/chat/advancement-consent.hbs`,
     APPROVAL_EVENT: `${TEMPLATE_ROOT}/chat/approval-event.hbs`,
     CHARACTER_SUMMARY: `${TEMPLATE_ROOT}/chat/character-summary.hbs`,
-    RELEASE_MESSAGE: `${TEMPLATE_ROOT}/chat/release-message.hbs`,
     MIGRATION_NOTICE: `${TEMPLATE_ROOT}/chat/migration-notice.hbs`
   }
 };
@@ -225,7 +223,6 @@ const WIZARD = {
 export const MODULE = {
   ID: 'hero-mancer',
   NAME: 'Hero Mancer 2',
-  LOG_LEVEL: 0,
   CUSTOM_BACKGROUND_VALUE: '__hm-custom-background__',
   CUSTOM_PACK: 'world.hero-mancer-2',
   FLAGS,

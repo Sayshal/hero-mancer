@@ -1,7 +1,6 @@
 import { MODULE } from '../constants.mjs';
 import { pickFromBrowser } from '../data/compendium-picker.mjs';
 import { getPointBuyCostMap } from '../domain/ability-scores.mjs';
-import { log } from '../utils/logger.mjs';
 import { HMDialog } from './dialog.mjs';
 
 /** Per-category config for the exclusions tab: unified-setting bucket key, label tab id, FA icon, and browsed Item subtypes. */
@@ -163,7 +162,6 @@ const TAB_SETTINGS = {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Tools',
       settings: [
         { key: 'TROUBLESHOOTING_MENU', type: 'menu', icon: 'fa-bug', buttonLabelKey: 'HEROMANCER.Settings.Troubleshooter.Menu.Label' },
-        { key: 'LOGGING_LEVEL', type: 'select' },
         { key: 'TOKENIZER_COMPATIBILITY', type: 'boolean', requiresModule: 'tokenizer-2' }
       ]
     }
@@ -719,7 +717,7 @@ export class SettingsPanel extends HMDialog {
         if (row.type === 'menu' || row.type === 'exclusions') continue;
         if (row.requiresModule && !game.modules.get(row.requiresModule)?.active) continue;
         const settingKey = MODULE.SETTINGS[row.key];
-        writes.push(SettingsPanel.#persistField(settingKey, row.type, data, form).catch((err) => log(1, `SettingsPanel: save failed for ${settingKey}:`, err)));
+        writes.push(SettingsPanel.#persistField(settingKey, row.type, data, form).catch((err) => ATLAS.log(1, `SettingsPanel: save failed for ${settingKey}:`, err)));
       }
     }
     await Promise.allSettled(writes);

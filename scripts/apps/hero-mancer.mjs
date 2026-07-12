@@ -38,7 +38,6 @@ import { openTokenizer } from '../integrations/tokenizer.mjs';
 import { evaluateRoll } from '../utils/dice.mjs';
 import { safeEnrichHTML } from '../utils/html-text.mjs';
 import { applyItemLinks } from '../utils/item-link.mjs';
-import { log } from '../utils/logger.mjs';
 import { generateName } from '../utils/randomizer-grammar.mjs';
 import { validateWizard } from '../utils/validation.mjs';
 import { applyDraft } from '../wizard/restore.mjs';
@@ -61,6 +60,24 @@ const TAB_DEFS = [
   { id: 'advancements', icon: 'fa-bolt', i18n: 'HEROMANCER.Wizard.Tabs.Advancements', modes: ['creation', 'level_up'] },
   { id: 'finalize', icon: 'fa-stamp', i18n: 'HEROMANCER.Wizard.Tabs.Finalize', modes: ['creation'] }
 ];
+
+/**
+ * Collect item UUIDs granted by a dnd5e item's advancements (ItemGrant `items`, ItemChoice `pool`).
+ * @param {object} itemData  An item's `toObject()` data.
+ * @param {Set<string>} set  Accumulator of granted item UUIDs.
+ */
+function collectGrantUuids(itemData, set) {
+  const advancement = itemData?.system?.advancement;
+  if (!Array.isArray(advancement)) return;
+  for (const adv of advancement) {
+    const cfg = adv?.configuration ?? {};
+    const entries = [...(Array.isArray(cfg.items) ? cfg.items : []), ...(Array.isArray(cfg.pool) ? cfg.pool : [])];
+    for (const entry of entries) {
+      const uuid = typeof entry === 'string' ? entry : entry?.uuid;
+      if (uuid) set.add(uuid);
+    }
+  }
+}
 
 /** @type {Object<string, string[]>} World-setting key (unprefixed) -> wizard tab parts to re-render. */
 const SETTING_PARTS = {
@@ -101,8 +118,7 @@ const SETTING_PARTS = {
   [MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS]: [],
   [MODULE.SETTINGS.PUBLISH_CREATION_SUMMARY]: [],
   [MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST]: [],
-  [MODULE.SETTINGS.SHOW_WELCOME]: [],
-  [MODULE.SETTINGS.LOGGING_LEVEL]: []
+  [MODULE.SETTINGS.SHOW_WELCOME]: []
 };
 
 /** @type {Array<{key: string, icon: string, i18n: string}>} GM-only header settings-menu shortcut buttons. */
@@ -301,6 +317,45 @@ export class HeroMancer extends HMDialog {
   /** @returns {?object} Target actor when in level-up mode. */
   get actor() {
     return this.#actor;
+  }
+
+  /**
+   * Export the current build for troubleshooting: selected items, equipment, and their granted dependents.
+   * @returns {Promise<object>} `{mode, actor, selections[], equipment[], dependents[]}`.
+   */
+  async exportSession() {
+    const selections = [];
+    const toData = (doc) => doc?.toObject?.() ?? doc ?? null;
+    const add = (role, doc) => {
+      if (doc) selections.push({ role, uuid: doc.uuid, name: doc.name, data: toData(doc) });
+    };
+    const species = await this.#identityDoc('species');
+    const background = await this.#identityDoc('background');
+    add('species', species);
+    add('background', background);
+    const classSlots = await this.#identityClassDocs();
+    for (const slot of classSlots) {
+      add('class', slot.classDoc);
+      if (slot.subclassUuid) add('subclass', await documentLoader.getFullDocument(slot.subclassUuid));
+    }
+    const draft = this.#readEquipmentDraft();
+    const equipmentContext = await buildEquipmentContext({ classDoc: classSlots[0]?.classDoc ?? null, backgroundDoc: background, speciesDoc: species, draft });
+    const review = await buildEquipmentReview({ equipmentContext, draft });
+    const equipment = [];
+    for (const row of review.items ?? []) {
+      const doc = await fromUuid(row.uuid);
+      if (doc) equipment.push({ uuid: row.uuid, name: doc.name, qty: row.qty, data: toData(doc) });
+    }
+    const grantUuids = new Set();
+    for (const s of selections) collectGrantUuids(s.data, grantUuids);
+    const known = new Set([...selections, ...equipment].map((e) => e.uuid));
+    const dependents = [];
+    for (const uuid of grantUuids) {
+      if (known.has(uuid)) continue;
+      const doc = await fromUuid(uuid);
+      if (doc) dependents.push({ uuid, name: doc.name, data: toData(doc) });
+    }
+    return { mode: this.#mode, actor: this.#actor?.toObject() ?? null, selections, equipment, dependents };
   }
 
   /** @inheritdoc */
@@ -878,7 +933,7 @@ export class HeroMancer extends HMDialog {
         const snapshot = await buildHudSnapshot(this.element, this.#shared, { shopContext: this.#shopContext, mode: this.#mode, actor: this.#actor });
         this.#hud.update(snapshot);
       } catch (err) {
-        log(2, 'HUD update failed:', err);
+        ATLAS.log(2, 'HUD update failed:', err);
       }
     }, 80);
   }
@@ -1105,7 +1160,7 @@ export class HeroMancer extends HMDialog {
           await savedOptions.save(draft);
           ui.notifications.info('HEROMANCER.Wizard.Draft.Saved', { localize: true });
         } catch (err) {
-          log(1, 'close-save failed:', err);
+          ATLAS.log(1, 'close-save failed:', err);
           ui.notifications.error('HEROMANCER.Wizard.Draft.SaveFailed', { localize: true });
           return this;
         }
@@ -2418,7 +2473,7 @@ export class HeroMancer extends HMDialog {
       this.#dirty = false;
       ui.notifications.info('HEROMANCER.Wizard.Draft.Saved', { localize: true });
     } catch (err) {
-      log(1, 'saveDraft failed:', err);
+      ATLAS.log(1, 'saveDraft failed:', err);
       ui.notifications.error('HEROMANCER.Wizard.Draft.SaveFailed', { localize: true });
     }
   }
@@ -2797,7 +2852,7 @@ export class HeroMancer extends HMDialog {
       this.#confirmCloseBypass = true;
       await this.close();
     } catch (err) {
-      log(1, 'submit failed:', err);
+      ATLAS.log(1, 'submit failed:', err);
       if (this.fsm.can(MODULE.WIZARD.EVENTS.ERROR)) this.fsm.send(MODULE.WIZARD.EVENTS.ERROR);
     }
   }

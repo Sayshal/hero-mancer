@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 import { openRestoreChooser } from './rejection-handler.mjs';
 
 const VARIANT_ICON = { submitted: 'fa-clipboard-check', approved: 'fa-circle-check', rejected: 'fa-circle-xmark' };
@@ -45,7 +44,7 @@ export async function publishApprovalEvent({ variant, characterName, submitterUs
     if (variant === 'rejected') messageData.flags = { [MODULE.ID]: { rejection: { payload: payload ?? null, reason: reason ?? null } } };
     await ChatMessage.create(messageData);
   } catch (err) {
-    log(1, 'Failed to post approval-event card:', err);
+    ATLAS.log(1, 'Failed to post approval-event card:', err);
   }
 }
 

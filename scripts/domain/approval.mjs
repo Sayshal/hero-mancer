@@ -1,7 +1,6 @@
 import { HMPrompt } from '../apps/dialog.mjs';
 import { MODULE } from '../constants.mjs';
 import { SOCKET_EVENTS, emitSocketEvent, onSocketEvent } from '../sockets.mjs';
-import { log } from '../utils/logger.mjs';
 import { publishApprovalEvent } from './approval-chat.mjs';
 import { createCharacter } from './character.mjs';
 import { clearPendingForUser } from './submission-lock.mjs';
@@ -44,7 +43,7 @@ export function decodePayload(payload) {
   try {
     return JSON.parse(payload);
   } catch (err) {
-    log(1, 'decodePayload failed:', err);
+    ATLAS.log(1, 'decodePayload failed:', err);
     return {};
   }
 }
@@ -57,7 +56,7 @@ export async function bootstrapApprovalJournal() {
   if (game.user !== game.users.activeGM) return null;
   const existing = findApprovalJournal();
   if (existing) return existing;
-  log(3, `Creating world journal "${MODULE.APPROVAL.PENDING_JOURNAL_NAME}".`);
+  ATLAS.log(3, `Creating world journal "${MODULE.APPROVAL.PENDING_JOURNAL_NAME}".`);
   return JournalEntry.create({ name: MODULE.APPROVAL.PENDING_JOURNAL_NAME, ownership: { default: 0 } });
 }
 
@@ -85,7 +84,7 @@ export async function ensureArchiveJournal() {
   if (game.user !== game.users.activeGM) return null;
   const existing = findArchiveJournal();
   if (existing) return existing;
-  log(3, `Creating world journal "${MODULE.APPROVAL.ARCHIVE_JOURNAL_NAME}".`);
+  ATLAS.log(3, `Creating world journal "${MODULE.APPROVAL.ARCHIVE_JOURNAL_NAME}".`);
   return JournalEntry.create({ name: MODULE.APPROVAL.ARCHIVE_JOURNAL_NAME, ownership: { default: 0 } });
 }
 
@@ -291,7 +290,7 @@ function buildFlagData(payload) {
 async function createSubmissionPage(flagData) {
   const journal = findApprovalJournal();
   if (!journal) {
-    log(1, 'Pending-approvals journal missing; cannot create submission page.');
+    ATLAS.log(1, 'Pending-approvals journal missing; cannot create submission page.');
     return null;
   }
   const duplicate = journal.pages.find((p) => {

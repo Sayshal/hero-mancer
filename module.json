@@ -11,7 +11,7 @@
   "changelog": "https://github.com/Sayshal/hero-mancer/releases",
   "compatibility": {
     "minimum": "14",
-    "verified": "14.363"
+    "verified": "14.364"
   },
   "description": "Rolling up a character shouldn't eat the whole first session. Hero Mancer walks the entire build in one window, species through equipment, with a live preview of hit points, saves, and proficiencies updating as you pick. It handles level-ups and multiclassing later from a button on the sheet, and GMs can drop an approval queue in front of it all.",
   "download": "",
@@ -28,25 +28,12 @@
       ],
       "paths": [
         "styles",
-        "lang",
         "templates"
       ]
     }
   },
   "id": "hero-mancer",
   "socket": true,
-  "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "lang/en.json"
-    },
-    {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "lang/pt-BR.json"
-    }
-  ],
   "license": "https://github.com/Sayshal/hero-mancer?tab=MIT-1-ov-file",
   "manifest": "https://github.com/Sayshal/hero-mancer/releases/latest/download/module.json",
   "readme": "https://github.com/Sayshal/hero-mancer?tab=readme-ov-file",
@@ -55,10 +42,16 @@
       {
         "compatibility": {
           "minimum": "5.3.0",
-          "verified": "5.3.3"
+          "verified": "14.364"
         },
         "id": "dnd5e",
         "type": "system"
+      }
+    ],
+    "requires": [
+      {
+        "id": "3ds-atlas",
+        "type": "module"
       }
     ]
   },

@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 import { WizardStateMachine } from './state-machine.mjs';
 
 /** Tabs that always appear before the reorderable advancement tabs. */
@@ -200,7 +199,7 @@ export class TabController {
       try {
         cb(prev, next);
       } catch (err) {
-        log(1, 'TabController onChange threw:', err);
+        ATLAS.log(1, 'TabController onChange threw:', err);
       }
     });
   }

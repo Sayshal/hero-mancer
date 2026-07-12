@@ -1,5 +1,3 @@
-import { log } from '../utils/logger.mjs';
-
 /**
  * Apply a saved draft to the live form.
  * @param {Object<string, *>} draft Saved field map (key = element `name`, value = field value).
@@ -16,7 +14,7 @@ export function applyDraft(draft, formElement) {
     else applyGroup(elements, value);
     applied++;
   }
-  log(3, `restore.applyDraft: applied ${applied} field(s)`);
+  ATLAS.log(3, `restore.applyDraft: applied ${applied} field(s)`);
   return applied;
 }
 

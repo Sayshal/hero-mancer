@@ -23,8 +23,6 @@ import { migrateLegacySettings } from './scripts/migrations.mjs';
 import { registerSettings } from './scripts/settings.mjs';
 import { registerSocket } from './scripts/sockets.mjs';
 import './scripts/utils/_module.mjs';
-import { initializeLogger } from './scripts/utils/logger.mjs';
-import { checkReleaseMessage } from './scripts/utils/release-message.mjs';
 import './scripts/wizard/_module.mjs';
 import './styles/apps/advancement-asi-dialog.css';
 import './styles/apps/background-builder-dialog.css';
@@ -58,7 +56,34 @@ import './styles/components/sidebar-hud.css';
 import './styles/components/wizard-splash.css';
 import './styles/hero-mancer.css';
 
+/**
+ * ATLAS troubleshooter debug lines: enabled dnd5e sources, plus the open wizard's build on export opt-in.
+ * @param {{mode: string}} ctx  ATLAS report context (`display`, `copy`, or `export`).
+ * @returns {Promise<string[]>}
+ */
+async function troubleshooterDebug({ mode } = {}) {
+  const L = ATLAS.diagnostics.dnd5eSourceLines();
+  const wizard = foundry.applications.instances.get(`${MODULE.ID}-wizard`);
+  if (mode === 'export' && wizard?.rendered) {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: 'Hero Mancer 2', icon: 'fa-solid fa-bug' },
+      content: `<p>${_loc('HEROMANCER.Settings.Troubleshooter.ExportSessionPrompt')}</p>`
+    });
+    if (ok) {
+      L.push('', '#### HM2 Session', '');
+      try {
+        const session = await wizard.exportSession();
+        L.push('```json', JSON.stringify(session, null, 2), '```');
+      } catch (err) {
+        L.push(`_session export failed: ${err.message}_`);
+      }
+    }
+  }
+  return L;
+}
+
 Hooks.once('init', () => {
+  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer', theme: { scope: '.hero-mancer', default: 'heromancer' }, debug: troubleshooterDebug });
   registerSettings();
   createGlobalNamespace();
   registerComponentPartials();
@@ -70,7 +95,6 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', () => {
-  initializeLogger();
   migrateLegacySettings();
   computeCompatibility();
   registerSocket();
@@ -87,7 +111,6 @@ Hooks.once('ready', () => {
   registerLevelUpBroadcast();
   registerAdvancementConsentListener();
   Hooks.callAll(MODULE.HOOKS.READY, MODULE);
-  checkReleaseMessage();
   checkAdvancementAutomation();
   maybeShowWelcome();
 });

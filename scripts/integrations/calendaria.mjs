@@ -1,5 +1,4 @@
 import { MODULE } from '../constants.mjs';
-import { log } from '../utils/logger.mjs';
 
 /**
  * Create a Calendaria note for a character's birthday under Calendaria's built-in `birthday` preset.
@@ -21,7 +20,7 @@ export async function createBirthdayNote(actor, birthday) {
       openSheet: false
     });
   } catch (err) {
-    log(2, 'createBirthdayNote failed:', err);
+    ATLAS.log(2, 'createBirthdayNote failed:', err);
   }
 }
 

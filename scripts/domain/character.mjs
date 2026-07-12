@@ -1,6 +1,5 @@
 import { MODULE } from '../constants.mjs';
 import { createBirthdayNote } from '../integrations/calendaria.mjs';
-import { log } from '../utils/logger.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
@@ -83,7 +82,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
     if (picks.length) await createEquipmentItems(actor, picks);
     await depositShopRemainder(actor, equipmentContext);
   } catch (err) {
-    log(1, 'createCharacter rollback:', err);
+    ATLAS.log(1, 'createCharacter rollback:', err);
     await actor.delete();
     return null;
   }
@@ -238,7 +237,7 @@ async function assignToPlayer(actor, startDraft) {
   try {
     await user.update({ character: actor.id });
   } catch (err) {
-    log(2, 'assignToPlayer failed:', err);
+    ATLAS.log(2, 'assignToPlayer failed:', err);
   }
 }
 
@@ -260,7 +259,7 @@ async function applyPlayerCustomization(startDraft) {
   try {
     await targetUser.update(update);
   } catch (err) {
-    log(2, 'applyPlayerCustomization failed:', err);
+    ATLAS.log(2, 'applyPlayerCustomization failed:', err);
   }
 }
 
@@ -403,7 +402,7 @@ async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = n
         } catch (err) {
           const reason = err?.message ?? String(err);
           if (wizardElement) markAdvancementRowError(wizardElement, advId, level, reason);
-          log(1, `Advancement ${advId} L${level} apply failed:`, err);
+          ATLAS.log(1, `Advancement ${advId} L${level} apply failed:`, err);
           return { ok: false, applied: appliedAny };
         }
         reportFeatGrantFailure(advancement, data, advId, level, wizardElement);
