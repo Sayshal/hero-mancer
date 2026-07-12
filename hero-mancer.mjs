@@ -70,8 +70,13 @@ async function troubleshooterDebug({ mode } = {}) {
       content: `<p>${_loc('HEROMANCER.Settings.Troubleshooter.ExportSessionPrompt')}</p>`
     });
     if (ok) {
-      const session = await wizard.exportSession();
-      L.push('', '#### HM2 Session', '', '```json', JSON.stringify(session, null, 2), '```');
+      L.push('', '#### HM2 Session', '');
+      try {
+        const session = await wizard.exportSession();
+        L.push('```json', JSON.stringify(session, null, 2), '```');
+      } catch (err) {
+        L.push(`_session export failed: ${err.message}_`);
+      }
     }
   }
   return L;

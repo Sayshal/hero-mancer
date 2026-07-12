@@ -67,9 +67,12 @@ const TAB_DEFS = [
  * @param {Set<string>} set  Accumulator of granted item UUIDs.
  */
 function collectGrantUuids(itemData, set) {
-  for (const adv of itemData?.system?.advancement ?? []) {
+  const advancement = itemData?.system?.advancement;
+  if (!Array.isArray(advancement)) return;
+  for (const adv of advancement) {
     const cfg = adv?.configuration ?? {};
-    for (const entry of [...(cfg.items ?? []), ...(cfg.pool ?? [])]) {
+    const entries = [...(Array.isArray(cfg.items) ? cfg.items : []), ...(Array.isArray(cfg.pool) ? cfg.pool : [])];
+    for (const entry of entries) {
       const uuid = typeof entry === 'string' ? entry : entry?.uuid;
       if (uuid) set.add(uuid);
     }
@@ -322,8 +325,9 @@ export class HeroMancer extends HMDialog {
    */
   async exportSession() {
     const selections = [];
+    const toData = (doc) => doc?.toObject?.() ?? doc ?? null;
     const add = (role, doc) => {
-      if (doc) selections.push({ role, uuid: doc.uuid, name: doc.name, data: doc.toObject() });
+      if (doc) selections.push({ role, uuid: doc.uuid, name: doc.name, data: toData(doc) });
     };
     const species = await this.#identityDoc('species');
     const background = await this.#identityDoc('background');
@@ -339,8 +343,8 @@ export class HeroMancer extends HMDialog {
     const review = await buildEquipmentReview({ equipmentContext, draft });
     const equipment = [];
     for (const row of review.items ?? []) {
-      const doc = fromUuidSync(row.uuid) ?? (await fromUuid(row.uuid));
-      if (doc) equipment.push({ uuid: row.uuid, name: doc.name, qty: row.qty, data: doc.toObject() });
+      const doc = await fromUuid(row.uuid);
+      if (doc) equipment.push({ uuid: row.uuid, name: doc.name, qty: row.qty, data: toData(doc) });
     }
     const grantUuids = new Set();
     for (const s of selections) collectGrantUuids(s.data, grantUuids);
@@ -348,8 +352,8 @@ export class HeroMancer extends HMDialog {
     const dependents = [];
     for (const uuid of grantUuids) {
       if (known.has(uuid)) continue;
-      const doc = fromUuidSync(uuid) ?? (await fromUuid(uuid));
-      if (doc) dependents.push({ uuid, name: doc.name, data: doc.toObject() });
+      const doc = await fromUuid(uuid);
+      if (doc) dependents.push({ uuid, name: doc.name, data: toData(doc) });
     }
     return { mode: this.#mode, actor: this.#actor?.toObject() ?? null, selections, equipment, dependents };
   }
