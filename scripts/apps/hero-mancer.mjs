@@ -61,6 +61,21 @@ const TAB_DEFS = [
   { id: 'finalize', icon: 'fa-stamp', i18n: 'HEROMANCER.Wizard.Tabs.Finalize', modes: ['creation'] }
 ];
 
+/**
+ * Collect item UUIDs granted by a dnd5e item's advancements (ItemGrant `items`, ItemChoice `pool`).
+ * @param {object} itemData  An item's `toObject()` data.
+ * @param {Set<string>} set  Accumulator of granted item UUIDs.
+ */
+function collectGrantUuids(itemData, set) {
+  for (const adv of itemData?.system?.advancement ?? []) {
+    const cfg = adv?.configuration ?? {};
+    for (const entry of [...(cfg.items ?? []), ...(cfg.pool ?? [])]) {
+      const uuid = typeof entry === 'string' ? entry : entry?.uuid;
+      if (uuid) set.add(uuid);
+    }
+  }
+}
+
 /** @type {Object<string, string[]>} World-setting key (unprefixed) -> wizard tab parts to re-render. */
 const SETTING_PARTS = {
   [MODULE.SETTINGS.ALLOWED_METHODS]: ['abilities'],
@@ -299,6 +314,44 @@ export class HeroMancer extends HMDialog {
   /** @returns {?object} Target actor when in level-up mode. */
   get actor() {
     return this.#actor;
+  }
+
+  /**
+   * Export the current build for troubleshooting: selected items, equipment, and their granted dependents.
+   * @returns {Promise<object>} `{mode, actor, selections[], equipment[], dependents[]}`.
+   */
+  async exportSession() {
+    const selections = [];
+    const add = (role, doc) => {
+      if (doc) selections.push({ role, uuid: doc.uuid, name: doc.name, data: doc.toObject() });
+    };
+    const species = await this.#identityDoc('species');
+    const background = await this.#identityDoc('background');
+    add('species', species);
+    add('background', background);
+    const classSlots = await this.#identityClassDocs();
+    for (const slot of classSlots) {
+      add('class', slot.classDoc);
+      if (slot.subclassUuid) add('subclass', await documentLoader.getFullDocument(slot.subclassUuid));
+    }
+    const draft = this.#readEquipmentDraft();
+    const equipmentContext = await buildEquipmentContext({ classDoc: classSlots[0]?.classDoc ?? null, backgroundDoc: background, speciesDoc: species, draft });
+    const review = await buildEquipmentReview({ equipmentContext, draft });
+    const equipment = [];
+    for (const row of review.items ?? []) {
+      const doc = fromUuidSync(row.uuid) ?? (await fromUuid(row.uuid));
+      if (doc) equipment.push({ uuid: row.uuid, name: doc.name, qty: row.qty, data: doc.toObject() });
+    }
+    const grantUuids = new Set();
+    for (const s of selections) collectGrantUuids(s.data, grantUuids);
+    const known = new Set([...selections, ...equipment].map((e) => e.uuid));
+    const dependents = [];
+    for (const uuid of grantUuids) {
+      if (known.has(uuid)) continue;
+      const doc = fromUuidSync(uuid) ?? (await fromUuid(uuid));
+      if (doc) dependents.push({ uuid, name: doc.name, data: doc.toObject() });
+    }
+    return { mode: this.#mode, actor: this.#actor?.toObject() ?? null, selections, equipment, dependents };
   }
 
   /** @inheritdoc */

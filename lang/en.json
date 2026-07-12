@@ -852,6 +852,7 @@
       "Troubleshooter": {
         "Title": "Troubleshooter",
         "Notes": "Copy or download this report and attach it to your bug report on Discord or GitHub.",
+        "ExportSessionPrompt": "A Hero Mancer window is open. Also export the current build (selected items and their granted items) so the issue can be recreated?",
         "OutputLabel": "Diagnostic report",
         "SaveToFile": "Save to File",
         "CopyToClipboard": "Copy to Clipboard",

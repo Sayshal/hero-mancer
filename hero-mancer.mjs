@@ -56,8 +56,29 @@ import './styles/components/sidebar-hud.css';
 import './styles/components/wizard-splash.css';
 import './styles/hero-mancer.css';
 
+/**
+ * ATLAS troubleshooter debug lines: enabled dnd5e sources, plus the open wizard's build on export opt-in.
+ * @param {{mode: string}} ctx  ATLAS report context (`display`, `copy`, or `export`).
+ * @returns {Promise<string[]>}
+ */
+async function troubleshooterDebug({ mode } = {}) {
+  const L = ATLAS.diagnostics.dnd5eSourceLines();
+  const wizard = foundry.applications.instances.get(`${MODULE.ID}-wizard`);
+  if (mode === 'export' && wizard?.rendered) {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: 'Hero Mancer 2', icon: 'fa-solid fa-bug' },
+      content: `<p>${_loc('HEROMANCER.Settings.Troubleshooter.ExportSessionPrompt')}</p>`
+    });
+    if (ok) {
+      const session = await wizard.exportSession();
+      L.push('', '#### HM2 Session', '', '```json', JSON.stringify(session, null, 2), '```');
+    }
+  }
+  return L;
+}
+
 Hooks.once('init', () => {
-  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer', theme: { scope: '.hero-mancer', default: 'heromancer' } });
+  ATLAS.register('hero-mancer', { title: 'Hero Mancer 2', github: 'Sayshal/hero-mancer', theme: { scope: '.hero-mancer', default: 'heromancer' }, debug: troubleshooterDebug });
   registerSettings();
   createGlobalNamespace();
   registerComponentPartials();
