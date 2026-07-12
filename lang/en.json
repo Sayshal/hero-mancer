@@ -268,6 +268,7 @@
           "Abilities": "Ability Scores",
           "Skills": "Skill Proficiencies",
           "Tool": "Tool Proficiency",
+          "Language": "Languages",
           "Feat": "Origin Feat",
           "PickN": "(choose {count})",
           "AbilityHint": "(choose {choose}; spend {points}, max {cap} each)",
@@ -279,6 +280,7 @@
             "Feat": "Feat",
             "Skills": "Skill Proficiencies",
             "Tool": "Tool Proficiency",
+            "Language": "Languages",
             "Equipment": "Equipment"
           },
           "ChooseFeat": "Choose Feat",
@@ -289,6 +291,7 @@
             "Abilities": "Choose exactly {count} ability scores.",
             "Skills": "Choose exactly {count} skills.",
             "Tool": "Choose exactly {count} tool proficiencies.",
+            "Language": "Choose exactly {count} languages.",
             "Feat": "Choose exactly {count} origin feats."
           }
         },
@@ -1024,6 +1027,10 @@
         "ToolCount": {
           "Name": "Tool Proficiencies",
           "Hint": "How many tool proficiencies a custom background grants."
+        },
+        "LanguageCount": {
+          "Name": "Languages",
+          "Hint": "How many languages a custom background grants."
         },
         "FeatCount": {
           "Name": "Origin Feats",

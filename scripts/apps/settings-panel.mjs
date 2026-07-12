@@ -97,6 +97,7 @@ const TAB_SETTINGS = {
         { key: 'CUSTOM_BG_ABILITY_CAP', type: 'number' },
         { key: 'CUSTOM_BG_SKILL_COUNT', type: 'number' },
         { key: 'CUSTOM_BG_TOOL_COUNT', type: 'number' },
+        { key: 'CUSTOM_BG_LANGUAGE_COUNT', type: 'number' },
         { key: 'CUSTOM_BG_FEAT_COUNT', type: 'number' },
         { key: 'CUSTOM_BG_BUDGET', type: 'number' }
       ]

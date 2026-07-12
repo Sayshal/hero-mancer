@@ -54,7 +54,30 @@
           {{/if}}
         {{/each}}
       </multi-select>
-      <ul class="hm-bg-feats" data-bg-tools></ul>
+      <ul class="hm-bg-feats" data-bg-list="tool"></ul>
+    </fieldset>
+  {{/if}}
+  {{#if showLanguage}}
+    <fieldset class="hm-fieldset hm-bg-language">
+      <legend>{{localize 'HEROMANCER.App.Identity.CustomBackground.Language'}}
+        <span class="hm-bg-hint">{{localize 'HEROMANCER.App.Identity.CustomBackground.PickN' count=languageCount}}</span>
+      </legend>
+      <multi-select id="hm-bg-language" name="language">
+        {{#each languages}}
+          {{#if this.label}}
+            <optgroup label="{{this.label}}">
+              {{#each this.options}}
+                <option value="{{this.value}}">{{this.label}}</option>
+              {{/each}}
+            </optgroup>
+          {{else}}
+            {{#each this.options}}
+              <option value="{{this.value}}">{{this.label}}</option>
+            {{/each}}
+          {{/if}}
+        {{/each}}
+      </multi-select>
+      <ul class="hm-bg-feats" data-bg-list="language"></ul>
     </fieldset>
   {{/if}}
   {{#if showFeat}}

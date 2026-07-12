@@ -8,7 +8,7 @@ import { HMDialog } from './dialog.mjs';
  * @returns {Promise<object>} The pack collection.
  */
 async function ensureCustomPack() {
-  let pack = game.packs.get('world.hero-mancer-2');
+  let pack = game.packs.get(MODULE.CUSTOM_PACK);
   if (!pack) {
     pack = await foundry.documents.collections.CompendiumCollection.createCompendium({
       type: 'Item',
@@ -60,12 +60,13 @@ function listJoin(items) {
  * @param {string[]} parts.abilities Chosen ability keys.
  * @param {string[]} parts.skills Chosen skill trait keys.
  * @param {string[]} parts.tools Chosen tool trait keys.
+ * @param {string[]} parts.languages Chosen language trait keys.
  * @param {Array<{uuid:string, name:string}>} parts.feats Chosen feats.
  * @param {number} parts.gold Starting gold.
  * @param {string} parts.flavor Author flavor text.
  * @returns {string} HTML description.
  */
-function buildDescription({ abilities, skills, tools, feats, gold, flavor }) {
+function buildDescription({ abilities, skills, tools, languages, feats, gold, flavor }) {
   const L = (key) => _loc(`HEROMANCER.App.Identity.CustomBackground.Description.${key}`);
   const { keyLabel } = dnd5e.documents.Trait;
   const ref = (uuid, label) => (uuid ? `@UUID[${uuid}]{${label}}` : label);
@@ -80,11 +81,13 @@ function buildDescription({ abilities, skills, tools, feats, gold, flavor }) {
     const label = keyLabel(key) ?? key;
     return uuid ? `@UUID[${uuid}]{${label}}` : label;
   });
+  const language = languages.map((key) => keyLabel(key) ?? key);
   const out = [];
   if (abil.length) out.push(`<p><strong>${L('Abilities')}:</strong> ${listJoin(abil)}</p>`);
   if (feat.length) out.push(`<p><strong>${L('Feat')}:</strong> ${listJoin(feat)}</p>`);
   if (skill.length) out.push(`<p><strong>${L('Skills')}:</strong> ${listJoin(skill)}</p>`);
   if (tool.length) out.push(`<p><strong>${L('Tool')}:</strong> ${listJoin(tool)}</p>`);
+  if (language.length) out.push(`<p><strong>${L('Language')}:</strong> ${listJoin(language)}</p>`);
   out.push(`<p><strong>${L('Equipment')}:</strong> ${gold} GP</p>`);
   if (flavor) out.push(`<p>${foundry.utils.escapeHTML(flavor)}</p>`);
   return out.join('');
@@ -140,6 +143,7 @@ export class BackgroundBuilderDialog extends HMDialog {
       abilityCap: get('CUSTOM_BG_ABILITY_CAP'),
       skillCount: get('CUSTOM_BG_SKILL_COUNT'),
       toolCount: get('CUSTOM_BG_TOOL_COUNT'),
+      languageCount: get('CUSTOM_BG_LANGUAGE_COUNT'),
       featCount: get('CUSTOM_BG_FEAT_COUNT'),
       budget: get('CUSTOM_BG_BUDGET')
     };
@@ -151,14 +155,17 @@ export class BackgroundBuilderDialog extends HMDialog {
       ...context,
       abilities,
       skills,
-      tools: await this.#toolOptions(),
+      tools: await this.#traitOptions('tool'),
+      languages: await this.#traitOptions('languages'),
       abilityChoices: this.#limits.abilityChoices,
       abilityPoints: this.#limits.abilityPoints,
       abilityCap: this.#limits.abilityCap,
       skillCount: this.#limits.skillCount,
       toolCount: this.#limits.toolCount,
+      languageCount: this.#limits.languageCount,
       featCount: this.#limits.featCount,
       showTool: this.#limits.toolCount > 0,
+      showLanguage: this.#limits.languageCount > 0,
       showFeat: this.#limits.featCount > 0
     };
   }
@@ -167,7 +174,8 @@ export class BackgroundBuilderDialog extends HMDialog {
   _onRender(context, options) {
     super._onRender(context, options);
     this.#wireLimits();
-    this.#wireTool();
+    this.#wireTraitMulti('tool', this.#limits.toolCount);
+    this.#wireTraitMulti('language', this.#limits.languageCount);
     this.#wireFeats();
   }
 
@@ -187,39 +195,45 @@ export class BackgroundBuilderDialog extends HMDialog {
     }
   }
 
-  /** Wire the tool multi-select: cap at the configured count and render chosen tools as content-link chips. */
-  #wireTool() {
-    const ms = this.element.querySelector('multi-select[name="tool"]');
+  /**
+   * Wire a capped trait multi-select (tool, language): cap at the configured count and render chosen keys as removable chips.
+   * @param {string} name Field name (`tool`/`language`), matching the `multi-select` name and `data-bg-list`.
+   * @param {number} limit Maximum selections.
+   */
+  #wireTraitMulti(name, limit) {
+    const ms = this.element.querySelector(`multi-select[name="${name}"]`);
     if (!ms) return;
-    ms.addEventListener('change', () => this.#refreshTools(ms));
-    this.element.querySelector('[data-bg-tools]')?.addEventListener('click', (event) => {
-      const remove = event.target.closest('[data-bg-tool-remove]');
+    ms.addEventListener('change', () => this.#refreshTraitMulti(ms, name, limit));
+    this.element.querySelector(`[data-bg-list="${name}"]`)?.addEventListener('click', (event) => {
+      const remove = event.target.closest('[data-bg-remove]');
       if (!remove) return;
       ms.value = ms.value.filter((v) => v !== remove.dataset.key);
-      this.#refreshTools(ms);
+      this.#refreshTraitMulti(ms, name, limit);
     });
-    this.#refreshTools(ms);
+    this.#refreshTraitMulti(ms, name, limit);
   }
 
   /**
-   * Disable the add-dropdown at the tool limit and rebuild the chosen-tool content-link chips.
-   * @param {HTMLElement} ms Tool multi-select element.
+   * Disable the add-dropdown at the limit and rebuild the chosen chips for a trait multi-select.
+   * @param {HTMLElement} ms Multi-select element.
+   * @param {string} name Field name.
+   * @param {number} limit Maximum selections.
    */
-  async #refreshTools(ms) {
+  async #refreshTraitMulti(ms, name, limit) {
     const select = ms.querySelector('select');
-    if (select) select.disabled = (ms.value?.length ?? 0) >= this.#limits.toolCount;
-    const list = this.element.querySelector('[data-bg-tools]');
+    if (select) select.disabled = (ms.value?.length ?? 0) >= limit;
+    const list = this.element.querySelector(`[data-bg-list="${name}"]`);
     if (!list) return;
-    const chips = await Promise.all((ms.value ?? []).map((key) => this.#toolChip(key)));
+    const chips = await Promise.all((ms.value ?? []).map((key) => this.#traitChip(key)));
     list.replaceChildren(...chips);
   }
 
   /**
-   * Build a removable content-link chip for one chosen tool, falling back to a plain label when it has no linked item.
-   * @param {string} key Tool trait key.
+   * Build a removable chip for one chosen trait key, using a content-link when the key maps to a base item (tools) and a plain label otherwise (languages).
+   * @param {string} key Trait key.
    * @returns {Promise<HTMLLIElement>} Chip element.
    */
-  async #toolChip(key) {
+  async #traitChip(key) {
     const li = document.createElement('li');
     li.className = 'hm-bg-feat-line';
     const uuid = toolItemUuid(key);
@@ -227,7 +241,7 @@ export class BackgroundBuilderDialog extends HMDialog {
     const label = doc ? doc.toAnchor().outerHTML : `<span>${foundry.utils.escapeHTML(dnd5e.documents.Trait.keyLabel(key) ?? key)}</span>`;
     li.innerHTML = `
     ${label}
-      <a class="hm-bg-remove" role="button" tabindex="0" data-bg-tool-remove data-key="${key}" aria-label="${_loc('HEROMANCER.App.Identity.CustomBackground.Remove')}">
+      <a class="hm-bg-remove" role="button" tabindex="0" data-bg-remove data-key="${key}" aria-label="${_loc('HEROMANCER.App.Identity.CustomBackground.Remove')}">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </a>`;
     return li;
@@ -289,9 +303,13 @@ export class BackgroundBuilderDialog extends HMDialog {
     if (btn) btn.disabled = this.#feats.size >= this.#limits.featCount;
   }
 
-  /** @returns {Promise<Array<{label:string, options:Array<{value:string, label:string}>}>>} Tool-proficiency keys grouped by category. */
-  async #toolOptions() {
-    const choices = await dnd5e.documents.Trait.choices('tool', { prefixed: true });
+  /**
+   * Group a trait's selectable keys by category for a `multi-select`.
+   * @param {string} trait Trait id (`tool`/`languages`).
+   * @returns {Promise<Array<{label:string, options:Array<{value:string, label:string}>}>>} Grouped options.
+   */
+  async #traitOptions(trait) {
+    const choices = await dnd5e.documents.Trait.choices(trait, { prefixed: true });
     const groups = new Map();
     for (const o of choices.asOptions().filter((o) => o.value && !o.rule && o.selectable !== false)) {
       const label = o.group ?? '';
@@ -329,6 +347,7 @@ export class BackgroundBuilderDialog extends HMDialog {
     const abilities = [...root.querySelectorAll('input[name="abilities"]:checked')].map((c) => c.value);
     const skills = [...root.querySelectorAll('input[name="skills"]:checked')].map((c) => c.value);
     const tools = [...(root.querySelector('multi-select[name="tool"]')?.value ?? [])];
+    const languages = [...(root.querySelector('multi-select[name="language"]')?.value ?? [])];
     const feats = [...this.#feats.keys()];
     const name = root.querySelector('input[name="name"]')?.value?.trim();
     const flavor = root.querySelector('textarea[name="description"]')?.value?.trim() ?? '';
@@ -336,12 +355,13 @@ export class BackgroundBuilderDialog extends HMDialog {
     if (abilities.length !== this.#limits.abilityChoices) errors.push(_loc('HEROMANCER.App.Identity.CustomBackground.Errors.Abilities', { count: this.#limits.abilityChoices }));
     if (skills.length !== this.#limits.skillCount) errors.push(_loc('HEROMANCER.App.Identity.CustomBackground.Errors.Skills', { count: this.#limits.skillCount }));
     if (tools.length !== this.#limits.toolCount) errors.push(_loc('HEROMANCER.App.Identity.CustomBackground.Errors.Tool', { count: this.#limits.toolCount }));
+    if (languages.length !== this.#limits.languageCount) errors.push(_loc('HEROMANCER.App.Identity.CustomBackground.Errors.Language', { count: this.#limits.languageCount }));
     if (feats.length !== this.#limits.featCount) errors.push(_loc('HEROMANCER.App.Identity.CustomBackground.Errors.Feat', { count: this.#limits.featCount }));
     if (errors.length) {
       ui.notifications.warn(errors.join(' '));
       return null;
     }
-    return { name, abilities, skills, tools, feats, flavor };
+    return { name, abilities, skills, tools, languages, feats, flavor };
   }
 
   /**
@@ -351,23 +371,25 @@ export class BackgroundBuilderDialog extends HMDialog {
    * @param {string[]} data.abilities Chosen ability keys.
    * @param {string[]} data.skills Chosen skill trait keys.
    * @param {string[]} data.tools Chosen tool trait keys.
+   * @param {string[]} data.languages Chosen language trait keys.
    * @param {string[]} data.feats Chosen origin feat uuids.
    * @param {string} data.flavor Author flavor text appended to the description.
    * @returns {Promise<Item>} Created Background Item.
    */
-  async #createBackground({ name, abilities, skills, tools, feats, flavor }) {
+  async #createBackground({ name, abilities, skills, tools, languages, feats, flavor }) {
     const pack = await ensureCustomPack();
     const folder = await ensureCustomFolder(pack);
     const finalName = name || _loc('HEROMANCER.App.Identity.CustomBackground.DefaultName');
     const fixed = Object.fromEntries(Object.keys(CONFIG.DND5E.abilities).map((k) => [k, 0]));
     const locked = Object.keys(CONFIG.DND5E.abilities).filter((k) => !abilities.includes(k));
     const advancement = [
-      { type: 'AbilityScoreImprovement', configuration: { cap: this.#limits.abilityCap, points: this.#limits.abilityPoints, fixed, locked }, value: {} },
-      { type: 'Trait', configuration: { mode: 'default', allowReplacements: false, grants: [...skills, ...tools], choices: [] }, value: { chosen: [] } }
+      { _id: foundry.utils.randomID(), type: 'AbilityScoreImprovement', configuration: { cap: this.#limits.abilityCap, points: this.#limits.abilityPoints, fixed, locked }, value: {} },
+      { _id: foundry.utils.randomID(), type: 'Trait', configuration: { mode: 'default', allowReplacements: false, grants: [...skills, ...tools, ...languages], choices: [] }, value: { chosen: [] } }
     ];
-    if (feats.length) advancement.push({ type: 'ItemGrant', configuration: { items: feats.map((uuid) => ({ optional: false, uuid })), optional: false, spell: null }, value: {} });
+    if (feats.length)
+      advancement.push({ _id: foundry.utils.randomID(), type: 'ItemGrant', configuration: { items: feats.map((uuid) => ({ optional: false, uuid })), optional: false, spell: null }, value: {} });
     const featList = feats.map((uuid) => ({ uuid, name: this.#feats.get(uuid)?.name ?? uuid }));
-    const description = buildDescription({ abilities, skills, tools, feats: featList, gold: this.#limits.budget, flavor });
+    const description = buildDescription({ abilities, skills, tools, languages, feats: featList, gold: this.#limits.budget, flavor });
     const data = {
       name: finalName,
       type: 'background',

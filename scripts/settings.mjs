@@ -364,6 +364,13 @@ export function registerSettings() {
     config: false,
     type: new NumberField({ initial: 1, min: 0, step: 1, integer: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.CUSTOM_BG_LANGUAGE_COUNT, {
+    name: 'HEROMANCER.Settings.CustomBackground.LanguageCount.Name',
+    hint: 'HEROMANCER.Settings.CustomBackground.LanguageCount.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 2, min: 0, step: 1, integer: true })
+  });
   r(MODULE.ID, MODULE.SETTINGS.CUSTOM_BG_FEAT_COUNT, {
     name: 'HEROMANCER.Settings.CustomBackground.FeatCount.Name',
     hint: 'HEROMANCER.Settings.CustomBackground.FeatCount.Hint',

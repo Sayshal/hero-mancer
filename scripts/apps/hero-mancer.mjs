@@ -2211,7 +2211,7 @@ export class HeroMancer extends HMDialog {
       descContainer.dataset.uuid = uuid;
       const doc = await documentLoader.getFullDocument(uuid);
       if (!isCurrent() || !doc) return;
-      const pageUuid = await findRelatedJournalPage(doc);
+      const pageUuid = doc.pack === MODULE.CUSTOM_PACK ? null : await findRelatedJournalPage(doc);
       if (!isCurrent()) return;
       if (pageUuid) {
         const embed = new JournalPageEmbed(descContainer);
