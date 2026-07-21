@@ -30,10 +30,10 @@ const BIOGRAPHY_FIELD_LABELS = {
   skin: 'DND5E.Skin',
   height: 'DND5E.Height',
   weight: 'DND5E.Weight',
-  traits: 'DND5E.PersonalityTraits',
-  ideals: 'DND5E.Ideals',
-  bonds: 'DND5E.Bonds',
-  flaws: 'DND5E.Flaws',
+  trait: 'DND5E.PersonalityTraits',
+  ideal: 'DND5E.Ideals',
+  bond: 'DND5E.Bonds',
+  flaw: 'DND5E.Flaws',
   appearance: 'DND5E.Appearance',
   backstory: 'DND5E.Biography'
 };

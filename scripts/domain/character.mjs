@@ -3,6 +3,7 @@ import { createBirthdayNote } from '../integrations/calendaria.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
+import { migrateBiographyDraft } from './biography-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
 import { buildEquipmentContext } from './equipment-tab.mjs';
 import { publishCharacterSummary } from './summary-message.mjs';
@@ -16,7 +17,17 @@ import { publishCharacterSummary } from './summary-message.mjs';
  * @returns {Promise<?Actor>} Created actor on success, null on failure (actor is rolled back).
  */
 export async function createCharacter({ payload, wizardElement = null, originalPayload = null }) {
-  const { startDraft, identityDraft, abilitiesDraft, advancementDraft = {}, biographyDraft = {}, equipmentDraft = {}, hpDraft = { rolls: {} }, skipSpellHandoff = false } = payload ?? {};
+  const {
+    startDraft,
+    identityDraft,
+    abilitiesDraft,
+    advancementDraft = {},
+    biographyDraft: rawBiographyDraft = {},
+    equipmentDraft = {},
+    hpDraft = { rolls: {} },
+    skipSpellHandoff = false
+  } = payload ?? {};
+  const biographyDraft = migrateBiographyDraft(rawBiographyDraft);
   const rosterInput = Array.isArray(identityDraft?.classes) ? identityDraft.classes : [];
   if (!rosterInput.length || !rosterInput[0]?.uuid) return null;
   const resolvedRoster = [];
@@ -108,7 +119,7 @@ function normalizeBirthday(birthday) {
 }
 
 /** @type {string[]} Biography fields that map directly onto `actor.system.details` text fields. */
-const DETAIL_TEXT_FIELDS = ['alignment', 'faith', 'gender', 'eyes', 'hair', 'skin', 'age', 'height', 'weight', 'ideals', 'bonds', 'flaws'];
+const DETAIL_TEXT_FIELDS = ['alignment', 'faith', 'gender', 'eyes', 'hair', 'skin', 'age', 'height', 'weight', 'trait', 'ideal', 'bond', 'flaw', 'appearance'];
 
 /**
  * Build the minimal `Actor.create` payload from start + abilities + biography drafts.
@@ -208,7 +219,7 @@ function applyTokenizerArt(data, startDraft) {
 /**
  * Map biography draft fields onto the dnd5e `system.details` shape.
  * @param {object} biographyDraft Biography-tab snapshot.
- * @returns {object} Detail subdocument with text fields, traits, appearance, and biography rich text.
+ * @returns {object} Detail subdocument with text fields, personality entries, appearance, and biography rich text.
  */
 function buildDetails(biographyDraft) {
   const details = {};
@@ -216,10 +227,8 @@ function buildDetails(biographyDraft) {
     const value = biographyDraft?.[key];
     if (value) details[key] = value;
   }
-  if (biographyDraft?.traits) details.trait = biographyDraft.traits;
   const biography = {};
   if (biographyDraft?.backstory) biography.value = biographyDraft.backstory;
-  if (biographyDraft?.appearance) biography.public = biographyDraft.appearance;
   if (Object.keys(biography).length) details.biography = biography;
   return details;
 }
