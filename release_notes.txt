@@ -1,23 +1,5 @@
-## Breaking Changes
-
-- Hero Mancer now requires the 3DS:ATLAS module, which centralizes logging, update notices, localization, and theming. The standalone release-message popup and per-module log-level setting have been removed.
-
-## New Features
-
-- During level-up, item-choice advancements that allow replacement now offer an optional picker to swap out one item chosen at an earlier level.
-- Level-up now surfaces advancements from already-owned items (such as general feats) under a new "Features" group.
-- The custom background builder now includes a language picker, with a new setting controlling how many languages a custom background grants.
-- The troubleshooter report can now optionally bundle your open wizard's current build (selected species, background, class/subclass, equipment, and granted items).
-
 ## Bug Fixes
 
-- Fixed custom backgrounds losing advancements: the ability score improvement and trait grants now all persist instead of collapsing onto a single advancement.
-- Fixed the open-feat picker hiding custom or homebrew feats that have no prerequisite level. Feats without a level requirement now appear, while level-gated feats above the cap stay hidden.
-- HP and wealth rolls that are published to chat now animate only once through Dice So Nice, instead of playing a duplicate local animation.
-- The custom background builder footer is now pinned and no longer clips its contents.
-
-## Changes
-
-- Custom backgrounds now show their own generated description in the preview panel instead of a same-named compendium journal page.
-- Removed the bundled localization files; translations now come from the required 3DS:ATLAS module.
-- Subclass previews now show the subclass description above the advancement table, followed by its features.
+- Appearance text now saves to the character's Appearance field instead of the public biography.
+- Fixed Ideals, Bonds, and Flaws entered on the Biography tab being dropped when the character was created; all personality fields now land on the actor sheet.
+- Pending submissions and resumed drafts saved before 3.1.1 are migrated automatically so their personality fields still apply.
