@@ -140,10 +140,10 @@ export function buildFinalizeContext({
       skin: biography.skin ?? '',
       height: biography.height ?? '',
       weight: biography.weight ?? '',
-      traits: biography.traits ?? '',
-      ideals: biography.ideals ?? '',
-      bonds: biography.bonds ?? '',
-      flaws: biography.flaws ?? '',
+      trait: biography.trait ?? '',
+      ideal: biography.ideal ?? '',
+      bond: biography.bond ?? '',
+      flaw: biography.flaw ?? '',
       appearance: biography.appearance ?? '',
       backstory: biography.backstory ?? ''
     }

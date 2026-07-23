@@ -15,7 +15,7 @@ import { computeAsiBonus, isOriginalClassItem } from '../domain/advancement-choo
 import { ADVANCEMENT_FIELD_PREFIX, advancementDraftFromFlat, readAdvancementDraft } from '../domain/advancement-draft.mjs';
 import { buildAdvancementsContext, picksFromRow } from '../domain/advancements-tab.mjs';
 import { approveSubmissionAfterEdit, promptRejectionReason, rejectSubmission, submitForApproval } from '../domain/approval.mjs';
-import { buildBiographyContext } from '../domain/biography-tab.mjs';
+import { buildBiographyContext, migrateBiographyDraft } from '../domain/biography-tab.mjs';
 import { pickArt } from '../domain/character-art.mjs';
 import { createCharacter } from '../domain/character.mjs';
 import * as compare from '../domain/compare.mjs';
@@ -853,7 +853,7 @@ export class HeroMancer extends HMDialog {
    */
   #readBiographyDraft() {
     const seed = this.#reviewSeed('biographyDraft') ?? this.#pendingBiographyDraft;
-    if (seed) return seed;
+    if (seed) return migrateBiographyDraft(seed);
     if (!this.element) return {};
     const out = {};
     for (const el of this.element.querySelectorAll('[data-tab="biography"] [name^="biography."]')) {
