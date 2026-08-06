@@ -267,6 +267,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ) {
   gap: 0.4rem;
@@ -294,6 +296,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):hover:not(:disabled),
 .hero-mancer
@@ -307,6 +311,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):focus-visible:not(:disabled) {
   border-color: var(--hero-mancer-border-strong);
@@ -324,6 +330,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):disabled {
   opacity: 0.45;

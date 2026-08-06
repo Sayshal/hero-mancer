@@ -27,7 +27,7 @@ const CATEGORY_BUCKETS = new Set(['weapon', 'armor', 'tool', 'focus']);
  * @returns {string} Localized label.
  */
 export function bucketLabel(bucket) {
-  return _loc(BUCKET_LANG[bucket] ?? BUCKET_LANG.other);
+  return _loc(BUCKET_LANG[bucket] ?? CONFIG.DND5E?.miscEquipmentTypes?.[bucket] ?? BUCKET_LANG.other);
 }
 
 /**
@@ -61,7 +61,7 @@ export function bucketForItem(item) {
   if (t === 'container') return 'pack';
   if (t === 'equipment') {
     if (['light', 'medium', 'heavy', 'shield'].includes(item.typeValue)) return 'armor';
-    return 'gear';
+    return CONFIG.DND5E?.miscEquipmentTypes?.[item.typeValue] ? item.typeValue : 'gear';
   }
   if (t === 'consumable') {
     if (['ammo', 'potion', 'scroll', 'poison', 'food'].includes(item.typeValue)) return item.typeValue;
