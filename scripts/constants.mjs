@@ -29,7 +29,6 @@ const SETTINGS = {
   ART_PICKER_ROOT: 'artPickerRoot',
   ALLOW_REROLLS: 'allowRerolls',
   MAX_REROLL_ATTEMPTS: 'maxRerollAttempts',
-  LOCK_IDENTITY_RULESET: 'lockIdentityRuleset',
   CUSTOM_FOCUS_ITEMS: 'customFocusItems',
   CUSTOM_POINT_BUY_TOTAL: 'customPointBuyTotal',
   CUSTOM_ROLL_FORMULA: 'customRollFormula',

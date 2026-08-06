@@ -82,10 +82,7 @@ const TAB_SETTINGS = {
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Identity',
-      settings: [
-        { key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' },
-        { key: 'LOCK_IDENTITY_RULESET', type: 'boolean' }
-      ]
+      settings: [{ key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' }]
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',

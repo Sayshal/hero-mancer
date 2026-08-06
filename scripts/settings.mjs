@@ -78,13 +78,6 @@ export function registerSettings() {
     config: false,
     type: new BooleanField({ initial: false })
   });
-  r(MODULE.ID, MODULE.SETTINGS.LOCK_IDENTITY_RULESET, {
-    name: 'HEROMANCER.Settings.LockIdentityRuleset.Name',
-    hint: 'HEROMANCER.Settings.LockIdentityRuleset.Hint',
-    scope: 'world',
-    config: false,
-    type: new BooleanField({ initial: false })
-  });
   r(MODULE.ID, MODULE.SETTINGS.HIDE_OTHER_CREATE_ACTOR_OPTIONS, {
     name: 'HEROMANCER.Settings.HideOtherCreateActorOptions.Name',
     hint: 'HEROMANCER.Settings.HideOtherCreateActorOptions.Hint',

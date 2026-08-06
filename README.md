@@ -51,7 +51,7 @@ Because rolling up a character shouldn't eat the whole first session.
 
 - **Compare & pin.** Pin any species, class, or background to compare options side by side in a separate window.
 - **Random names.** Shuffle a character name by style and culture, plus an optional randomizer for other creation aspects.
-- **Content control.** Hide specific species, backgrounds, classes, subclasses, or items from the wizard and shop; trim sourcebook suffixes; lock picks to a single ruleset.
+- **Content control.** Hide specific species, backgrounds, classes, subclasses, or items from the wizard and shop; trim sourcebook suffixes.
 - **Enforcement.** Require every Biography field, character art, or token art before a character can be submitted.
 - **Chat summaries.** Optional creation and level-up summary cards, plus starting-wealth roll posts, scoped public / whisper / off.
 - **Troubleshooter.** One-click diagnostic report to paste into a GitHub issue or Discord.
