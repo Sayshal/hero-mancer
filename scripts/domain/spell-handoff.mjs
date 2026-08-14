@@ -11,9 +11,90 @@ const waitingDialogs = new Map();
  */
 export function registerSpellHandoff() {
   Hooks.on(MODULE.HOOKS.CREATED, ({ actor }) => maybeFireSpellHandoff(actor));
+  Hooks.on(MODULE.HOOKS.LEVEL_UP_COMPLETED, ({ actor, spellcasting }) => maybeFireLevelUpHandoff(actor, spellcasting));
   onSocketEvent(SOCKET_EVENTS.SPELL_SETUP_REQUEST, handleSetupRequest);
   onSocketEvent(SOCKET_EVENTS.SPELL_SETUP_COMPLETE, handleSetupComplete);
   onSocketEvent(SOCKET_EVENTS.SPELL_SETUP_CANCELED, handleSetupCanceled);
+}
+
+/**
+ * Whether the level-up warrants surfacing the Spell Book: it granted a first caster class, a higher spell slot level, or more cantrips known, and Spell Book is available to open.
+ * @param {Actor} actor Levelled actor.
+ * @param {?{firstCaster: boolean, previousMaxSpellLevel: number, newMaxSpellLevel: number, previousCantrips: number, newCantrips: number}} delta Spellcasting delta from the level-up payload.
+ * @returns {boolean} `true` when the handoff should be surfaced.
+ */
+function handoffApplies(actor, delta) {
+  if (!actor || !delta) return false;
+  const gained = delta.firstCaster || delta.newMaxSpellLevel > delta.previousMaxSpellLevel || delta.newCantrips > delta.previousCantrips;
+  if (!gained || actor.getFlag(MODULE.ID, MODULE.FLAGS.SKIP_SPELL_HANDOFF)) return false;
+  return isSpellBookActive() && SPELLBOOK.api.hasConfiguredCompendiums();
+}
+
+/**
+ * Open the Spell Book directly when the auto-open setting is on and this client is the actor's handoff target.
+ * @param {Actor} actor Actor that just levelled up.
+ * @param {?object} delta Spellcasting delta from the level-up payload.
+ * @returns {void}
+ */
+function maybeFireLevelUpHandoff(actor, delta) {
+  if (!handoffApplies(actor, delta)) return;
+  if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.AUTO_OPEN_SPELL_BOOK)) return;
+  const owner = findPlayerOwner(actor);
+  if (owner ? owner.id !== game.user.id : !game.user.isGM) return;
+  if (delta.firstCaster && !hasClassRules(actor)) maybeFireSpellHandoff(actor);
+  else SPELLBOOK.api.openSpellBookForActor(actor);
+}
+
+/**
+ * Handoff descriptor stored on the level-up broadcast message, so the button survives a refresh and rewires from the flag rather than the rendered DOM.
+ * @param {Actor} actor Levelled actor.
+ * @param {?object} delta Spellcasting delta from the level-up payload.
+ * @returns {?{actorUuid: string, route: string}} Descriptor, or null when no handoff applies.
+ */
+export function spellHandoffFlag(actor, delta) {
+  if (!handoffApplies(actor, delta)) return null;
+  return { actorUuid: actor.uuid, route: delta.firstCaster ? 'setup' : 'open' };
+}
+
+/**
+ * Spell Book button appended to the level-up broadcast, so the handoff rides that message instead of posting a second card.
+ * @returns {string} Button HTML.
+ */
+export function spellHandoffButton() {
+  return `<footer class="hm-spell-handoff-actions">
+    <button type="button" class="hm-primary" data-hm-action="spell-handoff"><i class="fa-solid fa-book-sparkles" aria-hidden="true"></i> ${_loc('HEROMANCER.Chat.SpellHandoff.Open')}</button>
+  </footer>`;
+}
+
+/**
+ * Whether Spell Book already holds configured class rules for the actor, making the ClassRules step redundant.
+ * @param {Actor} actor Target actor.
+ * @returns {boolean} `true` when at least one class already has saved rules.
+ */
+function hasClassRules(actor) {
+  return Object.keys(actor.getFlag('spell-book', 'classRules') ?? {}).length > 0;
+}
+
+/**
+ * Rebuild the handoff button's click handler from the message flag on every render, dropping the button for viewers who don't own the actor.
+ * @param {ChatMessage} message Rendered message.
+ * @param {HTMLElement} element Rendered message root.
+ * @returns {void}
+ */
+export function wireSpellHandoffButton(message, element) {
+  const handoff = message?.getFlag(MODULE.ID, 'spellHandoff');
+  if (!handoff) return;
+  const btn = element?.querySelector('[data-hm-action="spell-handoff"]');
+  if (!btn) return;
+  const actor = fromUuidSync(handoff.actorUuid);
+  if (!actor?.isOwner) {
+    btn.closest('.hm-spell-handoff-actions')?.remove();
+    return;
+  }
+  btn.addEventListener('click', () => {
+    if (handoff.route === 'setup' && !hasClassRules(actor)) maybeFireSpellHandoff(actor);
+    else SPELLBOOK.api.openSpellBookForActor(actor);
+  });
 }
 
 /**

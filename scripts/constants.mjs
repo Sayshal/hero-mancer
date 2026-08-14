@@ -27,6 +27,7 @@ const SETTINGS = {
   ALLOW_PLAYER_LEVEL_OVERRIDE: 'allowPlayerLevelOverride',
   ALLOWED_METHODS: 'allowedMethods',
   ART_PICKER_ROOT: 'artPickerRoot',
+  AUTO_OPEN_SPELL_BOOK: 'autoOpenSpellBook',
   ALLOW_REROLLS: 'allowRerolls',
   MAX_REROLL_ATTEMPTS: 'maxRerollAttempts',
   CUSTOM_FOCUS_ITEMS: 'customFocusItems',

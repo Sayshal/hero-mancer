@@ -46,6 +46,30 @@ export function openLevelUp(actor) {
 /** @type {Set<string>} Advancement types whose grants/values dnd5e can populate from configuration alone (no user data). */
 const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
 
+/** @type {string[]} Scale-value identifiers dnd5e classes use for cantrips known, in preference order. */
+const CANTRIP_SCALE_KEYS = ['cantrips-known', 'cantrips'];
+
+/**
+ * Snapshot the actor's current spellcasting reach so a level-up can be diffed against it.
+ * @param {object} actor Character actor.
+ * @returns {{casterClasses: number, maxSpellLevel: number, cantrips: number}} Snapshot of the live actor.
+ */
+function spellcastingSnapshot(actor) {
+  const classes = Object.values(actor.spellcastingClasses ?? {});
+  let maxSpellLevel = 0;
+  for (const [key, slot] of Object.entries(actor.system?.spells ?? {})) {
+    if (!(Number(slot?.max) > 0)) continue;
+    maxSpellLevel = Math.max(maxSpellLevel, Number(slot.level) || Number(key.match(/^spell(\d+)$/)?.[1]) || 0);
+  }
+  let cantrips = 0;
+  for (const cls of classes) {
+    const scale = cls.scaleValues ?? {};
+    const key = CANTRIP_SCALE_KEYS.find((k) => scale[k]?.value !== undefined);
+    cantrips += key ? Number(scale[key].value) || 0 : 0;
+  }
+  return { casterClasses: classes.length, maxSpellLevel, cantrips };
+}
+
 /**
  * Apply a level-up to an existing actor atomically.
  * @param {object} args Apply inputs.
@@ -60,6 +84,7 @@ const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
  */
 export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubclass = null, hpDraft, advancementDraft, wizardElement = null }) {
   if (!actor || !pickedUuid) return null;
+  const before = spellcastingSnapshot(actor);
   const clone = actor.clone({}, { keepId: true });
   let classItem = null;
   let newLevel = 0;
@@ -101,7 +126,15 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     ATLAS.log(1, 'applyLevelUp aborted (no actor mutation):', err);
     return null;
   }
-  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel });
+  const after = spellcastingSnapshot(actor);
+  const spellcasting = {
+    firstCaster: !before.casterClasses && after.casterClasses > 0,
+    previousMaxSpellLevel: before.maxSpellLevel,
+    newMaxSpellLevel: after.maxSpellLevel,
+    previousCantrips: before.cantrips,
+    newCantrips: after.cantrips
+  };
+  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting });
   return { actor, newLevel };
 }
 

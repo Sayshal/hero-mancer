@@ -64,6 +64,13 @@ export function registerSettings() {
       choices: { public: 'DND5E.Public', 'whisper-owners': 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.WhisperOwners', off: 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.Off' }
     })
   });
+  r(MODULE.ID, MODULE.SETTINGS.AUTO_OPEN_SPELL_BOOK, {
+    name: 'HEROMANCER.Settings.AutoOpenSpellBook.Name',
+    hint: 'HEROMANCER.Settings.AutoOpenSpellBook.Hint',
+    scope: 'client',
+    config: false,
+    type: new BooleanField({ initial: false })
+  });
   r(MODULE.ID, MODULE.SETTINGS.MULTICLASS_THRESHOLD, {
     name: 'HEROMANCER.Settings.MulticlassThreshold.Name',
     hint: 'HEROMANCER.Settings.MulticlassThreshold.Hint',

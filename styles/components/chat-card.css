@@ -75,7 +75,8 @@
 }
 
 .consent-actions,
-.hm-approval-actions {
+.hm-approval-actions,
+.hm-spell-handoff-actions {
   gap: 0.5rem;
   display: flex;
   justify-content: center;

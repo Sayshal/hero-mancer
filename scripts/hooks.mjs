@@ -3,6 +3,7 @@ import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
 import { clearFeatIndex } from './domain/feat-browser.mjs';
+import { wireSpellHandoffButton } from './domain/spell-handoff.mjs';
 
 /** Settings that should not trigger a wizard re-render when they change. */
 const RERENDER_SKIP = new Set([`${MODULE.ID}.${MODULE.SETTINGS.WIZARD_POSITION}`]);
@@ -24,6 +25,7 @@ export function registerHooks() {
   Hooks.on('updateUser', (user, changes) => {
     if (user.id === game.user.id && 'character' in changes) refreshLaunchGlow();
   });
+  Hooks.on('renderChatMessageHTML', wireSpellHandoffButton);
 }
 
 /**

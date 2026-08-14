@@ -138,7 +138,8 @@ const TAB_SETTINGS = {
         { key: 'PUBLISH_WEALTH_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_HP_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_CREATION_SUMMARY', type: 'select' },
-        { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' }
+        { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' },
+        { key: 'AUTO_OPEN_SPELL_BOOK', type: 'boolean', requiresModule: 'spell-book' }
       ]
     }
   ],

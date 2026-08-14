@@ -1,12 +1,13 @@
 import { HMPrompt } from '../apps/dialog.mjs';
 import { MODULE } from '../constants.mjs';
+import { spellHandoffButton, spellHandoffFlag } from './spell-handoff.mjs';
 
 /** Subscribe to LEVEL_UP_COMPLETED: clear the pending flag and post the completion broadcast on the committer's session. */
 export function registerLevelUpBroadcast() {
-  Hooks.on(MODULE.HOOKS.LEVEL_UP_COMPLETED, async ({ actor, newLevel }) => {
+  Hooks.on(MODULE.HOOKS.LEVEL_UP_COMPLETED, async ({ actor, newLevel, spellcasting }) => {
     if (!actor) return;
     await actor.unsetFlag(MODULE.ID, MODULE.FLAGS.LEVEL_UP_READY);
-    await publishLevelUpComplete(actor, newLevel);
+    await publishLevelUpComplete(actor, newLevel, spellcasting);
   });
 }
 
@@ -73,14 +74,17 @@ export async function sendLevelUpToGroup(groupActor) {
 }
 
 /**
- * Post the per-actor completion chat. Called from LEVEL_UP_COMPLETED on the committer's session only.
+ * Post the per-actor completion chat.
  * @param {Actor} actor Actor that committed a level-up.
  * @param {number} newLevel Class level just gained.
+ * @param {?object} spellcasting Spellcasting delta from the level-up payload; drives the Spell Book handoff button.
  * @returns {Promise<void>}
  */
-async function publishLevelUpComplete(actor, newLevel) {
+async function publishLevelUpComplete(actor, newLevel, spellcasting) {
   const level = Number(actor.system?.details?.level) || newLevel;
-  await postChat([actor], _loc('HEROMANCER.LevelUp.Broadcast.Complete', { actor: actorAnchor(actor), level }));
+  const handoff = spellHandoffFlag(actor, spellcasting);
+  const content = _loc('HEROMANCER.LevelUp.Broadcast.Complete', { actor: actorAnchor(actor), level }) + (handoff ? spellHandoffButton() : '');
+  await postChat([actor], content, handoff);
 }
 
 /**
@@ -169,12 +173,14 @@ function collectWhisper(actors) {
  * Create a chat message honoring the broadcast mode (public / whisper-owners / off).
  * @param {Actor[]} actors Actors driving speaker + whisper resolution.
  * @param {string} content Message body HTML.
+ * @param {?object} [spellHandoff] Spell Book handoff descriptor stored as a message flag so the button rewires after a refresh.
  * @returns {Promise<void>}
  */
-async function postChat(actors, content) {
+async function postChat(actors, content, spellHandoff = null) {
   const mode = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST);
   if (mode === 'off') return;
   const msg = { content, speaker: ChatMessage.getSpeaker({ actor: actors[0] }) };
   if (mode === 'whisper-owners') msg.whisper = collectWhisper(actors);
+  if (spellHandoff) msg.flags = { [MODULE.ID]: { spellHandoff } };
   await ChatMessage.create(msg);
 }
