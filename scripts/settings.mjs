@@ -380,6 +380,20 @@ export function registerSettings() {
     config: false,
     type: new NumberField({ initial: 1, min: 1, max: 20, step: 1, integer: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.TENACITY_CREATION_MOTES, {
+    name: 'HEROMANCER.Settings.TenacityCreationMotes.Name',
+    hint: 'HEROMANCER.Settings.TenacityCreationMotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 0, min: 0, step: 1, integer: true })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.TENACITY_LEVEL_UP_MOTES, {
+    name: 'HEROMANCER.Settings.TenacityLevelUpMotes.Name',
+    hint: 'HEROMANCER.Settings.TenacityLevelUpMotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 0, min: 0, step: 1, integer: true })
+  });
   r(MODULE.ID, MODULE.SETTINGS.ALLOW_PLAYER_LEVEL_OVERRIDE, {
     name: 'HEROMANCER.Settings.AllowPlayerLevelOverride.Name',
     hint: 'HEROMANCER.Settings.AllowPlayerLevelOverride.Hint',

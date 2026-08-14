@@ -141,6 +141,13 @@ const TAB_SETTINGS = {
         { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' },
         { key: 'AUTO_OPEN_SPELL_BOOK', type: 'boolean', requiresModule: 'spell-book' }
       ]
+    },
+    {
+      group: 'HEROMANCER.Settings.SettingsPanel.Group.Motes',
+      settings: [
+        { key: 'TENACITY_CREATION_MOTES', type: 'number', requiresModule: 'tenacity' },
+        { key: 'TENACITY_LEVEL_UP_MOTES', type: 'number', requiresModule: 'tenacity' }
+      ]
     }
   ],
   advanced: [
@@ -271,10 +278,12 @@ export class SettingsPanel extends HMDialog {
   #buildSettingsContext(tabId) {
     const entry = TAB_SETTINGS[tabId] ?? [];
     const groups = entry[0]?.settings ? entry : [{ settings: entry }];
-    return groups.map((g) => ({
-      label: g.group ?? null,
-      settings: g.settings.filter((row) => !row.requiresModule || game.modules.get(row.requiresModule)?.active).map((row) => this.#buildFieldContext(row))
-    }));
+    return groups
+      .map((g) => ({
+        label: g.group ?? null,
+        settings: g.settings.filter((row) => !row.requiresModule || game.modules.get(row.requiresModule)?.active).map((row) => this.#buildFieldContext(row))
+      }))
+      .filter((g) => g.settings.length);
   }
 
   /**

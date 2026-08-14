@@ -1,5 +1,6 @@
 import { MODULE } from '../constants.mjs';
 import { createBirthdayNote } from '../integrations/calendaria.mjs';
+import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
@@ -101,6 +102,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
   await applyPlayerCustomization(startDraft);
   await assignToPlayer(actor, startDraft);
   if (startDraft?.birthday) await createBirthdayNote(actor, normalizeBirthday(startDraft.birthday));
+  await grantMilestoneMotes(actor, 'creation');
   Hooks.callAll(MODULE.HOOKS.CREATED, { actor });
   return actor;
 }
@@ -152,6 +154,7 @@ function buildActorData({ startDraft, abilitiesDraft, biographyDraft = {}, skipS
     data.prototypeToken.ring = { enabled: true, colors: { ring: startDraft.ringColor || null, background: startDraft.backgroundColor || null } };
   }
   const flagBag = {};
+  if (grantsCreationMotes()) flagBag[MODULE.FLAGS.GRANTS_MOTES] = true;
   if (skipSpellHandoff) flagBag[MODULE.FLAGS.SKIP_SPELL_HANDOFF] = true;
   if (originalPayload) flagBag[MODULE.FLAGS.SUBMITTED_PAYLOAD] = JSON.stringify(originalPayload);
   if (Object.keys(flagBag).length) data.flags = { [MODULE.ID]: flagBag };

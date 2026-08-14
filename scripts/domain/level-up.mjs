@@ -1,6 +1,7 @@
 import { HeroMancer } from '../apps/hero-mancer.mjs';
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
+import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
@@ -134,6 +135,7 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     previousCantrips: before.cantrips,
     newCantrips: after.cantrips
   };
+  await grantMilestoneMotes(actor, 'levelUp');
   Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting });
   return { actor, newLevel };
 }
