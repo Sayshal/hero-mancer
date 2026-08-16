@@ -12,22 +12,12 @@ export function isDontForgetActive() {
 }
 
 /**
- * Build the Don't Forget `source` tag identifying review reminders for a pending page.
- * @param {string} pageId Pending-journal page id.
- * @returns {string} Source tag.
- */
-function sourceForPage(pageId) {
-  return `${MODULE.ID}:${pageId}`;
-}
-
-/**
  * Collect every review reminder created for a pending page, across all users.
  * @param {string} pageId Pending-journal page id.
  * @returns {object[]} Matching reminder records.
  */
 function findReminders(pageId) {
-  const source = sourceForPage(pageId);
-  return Object.values(DONTFORGET.api.getAllReminders()).filter((r) => r.source === source);
+  return DONTFORGET.api.findReminders({ source: MODULE.ID, ref: pageId });
 }
 
 /**
@@ -36,12 +26,11 @@ function findReminders(pageId) {
  * @returns {Promise<void>}
  */
 async function onApprovalReceived({ page, flagData }) {
-  const source = sourceForPage(page.id);
   const existing = findReminders(page.id);
   const label = _loc('HEROMANCER.Approval.Reminder.Review', { name: flagData?.characterName ?? page.name, submitter: flagData?.submitterUserName ?? '' });
   for (const user of game.users.filter((u) => u.isGM)) {
     if (existing.some((r) => r.userId === user.id && !r.isDone)) continue;
-    await DONTFORGET.api.createReminder(user.id, { label, source });
+    await DONTFORGET.api.createReminder(user.id, { label, source: MODULE.ID, ref: page.id });
   }
 }
 
@@ -51,8 +40,7 @@ async function onApprovalReceived({ page, flagData }) {
  * @returns {Promise<void>}
  */
 async function onApprovalResolved({ pageId }) {
-  const source = sourceForPage(pageId);
-  for (const reminder of findReminders(pageId)) await DONTFORGET.api.completeReminder(reminder.id, source);
+  for (const reminder of findReminders(pageId)) await DONTFORGET.api.completeReminder(reminder.id, MODULE.ID);
 }
 
 /**
@@ -61,10 +49,8 @@ async function onApprovalResolved({ pageId }) {
  * @returns {Promise<void>}
  */
 async function clearReminders(pageId) {
-  const source = sourceForPage(pageId);
-  for (const reminder of findReminders(pageId)) {
-    if (reminder.isDone) continue;
-    await DONTFORGET.api.deleteReminder(reminder.id, reminder.userId, source);
+  for (const reminder of DONTFORGET.api.findReminders({ source: MODULE.ID, ref: pageId, isDone: false })) {
+    await DONTFORGET.api.deleteReminder(reminder.id, reminder.userId, MODULE.ID);
   }
 }
 
