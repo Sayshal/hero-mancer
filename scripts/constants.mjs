@@ -85,6 +85,8 @@ const HOOKS = {
   APPROVAL_SUBMITTED: 'heroMancer.ApprovalSubmitted',
   APPROVAL_APPROVED: 'heroMancer.ApprovalApproved',
   APPROVAL_REJECTED: 'heroMancer.ApprovalRejected',
+  APPROVAL_RECEIVED: 'heroMancer.ApprovalReceived',
+  APPROVAL_RESOLVED: 'heroMancer.ApprovalResolved',
   LEVEL_UP_STARTED: 'heroMancer.LevelUpStarted',
   LEVEL_UP_COMPLETED: 'heroMancer.LevelUpCompleted',
   EQUIPMENT_UI_RENDERED: 'heroMancer.EquipmentUIRendered'

@@ -164,6 +164,7 @@ export async function restoreFromArchive(pageId) {
     { name: page.name, type: 'text', text: { content: page.text.content, format: page.text.format }, flags: { [MODULE.ID]: { [SUBMISSION_FLAG]: flagData } } }
   ]);
   await page.delete();
+  if (restored) Hooks.callAll(MODULE.HOOKS.APPROVAL_RECEIVED, { page: restored, flagData, restored: true });
   return restored?.id ?? null;
 }
 
@@ -302,6 +303,7 @@ async function createSubmissionPage(flagData) {
   const [page] = await journal.createEmbeddedDocuments('JournalEntryPage', [
     { name: flagData.characterName, type: 'text', text: { content, format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML }, flags: { [MODULE.ID]: { [SUBMISSION_FLAG]: flagData } } }
   ]);
+  if (page) Hooks.callAll(MODULE.HOOKS.APPROVAL_RECEIVED, { page, flagData });
   return page ?? null;
 }
 
@@ -347,6 +349,8 @@ async function resolveName(uuid) {
  * @returns {Promise<void>}
  */
 async function resolveSubmission(page, { outcome, rejectionReason }) {
+  const existingFlag = page.getFlag(MODULE.ID, SUBMISSION_FLAG) ?? {};
+  Hooks.callAll(MODULE.HOOKS.APPROVAL_RESOLVED, { pageId: page.id, outcome, flagData: existingFlag, rejectionReason });
   if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.KEEP_APPROVAL_ARCHIVE)) {
     await page.delete();
     return;
@@ -356,7 +360,6 @@ async function resolveSubmission(page, { outcome, rejectionReason }) {
     await page.delete();
     return;
   }
-  const existingFlag = page.getFlag(MODULE.ID, SUBMISSION_FLAG) ?? {};
   const newFlag = { ...existingFlag, status: outcome, resolvedBy: game.user.id, resolvedAt: Date.now(), ...(rejectionReason ? { rejectionReason } : {}) };
   await archive.createEmbeddedDocuments('JournalEntryPage', [
     { name: page.name, type: 'text', text: { content: page.text.content, format: page.text.format }, flags: { [MODULE.ID]: { [SUBMISSION_FLAG]: newFlag } } }

@@ -19,6 +19,7 @@ import { registerComponentPartials, registerHooks } from './scripts/hooks.mjs';
 import './scripts/integrations/_module.mjs';
 import { registerHistoryNoteSocket } from './scripts/integrations/calendaria.mjs';
 import { checkAdvancementAutomation, mergeCustomFocusItems, registerAdvancementConsentListener } from './scripts/integrations/dnd5e.mjs';
+import { registerDontForgetReminders } from './scripts/integrations/dont-forget.mjs';
 import './scripts/macros/_module.mjs';
 import { migrateLegacySettings } from './scripts/migrations.mjs';
 import { registerSettings } from './scripts/settings.mjs';
@@ -60,7 +61,7 @@ import './styles/hero-mancer.css';
 /**
  * ATLAS troubleshooter debug lines: enabled dnd5e sources, plus the open wizard's build on export opt-in.
  * @param {{mode: string}} ctx  ATLAS report context (`display`, `copy`, or `export`).
- * @returns {Promise<string[]>}
+ * @returns {Promise<string[]>} Logging lines
  */
 async function troubleshooterDebug({ mode } = {}) {
   const L = ATLAS.diagnostics.dnd5eSourceLines();
@@ -101,6 +102,7 @@ Hooks.once('ready', () => {
   registerSocket();
   registerSpellHandoff();
   registerApprovalSockets();
+  registerDontForgetReminders();
   registerHistoryNoteSocket();
   registerApprovalChat();
   registerApprovalDocumentHooks();
