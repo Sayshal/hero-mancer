@@ -1,5 +1,5 @@
 import { MODULE } from '../constants.mjs';
-import { createBirthdayNote } from '../integrations/calendaria.mjs';
+import { createBirthdayNote, createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
@@ -102,6 +102,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
   await applyPlayerCustomization(startDraft);
   await assignToPlayer(actor, startDraft);
   if (startDraft?.birthday) await createBirthdayNote(actor, normalizeBirthday(startDraft.birthday));
+  await createHistoryNote(actor, { type: 'created' });
   await grantMilestoneMotes(actor, 'creation');
   Hooks.callAll(MODULE.HOOKS.CREATED, { actor });
   return actor;

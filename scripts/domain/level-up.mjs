@@ -1,6 +1,7 @@
 import { HeroMancer } from '../apps/hero-mancer.mjs';
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
+import { createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
@@ -136,6 +137,7 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     newCantrips: after.cantrips
   };
   await grantMilestoneMotes(actor, 'levelUp');
+  await createHistoryNote(actor, { type: 'levelUp', className: classItem.name, classLevel: newLevel, multiclass: isMulticlass });
   Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting });
   return { actor, newLevel };
 }

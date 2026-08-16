@@ -17,6 +17,7 @@ import { registerSpellHandoff } from './scripts/domain/spell-handoff.mjs';
 import { registerSubmissionLock } from './scripts/domain/submission-lock.mjs';
 import { registerComponentPartials, registerHooks } from './scripts/hooks.mjs';
 import './scripts/integrations/_module.mjs';
+import { registerHistoryNoteSocket } from './scripts/integrations/calendaria.mjs';
 import { checkAdvancementAutomation, mergeCustomFocusItems, registerAdvancementConsentListener } from './scripts/integrations/dnd5e.mjs';
 import './scripts/macros/_module.mjs';
 import { migrateLegacySettings } from './scripts/migrations.mjs';
@@ -100,6 +101,7 @@ Hooks.once('ready', () => {
   registerSocket();
   registerSpellHandoff();
   registerApprovalSockets();
+  registerHistoryNoteSocket();
   registerApprovalChat();
   registerApprovalDocumentHooks();
   registerApprovalReplay();
