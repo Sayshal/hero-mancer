@@ -32,7 +32,7 @@
       {
         "compatibility": {
           "minimum": "5.3.0",
-          "verified": "14.364"
+          "verified": "6.0.0"
         },
         "id": "dnd5e",
         "type": "system"
