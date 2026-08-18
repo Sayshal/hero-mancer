@@ -163,7 +163,7 @@ function findPlayerOwner(actor) {
  * @returns {void}
  */
 function awaitGmSetup(actor) {
-  if (!findActiveGm()) {
+  if (!ATLAS.primaryGM) {
     ui.notifications.warn('HEROMANCER.Integrations.SpellBook.NoGM', { localize: true, permanent: true });
     return;
   }
@@ -171,14 +171,6 @@ function awaitGmSetup(actor) {
   waitingDialogs.set(actor.uuid, dialog);
   dialog.render({ force: true });
   emitSocketEvent(SOCKET_EVENTS.SPELL_SETUP_REQUEST, { actorUuid: actor.uuid, requesterUserId: game.user.id });
-}
-
-/**
- * First active GM, sorted by user id (deterministic across clients), or null.
- * @returns {?object} The chosen GM user document, or null.
- */
-function findActiveGm() {
-  return game.users.filter((u) => u.isGM && u.active).sort((a, b) => a.id.localeCompare(b.id))[0] ?? null;
 }
 
 /**
@@ -200,8 +192,7 @@ function createWaitingDialog(actor) {
  * @returns {void}
  */
 function handleSetupRequest({ actorUuid, requesterUserId }) {
-  if (!game.user.isGM) return;
-  if (findActiveGm()?.id !== game.user.id) return;
+  if (!ATLAS.isPrimaryGM) return;
   const actor = fromUuidSync(actorUuid);
   if (!actor) {
     emitSocketEvent(SOCKET_EVENTS.SPELL_SETUP_CANCELED, { actorUuid, recipientUserId: requesterUserId });

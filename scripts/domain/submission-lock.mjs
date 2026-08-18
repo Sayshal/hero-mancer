@@ -54,7 +54,7 @@ export async function clearPendingForUser(userId) {
  * @returns {Promise<void>}
  */
 export async function clearAllPending() {
-  if (game.user !== game.users.activeGM) return;
+  if (!ATLAS.isPrimaryGM) return;
   for (const user of game.users) {
     if (user.getFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION)) await user.unsetFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
   }

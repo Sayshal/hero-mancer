@@ -53,7 +53,7 @@ export function decodePayload(payload) {
  * @returns {Promise<?JournalEntry>} The pending journal, or null if not the active GM.
  */
 export async function bootstrapApprovalJournal() {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const existing = findApprovalJournal();
   if (existing) return existing;
   ATLAS.log(3, `Creating world journal "${MODULE.APPROVAL.PENDING_JOURNAL_NAME}".`);
@@ -81,7 +81,7 @@ export function findArchiveJournal() {
  * @returns {Promise<?JournalEntry>} The archive journal, or null if not the active GM.
  */
 export async function ensureArchiveJournal() {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const existing = findArchiveJournal();
   if (existing) return existing;
   ATLAS.log(3, `Creating world journal "${MODULE.APPROVAL.ARCHIVE_JOURNAL_NAME}".`);
@@ -99,7 +99,7 @@ export async function submitForApproval(payload) {
   const flagData = buildFlagData(payload);
   Hooks.callAll(MODULE.HOOKS.APPROVAL_SUBMITTED, { flagData });
   publishApprovalEvent({ variant: 'submitted', characterName: flagData.characterName, submitterUserId: flagData.submitterUserId, submitterName: flagData.submitterUserName });
-  if (game.user === game.users.activeGM) {
+  if (ATLAS.isPrimaryGM) {
     const page = await createSubmissionPage(flagData);
     return page?.id ?? null;
   }
@@ -134,7 +134,7 @@ export function getArchivedSubmissions() {
  * @returns {Promise<boolean>} True when the journal existed and was removed.
  */
 export async function clearArchive() {
-  if (game.user !== game.users.activeGM) return false;
+  if (!ATLAS.isPrimaryGM) return false;
   const journal = findArchiveJournal();
   if (!journal) return false;
   await journal.delete();
@@ -147,7 +147,7 @@ export async function clearArchive() {
  * @returns {Promise<?string>} The new pending page id, or null on no-op.
  */
 export async function restoreFromArchive(pageId) {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const page = findArchiveJournal()?.pages.get(pageId);
   const journal = findApprovalJournal();
   if (!page || !journal) return null;
@@ -211,7 +211,7 @@ export function promptRejectionReason() {
  * @returns {Promise<?string>} The resolved page id, or null on no-op.
  */
 export async function approveSubmission(pageId) {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const page = findApprovalJournal()?.pages.get(pageId);
   if (!page) return null;
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
@@ -238,7 +238,7 @@ export async function approveSubmission(pageId) {
  * @returns {Promise<?string>} The resolved page id, or null on no-op.
  */
 export async function approveSubmissionAfterEdit(pageId, characterName, actorUuid) {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const page = findApprovalJournal()?.pages.get(pageId);
   if (!page) return null;
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
@@ -256,7 +256,7 @@ export async function approveSubmissionAfterEdit(pageId, characterName, actorUui
  * @returns {Promise<?string>} The resolved page id, or null on no-op.
  */
 export async function rejectSubmission(pageId, reason = '') {
-  if (game.user !== game.users.activeGM) return null;
+  if (!ATLAS.isPrimaryGM) return null;
   const page = findApprovalJournal()?.pages.get(pageId);
   if (!page) return null;
   const flagData = page.getFlag(MODULE.ID, SUBMISSION_FLAG);
@@ -412,7 +412,7 @@ function refreshQueueBrowser() {
  * @returns {Promise<void>}
  */
 export async function recoverPendingSubmissions() {
-  if (game.user !== game.users.activeGM) return;
+  if (!ATLAS.isPrimaryGM) return;
   for (const user of game.users) {
     const flagData = user.getFlag(MODULE.ID, MODULE.FLAGS.PENDING_SUBMISSION);
     if (!flagData) continue;
@@ -440,7 +440,7 @@ export function registerApprovalSockets() {
  * @returns {Promise<void>}
  */
 async function handleSubmitFromPlayer({ flagData }) {
-  if (game.user !== game.users.activeGM) return;
+  if (!ATLAS.isPrimaryGM) return;
   if (!flagData) return;
   await createSubmissionPage(flagData);
 }

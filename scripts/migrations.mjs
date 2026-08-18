@@ -38,7 +38,7 @@ const SECTION_LABELS = { background: 'HEROMANCER.App.TabNames.background', speci
  * @returns {Promise<void>}
  */
 export async function migrateLegacySettings() {
-  if (!game.user.isGM) return;
+  if (!ATLAS.isPrimaryGM) return;
   const changes = [await renameCustomStandardArray(), await repairAdvancementOrder(), await repairAllowedMethods(), await deleteRemovedKeys()];
   if (changes.some(Boolean)) await notifyMigration();
 }

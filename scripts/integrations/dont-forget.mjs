@@ -81,15 +81,15 @@ async function onJournalDeleted(journal) {
 export function registerDontForgetReminders() {
   if (!isDontForgetActive()) return;
   Hooks.on(MODULE.HOOKS.APPROVAL_RECEIVED, (event) => {
-    if (game.user === game.users.activeGM) onApprovalReceived(event);
+    if (ATLAS.isPrimaryGM) onApprovalReceived(event);
   });
   Hooks.on(MODULE.HOOKS.APPROVAL_RESOLVED, (event) => {
-    if (game.user === game.users.activeGM) onApprovalResolved(event);
+    if (ATLAS.isPrimaryGM) onApprovalResolved(event);
   });
   Hooks.on('deleteJournalEntryPage', (page) => {
-    if (game.user === game.users.activeGM) onPageDeleted(page);
+    if (ATLAS.isPrimaryGM) onPageDeleted(page);
   });
   Hooks.on('deleteJournalEntry', (journal) => {
-    if (game.user === game.users.activeGM) onJournalDeleted(journal);
+    if (ATLAS.isPrimaryGM) onJournalDeleted(journal);
   });
 }

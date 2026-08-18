@@ -88,7 +88,7 @@ async function writeHistoryNote({ type, uuid, name, className, classLevel, chara
 /** Wire the GM-side writer for milestones relayed by players who cannot manage notes. */
 export function registerHistoryNoteSocket() {
   onSocketEvent(SOCKET_EVENTS.HISTORY_NOTE, (data) => {
-    if (game.users.activeGM?.isSelf) writeHistoryNote(data);
+    if (ATLAS.isPrimaryGM) writeHistoryNote(data);
   });
 }
 

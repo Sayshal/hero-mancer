@@ -60,7 +60,7 @@ export class PendingApprovals extends HMDialog {
       showArchive,
       archiveEnabled,
       archiveExists: !!findArchiveJournal(),
-      canClearArchive: showArchive && !!findArchiveJournal() && game.user === game.users.activeGM,
+      canClearArchive: showArchive && !!findArchiveJournal() && ATLAS.isPrimaryGM,
       headerControls: archiveEnabled
         ? [
             {
