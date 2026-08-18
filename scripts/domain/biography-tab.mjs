@@ -30,8 +30,7 @@ export function buildBiographyContext(draft = {}, startDraft = {}) {
 
 /**
  * @type {Object<string, string>} Pre-3.1.1 plural personality draft keys mapped onto their current singular names.
- * @since 3.1.0
- * @until 3.3.0
+ * @deprecated since 3.1.0 — remove in 3.3.0
  */
 const LEGACY_PERSONALITY_KEYS = { traits: 'trait', ideals: 'ideal', bonds: 'bond', flaws: 'flaw' };
 
