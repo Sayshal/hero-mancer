@@ -4,5 +4,4 @@ export * from './compare-dialog.mjs';
 export * from './hero-mancer.mjs';
 export * from './pending-approvals.mjs';
 export * from './settings-panel.mjs';
-export * from './troubleshooter.mjs';
 export * from './welcome.mjs';

@@ -75,19 +75,6 @@
       </div>
     {{/each}}
   </div>
-{{else if (eq type "menu")}}
-  <div class="form-group hm-sp-field hm-sp-field-menu" data-setting="{{key}}">
-    <label>{{localize name}}</label>
-    <div class="form-fields">
-      <button type="button" data-action="openMenu" data-menu-key="{{key}}">
-        <i class="fa-solid {{icon}}" aria-hidden="true"></i>
-        {{localize buttonLabel}}
-      </button>
-    </div>
-    {{#if hint}}
-      <p class="hint">{{localize hint}}</p>
-    {{/if}}
-  </div>
 {{else}}
   <div class="form-group hm-sp-field" data-setting="{{key}}">
     <label for="hm-sp-{{key}}">{{localize name}}</label>

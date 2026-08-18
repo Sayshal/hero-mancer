@@ -165,10 +165,7 @@ const TAB_SETTINGS = {
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Tools',
-      settings: [
-        { key: 'TROUBLESHOOTING_MENU', type: 'menu', icon: 'fa-bug', buttonLabelKey: 'HEROMANCER.Settings.Troubleshooter.Menu.Label' },
-        { key: 'TOKENIZER_COMPATIBILITY', type: 'boolean', requiresModule: 'tokenizer-2' }
-      ]
+      settings: [{ key: 'TOKENIZER_COMPATIBILITY', type: 'boolean', requiresModule: 'tokenizer-2' }]
     }
   ],
   exclusions: [{ settings: [{ key: 'EXCLUSION_LIST', type: 'exclusions' }] }]
@@ -205,7 +202,6 @@ export class SettingsPanel extends HMDialog {
       removeFocusItem: SettingsPanel.#onRemoveFocusItem,
       addCostRow: SettingsPanel.#onAddCostRow,
       removeCostRow: SettingsPanel.#onRemoveCostRow,
-      openMenu: SettingsPanel.#onOpenMenu,
       browseExclusion: SettingsPanel.#onBrowseExclusion
     }
   };
@@ -304,17 +300,6 @@ export class SettingsPanel extends HMDialog {
           label: _loc(`HEROMANCER.Settings.CompendiumExclusionList.Tabs.${labelId}`),
           countLabel: _loc('HEROMANCER.Settings.CompendiumExclusionList.HiddenCount', { count: (exclusions[bucket] ?? []).length })
         }))
-      };
-    }
-    if (row.type === 'menu') {
-      const menu = game.settings.menus.get(`${MODULE.ID}.${settingKey}`);
-      return {
-        key: settingKey,
-        type: 'menu',
-        name: row.nameKey ?? menu?.name ?? '',
-        hint: row.hintKey ?? menu?.hint ?? null,
-        icon: row.icon ?? menu?.icon ?? 'fa-gear',
-        buttonLabel: row.buttonLabelKey ?? 'HEROMANCER.Settings.SettingsPanel.Menu.Label'
       };
     }
     const config = game.settings.settings.get(`${MODULE.ID}.${settingKey}`);
@@ -624,25 +609,12 @@ export class SettingsPanel extends HMDialog {
     picker.render(true);
   }
 
-  /**
-   * Open a registered sub-menu (e.g. Compendium Exclusion List) by setting key.
-   * @param {Event} _event Click event.
-   * @param {HTMLElement} target Button element with data-menu-key.
-   */
-  static #onOpenMenu(_event, target) {
-    const settingKey = target.dataset.menuKey;
-    const menu = game.settings.menus.get(`${MODULE.ID}.${settingKey}`);
-    if (!menu?.type) return;
-    const windowId = this.window.windowId;
-    new menu.type().render({ force: true, ...(windowId && { window: { windowId } }) });
-  }
-
   /** Reset every setting on the active tab to its registered default — in DOM only; user still must Save. */
   static #onResetTab() {
     const tabId = this.tabGroups.primary;
     const form = this.element;
     for (const row of tabRows(tabId)) {
-      if (row.type === 'menu' || row.type === 'exclusions') continue;
+      if (row.type === 'exclusions') continue;
       if (row.requiresModule && !game.modules.get(row.requiresModule)?.active) continue;
       const settingKey = MODULE.SETTINGS[row.key];
       const config = game.settings.settings.get(`${MODULE.ID}.${settingKey}`);
@@ -721,7 +693,7 @@ export class SettingsPanel extends HMDialog {
     const writes = [];
     for (const tabId of Object.keys(TAB_SETTINGS)) {
       for (const row of tabRows(tabId)) {
-        if (row.type === 'menu' || row.type === 'exclusions') continue;
+        if (row.type === 'exclusions') continue;
         if (row.requiresModule && !game.modules.get(row.requiresModule)?.active) continue;
         const settingKey = MODULE.SETTINGS[row.key];
         writes.push(SettingsPanel.#persistField(settingKey, row.type, data, form).catch((err) => ATLAS.log(1, `SettingsPanel: save failed for ${settingKey}:`, err)));

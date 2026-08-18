@@ -1,6 +1,5 @@
 import { PendingApprovals } from './apps/pending-approvals.mjs';
 import { SettingsPanel } from './apps/settings-panel.mjs';
-import { Troubleshooter } from './apps/troubleshooter.mjs';
 import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
@@ -193,14 +192,6 @@ export function registerSettings() {
     icon: 'fa-solid fa-clipboard-check',
     type: PendingApprovals,
     restricted: true
-  });
-  game.settings.registerMenu(MODULE.ID, MODULE.SETTINGS.TROUBLESHOOTING_MENU, {
-    name: 'HEROMANCER.Settings.Troubleshooter.Menu.Name',
-    hint: 'HEROMANCER.Settings.Troubleshooter.Menu.Hint',
-    label: 'HEROMANCER.Settings.Troubleshooter.Menu.Label',
-    icon: 'fa-solid fa-bug',
-    type: Troubleshooter,
-    restricted: false
   });
   r(MODULE.ID, MODULE.SETTINGS.ART_PICKER_ROOT, {
     name: 'HEROMANCER.Settings.ArtPickerRoot.Name',

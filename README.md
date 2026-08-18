@@ -54,7 +54,6 @@ Because rolling up a character shouldn't eat the whole first session.
 - **Content control.** Hide specific species, backgrounds, classes, subclasses, or items from the wizard and shop; trim sourcebook suffixes.
 - **Enforcement.** Require every Biography field, character art, or token art before a character can be submitted.
 - **Chat summaries.** Optional creation and level-up summary cards, plus starting-wealth roll posts, scoped public / whisper / off.
-- **Troubleshooter.** One-click diagnostic report to paste into a GitHub issue or Discord.
 - **Integrations.** Spell Book handoff for casters, Tokenizer 2 portrait editor, Dice So Nice for ability rolls, and Calendaria birthday + age. Each activates only when its module is active.
 
 Hero Mancer makes zero external network requests: no telemetry, no analytics, no usage tracking.

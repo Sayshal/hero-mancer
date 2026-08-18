@@ -68,7 +68,6 @@ const SETTINGS = {
   TENACITY_LEVEL_UP_MOTES: 'tenacityLevelUpMotes',
   TOKENIZER_COMPATIBILITY: 'tokenizerCompatibility',
   TRIM_SOURCE_PARENTHETICAL: 'trimSourceParenthetical',
-  TROUBLESHOOTING_MENU: 'troubleshootingMenu',
   DISABLE_WELCOME_POPUP: 'disableWelcomePopup',
   SHOW_WELCOME: 'showWelcome',
   WIZARD_POSITION: 'wizardPosition'
@@ -167,7 +166,6 @@ const TEMPLATES = {
       EXCLUSIONS: `${TEMPLATE_ROOT}/apps/settings-panel/exclusions.hbs`,
       FOOTER: `${TEMPLATE_ROOT}/apps/settings-panel/footer.hbs`
     },
-    TROUBLESHOOTER: `${TEMPLATE_ROOT}/apps/troubleshooter/main.hbs`,
     WELCOME: `${TEMPLATE_ROOT}/apps/welcome/main.hbs`
   },
   CHAT: {

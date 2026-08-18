@@ -31,7 +31,6 @@ import './styles/apps/background-builder-dialog.css';
 import './styles/apps/hero-mancer.css';
 import './styles/apps/pending-approvals.css';
 import './styles/apps/settings-panel.css';
-import './styles/apps/troubleshooter.css';
 import './styles/apps/welcome.css';
 import './styles/components/ability-block.css';
 import './styles/components/banner.css';
