@@ -230,9 +230,9 @@ export function registerSettings() {
     config: false,
     type: new ArrayField(new ObjectField()),
     default: [
-      { id: 'background', label: 'HEROMANCER.App.TabNames.background', order: 10, sortable: true },
-      { id: 'species', label: 'HEROMANCER.App.TabNames.species', order: 20, sortable: true },
-      { id: 'class', label: 'HEROMANCER.App.TabNames.class', order: 30, sortable: true }
+      { id: 'background', label: 'HEROMANCER.App.TabNames.Background', order: 10, sortable: true },
+      { id: 'species', label: 'HEROMANCER.App.TabNames.Species', order: 20, sortable: true },
+      { id: 'class', label: 'HEROMANCER.App.TabNames.Class', order: 30, sortable: true }
     ]
   });
   r(MODULE.ID, MODULE.SETTINGS.ALLOWED_METHODS, { scope: 'world', config: false, type: new ObjectField({ initial: { standardArray: true, pointBuy: true, manualFormula: true, manualEntry: true } }) });

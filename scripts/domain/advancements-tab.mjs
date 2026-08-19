@@ -93,10 +93,10 @@ export async function buildAdvancementsContext({
     row.tiles = buildPickTiles(row);
     const ribbonLabel =
       row.state === 'done'
-        ? _loc('HEROMANCER.App.Advancements.Chip.done')
+        ? _loc('HEROMANCER.App.Advancements.Chip.Done')
         : row.spec.kind === 'asi'
-          ? _loc('HEROMANCER.App.Advancements.Chip.choose')
-          : _loc('HEROMANCER.App.Advancements.Chip.choose-count', { count: row.requiredCount });
+          ? _loc('HEROMANCER.App.Advancements.Chip.Choose')
+          : _loc('HEROMANCER.App.Advancements.Chip.ChooseCount', { count: row.requiredCount });
     for (const tile of row.tiles) if (tile.state === 'choice') tile.ribbonLabel = ribbonLabel;
     if (row.spec.kind === 'asi') {
       const add = (map) => {
@@ -730,7 +730,7 @@ function requiredCountFor(spec) {
 function partialError(spec, required) {
   const filled = filledCount(spec);
   if (!filled || filled >= required) return null;
-  return { filled, required, label: _loc('HEROMANCER.App.Advancements.Chip.partial', { filled, required }), tooltip: _loc('HEROMANCER.App.Advancements.Chip.partial-tooltip') };
+  return { filled, required, label: _loc('HEROMANCER.App.Advancements.Chip.Partial', { filled, required }), tooltip: _loc('HEROMANCER.App.Advancements.Chip.PartialTooltip') };
 }
 
 /**
