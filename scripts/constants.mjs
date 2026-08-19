@@ -55,6 +55,7 @@ const SETTINGS = {
   MULTICLASS_THRESHOLD: 'multiclassThreshold',
   PENDING_APPROVALS_MENU: 'pendingApprovalsMenu',
   POINT_BUY_COST_MAP: 'pointBuyCostMap',
+  PUBLISH_ABILITY_ROLLS: 'publishAbilityRolls',
   PUBLISH_CREATION_SUMMARY: 'publishCreationSummary',
   PUBLISH_HP_ROLLS: 'publishHpRolls',
   PUBLISH_LEVEL_UP_BROADCAST: 'publishLevelUpBroadcast',

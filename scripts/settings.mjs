@@ -34,6 +34,13 @@ export function registerSettings() {
     config: false,
     type: new BooleanField({ initial: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS, {
+    name: 'HEROMANCER.Settings.PublishAbilityRolls.Name',
+    hint: 'HEROMANCER.Settings.PublishAbilityRolls.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: true })
+  });
   r(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS, {
     name: 'HEROMANCER.Settings.PublishHpRolls.Name',
     hint: 'HEROMANCER.Settings.PublishHpRolls.Hint',

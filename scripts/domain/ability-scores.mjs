@@ -63,13 +63,15 @@ export function getPrimaryAbilities(classDoc) {
 }
 
 /**
- * Roll an ability formula and return the integer result.
+ * Roll an ability formula and return the integer result alongside the evaluated Roll.
  * @param {string} formula Roll formula (e.g. `4d6kh3`).
- * @returns {Promise<number>} Total rolled.
+ * @param {object} [options] Roll options.
+ * @param {boolean} [options.publish] When the caller will post the roll to chat, skip the local Dice So Nice animation.
+ * @returns {Promise<{total: number, roll: Roll}>} Total rolled and the evaluated Roll.
  */
-export async function rollAbilityFormula(formula) {
-  const roll = await evaluateRoll(formula);
-  return Math.floor(roll.total);
+export async function rollAbilityFormula(formula, { publish = false } = {}) {
+  const roll = await evaluateRoll(formula, { publish });
+  return { total: Math.floor(roll.total), roll };
 }
 
 /**

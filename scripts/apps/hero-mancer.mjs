@@ -114,6 +114,7 @@ const SETTING_PARTS = {
   [MODULE.SETTINGS.TRIM_SOURCE_PARENTHETICAL]: ['identity', 'equipment', 'advancements'],
   [MODULE.SETTINGS.KEEP_APPROVAL_ARCHIVE]: [],
   [MODULE.SETTINGS.HIDE_OTHER_CREATE_ACTOR_OPTIONS]: [],
+  [MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS]: [],
   [MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS]: [],
   [MODULE.SETTINGS.PUBLISH_CREATION_SUMMARY]: [],
   [MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST]: [],
@@ -2100,7 +2101,7 @@ export class HeroMancer extends HMDialog {
     refreshSaOptions();
     refreshSaPoolDisplay();
     this.#refreshMfPoolOptions(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
     this.#refreshMfPoolDisplay(blocks);
     this.#refreshPointBuyTracker(blocks);
   }
@@ -2580,24 +2581,48 @@ export class HeroMancer extends HMDialog {
     const blocks = AbilityBlock.attachAll(this.element);
     const mfBlocks = blocks.filter((b) => b.method === 'manualFormula');
     if (!mfBlocks.length) return;
+    const rerolling = !!this.#mfPool;
+    if (rerolling) {
+      if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS)) return;
+      const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
+      if (max > 0 && this.#mfRerollsUsed >= max) {
+        ui.notifications.warn('HEROMANCER.App.Abilities.RerollExhausted', { localize: true });
+        return;
+      }
+    }
     this.#mfPool = new Map();
-    this.#mfRerollsUsed = 0;
+    this.#mfRerollsUsed = rerolling ? this.#mfRerollsUsed + 1 : 0;
     mfBlocks.forEach((b) => {
       b.setPoolMode(true);
       const combo = b.root.querySelector('[data-mode="manualFormula"] [data-combobox]');
       if (combo) Combobox.attach(combo).clear();
     });
     this.#refreshMfPoolDisplay(blocks);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS);
+    const rolls = [];
     for (const block of mfBlocks) {
       const formula = block.root.querySelector('[data-mode="manualFormula"]')?.dataset.defaultFormula;
       if (!formula) continue;
-      const result = await rollAbilityFormula(formula);
-      const key = String(result);
+      const { total, roll } = await rollAbilityFormula(formula, { publish });
+      rolls.push(roll);
+      const key = String(total);
       this.#mfPool.set(key, (this.#mfPool.get(key) ?? 0) + 1);
       this.#refreshMfPoolDisplay(blocks);
     }
+    if (publish) await this.#publishAbilityRolls(rolls);
     this.#refreshMfPoolOptions(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
+  }
+
+  /**
+   * Post the rolled ability formulas to chat as a single aggregated card.
+   * @param {Roll[]} rolls Evaluated ability rolls.
+   * @returns {Promise<void>}
+   */
+  async #publishAbilityRolls(rolls) {
+    if (!rolls.length) return;
+    const content = (await Promise.all(rolls.map((roll) => roll.render()))).join('');
+    await ChatMessage.create({ flavor: _loc('HEROMANCER.App.Abilities.RollFlavor'), speaker: ChatMessage.getSpeaker({ user: game.user }), content, rolls });
   }
 
   /**
@@ -2636,26 +2661,36 @@ export class HeroMancer extends HMDialog {
     const oldCount = this.#mfPool.get(oldKey) ?? 0;
     if (oldCount <= 1) this.#mfPool.delete(oldKey);
     else this.#mfPool.set(oldKey, oldCount - 1);
-    const result = await rollAbilityFormula(formula);
-    const newKey = String(result);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS);
+    const { total, roll } = await rollAbilityFormula(formula, { publish });
+    if (publish) await this.#publishAbilityRolls([roll]);
+    const newKey = String(total);
     this.#mfPool.set(newKey, (this.#mfPool.get(newKey) ?? 0) + 1);
     this.#mfRerollsUsed += 1;
     this.#refreshMfPoolOptions(blocks);
     this.#refreshMfPoolDisplay(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
   }
 
-  /** Toggle visibility/enabled state of the global Reroll button + update remaining count. */
-  #refreshMfRerollButton() {
+  /** Toggle the Roll stats + global Reroll buttons against the reroll allowance and update the remaining count. */
+  #refreshMfRollButtons() {
+    const allow = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS);
+    const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
+    const remaining = max > 0 ? Math.max(0, max - this.#mfRerollsUsed) : Infinity;
+    const rollAll = this.element.querySelector('[data-roll-all]');
+    if (rollAll) {
+      const locked = !!this.#mfPool && (!allow || remaining <= 0);
+      rollAll.disabled = locked;
+      if (locked) rollAll.dataset.tooltip = allow ? 'HEROMANCER.App.Abilities.RerollExhausted' : 'HEROMANCER.App.Abilities.RollAllLocked';
+      else delete rollAll.dataset.tooltip;
+    }
     const btn = this.element.querySelector('[data-reroll-pool]');
     if (!btn) return;
-    const allow = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS);
     if (!this.#mfPool || !allow) {
       btn.hidden = true;
       return;
     }
     btn.hidden = false;
-    const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
     const counter = btn.querySelector('[data-reroll-remaining]');
     if (max <= 0) {
       btn.disabled = false;
@@ -2665,7 +2700,6 @@ export class HeroMancer extends HMDialog {
       }
       return;
     }
-    const remaining = Math.max(0, max - this.#mfRerollsUsed);
     btn.disabled = remaining <= 0;
     if (counter) {
       counter.textContent = `${remaining}/${max}`;
