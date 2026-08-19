@@ -2,13 +2,21 @@ import { MODULE } from '../constants.mjs';
 import { emitSocketEvent, onSocketEvent, SOCKET_EVENTS } from '../sockets.mjs';
 
 /**
+ * Whether Hero Mancer is allowed to write Calendaria notes.
+ * @returns {boolean} True when the world setting is on.
+ */
+function calendarNotesEnabled() {
+  return game.settings.get(MODULE.ID, MODULE.SETTINGS.ENABLE_CALENDAR_NOTES);
+}
+
+/**
  * Create a Calendaria note for a character's birthday under Calendaria's built-in `birthday` preset.
  * @param {object} actor Newly created actor (used for name).
  * @param {{year:number, month:number, day:number}} birthday Birthday date in public (1-indexed) format.
  * @returns {Promise<void>}
  */
 export async function createBirthdayNote(actor, birthday) {
-  if (!MODULE.COMPAT?.CALENDARIA || !birthday?.year || !birthday?.month || !birthday?.day) return;
+  if (!MODULE.COMPAT?.CALENDARIA || !calendarNotesEnabled() || !birthday?.year || !birthday?.month || !birthday?.day) return;
   if (CALENDARIA.api.canManageNotes?.() === false) return;
   try {
     await CALENDARIA.api.createNote({
@@ -18,6 +26,7 @@ export async function createBirthdayNote(actor, birthday) {
       categories: ['birthday'],
       icon: 'fas fa-cake-candles',
       color: '#ff6b6b',
+      displayStyle: 'pip',
       openSheet: false
     });
   } catch (err) {
@@ -36,7 +45,7 @@ export async function createBirthdayNote(actor, birthday) {
  * @returns {Promise<void>}
  */
 export async function createHistoryNote(actor, { type, className, classLevel, multiclass = false }) {
-  if (!MODULE.COMPAT?.CALENDARIA || !actor?.uuid) return;
+  if (!MODULE.COMPAT?.CALENDARIA || !calendarNotesEnabled() || !actor?.uuid) return;
   const originalClass = actor.items.get(actor.system?.details?.originalClass) ?? actor.items.find((i) => i.type === 'class');
   const payload = {
     type,

@@ -428,6 +428,13 @@ export function registerSettings() {
     config: false,
     type: new BooleanField({ initial: false })
   });
+  r(MODULE.ID, MODULE.SETTINGS.ENABLE_CALENDAR_NOTES, {
+    name: 'HEROMANCER.Settings.EnableCalendarNotes.Name',
+    hint: 'HEROMANCER.Settings.EnableCalendarNotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: true })
+  });
   if (game.modules.get('tokenizer-2')?.active) {
     r(MODULE.ID, MODULE.SETTINGS.TOKENIZER_COMPATIBILITY, {
       name: 'HEROMANCER.Settings.Tokenizer.Name',
