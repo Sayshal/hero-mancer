@@ -45,22 +45,7 @@
   color: var(--hero-mancer-fg);
 }
 
-body:has(.hero-mancer) #prosemirror-dropdown,
-body:has(.hero-mancer) dialog.prosemirror.menu-dialog {
-  --color-form-hint: var(--hero-mancer-fg-muted);
-  --color-form-hint-hover: var(--hero-mancer-fg);
-  --dialog-background: var(--hero-mancer-bg-elev);
-  --dialog-border: var(--hero-mancer-border);
-  --dropdown-background: var(--hero-mancer-bg-elev);
-  --dropdown-border: var(--hero-mancer-border);
-
-  color: var(--hero-mancer-fg);
-}
-
-body:has(.hero-mancer) #prosemirror-dropdown :is(input, select, textarea, color-picker, file-picker, code-mirror),
-body:has(.hero-mancer) dialog.prosemirror.menu-dialog :is(input, select, textarea, color-picker, file-picker, code-mirror),
-body:has(.hero-mancer) .hero-mancer prose-mirror code-mirror,
-body:has(.hero-mancer) dialog.prosemirror.menu-dialog color-picker > input {
+.hero-mancer prose-mirror code-mirror {
   --active-line-color: var(--hero-mancer-accent-faint);
   --gutter-background-color: var(--hero-mancer-bg);
   --gutter-border-color: var(--hero-mancer-border);
@@ -72,16 +57,4 @@ body:has(.hero-mancer) dialog.prosemirror.menu-dialog color-picker > input {
   --input-text-color: var(--hero-mancer-fg);
 
   outline-color: var(--hero-mancer-border);
-}
-
-body:has(.hero-mancer) dialog.prosemirror.menu-dialog form label {
-  color: var(--hero-mancer-fg);
-}
-
-body:has(.hero-mancer) #prosemirror-dropdown button,
-body:has(.hero-mancer) dialog.prosemirror.menu-dialog button {
-  --button-border-color: var(--hero-mancer-border);
-  --button-hover-background-color: var(--button-background-color);
-  --button-hover-border-color: var(--hero-mancer-border-strong);
-  --button-hover-text-color: var(--button-text-color);
 }

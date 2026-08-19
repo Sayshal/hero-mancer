@@ -17,9 +17,10 @@ export function registerHooks() {
   Hooks.on('createSetting', (setting) => onSettingChanged(setting?.key));
   Hooks.on('updateSetting', (setting) => onSettingChanged(setting?.key));
   Hooks.on('renderActorDirectory', (_app, element) => injectSidebarButton(element));
+  let createActorTitle;
   Hooks.on('renderApplicationV2', (app, element) => {
-    const expected = _loc('DOCUMENT.Create', { type: _loc('DOCUMENT.Actor') });
-    if (app.title !== expected) return;
+    createActorTitle ??= _loc('DOCUMENT.Create', { type: _loc('DOCUMENT.Actor') });
+    if (app.title !== createActorTitle) return;
     injectCreateActorButton(element);
   });
   Hooks.on('updateUser', (user, changes) => {
