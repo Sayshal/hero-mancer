@@ -39,6 +39,7 @@
   --hero-mancer-success: var(--atlas-success, rgb(120 200 140));
   --hero-mancer-success-fg: rgb(160 230 180);
   --hero-mancer-success-soft: rgb(from var(--atlas-success, rgb(120 200 140)) r g b / 18%);
+  --hero-mancer-title: var(--atlas-title-text, rgb(245 195 95));
   --hero-mancer-warn: var(--atlas-warning, rgb(255 165 50));
   --hero-mancer-warn-fg: rgb(255 175 60);
   --hero-mancer-warn-soft: rgb(from var(--atlas-warning, rgb(255 165 50)) r g b / 15%);
@@ -95,6 +96,7 @@ body.theme-light {
   --hero-mancer-success: rgb(60 140 80);
   --hero-mancer-success-fg: rgb(40 110 60);
   --hero-mancer-success-soft: rgb(60 140 80 / 14%);
+  --hero-mancer-title: rgb(20 26 42);
   --hero-mancer-warn: rgb(200 130 30);
   --hero-mancer-warn-fg: rgb(160 100 20);
   --hero-mancer-warn-soft: rgb(200 130 30 / 14%);
