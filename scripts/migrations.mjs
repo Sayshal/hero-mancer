@@ -31,7 +31,7 @@ const REMOVED_KEYS = [
 const LEGACY_SECTION_IDS = { race: 'species' };
 
 /** Canonical label key per identity-section id (drives `advancementOrder` repair). */
-const SECTION_LABELS = { background: 'HEROMANCER.App.TabNames.Background', species: 'HEROMANCER.App.TabNames.Species', class: 'HEROMANCER.App.TabNames.Class' };
+const SECTION_LABELS = { background: 'HEROMANCER.App.TabNames.background', species: 'HEROMANCER.App.TabNames.species', class: 'HEROMANCER.App.TabNames.class' };
 
 /**
  * Clean up settings left behind by the pre-3.0 Hero Mancer, then whisper the GMs to refresh if anything actually changed.

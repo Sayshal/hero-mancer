@@ -2508,8 +2508,8 @@ export class HeroMancer extends HMDialog {
       if (!allowRerolls) return;
       if (maxAttempts > 0 && attempts >= maxAttempts) return;
       const confirmed = await HMPrompt.confirm({
-        window: { title: 'HEROMANCER.App.HP.RerollTitle' },
-        content: `<p>${_loc('HEROMANCER.App.HP.RerollPrompt', { level, value: prior })}</p>`,
+        window: { title: 'HEROMANCER.App.HP.reroll-title' },
+        content: `<p>${_loc('HEROMANCER.App.HP.reroll-prompt', { level, value: prior })}</p>`,
         modal: true
       });
       if (!confirmed) return;

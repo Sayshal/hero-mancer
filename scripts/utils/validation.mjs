@@ -71,7 +71,7 @@ export function validateWizard(root, mode = 'creation', abilityScores = null) {
 function validateLevelUp(root) {
   const missing = [];
   const checked = root.querySelector('[data-tab="level-up"] input[name="levelUp.pickedClass"]:checked');
-  if (!checked) missing.push('HEROMANCER.App.TabNames.LevelUp');
+  if (!checked) missing.push('HEROMANCER.App.TabNames.level-up');
   const subclassCb = root.querySelector('[data-tab="level-up"] [data-combobox][data-name="levelUp.pickedSubclass"]');
   let total = 1;
   let filled = checked ? 1 : 0;
@@ -142,7 +142,7 @@ function validateIdentity(root, abilityScoresOverride = null) {
     const level = Number(row.querySelector('[data-mc-level]')?.value) || 0;
     assignedTotal += level;
     if (!uuid) {
-      missing.push(isPrimary ? 'HEROMANCER.App.TabNames.Class' : 'HEROMANCER.App.Identity.Multiclass.AddMissing');
+      missing.push(isPrimary ? 'HEROMANCER.App.TabNames.class' : 'HEROMANCER.App.Identity.Multiclass.AddMissing');
       continue;
     }
     filled++;
@@ -291,7 +291,7 @@ function validateAdvancements(root) {
   }
   const remaining = rows.length - done;
   const valid = remaining === 0;
-  return { valid, missing: valid ? [] : ['HEROMANCER.App.TabNames.Advancements'], progress: done / rows.length, remaining, errors, weight: rows.length };
+  return { valid, missing: valid ? [] : ['HEROMANCER.App.TabNames.advancements'], progress: done / rows.length, remaining, errors, weight: rows.length };
 }
 
 /**
