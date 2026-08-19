@@ -618,7 +618,7 @@ export class HeroMancer extends HMDialog {
 
   /**
    * Snapshot advancement-tab pick hidden inputs from DOM.
-   * @returns {Object<string, Object<number, object>>} `{[advancementId]: {[level]: pickData}}`.
+   * @returns {Object<string, Object<number, object>>} `{[draftKey]: {[level]: pickData}}`.
    */
   #readAdvancementDraft() {
     const seed = this.#reviewSeed('advancementDraft') ?? this.#pendingAdvancementDraft;
@@ -1509,11 +1509,11 @@ export class HeroMancer extends HMDialog {
     try {
       pickedUuid = JSON.parse(hidden.value || '{}').feat ?? null;
     } catch {}
-    const advId = row.dataset.advancementId;
+    const advKey = row.dataset.advancementKey;
     const level = Number(row.dataset.level) || 0;
     const totalCharLevel = this.#shared?.totalCharLevel ?? 1;
     const dialog = new AdvancementFeatDialog({
-      buildContext: () => buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advId, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters }),
+      buildContext: () => buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advKey, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters }),
       filters: this.#featBrowserFilters,
       hiddenInput: hidden,
       onCommit: () => {
@@ -2860,14 +2860,14 @@ export class HeroMancer extends HMDialog {
    * Commit a feat pick: write the uuid into the scope row's ASI hidden input, dispatch change so the chooser bridge encodes the payload + re-renders.
    * @this {HeroMancer}
    * @param {PointerEvent} _event Click event.
-   * @param {HTMLElement} target Action element carrying `data-uuid` + `data-adv-id` + `data-level`.
+   * @param {HTMLElement} target Action element carrying `data-uuid` + `data-adv-key` + `data-level`.
    */
   static #onSelectFeat(_event, target) {
     const uuid = target.dataset.uuid;
-    const advId = target.dataset.advId;
+    const advKey = target.dataset.advKey;
     const level = target.dataset.level;
-    if (!uuid || !advId || !level) return;
-    const row = this.element.querySelector(`[data-advancement-row][data-advancement-id="${CSS.escape(advId)}"][data-level="${CSS.escape(level)}"]`);
+    if (!uuid || !advKey || !level) return;
+    const row = this.element.querySelector(`[data-advancement-row][data-advancement-key="${CSS.escape(advKey)}"][data-level="${CSS.escape(level)}"]`);
     const input = row?.querySelector('input[data-adv-asi-feat]');
     if (!input) return;
     input.value = input.value === uuid ? '' : uuid;

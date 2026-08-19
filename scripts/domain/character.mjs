@@ -3,6 +3,7 @@ import { createBirthdayNote, createHistoryNote } from '../integrations/calendari
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
+import { splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { migrateBiographyDraft } from './biography-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
@@ -394,31 +395,34 @@ const ORIGIN_APPLY_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
  * @param {Actor} actor Newly-created actor.
  * @param {Object<string, Object<number, object>>} draft Advancement-pick map.
  * @param {?HTMLElement} wizardElement Wizard root for error stamping; null on replay paths.
- * @param {Set<string>} [appliedSet] Advancement ids already applied; persisted across rounds so re-runs skip them.
+ * @param {Set<string>} [appliedSet] Draft keys already applied.
  * @returns {Promise<{ok:boolean, applied:boolean}>} `ok` false on apply error; `applied` true when at least one pick applied this call.
  */
 async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = new Set()) {
   let appliedAny = false;
+  const claimed = new Set();
   for (let pass = 0; pass < 10; pass++) {
     const ready = Object.entries(draft)
-      .filter(([advId]) => !appliedSet.has(advId))
-      .map(([advId, byLevel]) => ({ advId, byLevel, advancement: findAdvancement(actor, advId) }))
-      .filter((e) => e.advancement)
+      .filter(([key]) => !appliedSet.has(key))
+      .map(([key, byLevel]) => ({ key, byLevel, advancement: findAdvancement(actor, key) }))
+      .filter((e) => e.advancement && !claimed.has(e.advancement.uuid))
       .sort((a, b) => (ORIGIN_APPLY_ORDER[a.advancement.item.type] ?? 9) - (ORIGIN_APPLY_ORDER[b.advancement.item.type] ?? 9));
     if (!ready.length) break;
-    for (const { advId, byLevel, advancement } of ready) {
-      appliedSet.add(advId);
+    for (const { key, byLevel, advancement } of ready) {
+      appliedSet.add(key);
+      if (claimed.has(advancement.uuid)) continue;
+      claimed.add(advancement.uuid);
       for (const [levelStr, data] of Object.entries(byLevel)) {
         const level = Number(levelStr);
         try {
           await advancement.apply(level, advancementApplyData(advancement, data));
         } catch (err) {
           const reason = err?.message ?? String(err);
-          if (wizardElement) markAdvancementRowError(wizardElement, advId, level, reason);
-          ATLAS.log(1, `Advancement ${advId} L${level} apply failed:`, err);
+          if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
+          ATLAS.log(1, `Advancement ${key} L${level} apply failed:`, err);
           return { ok: false, applied: appliedAny };
         }
-        reportFeatGrantFailure(advancement, data, advId, level, wizardElement);
+        reportFeatGrantFailure(advancement, data, key, level, wizardElement);
       }
       appliedAny = true;
     }
@@ -427,17 +431,23 @@ async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = n
 }
 
 /**
- * Locate an Advancement by id across every embedded item on the actor.
+ * Locate an Advancement across every embedded item on the actor.
  * @param {Actor} actor Target actor.
- * @param {string} advancementId Advancement id.
+ * @param {string} key Draft key from `advancementKey`.
  * @returns {?object} The matching advancement, or null when no item carries it.
  */
-function findAdvancement(actor, advancementId) {
+function findAdvancement(actor, key) {
+  const { sourceUuid, advancementId } = splitAdvancementKey(key);
+  let fallback = null;
   for (const item of actor.items) {
     const adv = item.advancement?.byId?.[advancementId];
-    if (adv) return adv;
+    if (!adv) continue;
+    if (!sourceUuid) return adv;
+    if (item.uuid === sourceUuid) return adv;
+    if ((item.flags?.dnd5e?.sourceId ?? item._stats?.compendiumSource) === sourceUuid) return adv;
+    fallback ??= adv;
   }
-  return null;
+  return fallback;
 }
 
 /**
