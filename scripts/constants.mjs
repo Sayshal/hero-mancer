@@ -1,7 +1,6 @@
 /** @enum {string} Flag keys (user + actor). */
 const FLAGS = {
   WIZARD_DRAFT: 'wizardDraft',
-  LAST_SEEN_VERSION: 'lastSeenVersion',
   LAST_REJECTION: 'lastRejection',
   GRANTS_MOTES: 'grantsMotes',
   LEVEL_UP_READY: 'levelUpReady',
@@ -173,8 +172,7 @@ const TEMPLATES = {
   CHAT: {
     ADVANCEMENT_CONSENT: `${TEMPLATE_ROOT}/chat/advancement-consent.hbs`,
     APPROVAL_EVENT: `${TEMPLATE_ROOT}/chat/approval-event.hbs`,
-    CHARACTER_SUMMARY: `${TEMPLATE_ROOT}/chat/character-summary.hbs`,
-    MIGRATION_NOTICE: `${TEMPLATE_ROOT}/chat/migration-notice.hbs`
+    CHARACTER_SUMMARY: `${TEMPLATE_ROOT}/chat/character-summary.hbs`
   }
 };
 

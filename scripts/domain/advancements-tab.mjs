@@ -347,10 +347,7 @@ function itemChoiceReplaceTile(row) {
       name: inputName,
       label: _loc('HEROMANCER.App.Advancements.ReplaceLabel'),
       max: 1,
-      optionsJson: JSON.stringify([
-        { value: '', label: _loc('ATLAS.Common.None'), icon: null },
-        ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))
-      ]),
+      optionsJson: JSON.stringify([{ value: '', label: _loc('ATLAS.Common.None'), icon: null }, ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))]),
       originsJson: ''
     }
   };

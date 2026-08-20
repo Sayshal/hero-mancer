@@ -121,14 +121,13 @@ export const HeroMancerAPI = {
 
   /**
    * Diagnostic snapshot of module state.
-   * @returns {{version: ?string, enabled: boolean, compat: ?object, lastSeenVersion: ?string}} Module info.
+   * @returns {{version: ?string, enabled: boolean, compat: ?object}} Module info.
    */
   getInfo() {
     return {
       version: game.modules.get(MODULE.ID)?.version ?? null,
       enabled: game.modules.get(MODULE.ID)?.active ?? false,
-      compat: MODULE.COMPAT ?? null,
-      lastSeenVersion: game.user.getFlag(MODULE.ID, MODULE.FLAGS.LAST_SEEN_VERSION) ?? null
+      compat: MODULE.COMPAT ?? null
     };
   },
 

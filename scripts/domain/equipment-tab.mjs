@@ -120,7 +120,7 @@ function wealthSummary(wealth) {
  * @param {object[]} grants Linked-grant tile accumulator (one bundle per source).
  * @param {object} profs Structured proficiency record from `collectProficiencies`.
  * @param {Object<string,number>} [noneRefunds] OR-node id → gp refund value.
- * @param {?Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
+ * @param {?Map<string, {advancementKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
  */
 function walkNode(node, tag, draft, groups, grants, profs, noneRefunds, traitLinks) {
   if (node.kind === 'group' && node.operator === 'AND') {
@@ -141,7 +141,7 @@ function walkNode(node, tag, draft, groups, grants, profs, noneRefunds, traitLin
 /**
  * Scan a class/background doc's Trait advancements for pools matching `{category}:{key}:*` so the equipment picker can pre-fill the proficiency choice.
  * @param {?object} doc Source document.
- * @returns {Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} `{category:key}` -> advancement metadata.
+ * @returns {Map<string, {advancementKey:string, level:number, count:number}>} `{category:key}` -> advancement metadata.
  */
 function buildTraitLinkMap(doc) {
   const map = new Map();
@@ -158,7 +158,7 @@ function buildTraitLinkMap(doc) {
         const matchKey = `${m[1]}:${m[2]}`;
         if (map.has(matchKey)) continue;
         const advId = adv._id ?? adv.id;
-        map.set(matchKey, { advancementKey: advancementKey(doc?.uuid ?? null, advId), legacyKey: advId, level: adv.level ?? 0, count: choice.count ?? 1 });
+        map.set(matchKey, { advancementKey: advancementKey(doc?.uuid ?? null, advId), level: adv.level ?? 0, count: choice.count ?? 1 });
       }
     }
   }
@@ -172,7 +172,7 @@ function buildTraitLinkMap(doc) {
  * @param {object} draft Saved equipment draft.
  * @param {object} profs Structured proficiency record.
  * @param {number} refund Gp refund value for the None tile.
- * @param {?Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
+ * @param {?Map<string, {advancementKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
  * @returns {object} Tile-template context.
  */
 function buildOrTileGroup(orNode, tag, draft, profs, refund, traitLinks) {
@@ -193,7 +193,7 @@ function buildOrTileGroup(orNode, tag, draft, profs, refund, traitLinks) {
  * @param {object} draft Saved equipment draft.
  * @param {object} profs Structured proficiency record.
  * @param {number} refund Gp refund value for the None tile.
- * @param {?Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
+ * @param {?Map<string, {advancementKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
  * @returns {object} Tile-template context.
  */
 function buildCategoryTileGroup(node, tag, draft, profs, refund, traitLinks) {
@@ -266,7 +266,7 @@ function buildMultiSectionPicker(pickers, fallbackLabel) {
  * @param {string} ownerId Owning OR-group (or top-level node) id.
  * @param {object} draft Saved equipment draft.
  * @param {object} profs Structured proficiency record.
- * @param {?Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
+ * @param {?Map<string, {advancementKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
  * @returns {?object} EquipmentTileSpec, or null when the kind is unsupported.
  */
 function tileForChild(child, tag, ownerId, draft, profs, traitLinks) {
@@ -357,7 +357,7 @@ function currencyTile(node) {
  * @param {string} ownerId OR-group (or top-level node) id that contains this picker.
  * @param {object} draft Saved equipment draft.
  * @param {object} profs Structured proficiency record.
- * @param {?Map<string, {advancementKey:string, legacyKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
+ * @param {?Map<string, {advancementKey:string, level:number, count:number}>} [traitLinks] Optional advancement-link map from `buildTraitLinkMap`.
  * @returns {object[]} One picker spec per slot.
  */
 function buildPickerSpecs(node, tag, ownerId, draft, profs, traitLinks) {
@@ -376,9 +376,7 @@ function buildPickerSpecs(node, tag, ownerId, draft, profs, traitLinks) {
     const selected = value ? (options.find((o) => o.value === value) ?? null) : null;
     const linkSlotIdx = link ? i % link.count : null;
     const linkName = link ? `equipment.${tag}.advLink.${link.advancementKey}.${link.level}.${linkSlotIdx}` : null;
-    const linkValue = link
-      ? (draft[`${tag}.advLink.${link.advancementKey}.${link.level}.${linkSlotIdx}`] ?? draft[`${tag}.advLink.${link.legacyKey}.${link.level}.${linkSlotIdx}`] ?? selected?.traitKey ?? '')
-      : '';
+    const linkValue = link ? (draft[`${tag}.advLink.${link.advancementKey}.${link.level}.${linkSlotIdx}`] ?? selected?.traitKey ?? '') : '';
     out.push({
       name,
       value,

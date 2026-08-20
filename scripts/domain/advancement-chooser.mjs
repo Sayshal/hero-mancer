@@ -147,7 +147,7 @@ function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
   const key = advancementKey(sourceUuid, id);
   const title = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.title ?? type));
   const auto = AUTO.has(type) || !RENDERERS[type];
-  const value = draft[key]?.[lvl] ?? draft[id]?.[lvl] ?? draft[id] ?? {};
+  const value = draft[key]?.[lvl] ?? {};
   const spec = auto ? null : RENDERERS[type](adv, lvl, value, context);
   const grants = type === 'ItemGrant' ? resolveItemGrantEntries(adv) : null;
   const scale = type === 'ScaleValue' ? resolveScaleDelta(adv, lvl) : null;

@@ -21,7 +21,6 @@ import { registerHistoryNoteSocket } from './scripts/integrations/calendaria.mjs
 import { checkAdvancementAutomation, mergeCustomFocusItems, registerAdvancementConsentListener } from './scripts/integrations/dnd5e.mjs';
 import { registerDontForgetReminders } from './scripts/integrations/dont-forget.mjs';
 import './scripts/macros/_module.mjs';
-import { migrateLegacySettings } from './scripts/migrations.mjs';
 import { registerSettings } from './scripts/settings.mjs';
 import { registerSocket } from './scripts/sockets.mjs';
 import './scripts/utils/_module.mjs';
@@ -96,7 +95,6 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', () => {
-  migrateLegacySettings();
   computeCompatibility();
   registerSocket();
   registerSpellHandoff();
