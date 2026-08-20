@@ -70,7 +70,7 @@ function buildRandomNameStyles() {
 /** @returns {Array<{value:string,label:string,selected:boolean}>} Culture select options: `all` then cultures sorted by label. */
 function buildRandomNameCultures() {
   const cultures = CULTURE_KEYS.map((value) => ({ value, label: _loc(`HEROMANCER.App.Start.RandomNameCulture.${value}`), selected: false })).sort((a, b) => a.label.localeCompare(b.label));
-  return [{ value: 'all', label: _loc('HEROMANCER.App.Start.RandomNameCulture.all'), selected: true }, ...cultures];
+  return [{ value: 'all', label: _loc('ATLAS.Common.All'), selected: true }, ...cultures];
 }
 
 /**

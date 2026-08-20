@@ -206,7 +206,7 @@ async function buildSpeciesRows(docs) {
     htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
     htmlRow('DND5E.Traits', 'fa-sparkles', featuresCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
-    htmlRow('HEROMANCER.Compare.Field.Choices', 'fa-list-check', choicesCells),
+    htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
     textRow('HEROMANCER.Compare.Field.Scales', 'fa-chart-line', scaleCells)
   ];
   return rows.filter(rowHasContent);
@@ -264,7 +264,7 @@ async function buildClassRows(docs) {
     textRow('HEROMANCER.Compare.Field.ASILevels', 'fa-arrow-trend-up', docs.map(formatAsiLevels)),
     textRow('HEROMANCER.Compare.Field.SubclassLevel', 'fa-arrow-up-right-dots', docs.map(formatSubclassLevel)),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
-    htmlRow('HEROMANCER.Compare.Field.Choices', 'fa-list-check', choicesCells),
+    htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
     textRow('HEROMANCER.Compare.Field.Scales', 'fa-chart-line', docs.map(formatScaleValues))
   ];
   return rows.filter(rowHasContent);
@@ -306,7 +306,7 @@ async function buildSubclassRows(docs) {
     htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
     htmlRow('HEROMANCER.Compare.Field.FeaturesByLevel', 'fa-sparkles', featuresCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
-    htmlRow('HEROMANCER.Compare.Field.Choices', 'fa-list-check', choicesCells),
+    htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
     textRow('HEROMANCER.Compare.Field.Scales', 'fa-chart-line', docs.map(formatScaleValues))
   ];
   return rows.filter(rowHasContent);
@@ -339,7 +339,7 @@ async function buildFeatRows(docs) {
       'fa-tag',
       docs.map((d) => configLabel(subtypeMap[d.system?.type?.subtype], null))
     ),
-    textRow('HEROMANCER.Compare.Field.EditionSource', 'fa-book', docs.map(formatEditionSource)),
+    textRow('ATLAS.Common.Source', 'fa-book', docs.map(formatEditionSource)),
     textRow(
       'HEROMANCER.Compare.Field.MinLevel',
       'fa-stairs',
@@ -355,7 +355,7 @@ async function buildFeatRows(docs) {
     htmlRow('DND5E.DamImm', 'fa-shield-heart', damImmCells),
     htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
-    htmlRow('HEROMANCER.Compare.Field.Choices', 'fa-list-check', choicesCells),
+    htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
     textRow('HEROMANCER.Compare.Field.Scales', 'fa-chart-line', docs.map(formatScaleValues)),
     textRow(
       'DND5E.Prerequisites.FIELDS.prerequisites.repeatable.label',
@@ -965,7 +965,7 @@ function formatScaleValues(doc) {
     const last = scaleValueAt(cfg[levels[levels.length - 1]]);
     return first === last ? `${id}: ${first}` : `${id}: ${first} → ${last}`;
   });
-  if (scales.length > 3) lines.push(_loc('HEROMANCER.Compare.Value.PlusMore', { count: scales.length - 3 }));
+  if (scales.length > 3) lines.push(_loc('ATLAS.Common.PlusMore', { count: scales.length - 3 }));
   return lines.join(' · ');
 }
 

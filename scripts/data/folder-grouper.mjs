@@ -30,7 +30,7 @@ export function getPackTopLevelFolderName(pack) {
  * @returns {string} Normalized label.
  */
 export function translateSourceName(name, packId = null) {
-  if (!name) return packId ?? _loc('HEROMANCER.App.DocumentService.CommonLabels.UnknownSource');
+  if (!name) return packId ?? _loc('ATLAS.Common.UnknownSource');
   const exact = NAME_TRANSLATIONS[name];
   if (exact) return exact();
   for (const [key, fn] of Object.entries(NAME_TRANSLATIONS)) {

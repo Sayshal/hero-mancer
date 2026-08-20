@@ -50,7 +50,7 @@ import { HMDialog, HMPrompt } from './dialog.mjs';
 
 /** @type {Array<{id: string, icon: string, i18n: string, modes: string[]}>} Wizard tab definitions in display order. */
 const TAB_DEFS = [
-  { id: 'start', icon: 'fa-user-pen', i18n: 'HEROMANCER.Wizard.Tabs.Start', modes: ['creation'] },
+  { id: 'start', icon: 'fa-user-pen', i18n: 'ATLAS.Common.Start', modes: ['creation'] },
   { id: 'level-up', icon: 'fa-angles-up', i18n: 'DND5E.LevelActionIncrease', modes: ['level_up'] },
   { id: 'identity', icon: 'fa-id-card', i18n: 'HEROMANCER.Wizard.Tabs.Identity', modes: ['creation'] },
   { id: 'abilities', icon: 'fa-dice-d20', i18n: 'DND5E.Abilities', modes: ['creation'] },
@@ -1141,13 +1141,13 @@ export class HeroMancer extends HMDialog {
   async close(options = {}) {
     if (!this.#confirmCloseBypass && this.#dirty && this.#mode === 'creation' && !this.#reviewMode) {
       const choice = await HMPrompt.wait({
-        window: { title: 'HEROMANCER.Wizard.CloseConfirm.Title' },
+        window: { title: 'ATLAS.Common.UnsavedChanges' },
         body: _loc('HEROMANCER.Wizard.CloseConfirm.Content'),
         modal: true,
         close: () => 'cancel',
         buttons: [
           { action: 'save', label: 'HEROMANCER.Wizard.CloseConfirm.SaveDraft', icon: 'fa-solid fa-floppy-disk', default: true },
-          { action: 'discard', label: 'HEROMANCER.Wizard.CloseConfirm.Discard', icon: 'fa-solid fa-trash' },
+          { action: 'discard', label: 'ATLAS.Common.Discard', icon: 'fa-solid fa-trash' },
           { action: 'cancel', label: 'COMMON.Cancel', icon: 'fa-solid fa-xmark' }
         ]
       });

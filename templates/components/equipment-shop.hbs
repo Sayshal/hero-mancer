@@ -7,14 +7,14 @@
         <legend>{{localize 'HEROMANCER.App.Equipment.Shop.CatalogueHeading'}}</legend>
         <div class="hm-eq-shop-controls">
           <input type="search" class="hm-eq-shop-search-input"
-            placeholder="{{localize 'HEROMANCER.App.Equipment.Shop.SearchPlaceholder'}}" data-eq-shop-search />
+            placeholder="{{localize 'ATLAS.Common.SearchPlaceholder'}}" data-eq-shop-search />
           <details class="hm-eq-shop-popover" data-eq-shop-filter-menu>
             <summary class="hm-eq-shop-popover-trigger" aria-label="{{localize 'DND5E.Filter'}}">
               <i class="fas fa-filter" aria-hidden="true"></i>
             </summary>
             <div class="hm-eq-shop-popover-panel hm-eq-shop-filter-panel" role="group">
               <button type="button" class="hm-eq-shop-filter-chip is-active" data-eq-shop-filter="all">
-                {{localize 'HEROMANCER.App.Equipment.Shop.FilterAll'}}
+                {{localize 'ATLAS.Common.All'}}
               </button>
               {{#each filters}}
                 <button type="button" class="hm-eq-shop-filter-chip" data-eq-shop-filter="{{this.bucket}}">
@@ -113,7 +113,7 @@
                   {{/each}}
                 </select>
                 <button type="button" class="hm-eq-shop-remove" data-eq-cart-remove data-uuid="{{this.uuid}}"
-                  data-tooltip aria-label="{{localize 'HEROMANCER.App.Equipment.Shop.Remove'}}">
+                  data-tooltip aria-label="{{localize 'ATLAS.Common.Remove'}}">
                   <i class="fas fa-xmark"></i>
                 </button>
               </li>

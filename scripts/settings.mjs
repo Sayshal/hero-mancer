@@ -56,7 +56,7 @@ export function registerSettings() {
     type: new StringField({
       initial: 'public',
       blank: false,
-      choices: { public: 'DND5E.Public', 'whisper-gm': 'HEROMANCER.Settings.PublishCreationSummary.Choices.WhisperGM', off: 'HEROMANCER.Settings.PublishCreationSummary.Choices.Off' }
+      choices: { public: 'DND5E.Public', 'whisper-gm': 'HEROMANCER.Settings.PublishCreationSummary.Choices.WhisperGM', off: 'ATLAS.Common.Off' }
     })
   });
   r(MODULE.ID, MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST, {
@@ -67,7 +67,7 @@ export function registerSettings() {
     type: new StringField({
       initial: 'public',
       blank: false,
-      choices: { public: 'DND5E.Public', 'whisper-owners': 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.WhisperOwners', off: 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.Off' }
+      choices: { public: 'DND5E.Public', 'whisper-owners': 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.WhisperOwners', off: 'ATLAS.Common.Off' }
     })
   });
   r(MODULE.ID, MODULE.SETTINGS.AUTO_OPEN_SPELL_BOOK, {
@@ -165,12 +165,12 @@ export function registerSettings() {
       initial: 'uncommon',
       blank: false,
       choices: {
-        common: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Common',
-        uncommon: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Uncommon',
+        common: 'ATLAS.Common.Common',
+        uncommon: 'ATLAS.Common.Uncommon',
         rare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Rare',
         veryRare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.VeryRare',
-        legendary: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Legendary',
-        artifact: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Artifact'
+        legendary: 'ATLAS.Common.Legendary',
+        artifact: 'ATLAS.Common.Artifact'
       }
     }),
     onChange: clearShopIndex

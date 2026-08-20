@@ -9,11 +9,11 @@
         <li class="hm-sp-reorder-row" draggable="true" data-row-id="{{id}}">
           <span class="hm-sp-reorder-label">{{localize label}}</span>
           <button type="button" data-action="reorderUp" data-tooltip
-            aria-label="{{localize 'HEROMANCER.Settings.SettingsPanel.AdvancementOrder.RowUp'}}">
+            aria-label="{{localize 'ATLAS.Common.MoveUp'}}">
             <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
           </button>
           <button type="button" data-action="reorderDown" data-tooltip
-            aria-label="{{localize 'HEROMANCER.Settings.SettingsPanel.AdvancementOrder.RowDown'}}">
+            aria-label="{{localize 'ATLAS.Common.MoveDown'}}">
             <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
           </button>
           <input type="hidden" name="advancementOrder.{{@index}}.id" value="{{id}}">
@@ -35,7 +35,7 @@
     </ol>
     <button type="button" class="hm-sp-cost-add" data-action="addCostRow">
       <i class="fa-solid fa-plus" aria-hidden="true"></i>
-      {{localize 'HEROMANCER.Settings.SettingsPanel.PointBuyCostMap.Add'}}
+      {{localize 'ATLAS.Common.AddOverride'}}
     </button>
   </fieldset>
 {{else if (eq type "focusItems")}}

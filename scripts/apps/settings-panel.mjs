@@ -99,7 +99,7 @@ const TAB_SETTINGS = {
       ]
     },
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Content',
+      group: 'ATLAS.Common.Content',
       settings: [
         { key: 'ENABLE_RANDOMIZE', type: 'boolean' },
         { key: 'TRIM_SOURCE_PARENTHETICAL', type: 'boolean' },
@@ -154,7 +154,7 @@ const TAB_SETTINGS = {
   ],
   advanced: [
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Behavior',
+      group: 'ATLAS.Common.Behavior',
       settings: [
         { key: 'HIDE_OTHER_CREATE_ACTOR_OPTIONS', type: 'boolean' },
         { key: 'SHOW_WELCOME', type: 'boolean' },
@@ -162,7 +162,7 @@ const TAB_SETTINGS = {
       ]
     },
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Content',
+      group: 'ATLAS.Common.Content',
       settings: [{ key: 'ART_PICKER_ROOT', type: 'filePicker' }]
     },
     {
@@ -300,7 +300,7 @@ export class SettingsPanel extends HMDialog {
           bucket,
           icon,
           label: _loc(`HEROMANCER.Settings.CompendiumExclusionList.Tabs.${labelId}`),
-          countLabel: _loc('HEROMANCER.Settings.CompendiumExclusionList.HiddenCount', { count: (exclusions[bucket] ?? []).length })
+          countLabel: _loc('ATLAS.Common.HiddenCount', { count: (exclusions[bucket] ?? []).length })
         }))
       };
     }
@@ -328,7 +328,7 @@ export class SettingsPanel extends HMDialog {
       ctx.methods = [
         { key: 'average', label: 'HEROMANCER.Settings.HPMethod.Choices.average', checked: v.average !== false },
         { key: 'max', label: 'HEROMANCER.Settings.HPMethod.Choices.max', checked: v.max !== false },
-        { key: 'manual', label: 'HEROMANCER.Settings.HPMethod.Choices.manual', checked: v.manual !== false }
+        { key: 'manual', label: 'ATLAS.Common.Manual', checked: v.manual !== false }
       ];
     }
     if (row.type === 'advancementOrder') {
@@ -510,7 +510,7 @@ export class SettingsPanel extends HMDialog {
     else delete exclusions[config.bucket];
     await game.settings.set(MODULE.ID, settingKey, exclusions);
     const badge = target.closest('.hm-sp-exclusion-row')?.querySelector('.hm-sp-exclusion-count');
-    if (badge) badge.textContent = _loc('HEROMANCER.Settings.CompendiumExclusionList.HiddenCount', { count: selection.size });
+    if (badge) badge.textContent = _loc('ATLAS.Common.HiddenCount', { count: selection.size });
   }
 
   /**

@@ -241,7 +241,7 @@ export class BackgroundBuilderDialog extends HMDialog {
     const label = doc ? doc.toAnchor().outerHTML : `<span>${foundry.utils.escapeHTML(dnd5e.documents.Trait.keyLabel(key) ?? key)}</span>`;
     li.innerHTML = `
     ${label}
-      <a class="hm-bg-remove" role="button" tabindex="0" data-bg-remove data-key="${key}" aria-label="${_loc('HEROMANCER.App.Identity.CustomBackground.Remove')}">
+      <a class="hm-bg-remove" role="button" tabindex="0" data-bg-remove data-key="${key}" aria-label="${_loc('ATLAS.Common.Remove')}">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </a>`;
     return li;
@@ -293,7 +293,7 @@ export class BackgroundBuilderDialog extends HMDialog {
         li.className = 'hm-bg-feat-line';
         li.innerHTML = `
         ${doc.toAnchor().outerHTML}
-          <a class="hm-bg-remove" role="button" tabindex="0" data-bg-feat-remove data-uuid="${uuid}" aria-label="${_loc('HEROMANCER.App.Identity.CustomBackground.Remove')}">
+          <a class="hm-bg-remove" role="button" tabindex="0" data-bg-feat-remove data-uuid="${uuid}" aria-label="${_loc('ATLAS.Common.Remove')}">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </a>`;
         list.append(li);

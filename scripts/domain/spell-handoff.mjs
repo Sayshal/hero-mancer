@@ -62,7 +62,7 @@ export function spellHandoffFlag(actor, delta) {
  */
 export function spellHandoffButton() {
   return `<footer class="hm-spell-handoff-actions">
-    <button type="button" class="hm-primary" data-hm-action="spell-handoff"><i class="fa-solid fa-book-sparkles" aria-hidden="true"></i> ${_loc('HEROMANCER.Chat.SpellHandoff.Open')}</button>
+    <button type="button" class="hm-primary" data-hm-action="spell-handoff"><i class="fa-solid fa-book-sparkles" aria-hidden="true"></i> ${_loc('ATLAS.Common.OpenSpellBook')}</button>
   </footer>`;
 }
 

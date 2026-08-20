@@ -307,7 +307,7 @@ function itemChoiceTile(row) {
   } else {
     tile.picker = {
       name: inputName,
-      label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
+      label: row.title || _loc('ATLAS.Common.Choice'),
       max: spec.effectiveCount,
       optionsJson: JSON.stringify(
         pickerOptions.map((o) => ({
@@ -337,7 +337,7 @@ function itemChoiceReplaceTile(row) {
     key: `${row.advancementKey}-${row.level}-replace`,
     foot: { label: _loc('HEROMANCER.App.Advancements.ReplaceFoot'), kind: 'replace' },
     state: 'choice',
-    label: selected ? selected.name : _loc('HEROMANCER.App.Advancements.ReplaceNone'),
+    label: selected ? selected.name : _loc('ATLAS.Common.None'),
     icon: selected?.img ?? row.icon,
     selected: !!selected,
     isPlaceholder: !selected,
@@ -348,7 +348,7 @@ function itemChoiceReplaceTile(row) {
       label: _loc('HEROMANCER.App.Advancements.ReplaceLabel'),
       max: 1,
       optionsJson: JSON.stringify([
-        { value: '', label: _loc('HEROMANCER.App.Advancements.ReplaceNone'), icon: null },
+        { value: '', label: _loc('ATLAS.Common.None'), icon: null },
         ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))
       ]),
       originsJson: ''
@@ -473,7 +473,7 @@ function traitChoiceTile(row, lockedCount) {
     inputValue: chosen.join(','),
     picker: {
       name: inputName,
-      label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
+      label: row.title || _loc('ATLAS.Common.Choice'),
       max,
       optionsJson: JSON.stringify(flatOptions.filter((o) => !o.disabled).map((o) => ({ value: o.value, label: o.label, group: o.group, uuid: o.uuid })))
     }
@@ -599,7 +599,7 @@ function groupRowsByOrigin(rows, { roster, speciesName, backgroundName }) {
     const legend = isMulticlass ? _loc('HEROMANCER.App.Advancements.ClassLegend', { className, level: bucket.slot.level }) : className;
     groups.push({ id: `class-${slotId}`, legend, rows: sortRowsByLevel(bucket.rows) });
   }
-  if (buckets.feature.length) groups.push({ id: 'feature', legend: _loc('HEROMANCER.App.Advancements.FeaturesLegend'), rows: sortRowsByLevel(buckets.feature) });
+  if (buckets.feature.length) groups.push({ id: 'feature', legend: _loc('ATLAS.Common.Features'), rows: sortRowsByLevel(buckets.feature) });
   return groups;
 }
 

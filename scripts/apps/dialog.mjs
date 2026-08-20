@@ -110,7 +110,7 @@ export class HMDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.element.querySelector(':scope > .hm-dialog-resize-handle')) return;
     const handle = document.createElement('div');
     handle.className = 'hm-dialog-resize-handle';
-    handle.setAttribute('aria-label', _loc('HEROMANCER.Dialog.Resize'));
+    handle.setAttribute('aria-label', _loc('ATLAS.Common.Resize'));
     this.element.appendChild(handle);
   }
 }
