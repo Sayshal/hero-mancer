@@ -15,6 +15,7 @@
 - New world setting "Publish Ability Rolls" posts manual-formula ability rolls to chat as a single card. Enabled by default.
 - Still-open review reminders are deleted if the pending submission page or the whole pending journal is removed without going through the approval flow.
 - The level-up completion chat card now includes an "Open Spell Book" button when the level-up granted a first spellcasting class, a higher spell slot level, or more cantrips.
+- The level-up completion chat card now lists the hit points gained and the class hit die, any ability score changes, and a link to every feature granted.
 
 ## Bug Fixes
 
@@ -23,6 +24,7 @@
 - Fixed the equipment shop filter and sort chips not showing their highlighted state when active, and restored hover feedback on them.
 - Randomize All now goes through the same reroll gate as the Roll Stats button, reassigning the scores already in the pool instead of silently rolling a fresh set once rerolls are off or used up.
 - Settings panel groups whose settings are all hidden by an inactive module no longer render an empty group header.
+- Settings panel tab labels, the ruleset chip on class tiles, the feat browser action filters, the equipment grant headings, the archived approval outcomes, and the manual hit point method now show their text instead of a raw localization key.
 - The "Roll Stats" button on the abilities tab now obeys the reroll settings. Once a pool has been rolled, clicking it again counts as a reroll against the same budget as the per-value reroll button, and the button is disabled with a tooltip when rerolls are off or the attempt limit is used up.
 
 ## Changes
