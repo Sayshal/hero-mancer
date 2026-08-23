@@ -4,10 +4,10 @@ import { spellHandoffButton, spellHandoffFlag } from './spell-handoff.mjs';
 
 /** Subscribe to LEVEL_UP_COMPLETED: clear the pending flag and post the completion broadcast on the committer's session. */
 export function registerLevelUpBroadcast() {
-  Hooks.on(MODULE.HOOKS.LEVEL_UP_COMPLETED, async ({ actor, newLevel, spellcasting }) => {
+  Hooks.on(MODULE.HOOKS.LEVEL_UP_COMPLETED, async ({ actor, newLevel, spellcasting, details }) => {
     if (!actor) return;
     await actor.unsetFlag(MODULE.ID, MODULE.FLAGS.LEVEL_UP_READY);
-    await publishLevelUpComplete(actor, newLevel, spellcasting);
+    await publishLevelUpComplete(actor, newLevel, spellcasting, details);
   });
 }
 
@@ -78,13 +78,38 @@ export async function sendLevelUpToGroup(groupActor) {
  * @param {Actor} actor Actor that committed a level-up.
  * @param {number} newLevel Class level just gained.
  * @param {?object} spellcasting Spellcasting delta from the level-up payload; drives the Spell Book handoff button.
+ * @param {?object} [details] Hit points, ability bumps, and granted items from the level-up payload.
  * @returns {Promise<void>}
  */
-async function publishLevelUpComplete(actor, newLevel, spellcasting) {
+async function publishLevelUpComplete(actor, newLevel, spellcasting, details = null) {
   const level = Number(actor.system?.details?.level) || newLevel;
   const handoff = spellHandoffFlag(actor, spellcasting);
-  const content = _loc('HEROMANCER.LevelUp.Broadcast.Complete', { actor: actorAnchor(actor), level }) + (handoff ? spellHandoffButton() : '');
+  const content = _loc('HEROMANCER.LevelUp.Broadcast.Complete', { actor: actorAnchor(actor), level }) + detailList(details) + (handoff ? spellHandoffButton() : '');
   await postChat([actor], content, handoff);
+}
+
+/**
+ * Build the detail list appended to the completion message.
+ * @param {?object} details Level-up detail payload.
+ * @returns {string} List HTML, or empty string when nothing changed.
+ */
+function detailList(details) {
+  if (!details) return '';
+  const rows = [];
+  if (details.hitPoints) rows.push(_loc('HEROMANCER.LevelUp.Broadcast.Detail.HitPoints', { value: details.hitPoints.value, die: `d${details.hitPoints.die}` }));
+  for (const ability of details.abilities) rows.push(_loc('HEROMANCER.LevelUp.Broadcast.Detail.Ability', { ability: ability.label, from: ability.from, to: ability.to }));
+  for (const item of details.items) rows.push(itemAnchor(item));
+  if (!rows.length) return '';
+  return `<ul class="hm-level-up-details">${rows.map((row) => `<li>${row}</li>`).join('')}</ul>`;
+}
+
+/**
+ * Build an anchor for a granted item, falling back to its plain name when the document no longer resolves.
+ * @param {{uuid: string, name: string}} item Granted item descriptor.
+ * @returns {string} Anchor element HTML.
+ */
+function itemAnchor({ uuid, name }) {
+  return fromUuidSync(uuid)?.toAnchor({ classes: ['hm-level-up-anchor'] }).outerHTML ?? foundry.utils.escapeHTML(name);
 }
 
 /**

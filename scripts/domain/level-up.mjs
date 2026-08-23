@@ -8,6 +8,7 @@ import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalCla
 import { splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { applySubclassFromIdentity } from './character.mjs';
+import { parseHitDie } from './hp-tab.mjs';
 
 /**
  * Snapshot an actor's current class roster as a level-up seed.
@@ -88,6 +89,8 @@ function spellcastingSnapshot(actor) {
 export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubclass = null, hpDraft, advancementDraft, wizardElement = null }) {
   if (!actor || !pickedUuid) return null;
   const before = spellcastingSnapshot(actor);
+  const beforeItemIds = new Set(actor.items.map((i) => i.id));
+  const beforeAbilities = abilityValues(actor);
   const clone = actor.clone({}, { keepId: true });
   let classItem = null;
   let newLevel = 0;
@@ -137,10 +140,54 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     previousCantrips: before.cantrips,
     newCantrips: after.cantrips
   };
+  const details = {
+    className: classItem.name,
+    hitPoints: hitPointsDetail(classItem, newLevel, hpDraft),
+    abilities: abilityDeltas(beforeAbilities, actor),
+    items: actor.items.filter((i) => !beforeItemIds.has(i.id)).map((i) => ({ uuid: i.uuid, name: i.name }))
+  };
   await grantMilestoneMotes(actor, 'levelUp');
   await createHistoryNote(actor, { type: 'levelUp', className: classItem.name, classLevel: newLevel, multiclass: isMulticlass });
-  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting });
+  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting, details });
   return { actor, newLevel };
+}
+
+/**
+ * Read every ability score off an actor.
+ * @param {object} actor Character actor.
+ * @returns {Object<string, number>} Map of ability key to score.
+ */
+function abilityValues(actor) {
+  return Object.fromEntries(Object.entries(actor.system?.abilities ?? {}).map(([key, ability]) => [key, Number(ability?.value) || 0]));
+}
+
+/**
+ * Diff an actor's ability scores against a pre-level-up snapshot.
+ * @param {Object<string, number>} before Snapshot from `abilityValues`.
+ * @param {object} actor Character actor after the level-up committed.
+ * @returns {Array<{key: string, label: string, from: number, to: number}>} Changed abilities.
+ */
+function abilityDeltas(before, actor) {
+  const out = [];
+  for (const [key, to] of Object.entries(abilityValues(actor))) {
+    const from = before[key] ?? to;
+    if (from !== to) out.push({ key, label: CONFIG.DND5E.abilities[key]?.label ?? key, from, to });
+  }
+  return out;
+}
+
+/**
+ * Resolve the hit-point value applied at the new level alongside the class hit die.
+ * @param {object} classItem Class item being levelled.
+ * @param {number} newLevel Level being applied this run.
+ * @param {{method: string, rolls: Object<string|number, string|number>}} hpDraft HP-tab draft.
+ * @returns {?{value: number, die: number, method: string}} Detail row, or null when no HP was applied.
+ */
+function hitPointsDetail(classItem, newLevel, hpDraft) {
+  const bucket = hpDraft?.rolls?.levelup ?? {};
+  const value = Number(bucket[newLevel] ?? bucket[String(newLevel)]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return { value, die: parseHitDie(classItem), method: hpDraft?.method ?? 'average' };
 }
 
 /**
