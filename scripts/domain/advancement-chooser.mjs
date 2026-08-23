@@ -1,4 +1,5 @@
 import { stripHtml, stripNoiseParenthetical } from '../utils/html-text.mjs';
+import { advancementKey } from './advancement-draft.mjs';
 
 /** @type {Set<string>} Advancement types handled by HM directly; never rendered as choosers. */
 const HM_OWNED = new Set(['HitPoints', 'Subclass']);
@@ -104,7 +105,7 @@ export function buildAdvancementRows(classDoc, targetLevel, context = {}, mode =
 }
 
 /**
- * Chooser rows from the actor's already-owned items whose advancements key to character level (general feats, etc.), scoped to the level just gained. Class-linked items (keyed to class level) are left to the class walk.
+ * Chooser rows from the actor's already-owned items whose advancements key to character level.
  * @param {object} actor Level-up actor.
  * @param {number} characterLevel Character level being gained.
  * @param {Object<string, Object<number, object>>} draft Advancement-pick map.
@@ -135,20 +136,36 @@ export function buildOwnedItemRows(actor, characterLevel, draft) {
  * @param {number} lvl Level being applied.
  * @param {object} args Row inputs.
  * @param {string} args.origin Row origin (`class`/`subclass`/`race`/`background`).
- * @param {Object<string, Object<number, object>>} [args.draft] Stored picks keyed by `[advancementId][level]`.
+ * @param {Object<string, Object<number, object>>} [args.draft] Stored picks keyed by `[draftKey][level]`.
  * @param {object} [args.context] Renderer context.
  * @returns {object} Row record.
  */
 function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
   const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
   const id = adv.id ?? adv._id;
+  const sourceUuid = adv.item?.uuid ?? null;
+  const key = advancementKey(sourceUuid, id);
   const title = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.title ?? type));
   const auto = AUTO.has(type) || !RENDERERS[type];
-  const value = draft[id]?.[lvl] ?? draft[id] ?? {};
+  const value = draft[key]?.[lvl] ?? {};
   const spec = auto ? null : RENDERERS[type](adv, lvl, value, context);
   const grants = type === 'ItemGrant' ? resolveItemGrantEntries(adv) : null;
   const scale = type === 'ScaleValue' ? resolveScaleDelta(adv, lvl) : null;
-  return { advancementId: id, level: lvl, type, title, icon: adv.icon ?? null, spec, auto, origin, grants, scale, source: adv.item?.name ?? null, parentIdentifier: adv.item?.identifier ?? null };
+  return {
+    advancementKey: key,
+    sourceUuid,
+    level: lvl,
+    type,
+    title,
+    icon: adv.icon ?? null,
+    spec,
+    auto,
+    origin,
+    grants,
+    scale,
+    source: adv.item?.name ?? null,
+    parentIdentifier: adv.item?.identifier ?? null
+  };
 }
 
 /** @type {number} Max grant-recursion depth, guarding feat→feat cycles. */
@@ -285,15 +302,16 @@ export async function computeAsiBonus({
       const id = adv.id ?? adv._id;
       const levels = advancementLevels(adv).filter((lvl) => lvl >= 0 && lvl <= levelCap);
       if (!levels.length) continue;
+      const byLevel = advancementDraft[advancementKey(adv.item?.uuid ?? null, id)] ?? advancementDraft[id];
       if (type === 'AbilityScoreImprovement') {
         for (const lvl of levels) {
           add(adv.configuration?.fixed);
-          const pick = advancementDraft[id]?.[lvl];
+          const pick = byLevel?.[lvl];
           if (pick?.type === 'asi') add(pick.assignments);
           else if (pick?.type === 'feat' && pick.feat && depth < NESTED_DEPTH_CAP) await accumulate(await fromUuid(pick.feat), levelCap, depth + 1);
         }
       } else if (depth < NESTED_DEPTH_CAP) {
-        for (const uuid of grantedAsiSources(adv, id, levels, advancementDraft)) await accumulate(await fromUuid(uuid), levelCap, depth + 1);
+        for (const uuid of grantedAsiSources(adv, levels, byLevel)) await accumulate(await fromUuid(uuid), levelCap, depth + 1);
       }
     }
   };
@@ -311,17 +329,16 @@ export async function computeAsiBonus({
 /**
  * Uuids of items an ItemGrant/ItemChoice hands the player, used to chase ASI carried by granted items.
  * @param {object} adv Advancement instance.
- * @param {string} advId Advancement id.
  * @param {number[]} levels In-scope levels for this advancement.
- * @param {Object<string, Object<number, object>>} draft Advancement-pick map.
+ * @param {?Object<number, object>} byLevel This advancement's picks keyed by level.
  * @returns {string[]} Granted/selected item uuids.
  */
-function grantedAsiSources(adv, advId, levels, draft) {
+function grantedAsiSources(adv, levels, byLevel) {
   const type = adv.type ?? adv.constructor?.typeName;
   if (type === 'ItemGrant') return (adv.configuration?.items ?? []).map((it) => it.uuid).filter(Boolean);
   if (type === 'ItemChoice') {
     const out = [];
-    for (const lvl of levels) for (const uuid of Object.values(draft[advId]?.[lvl]?.added ?? {})) if (uuid) out.push(uuid);
+    for (const lvl of levels) for (const uuid of Object.values(byLevel?.[lvl]?.added ?? {})) if (uuid) out.push(uuid);
     return out;
   }
   return [];

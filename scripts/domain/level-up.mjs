@@ -1,8 +1,11 @@
 import { HeroMancer } from '../apps/hero-mancer.mjs';
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
+import { createHistoryNote } from '../integrations/calendaria.mjs';
+import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
+import { splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { applySubclassFromIdentity } from './character.mjs';
 
@@ -46,6 +49,30 @@ export function openLevelUp(actor) {
 /** @type {Set<string>} Advancement types whose grants/values dnd5e can populate from configuration alone (no user data). */
 const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
 
+/** @type {string[]} Scale-value identifiers dnd5e classes use for cantrips known, in preference order. */
+const CANTRIP_SCALE_KEYS = ['cantrips-known', 'cantrips'];
+
+/**
+ * Snapshot the actor's current spellcasting reach so a level-up can be diffed against it.
+ * @param {object} actor Character actor.
+ * @returns {{casterClasses: number, maxSpellLevel: number, cantrips: number}} Snapshot of the live actor.
+ */
+function spellcastingSnapshot(actor) {
+  const classes = Object.values(actor.spellcastingClasses ?? {});
+  let maxSpellLevel = 0;
+  for (const [key, slot] of Object.entries(actor.system?.spells ?? {})) {
+    if (!(Number(slot?.max) > 0)) continue;
+    maxSpellLevel = Math.max(maxSpellLevel, Number(slot.level) || Number(key.match(/^spell(\d+)$/)?.[1]) || 0);
+  }
+  let cantrips = 0;
+  for (const cls of classes) {
+    const scale = cls.scaleValues ?? {};
+    const key = CANTRIP_SCALE_KEYS.find((k) => scale[k]?.value !== undefined);
+    cantrips += key ? Number(scale[key].value) || 0 : 0;
+  }
+  return { casterClasses: classes.length, maxSpellLevel, cantrips };
+}
+
 /**
  * Apply a level-up to an existing actor atomically.
  * @param {object} args Apply inputs.
@@ -60,6 +87,7 @@ const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
  */
 export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubclass = null, hpDraft, advancementDraft, wizardElement = null }) {
   if (!actor || !pickedUuid) return null;
+  const before = spellcastingSnapshot(actor);
   const clone = actor.clone({}, { keepId: true });
   let classItem = null;
   let newLevel = 0;
@@ -101,7 +129,17 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     ATLAS.log(1, 'applyLevelUp aborted (no actor mutation):', err);
     return null;
   }
-  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel });
+  const after = spellcastingSnapshot(actor);
+  const spellcasting = {
+    firstCaster: !before.casterClasses && after.casterClasses > 0,
+    previousMaxSpellLevel: before.maxSpellLevel,
+    newMaxSpellLevel: after.maxSpellLevel,
+    previousCantrips: before.cantrips,
+    newCantrips: after.cantrips
+  };
+  await grantMilestoneMotes(actor, 'levelUp');
+  await createHistoryNote(actor, { type: 'levelUp', className: classItem.name, classLevel: newLevel, multiclass: isMulticlass });
+  Hooks.callAll(MODULE.HOOKS.LEVEL_UP_COMPLETED, { actor, newLevel, spellcasting });
   return { actor, newLevel };
 }
 
@@ -114,15 +152,15 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
  * @returns {Promise<void>}
  */
 async function applySubclassPicks(actor, draft, newLevel, wizardElement) {
-  for (const [advId, byLevel] of Object.entries(draft ?? {})) {
-    const adv = findAdvancement(actor, advId);
+  for (const [key, byLevel] of Object.entries(draft ?? {})) {
+    const adv = findAdvancement(actor, key);
     if (!adv || adv.constructor?.typeName !== 'Subclass') continue;
     const data = byLevel?.[newLevel] ?? byLevel?.[String(newLevel)];
     if (!data) continue;
     try {
       await adv.apply(newLevel, data);
     } catch (err) {
-      if (wizardElement) markAdvancementRowError(wizardElement, advId, newLevel, err?.message ?? String(err));
+      if (wizardElement) markAdvancementRowError(wizardElement, key, newLevel, err?.message ?? String(err));
       throw err;
     }
   }
@@ -204,35 +242,38 @@ async function applyHitPoints(classItem, newLevel, hpDraft) {
 }
 
 /**
- * Walk the advancement draft and apply each non-subclass pick whose advancement currently resolves; re-resolved across rounds so picks on mid-run-granted feats apply once their parent has.
+ * Walk the advancement draft and apply each non-subclass pick whose advancement currently resolves.
  * @param {object} actor Target actor.
  * @param {Object<string, Object<number, object>>} draft Advancement pick map.
  * @param {?HTMLElement} wizardElement Wizard root for error stamping.
- * @param {Set<string>} appliedSet Advancement ids already applied; persisted across rounds so re-runs skip them.
+ * @param {Set<string>} appliedSet Draft keys already applied; persisted across rounds so re-runs skip them.
  * @returns {Promise<{ok: boolean, applied: boolean}>} `ok` false on apply error; `applied` true when at least one pick applied this call.
  */
 async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
   let appliedAny = false;
-  for (const [advId, byLevel] of Object.entries(draft ?? {})) {
-    if (appliedSet.has(advId)) continue;
-    const adv = findAdvancement(actor, advId);
+  const claimed = new Set();
+  for (const [key, byLevel] of Object.entries(draft ?? {})) {
+    if (appliedSet.has(key)) continue;
+    const adv = findAdvancement(actor, key);
     if (!adv) continue;
     if (adv.constructor?.typeName === 'Subclass') {
-      appliedSet.add(advId);
+      appliedSet.add(key);
       continue;
     }
-    appliedSet.add(advId);
+    appliedSet.add(key);
+    if (claimed.has(adv.uuid)) continue;
+    claimed.add(adv.uuid);
     for (const [levelStr, data] of Object.entries(byLevel)) {
       const level = Number(levelStr);
       try {
         await adv.apply(level, advancementApplyData(adv, data));
       } catch (err) {
         const reason = err?.message ?? String(err);
-        if (wizardElement) markAdvancementRowError(wizardElement, advId, level, reason);
-        ATLAS.log(1, `Advancement ${advId} L${level} apply failed:`, err);
+        if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
+        ATLAS.log(1, `Advancement ${key} L${level} apply failed:`, err);
         return { ok: false, applied: appliedAny };
       }
-      reportFeatGrantFailure(adv, data, advId, level, wizardElement);
+      reportFeatGrantFailure(adv, data, key, level, wizardElement);
     }
     appliedAny = true;
   }
@@ -240,15 +281,21 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
 }
 
 /**
- * Locate an Advancement by id across every embedded item on the actor.
+ * Locate an Advancement across every embedded item on the actor.
  * @param {object} actor Target actor.
- * @param {string} advancementId Advancement id.
+ * @param {string} key Draft key from `advancementKey`.
  * @returns {?object} Matching advancement, or null when no item carries it.
  */
-function findAdvancement(actor, advancementId) {
+function findAdvancement(actor, key) {
+  const { sourceUuid, advancementId } = splitAdvancementKey(key);
+  let fallback = null;
   for (const item of actor.items) {
     const adv = item.advancement?.byId?.[advancementId];
-    if (adv) return adv;
+    if (!adv) continue;
+    if (!sourceUuid) return adv;
+    if (item.uuid === sourceUuid) return adv;
+    if ((item.flags?.dnd5e?.sourceId ?? item._stats?.compendiumSource) === sourceUuid) return adv;
+    fallback ??= adv;
   }
-  return null;
+  return fallback;
 }

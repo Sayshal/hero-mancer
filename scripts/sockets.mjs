@@ -10,7 +10,8 @@ export const SOCKET_EVENTS = {
   PENDING_CHANGED: 'pendingChanged',
   SPELL_SETUP_REQUEST: 'spellSetupRequest',
   SPELL_SETUP_COMPLETE: 'spellSetupComplete',
-  SPELL_SETUP_CANCELED: 'spellSetupCanceled'
+  SPELL_SETUP_CANCELED: 'spellSetupCanceled',
+  HISTORY_NOTE: 'historyNote'
 };
 
 const handlers = new Map();

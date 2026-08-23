@@ -1,4 +1,13 @@
 import { MODULE } from '../constants.mjs';
+import { emitSocketEvent, onSocketEvent, SOCKET_EVENTS } from '../sockets.mjs';
+
+/**
+ * Whether Hero Mancer is allowed to write Calendaria notes.
+ * @returns {boolean} True when the world setting is on.
+ */
+function calendarNotesEnabled() {
+  return game.settings.get(MODULE.ID, MODULE.SETTINGS.ENABLE_CALENDAR_NOTES);
+}
 
 /**
  * Create a Calendaria note for a character's birthday under Calendaria's built-in `birthday` preset.
@@ -7,7 +16,7 @@ import { MODULE } from '../constants.mjs';
  * @returns {Promise<void>}
  */
 export async function createBirthdayNote(actor, birthday) {
-  if (!MODULE.COMPAT?.CALENDARIA || !birthday?.year || !birthday?.month || !birthday?.day) return;
+  if (!MODULE.COMPAT?.CALENDARIA || !calendarNotesEnabled() || !birthday?.year || !birthday?.month || !birthday?.day) return;
   if (CALENDARIA.api.canManageNotes?.() === false) return;
   try {
     await CALENDARIA.api.createNote({
@@ -17,11 +26,79 @@ export async function createBirthdayNote(actor, birthday) {
       categories: ['birthday'],
       icon: 'fas fa-cake-candles',
       color: '#ff6b6b',
+      displayStyle: 'pip',
       openSheet: false
     });
   } catch (err) {
     ATLAS.log(2, 'createBirthdayNote failed:', err);
   }
+}
+
+/**
+ * Record a character milestone as a Calendaria note under the `character-history` preset.
+ * @param {object} actor Actor the milestone belongs to.
+ * @param {object} milestone Milestone details.
+ * @param {'created'|'levelUp'} milestone.type Milestone kind.
+ * @param {string} [milestone.className] Class gained or advanced (level-ups only).
+ * @param {number} [milestone.classLevel] New level in that class (level-ups only).
+ * @param {boolean} [milestone.multiclass] Whether the level-up added a new class.
+ * @returns {Promise<void>}
+ */
+export async function createHistoryNote(actor, { type, className, classLevel, multiclass = false }) {
+  if (!MODULE.COMPAT?.CALENDARIA || !calendarNotesEnabled() || !actor?.uuid) return;
+  const originalClass = actor.items.get(actor.system?.details?.originalClass) ?? actor.items.find((i) => i.type === 'class');
+  const payload = {
+    type,
+    uuid: actor.uuid,
+    name: actor.name,
+    className: className ?? originalClass?.name ?? '',
+    classLevel: classLevel ?? (Number(originalClass?.system?.levels) || 0),
+    characterLevel: Number(actor.system?.details?.level) || 0,
+    multiclass
+  };
+  if (CALENDARIA.api.canManageNotes?.() === false) return emitSocketEvent(SOCKET_EVENTS.HISTORY_NOTE, payload);
+  await writeHistoryNote(payload);
+}
+
+/**
+ * Write the character-history note itself.
+ * @param {object} milestone Milestone payload built by `createHistoryNote`.
+ * @param {'created'|'levelUp'} milestone.type Milestone kind.
+ * @param {string} milestone.uuid Actor uuid, stored as the note subject.
+ * @param {string} milestone.name Actor name.
+ * @param {string} milestone.className Class gained or advanced.
+ * @param {number} milestone.classLevel New level in that class.
+ * @param {number} milestone.characterLevel New total character level.
+ * @param {boolean} milestone.multiclass Whether the level-up added a new class.
+ * @returns {Promise<void>}
+ */
+async function writeHistoryNote({ type, uuid, name, className, classLevel, characterLevel, multiclass }) {
+  const date = getCurrentCalendarDate();
+  if (!date) return;
+  const created = type === 'created';
+  const contentKey = created ? 'Created' : multiclass ? 'Multiclass' : 'LevelUp';
+  try {
+    await CALENDARIA.api.createNote({
+      name: _loc(created ? 'HEROMANCER.Calendar.CreatedName' : 'HEROMANCER.Calendar.LevelUpName', { name, level: characterLevel }),
+      content: `<p>${_loc(`HEROMANCER.Calendar.${contentKey}Content`, { name, class: className, classLevel, level: characterLevel })}</p>`,
+      startDate: date,
+      categories: ['character-history'],
+      icon: 'fas fa-user-clock',
+      color: '#e599f7',
+      displayStyle: 'pip',
+      subjects: [uuid],
+      openSheet: false
+    });
+  } catch (err) {
+    ATLAS.log(2, 'createHistoryNote failed:', err);
+  }
+}
+
+/** Wire the GM-side writer for milestones relayed by players who cannot manage notes. */
+export function registerHistoryNoteSocket() {
+  onSocketEvent(SOCKET_EVENTS.HISTORY_NOTE, (data) => {
+    if (ATLAS.isPrimaryGM) writeHistoryNote(data);
+  });
 }
 
 /**

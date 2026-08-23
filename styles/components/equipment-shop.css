@@ -212,6 +212,11 @@
   background: var(--hero-mancer-bg);
 }
 
+.hm-eq-shop-filter-chip:hover,
+.hm-eq-shop-sort-chip:hover {
+  border-color: var(--hero-mancer-border-strong);
+}
+
 .hm-eq-shop-sort-chip {
   justify-content: flex-start;
   text-align: left;

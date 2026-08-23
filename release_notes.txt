@@ -1,5 +1,36 @@
+## Breaking Changes
+
+- Removed Hero Mancer's own Troubleshooter. The diagnostic report is now generated from the 3DS:ATLAS settings menu, and the settings panel Tools group no longer shows a Troubleshooter button.
+- Removed the "lock identity ruleset" setting. Species, class, subclass, and background lists are no longer filtered to the 2014 or 2024 ruleset of your first pick.
+- Removed the one-time cleanup of leftover settings from Hero Mancer 2.x, along with the whispered "refresh your client" notice it posted. Worlds still on pre-3.0 settings should load a 3.0 or 3.1 build once before updating.
+
+## New Features
+
+- Added a per-client "auto open Spell Book" setting that opens the Spell Book on a qualifying level-up instead of waiting for the chat button. Off by default, and only shown when the Spell Book module is active.
+- Added Don't Forget integration. Every GM gets a reminder when a character submission arrives for review, including submissions restored from the archive, and the reminder is marked done when the submission is approved or rejected.
+- Added Tenacity integration. Two world settings control how many motes a character is granted on creation and on each completed level-up. Both default to 0, which disables the grant. The settings only appear when the Tenacity module is active.
+- Hero Mancer now writes a Calendaria note on the current calendar date when a character is created and each time a level-up completes. Notes are filed under a "character-history" category with the actor as the subject.
+- Level-up notes record the class advanced, its new class level, and the new total character level, with distinct wording when the level-up added a new class.
+- New world setting "Write Calendar Notes" controls whether Hero Mancer writes Calendaria notes for character birthdays, character creation, and level-ups. Enabled by default. The row only appears in the Publishing group when Calendaria is active. Turning it off stops a batch of character creations from writing two notes per actor.
+- New world setting "Publish Ability Rolls" posts manual-formula ability rolls to chat as a single card. Enabled by default.
+- Still-open review reminders are deleted if the pending submission page or the whole pending journal is removed without going through the approval flow.
+- The level-up completion chat card now includes an "Open Spell Book" button when the level-up granted a first spellcasting class, a higher spell slot level, or more cantrips.
+
 ## Bug Fixes
 
-- Appearance text now saves to the character's Appearance field instead of the public biography.
-- Fixed Ideals, Bonds, and Flaws entered on the Biography tab being dropped when the character was created; all personality fields now land on the actor sheet.
-- Pending submissions and resumed drafts saved before 3.1.1 are migrated automatically so their personality fields still apply.
+- Advancement choices are now tracked per source item, so two items that happen to carry advancements with the same internal id no longer share a single set of picks.
+- Corrected the declared dnd5e compatibility so the verified system version reads 6.0.0 instead of a Foundry core version number, stopping the spurious system-incompatibility warning on install.
+- Fixed the equipment shop filter and sort chips not showing their highlighted state when active, and restored hover feedback on them.
+- Randomize All now goes through the same reroll gate as the Roll Stats button, reassigning the scores already in the pool instead of silently rolling a fresh set once rerolls are off or used up.
+- Settings panel groups whose settings are all hidden by an inactive module no longer render an empty group header.
+- The "Roll Stats" button on the abilities tab now obeys the reroll settings. Once a pool has been rolled, clicking it again counts as a reroll against the same budget as the per-value reroll button, and the button is disabled with a tooltip when rerolls are off or the attempt limit is used up.
+
+## Changes
+
+- All GM-side automation now runs on the GM chosen in the 3DS:ATLAS primary GM setting instead of whichever GM Foundry happened to pick.
+- Birthday notes now display as a pip on the calendar, matching the character-history notes.
+- Bumped the verified Foundry compatibility version to 14.366.
+- Buttons and labels that moved to the shared ATLAS strings pick up shorter wording, such as the wizard footer's "Randomize All" now reading "Randomize" and the point-buy cost row's add button reading "Add Override".
+- Dialog and wizard header titles now use the ATLAS theme's title colour instead of the plain body text colour, and the custom dialog frame borders match other framed Hero Mancer windows.
+- The birthday picker still works with the setting off and continues to fill the Biography age field.
+- The equipment shop no longer lumps every non-armor equipment item into a single "Gear" category. Items now fall into their own system subtype categories, such as clothing, trinkets, vehicles, and wondrous items.

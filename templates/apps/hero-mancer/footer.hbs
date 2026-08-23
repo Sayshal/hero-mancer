@@ -2,7 +2,7 @@
   {{#unless reviewMode}}
     <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--back" data-action="navBack" data-nav-back>
       <i class="fas fa-chevron-left" aria-hidden="true"></i>
-      {{localize 'HEROMANCER.Wizard.Footer.Back'}}
+      {{localize 'ATLAS.Common.Back'}}
     </button>
   {{/unless}}
   <div class="hm-wizard-footer-progress">{{> hmProgressBar globalProgress}}</div>
@@ -14,7 +14,7 @@
     <button type="submit" class="hm-wizard-footer-btn hm-wizard-footer-btn--approve"
       {{#unless canSubmit}}disabled{{/unless}}>
       <i class="fas fa-circle-check" aria-hidden="true"></i>
-      {{localize 'HEROMANCER.Wizard.Footer.Approve'}}
+      {{localize 'ATLAS.Common.Approve'}}
     </button>
   {{else}}
     <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--cancel" data-action="close">
@@ -24,7 +24,7 @@
     {{#if canRandomize}}
       <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--randomize" data-action="randomizeAll">
         <i class="fas fa-dice" aria-hidden="true"></i>
-        {{localize 'HEROMANCER.App.Randomize.All'}}
+        {{localize 'ATLAS.Common.Randomize'}}
       </button>
     {{/if}}
     <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--draft" data-action="saveDraft">
@@ -32,7 +32,7 @@
       {{localize 'HEROMANCER.Wizard.Footer.SaveDraft'}}
     </button>
     <button type="button" class="hm-wizard-footer-btn hm-wizard-footer-btn--submit" data-action="navNext" data-nav-next>
-      {{localize 'HEROMANCER.Wizard.Footer.Next'}}
+      {{localize 'ATLAS.Common.Next'}}
       <i class="fas fa-chevron-right" aria-hidden="true"></i>
     </button>
     <button type="submit" class="hm-wizard-footer-btn hm-wizard-footer-btn--submit" data-nav-create

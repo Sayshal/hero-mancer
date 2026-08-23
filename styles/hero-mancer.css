@@ -1,22 +1,22 @@
 .hero-mancer {
-  --hero-mancer-accent: var(--atlas-accent, rgb(245 195 95));
-  --hero-mancer-accent-faint: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 6%);
-  --hero-mancer-accent-glow: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 35%);
-  --hero-mancer-accent-hover: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 8%);
-  --hero-mancer-accent-soft: rgb(from var(--atlas-accent, rgb(245 195 95)) r g b / 14%);
-  --hero-mancer-bg: var(--atlas-bg, rgb(16 22 38));
-  --hero-mancer-bg-elev: var(--atlas-bg-lighter, rgb(24 32 52));
+  --hero-mancer-accent: var(--atlas-accent);
+  --hero-mancer-accent-faint: rgb(from var(--atlas-accent) r g b / 6%);
+  --hero-mancer-accent-glow: rgb(from var(--atlas-accent) r g b / 35%);
+  --hero-mancer-accent-hover: rgb(from var(--atlas-accent) r g b / 8%);
+  --hero-mancer-accent-soft: rgb(from var(--atlas-accent) r g b / 14%);
+  --hero-mancer-bg: var(--atlas-bg);
+  --hero-mancer-bg-elev: var(--atlas-bg-lighter);
   --hero-mancer-bg-inset: rgb(0 0 0 / 30%);
-  --hero-mancer-border: var(--atlas-border, rgb(64 78 102));
-  --hero-mancer-border-strong: var(--atlas-accent, rgb(245 195 95));
+  --hero-mancer-border: var(--atlas-border);
+  --hero-mancer-border-strong: var(--atlas-accent);
   --hero-mancer-currency-copper: rgb(210 135 75);
   --hero-mancer-currency-gold: rgb(245 195 95);
   --hero-mancer-currency-silver: rgb(200 205 215);
-  --hero-mancer-danger: var(--atlas-error, rgb(240 90 80));
-  --hero-mancer-danger-fg: var(--atlas-error, rgb(240 90 80));
-  --hero-mancer-danger-soft: rgb(from var(--atlas-error, rgb(240 90 80)) r g b / 18%);
-  --hero-mancer-fg: var(--atlas-text, rgb(232 236 246));
-  --hero-mancer-fg-muted: var(--atlas-text-dim, rgb(160 170 190));
+  --hero-mancer-danger: var(--atlas-error);
+  --hero-mancer-danger-fg: var(--atlas-error);
+  --hero-mancer-danger-soft: rgb(from var(--atlas-error) r g b / 18%);
+  --hero-mancer-fg: var(--atlas-text);
+  --hero-mancer-fg-muted: var(--atlas-text-dim);
   --hero-mancer-fg-on-accent: rgb(20 22 38);
   --hero-mancer-font-header: var(--dnd5e-font-roboto-slab, 'Roboto Slab', serif);
   --hero-mancer-info: rgb(120 170 255);
@@ -36,12 +36,13 @@
   --hero-mancer-rarity-weapon: rgb(180 60 50);
   --hero-mancer-shadow: rgb(0 0 0 / 65%);
   --hero-mancer-shadow-soft: rgb(0 0 0 / 35%);
-  --hero-mancer-success: var(--atlas-success, rgb(120 200 140));
+  --hero-mancer-success: var(--atlas-success);
   --hero-mancer-success-fg: rgb(160 230 180);
-  --hero-mancer-success-soft: rgb(from var(--atlas-success, rgb(120 200 140)) r g b / 18%);
-  --hero-mancer-warn: var(--atlas-warning, rgb(255 165 50));
+  --hero-mancer-success-soft: rgb(from var(--atlas-success) r g b / 18%);
+  --hero-mancer-title: var(--atlas-title-text);
+  --hero-mancer-warn: var(--atlas-warning);
   --hero-mancer-warn-fg: rgb(255 175 60);
-  --hero-mancer-warn-soft: rgb(from var(--atlas-warning, rgb(255 165 50)) r g b / 15%);
+  --hero-mancer-warn-soft: rgb(from var(--atlas-warning) r g b / 15%);
 }
 
 :where(.hero-mancer) ul li,
@@ -95,6 +96,7 @@ body.theme-light {
   --hero-mancer-success: rgb(60 140 80);
   --hero-mancer-success-fg: rgb(40 110 60);
   --hero-mancer-success-soft: rgb(60 140 80 / 14%);
+  --hero-mancer-title: rgb(20 26 42);
   --hero-mancer-warn: rgb(200 130 30);
   --hero-mancer-warn-fg: rgb(160 100 20);
   --hero-mancer-warn-soft: rgb(200 130 30 / 14%);
@@ -267,6 +269,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ) {
   gap: 0.4rem;
@@ -294,6 +298,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):hover:not(:disabled),
 .hero-mancer
@@ -307,6 +313,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):focus-visible:not(:disabled) {
   border-color: var(--hero-mancer-border-strong);
@@ -324,6 +332,8 @@ body.theme-light {
     .hm-tile,
     .hm-dialog-header-btn,
     .hm-icon-btn,
+    .hm-eq-shop-filter-chip,
+    .hm-eq-shop-sort-chip,
     [data-action='tab']
   ):disabled {
   opacity: 0.45;

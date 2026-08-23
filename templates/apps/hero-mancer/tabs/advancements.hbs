@@ -31,7 +31,7 @@
           <span class="hm-section-label">{{localize 'HEROMANCER.App.Advancements.ChooseLabel'}}</span>
           <div class="hm-advancements-grid">
             {{#each choiceRows as |row|}}
-              <div class="hm-advancement-row" data-advancement-row data-advancement-id="{{row.advancementId}}"
+              <div class="hm-advancement-row" data-advancement-row data-advancement-key="{{row.advancementKey}}"
                 data-level="{{row.level}}" data-type="{{row.type}}" data-state="{{row.state}}"
                 data-origin="{{row.origin}}" {{#if row.error}}data-error="partial" {{/if}}
                 {{#if row.requiredCount}}data-required-count="{{row.requiredCount}}" {{/if}}
@@ -80,7 +80,7 @@
                             {{#if tile.allowFeat}}
                               <button type="button"
                                 class="hm-advancement-asi-mode-btn{{#if (eq tile.asiMode 'feat')}} is-active{{/if}}"
-                                data-asi-mode-btn="feat">{{localize 'HEROMANCER.App.Advancements.ASIModeFeatBtn'}}</button>
+                                data-asi-mode-btn="feat">{{localize 'ATLAS.Common.Feat'}}</button>
                             {{/if}}
                           </div>
                         {{/if}}
@@ -118,8 +118,8 @@
                       data-uuid="{{tile.uuid}}" {{/if}} {{#if tile.picker}} data-picker-trigger
                       data-picker-name="{{tile.picker.name}}" data-picker-label="{{tile.picker.label}}"
                       data-picker-options="{{tile.picker.optionsJson}}" data-picker-max="{{tile.picker.max}}"
-                      data-picker-origins="{{tile.picker.originsJson}}" {{/if}}
-                      {{#if tile.browse}} data-action="browseAdvancementItems" data-browse="{{tile.browse}}" {{/if}}
+                      data-picker-origins="{{tile.picker.originsJson}}" {{/if}} {{#if tile.browse}}
+                      data-action="browseAdvancementItems" data-browse="{{tile.browse}}" {{/if}}
                       {{#if tile.selected}}data-selected{{/if}}>
                       {{#if tile.inputName}}
                         <input type="hidden" name="{{tile.inputName}}" value="{{tile.inputValue}}">

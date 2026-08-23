@@ -1,8 +1,8 @@
 /** @enum {string} Flag keys (user + actor). */
 const FLAGS = {
   WIZARD_DRAFT: 'wizardDraft',
-  LAST_SEEN_VERSION: 'lastSeenVersion',
   LAST_REJECTION: 'lastRejection',
+  GRANTS_MOTES: 'grantsMotes',
   LEVEL_UP_READY: 'levelUpReady',
   PENDING_SUBMISSION: 'pendingSubmission',
   SKIP_SPELL_HANDOFF: 'skipSpellHandoff',
@@ -27,15 +27,16 @@ const SETTINGS = {
   ALLOW_PLAYER_LEVEL_OVERRIDE: 'allowPlayerLevelOverride',
   ALLOWED_METHODS: 'allowedMethods',
   ART_PICKER_ROOT: 'artPickerRoot',
+  AUTO_OPEN_SPELL_BOOK: 'autoOpenSpellBook',
   ALLOW_REROLLS: 'allowRerolls',
   MAX_REROLL_ATTEMPTS: 'maxRerollAttempts',
-  LOCK_IDENTITY_RULESET: 'lockIdentityRuleset',
   CUSTOM_FOCUS_ITEMS: 'customFocusItems',
   CUSTOM_POINT_BUY_TOTAL: 'customPointBuyTotal',
   CUSTOM_ROLL_FORMULA: 'customRollFormula',
   DICE_ROLLING_MENU: 'diceRollingMenu',
   DICE_ROLLING_METHOD: 'diceRollingMethod',
   DISABLE_MULTICLASS: 'disableMulticlass',
+  ENABLE_CALENDAR_NOTES: 'enableCalendarNotes',
   ENABLE_DICE_SO_NICE: 'enableDiceSoNice',
   ENABLE_PLAYER_CUSTOMIZATION: 'enablePlayerCustomization',
   ENABLE_RANDOMIZE: 'enableRandomize',
@@ -54,6 +55,7 @@ const SETTINGS = {
   MULTICLASS_THRESHOLD: 'multiclassThreshold',
   PENDING_APPROVALS_MENU: 'pendingApprovalsMenu',
   POINT_BUY_COST_MAP: 'pointBuyCostMap',
+  PUBLISH_ABILITY_ROLLS: 'publishAbilityRolls',
   PUBLISH_CREATION_SUMMARY: 'publishCreationSummary',
   PUBLISH_HP_ROLLS: 'publishHpRolls',
   PUBLISH_LEVEL_UP_BROADCAST: 'publishLevelUpBroadcast',
@@ -63,9 +65,10 @@ const SETTINGS = {
   SETTINGS_PANEL_MENU: 'settingsPanelMenu',
   STANDARD_ARRAY_VALUES: 'standardArrayValues',
   STARTING_LEVEL: 'startingLevel',
+  TENACITY_CREATION_MOTES: 'tenacityCreationMotes',
+  TENACITY_LEVEL_UP_MOTES: 'tenacityLevelUpMotes',
   TOKENIZER_COMPATIBILITY: 'tokenizerCompatibility',
   TRIM_SOURCE_PARENTHETICAL: 'trimSourceParenthetical',
-  TROUBLESHOOTING_MENU: 'troubleshootingMenu',
   DISABLE_WELCOME_POPUP: 'disableWelcomePopup',
   SHOW_WELCOME: 'showWelcome',
   WIZARD_POSITION: 'wizardPosition'
@@ -82,6 +85,8 @@ const HOOKS = {
   APPROVAL_SUBMITTED: 'heroMancer.ApprovalSubmitted',
   APPROVAL_APPROVED: 'heroMancer.ApprovalApproved',
   APPROVAL_REJECTED: 'heroMancer.ApprovalRejected',
+  APPROVAL_RECEIVED: 'heroMancer.ApprovalReceived',
+  APPROVAL_RESOLVED: 'heroMancer.ApprovalResolved',
   LEVEL_UP_STARTED: 'heroMancer.LevelUpStarted',
   LEVEL_UP_COMPLETED: 'heroMancer.LevelUpCompleted',
   EQUIPMENT_UI_RENDERED: 'heroMancer.EquipmentUIRendered'
@@ -162,14 +167,12 @@ const TEMPLATES = {
       EXCLUSIONS: `${TEMPLATE_ROOT}/apps/settings-panel/exclusions.hbs`,
       FOOTER: `${TEMPLATE_ROOT}/apps/settings-panel/footer.hbs`
     },
-    TROUBLESHOOTER: `${TEMPLATE_ROOT}/apps/troubleshooter/main.hbs`,
     WELCOME: `${TEMPLATE_ROOT}/apps/welcome/main.hbs`
   },
   CHAT: {
     ADVANCEMENT_CONSENT: `${TEMPLATE_ROOT}/chat/advancement-consent.hbs`,
     APPROVAL_EVENT: `${TEMPLATE_ROOT}/chat/approval-event.hbs`,
-    CHARACTER_SUMMARY: `${TEMPLATE_ROOT}/chat/character-summary.hbs`,
-    MIGRATION_NOTICE: `${TEMPLATE_ROOT}/chat/migration-notice.hbs`
+    CHARACTER_SUMMARY: `${TEMPLATE_ROOT}/chat/character-summary.hbs`
   }
 };
 

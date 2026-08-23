@@ -287,7 +287,7 @@ function validateAdvancements(root) {
   const errors = [];
   for (const row of rows) {
     if (row.dataset.state === 'done') done++;
-    else if (row.dataset.error === 'partial') errors.push({ advancementId: row.dataset.advancementId, level: Number(row.dataset.level), kind: 'partial' });
+    else if (row.dataset.error === 'partial') errors.push({ advancementKey: row.dataset.advancementKey, level: Number(row.dataset.level), kind: 'partial' });
   }
   const remaining = rows.length - done;
   const valid = remaining === 0;

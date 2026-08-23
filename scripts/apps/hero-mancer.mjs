@@ -50,7 +50,7 @@ import { HMDialog, HMPrompt } from './dialog.mjs';
 
 /** @type {Array<{id: string, icon: string, i18n: string, modes: string[]}>} Wizard tab definitions in display order. */
 const TAB_DEFS = [
-  { id: 'start', icon: 'fa-user-pen', i18n: 'HEROMANCER.Wizard.Tabs.Start', modes: ['creation'] },
+  { id: 'start', icon: 'fa-user-pen', i18n: 'ATLAS.Common.Start', modes: ['creation'] },
   { id: 'level-up', icon: 'fa-angles-up', i18n: 'DND5E.LevelActionIncrease', modes: ['level_up'] },
   { id: 'identity', icon: 'fa-id-card', i18n: 'HEROMANCER.Wizard.Tabs.Identity', modes: ['creation'] },
   { id: 'abilities', icon: 'fa-dice-d20', i18n: 'DND5E.Abilities', modes: ['creation'] },
@@ -96,7 +96,6 @@ const SETTING_PARTS = {
   [MODULE.SETTINGS.HP_L1_MAX_DIE]: ['hp'],
   [MODULE.SETTINGS.HP_REROLL_ONES]: ['hp'],
   [MODULE.SETTINGS.ADVANCEMENT_ORDER]: ['identity'],
-  [MODULE.SETTINGS.LOCK_IDENTITY_RULESET]: ['identity'],
   [MODULE.SETTINGS.MULTICLASS_THRESHOLD]: ['identity'],
   [MODULE.SETTINGS.BONUS_GOLD_FORMULA]: ['equipment'],
   [MODULE.SETTINGS.REFUND_UNCHOSEN_GOLD]: ['equipment'],
@@ -115,6 +114,7 @@ const SETTING_PARTS = {
   [MODULE.SETTINGS.TRIM_SOURCE_PARENTHETICAL]: ['identity', 'equipment', 'advancements'],
   [MODULE.SETTINGS.KEEP_APPROVAL_ARCHIVE]: [],
   [MODULE.SETTINGS.HIDE_OTHER_CREATE_ACTOR_OPTIONS]: [],
+  [MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS]: [],
   [MODULE.SETTINGS.PUBLISH_WEALTH_ROLLS]: [],
   [MODULE.SETTINGS.PUBLISH_CREATION_SUMMARY]: [],
   [MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST]: [],
@@ -619,7 +619,7 @@ export class HeroMancer extends HMDialog {
 
   /**
    * Snapshot advancement-tab pick hidden inputs from DOM.
-   * @returns {Object<string, Object<number, object>>} `{[advancementId]: {[level]: pickData}}`.
+   * @returns {Object<string, Object<number, object>>} `{[draftKey]: {[level]: pickData}}`.
    */
   #readAdvancementDraft() {
     const seed = this.#reviewSeed('advancementDraft') ?? this.#pendingAdvancementDraft;
@@ -1141,13 +1141,13 @@ export class HeroMancer extends HMDialog {
   async close(options = {}) {
     if (!this.#confirmCloseBypass && this.#dirty && this.#mode === 'creation' && !this.#reviewMode) {
       const choice = await HMPrompt.wait({
-        window: { title: 'HEROMANCER.Wizard.CloseConfirm.Title' },
+        window: { title: 'ATLAS.Common.UnsavedChanges' },
         body: _loc('HEROMANCER.Wizard.CloseConfirm.Content'),
         modal: true,
         close: () => 'cancel',
         buttons: [
           { action: 'save', label: 'HEROMANCER.Wizard.CloseConfirm.SaveDraft', icon: 'fa-solid fa-floppy-disk', default: true },
-          { action: 'discard', label: 'HEROMANCER.Wizard.CloseConfirm.Discard', icon: 'fa-solid fa-trash' },
+          { action: 'discard', label: 'ATLAS.Common.Discard', icon: 'fa-solid fa-trash' },
           { action: 'cancel', label: 'COMMON.Cancel', icon: 'fa-solid fa-xmark' }
         ]
       });
@@ -1510,11 +1510,11 @@ export class HeroMancer extends HMDialog {
     try {
       pickedUuid = JSON.parse(hidden.value || '{}').feat ?? null;
     } catch {}
-    const advId = row.dataset.advancementId;
+    const advKey = row.dataset.advancementKey;
     const level = Number(row.dataset.level) || 0;
     const totalCharLevel = this.#shared?.totalCharLevel ?? 1;
     const dialog = new AdvancementFeatDialog({
-      buildContext: () => buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advId, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters }),
+      buildContext: () => buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advKey, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters }),
       filters: this.#featBrowserFilters,
       hiddenInput: hidden,
       onCommit: () => {
@@ -2101,7 +2101,7 @@ export class HeroMancer extends HMDialog {
     refreshSaOptions();
     refreshSaPoolDisplay();
     this.#refreshMfPoolOptions(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
     this.#refreshMfPoolDisplay(blocks);
     this.#refreshPointBuyTracker(blocks);
   }
@@ -2581,24 +2581,48 @@ export class HeroMancer extends HMDialog {
     const blocks = AbilityBlock.attachAll(this.element);
     const mfBlocks = blocks.filter((b) => b.method === 'manualFormula');
     if (!mfBlocks.length) return;
+    const rerolling = !!this.#mfPool;
+    if (rerolling) {
+      if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS)) return;
+      const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
+      if (max > 0 && this.#mfRerollsUsed >= max) {
+        ui.notifications.warn('HEROMANCER.App.Abilities.RerollExhausted', { localize: true });
+        return;
+      }
+    }
     this.#mfPool = new Map();
-    this.#mfRerollsUsed = 0;
+    this.#mfRerollsUsed = rerolling ? this.#mfRerollsUsed + 1 : 0;
     mfBlocks.forEach((b) => {
       b.setPoolMode(true);
       const combo = b.root.querySelector('[data-mode="manualFormula"] [data-combobox]');
       if (combo) Combobox.attach(combo).clear();
     });
     this.#refreshMfPoolDisplay(blocks);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS);
+    const rolls = [];
     for (const block of mfBlocks) {
       const formula = block.root.querySelector('[data-mode="manualFormula"]')?.dataset.defaultFormula;
       if (!formula) continue;
-      const result = await rollAbilityFormula(formula);
-      const key = String(result);
+      const { total, roll } = await rollAbilityFormula(formula, { publish });
+      rolls.push(roll);
+      const key = String(total);
       this.#mfPool.set(key, (this.#mfPool.get(key) ?? 0) + 1);
       this.#refreshMfPoolDisplay(blocks);
     }
+    if (publish) await this.#publishAbilityRolls(rolls);
     this.#refreshMfPoolOptions(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
+  }
+
+  /**
+   * Post the rolled ability formulas to chat as a single aggregated card.
+   * @param {Roll[]} rolls Evaluated ability rolls.
+   * @returns {Promise<void>}
+   */
+  async #publishAbilityRolls(rolls) {
+    if (!rolls.length) return;
+    const content = (await Promise.all(rolls.map((roll) => roll.render()))).join('');
+    await ChatMessage.create({ flavor: _loc('HEROMANCER.App.Abilities.RollFlavor'), speaker: ChatMessage.getSpeaker({ user: game.user }), content, rolls });
   }
 
   /**
@@ -2637,26 +2661,36 @@ export class HeroMancer extends HMDialog {
     const oldCount = this.#mfPool.get(oldKey) ?? 0;
     if (oldCount <= 1) this.#mfPool.delete(oldKey);
     else this.#mfPool.set(oldKey, oldCount - 1);
-    const result = await rollAbilityFormula(formula);
-    const newKey = String(result);
+    const publish = game.settings.get(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS);
+    const { total, roll } = await rollAbilityFormula(formula, { publish });
+    if (publish) await this.#publishAbilityRolls([roll]);
+    const newKey = String(total);
     this.#mfPool.set(newKey, (this.#mfPool.get(newKey) ?? 0) + 1);
     this.#mfRerollsUsed += 1;
     this.#refreshMfPoolOptions(blocks);
     this.#refreshMfPoolDisplay(blocks);
-    this.#refreshMfRerollButton();
+    this.#refreshMfRollButtons();
   }
 
-  /** Toggle visibility/enabled state of the global Reroll button + update remaining count. */
-  #refreshMfRerollButton() {
+  /** Toggle the Roll stats + global Reroll buttons against the reroll allowance and update the remaining count. */
+  #refreshMfRollButtons() {
+    const allow = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS);
+    const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
+    const remaining = max > 0 ? Math.max(0, max - this.#mfRerollsUsed) : Infinity;
+    const rollAll = this.element.querySelector('[data-roll-all]');
+    if (rollAll) {
+      const locked = !!this.#mfPool && (!allow || remaining <= 0);
+      rollAll.disabled = locked;
+      if (locked) rollAll.dataset.tooltip = allow ? 'HEROMANCER.App.Abilities.RerollExhausted' : 'HEROMANCER.App.Abilities.RollAllLocked';
+      else delete rollAll.dataset.tooltip;
+    }
     const btn = this.element.querySelector('[data-reroll-pool]');
     if (!btn) return;
-    const allow = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS);
     if (!this.#mfPool || !allow) {
       btn.hidden = true;
       return;
     }
     btn.hidden = false;
-    const max = Number(game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS)) || 0;
     const counter = btn.querySelector('[data-reroll-remaining]');
     if (max <= 0) {
       btn.disabled = false;
@@ -2666,7 +2700,6 @@ export class HeroMancer extends HMDialog {
       }
       return;
     }
-    const remaining = Math.max(0, max - this.#mfRerollsUsed);
     btn.disabled = remaining <= 0;
     if (counter) {
       counter.textContent = `${remaining}/${max}`;
@@ -2861,14 +2894,14 @@ export class HeroMancer extends HMDialog {
    * Commit a feat pick: write the uuid into the scope row's ASI hidden input, dispatch change so the chooser bridge encodes the payload + re-renders.
    * @this {HeroMancer}
    * @param {PointerEvent} _event Click event.
-   * @param {HTMLElement} target Action element carrying `data-uuid` + `data-adv-id` + `data-level`.
+   * @param {HTMLElement} target Action element carrying `data-uuid` + `data-adv-key` + `data-level`.
    */
   static #onSelectFeat(_event, target) {
     const uuid = target.dataset.uuid;
-    const advId = target.dataset.advId;
+    const advKey = target.dataset.advKey;
     const level = target.dataset.level;
-    if (!uuid || !advId || !level) return;
-    const row = this.element.querySelector(`[data-advancement-row][data-advancement-id="${CSS.escape(advId)}"][data-level="${CSS.escape(level)}"]`);
+    if (!uuid || !advKey || !level) return;
+    const row = this.element.querySelector(`[data-advancement-row][data-advancement-key="${CSS.escape(advKey)}"][data-level="${CSS.escape(level)}"]`);
     const input = row?.querySelector('input[data-adv-asi-feat]');
     if (!input) return;
     input.value = input.value === uuid ? '' : uuid;

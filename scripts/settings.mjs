@@ -1,6 +1,5 @@
 import { PendingApprovals } from './apps/pending-approvals.mjs';
 import { SettingsPanel } from './apps/settings-panel.mjs';
-import { Troubleshooter } from './apps/troubleshooter.mjs';
 import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
@@ -35,6 +34,13 @@ export function registerSettings() {
     config: false,
     type: new BooleanField({ initial: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.PUBLISH_ABILITY_ROLLS, {
+    name: 'HEROMANCER.Settings.PublishAbilityRolls.Name',
+    hint: 'HEROMANCER.Settings.PublishAbilityRolls.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: true })
+  });
   r(MODULE.ID, MODULE.SETTINGS.PUBLISH_HP_ROLLS, {
     name: 'HEROMANCER.Settings.PublishHpRolls.Name',
     hint: 'HEROMANCER.Settings.PublishHpRolls.Hint',
@@ -50,7 +56,7 @@ export function registerSettings() {
     type: new StringField({
       initial: 'public',
       blank: false,
-      choices: { public: 'DND5E.Public', 'whisper-gm': 'HEROMANCER.Settings.PublishCreationSummary.Choices.WhisperGM', off: 'HEROMANCER.Settings.PublishCreationSummary.Choices.Off' }
+      choices: { public: 'DND5E.Public', 'whisper-gm': 'HEROMANCER.Settings.PublishCreationSummary.Choices.WhisperGM', off: 'ATLAS.Common.Off' }
     })
   });
   r(MODULE.ID, MODULE.SETTINGS.PUBLISH_LEVEL_UP_BROADCAST, {
@@ -61,8 +67,15 @@ export function registerSettings() {
     type: new StringField({
       initial: 'public',
       blank: false,
-      choices: { public: 'DND5E.Public', 'whisper-owners': 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.WhisperOwners', off: 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.Off' }
+      choices: { public: 'DND5E.Public', 'whisper-owners': 'HEROMANCER.Settings.PublishLevelUpBroadcast.Choices.WhisperOwners', off: 'ATLAS.Common.Off' }
     })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.AUTO_OPEN_SPELL_BOOK, {
+    name: 'HEROMANCER.Settings.AutoOpenSpellBook.Name',
+    hint: 'HEROMANCER.Settings.AutoOpenSpellBook.Hint',
+    scope: 'client',
+    config: false,
+    type: new BooleanField({ initial: false })
   });
   r(MODULE.ID, MODULE.SETTINGS.MULTICLASS_THRESHOLD, {
     name: 'HEROMANCER.Settings.MulticlassThreshold.Name',
@@ -74,13 +87,6 @@ export function registerSettings() {
   r(MODULE.ID, MODULE.SETTINGS.DISABLE_MULTICLASS, {
     name: 'HEROMANCER.Settings.DisableMulticlass.Name',
     hint: 'HEROMANCER.Settings.DisableMulticlass.Hint',
-    scope: 'world',
-    config: false,
-    type: new BooleanField({ initial: false })
-  });
-  r(MODULE.ID, MODULE.SETTINGS.LOCK_IDENTITY_RULESET, {
-    name: 'HEROMANCER.Settings.LockIdentityRuleset.Name',
-    hint: 'HEROMANCER.Settings.LockIdentityRuleset.Hint',
     scope: 'world',
     config: false,
     type: new BooleanField({ initial: false })
@@ -159,12 +165,12 @@ export function registerSettings() {
       initial: 'uncommon',
       blank: false,
       choices: {
-        common: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Common',
-        uncommon: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Uncommon',
+        common: 'ATLAS.Common.Common',
+        uncommon: 'ATLAS.Common.Uncommon',
         rare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Rare',
         veryRare: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.VeryRare',
-        legendary: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Legendary',
-        artifact: 'HEROMANCER.Settings.ShopMaxMagicRarity.Choices.Artifact'
+        legendary: 'ATLAS.Common.Legendary',
+        artifact: 'ATLAS.Common.Artifact'
       }
     }),
     onChange: clearShopIndex
@@ -193,14 +199,6 @@ export function registerSettings() {
     icon: 'fa-solid fa-clipboard-check',
     type: PendingApprovals,
     restricted: true
-  });
-  game.settings.registerMenu(MODULE.ID, MODULE.SETTINGS.TROUBLESHOOTING_MENU, {
-    name: 'HEROMANCER.Settings.Troubleshooter.Menu.Name',
-    hint: 'HEROMANCER.Settings.Troubleshooter.Menu.Hint',
-    label: 'HEROMANCER.Settings.Troubleshooter.Menu.Label',
-    icon: 'fa-solid fa-bug',
-    type: Troubleshooter,
-    restricted: false
   });
   r(MODULE.ID, MODULE.SETTINGS.ART_PICKER_ROOT, {
     name: 'HEROMANCER.Settings.ArtPickerRoot.Name',
@@ -380,6 +378,20 @@ export function registerSettings() {
     config: false,
     type: new NumberField({ initial: 1, min: 1, max: 20, step: 1, integer: true })
   });
+  r(MODULE.ID, MODULE.SETTINGS.TENACITY_CREATION_MOTES, {
+    name: 'HEROMANCER.Settings.TenacityCreationMotes.Name',
+    hint: 'HEROMANCER.Settings.TenacityCreationMotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 0, min: 0, step: 1, integer: true })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.TENACITY_LEVEL_UP_MOTES, {
+    name: 'HEROMANCER.Settings.TenacityLevelUpMotes.Name',
+    hint: 'HEROMANCER.Settings.TenacityLevelUpMotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 0, min: 0, step: 1, integer: true })
+  });
   r(MODULE.ID, MODULE.SETTINGS.ALLOW_PLAYER_LEVEL_OVERRIDE, {
     name: 'HEROMANCER.Settings.AllowPlayerLevelOverride.Name',
     hint: 'HEROMANCER.Settings.AllowPlayerLevelOverride.Hint',
@@ -415,6 +427,13 @@ export function registerSettings() {
     scope: 'world',
     config: false,
     type: new BooleanField({ initial: false })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.ENABLE_CALENDAR_NOTES, {
+    name: 'HEROMANCER.Settings.EnableCalendarNotes.Name',
+    hint: 'HEROMANCER.Settings.EnableCalendarNotes.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: true })
   });
   if (game.modules.get('tokenizer-2')?.active) {
     r(MODULE.ID, MODULE.SETTINGS.TOKENIZER_COMPATIBILITY, {

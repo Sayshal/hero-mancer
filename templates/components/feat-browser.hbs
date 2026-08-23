@@ -5,7 +5,7 @@
     {{#*inline "featSubtypeChips"}}
       <button type="button" class="hm-feat-browser-filter-chip {{#if allFilterActive}}is-active{{/if}}"
         data-feat-browser-filter="all">
-        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+        {{localize 'ATLAS.Common.All'}}
       </button>
       {{#each subtypes}}
         <button type="button" class="hm-feat-browser-filter-chip {{#if this.active}}is-active{{/if}}"
@@ -17,7 +17,7 @@
     {{#*inline "featRulesChips"}}
       <button type="button" class="hm-feat-browser-filter-chip {{#if allRulesActive}}is-active{{/if}}"
         data-feat-browser-rules="all">
-        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.RulesAll'}}
+        {{localize 'ATLAS.Common.All'}}
       </button>
       {{#each rulesOptions}}
         <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
@@ -29,7 +29,7 @@
     {{#*inline "featActionChips"}}
       <button type="button" class="hm-feat-browser-filter-chip {{#if allActionActive}}is-active{{/if}}"
         data-feat-browser-action="all">
-        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+        {{localize 'ATLAS.Common.All'}}
       </button>
       {{#each actionOptions}}
         <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
@@ -41,7 +41,7 @@
     {{#*inline "featAbilityChips"}}
       <button type="button" class="hm-feat-browser-filter-chip {{#if allAbilityActive}}is-active{{/if}}"
         data-feat-browser-ability="all">
-        {{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}
+        {{localize 'ATLAS.Common.All'}}
       </button>
       {{#each abilityOptions}}
         <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"
@@ -72,7 +72,7 @@
         value="{{filters.search}}" aria-label="{{localize 'HEROMANCER.App.Advancements.FeatBrowser.SearchLabel'}}">
       <details class="hm-feat-browser-popover" data-feat-browser-filter-menu>
         <summary class="hm-feat-browser-popover-trigger"
-          aria-label="{{localize 'HEROMANCER.App.Advancements.FeatBrowser.FilterAll'}}">
+          aria-label="{{localize 'ATLAS.Common.All'}}">
           <i class="fas fa-filter" aria-hidden="true"></i>
         </summary>
         <div class="hm-feat-browser-popover-panel">
@@ -115,7 +115,7 @@
               <div class="hm-feat-browser-filter-group" role="group">
                 <button type="button" class="hm-feat-browser-filter-chip {{#if allBookActive}}is-active{{/if}}"
                   data-feat-browser-book="all">
-                  {{localize 'HEROMANCER.App.Advancements.FeatBrowser.BookAll'}}
+                  {{localize 'ATLAS.Common.All'}}
                 </button>
                 {{#each bookOptions}}
                   <button type="button" class="hm-feat-browser-filter-chip {{#if this.selected}}is-active{{/if}}"

@@ -161,7 +161,7 @@ function deriveGrantsSpell(advancement, activities) {
  * @param {?object} [args.actor] Target actor in level-up mode.
  * @param {?object} [args.classDoc] Retained for future bias options.
  * @param {number} [args.characterLevel] Effective character level.
- * @param {?{advId:string, level:number, label:string}} [args.scope] Active ASI scope.
+ * @param {?{advKey:string, level:number, label:string}} [args.scope] Active ASI scope.
  * @param {?string} [args.pickedUuid] Currently picked feat uuid.
  * @param {?object} [args.filters] Persisted filter state.
  * @returns {object} Sub-tab context.

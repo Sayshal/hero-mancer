@@ -21,7 +21,7 @@ export function mergeCustomFocusItems() {
  * @returns {Promise<void>}
  */
 export async function checkAdvancementAutomation() {
-  if (!game.user.isGM || game.user !== game.users.activeGM) return;
+  if (!ATLAS.isPrimaryGM) return;
   if (!game.settings.get('dnd5e', 'disableAdvancements')) return;
   try {
     const content = await foundry.applications.handlebars.renderTemplate(MODULE.TEMPLATES.CHAT.ADVANCEMENT_CONSENT, {});

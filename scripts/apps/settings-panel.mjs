@@ -82,10 +82,7 @@ const TAB_SETTINGS = {
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Identity',
-      settings: [
-        { key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' },
-        { key: 'LOCK_IDENTITY_RULESET', type: 'boolean' }
-      ]
+      settings: [{ key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' }]
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',
@@ -102,7 +99,7 @@ const TAB_SETTINGS = {
       ]
     },
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Content',
+      group: 'ATLAS.Common.Content',
       settings: [
         { key: 'ENABLE_RANDOMIZE', type: 'boolean' },
         { key: 'TRIM_SOURCE_PARENTHETICAL', type: 'boolean' },
@@ -138,16 +135,26 @@ const TAB_SETTINGS = {
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Publishing',
       settings: [
+        { key: 'PUBLISH_ABILITY_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_WEALTH_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_HP_ROLLS', type: 'boolean' },
         { key: 'PUBLISH_CREATION_SUMMARY', type: 'select' },
-        { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' }
+        { key: 'PUBLISH_LEVEL_UP_BROADCAST', type: 'select' },
+        { key: 'AUTO_OPEN_SPELL_BOOK', type: 'boolean', requiresModule: 'spell-book' },
+        { key: 'ENABLE_CALENDAR_NOTES', type: 'boolean', requiresModule: 'calendaria' }
+      ]
+    },
+    {
+      group: 'HEROMANCER.Settings.SettingsPanel.Group.Motes',
+      settings: [
+        { key: 'TENACITY_CREATION_MOTES', type: 'number', requiresModule: 'tenacity' },
+        { key: 'TENACITY_LEVEL_UP_MOTES', type: 'number', requiresModule: 'tenacity' }
       ]
     }
   ],
   advanced: [
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Behavior',
+      group: 'ATLAS.Common.Behavior',
       settings: [
         { key: 'HIDE_OTHER_CREATE_ACTOR_OPTIONS', type: 'boolean' },
         { key: 'SHOW_WELCOME', type: 'boolean' },
@@ -155,15 +162,12 @@ const TAB_SETTINGS = {
       ]
     },
     {
-      group: 'HEROMANCER.Settings.SettingsPanel.Group.Content',
+      group: 'ATLAS.Common.Content',
       settings: [{ key: 'ART_PICKER_ROOT', type: 'filePicker' }]
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Tools',
-      settings: [
-        { key: 'TROUBLESHOOTING_MENU', type: 'menu', icon: 'fa-bug', buttonLabelKey: 'HEROMANCER.Settings.Troubleshooter.Menu.Label' },
-        { key: 'TOKENIZER_COMPATIBILITY', type: 'boolean', requiresModule: 'tokenizer-2' }
-      ]
+      settings: [{ key: 'TOKENIZER_COMPATIBILITY', type: 'boolean', requiresModule: 'tokenizer-2' }]
     }
   ],
   exclusions: [{ settings: [{ key: 'EXCLUSION_LIST', type: 'exclusions' }] }]
@@ -200,7 +204,6 @@ export class SettingsPanel extends HMDialog {
       removeFocusItem: SettingsPanel.#onRemoveFocusItem,
       addCostRow: SettingsPanel.#onAddCostRow,
       removeCostRow: SettingsPanel.#onRemoveCostRow,
-      openMenu: SettingsPanel.#onOpenMenu,
       browseExclusion: SettingsPanel.#onBrowseExclusion
     }
   };
@@ -273,10 +276,12 @@ export class SettingsPanel extends HMDialog {
   #buildSettingsContext(tabId) {
     const entry = TAB_SETTINGS[tabId] ?? [];
     const groups = entry[0]?.settings ? entry : [{ settings: entry }];
-    return groups.map((g) => ({
-      label: g.group ?? null,
-      settings: g.settings.filter((row) => !row.requiresModule || game.modules.get(row.requiresModule)?.active).map((row) => this.#buildFieldContext(row))
-    }));
+    return groups
+      .map((g) => ({
+        label: g.group ?? null,
+        settings: g.settings.filter((row) => !row.requiresModule || game.modules.get(row.requiresModule)?.active).map((row) => this.#buildFieldContext(row))
+      }))
+      .filter((g) => g.settings.length);
   }
 
   /**
@@ -295,19 +300,8 @@ export class SettingsPanel extends HMDialog {
           bucket,
           icon,
           label: _loc(`HEROMANCER.Settings.CompendiumExclusionList.Tabs.${labelId}`),
-          countLabel: _loc('HEROMANCER.Settings.CompendiumExclusionList.HiddenCount', { count: (exclusions[bucket] ?? []).length })
+          countLabel: _loc('ATLAS.Common.HiddenCount', { count: (exclusions[bucket] ?? []).length })
         }))
-      };
-    }
-    if (row.type === 'menu') {
-      const menu = game.settings.menus.get(`${MODULE.ID}.${settingKey}`);
-      return {
-        key: settingKey,
-        type: 'menu',
-        name: row.nameKey ?? menu?.name ?? '',
-        hint: row.hintKey ?? menu?.hint ?? null,
-        icon: row.icon ?? menu?.icon ?? 'fa-gear',
-        buttonLabel: row.buttonLabelKey ?? 'HEROMANCER.Settings.SettingsPanel.Menu.Label'
       };
     }
     const config = game.settings.settings.get(`${MODULE.ID}.${settingKey}`);
@@ -334,7 +328,7 @@ export class SettingsPanel extends HMDialog {
       ctx.methods = [
         { key: 'average', label: 'HEROMANCER.Settings.HPMethod.Choices.average', checked: v.average !== false },
         { key: 'max', label: 'HEROMANCER.Settings.HPMethod.Choices.max', checked: v.max !== false },
-        { key: 'manual', label: 'HEROMANCER.Settings.HPMethod.Choices.manual', checked: v.manual !== false }
+        { key: 'manual', label: 'ATLAS.Common.Manual', checked: v.manual !== false }
       ];
     }
     if (row.type === 'advancementOrder') {
@@ -516,7 +510,7 @@ export class SettingsPanel extends HMDialog {
     else delete exclusions[config.bucket];
     await game.settings.set(MODULE.ID, settingKey, exclusions);
     const badge = target.closest('.hm-sp-exclusion-row')?.querySelector('.hm-sp-exclusion-count');
-    if (badge) badge.textContent = _loc('HEROMANCER.Settings.CompendiumExclusionList.HiddenCount', { count: selection.size });
+    if (badge) badge.textContent = _loc('ATLAS.Common.HiddenCount', { count: selection.size });
   }
 
   /**
@@ -617,25 +611,12 @@ export class SettingsPanel extends HMDialog {
     picker.render(true);
   }
 
-  /**
-   * Open a registered sub-menu (e.g. Compendium Exclusion List) by setting key.
-   * @param {Event} _event Click event.
-   * @param {HTMLElement} target Button element with data-menu-key.
-   */
-  static #onOpenMenu(_event, target) {
-    const settingKey = target.dataset.menuKey;
-    const menu = game.settings.menus.get(`${MODULE.ID}.${settingKey}`);
-    if (!menu?.type) return;
-    const windowId = this.window.windowId;
-    new menu.type().render({ force: true, ...(windowId && { window: { windowId } }) });
-  }
-
   /** Reset every setting on the active tab to its registered default — in DOM only; user still must Save. */
   static #onResetTab() {
     const tabId = this.tabGroups.primary;
     const form = this.element;
     for (const row of tabRows(tabId)) {
-      if (row.type === 'menu' || row.type === 'exclusions') continue;
+      if (row.type === 'exclusions') continue;
       if (row.requiresModule && !game.modules.get(row.requiresModule)?.active) continue;
       const settingKey = MODULE.SETTINGS[row.key];
       const config = game.settings.settings.get(`${MODULE.ID}.${settingKey}`);
@@ -714,7 +695,7 @@ export class SettingsPanel extends HMDialog {
     const writes = [];
     for (const tabId of Object.keys(TAB_SETTINGS)) {
       for (const row of tabRows(tabId)) {
-        if (row.type === 'menu' || row.type === 'exclusions') continue;
+        if (row.type === 'exclusions') continue;
         if (row.requiresModule && !game.modules.get(row.requiresModule)?.active) continue;
         const settingKey = MODULE.SETTINGS[row.key];
         writes.push(SettingsPanel.#persistField(settingKey, row.type, data, form).catch((err) => ATLAS.log(1, `SettingsPanel: save failed for ${settingKey}:`, err)));

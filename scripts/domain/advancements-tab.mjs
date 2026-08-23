@@ -62,7 +62,7 @@ export async function buildAdvancementsContext({
       row.tiles = buildAutoTiles(row);
       continue;
     }
-    row.fieldName = advancementFieldName(row.advancementId, row.level);
+    row.fieldName = advancementFieldName(row.advancementKey, row.level);
     row.abilityScores = abilityScores;
     row.actor = actor;
     row.draftPicks = draftPicks;
@@ -171,9 +171,9 @@ function sizeTile(row) {
   const options = spec.sizes.map((key) => ({ value: key, label: _loc(CONFIG.DND5E.actorSizes[key]?.label ?? key) }));
   const selected = spec.selected || '';
   const picked = options.find((o) => o.value === selected) ?? null;
-  const inputName = `adv-size.${row.advancementId}.${row.level}`;
+  const inputName = `adv-size.${row.advancementKey}.${row.level}`;
   return {
-    key: `${row.advancementId}-${row.level}-size`,
+    key: `${row.advancementKey}-${row.level}-size`,
     foot: { label: title, kind: 'size' },
     state: 'choice',
     label: picked ? picked.label : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: 1 }),
@@ -204,7 +204,7 @@ function specHasNoOptions(spec) {
  */
 function advancementErrorTile(row) {
   return {
-    key: `${row.advancementId}-${row.level}-error`,
+    key: `${row.advancementKey}-${row.level}-error`,
     foot: { label: foundry.utils.escapeHTML(row.title), kind: 'error' },
     state: 'error',
     label: _loc('HEROMANCER.App.Advancements.NoOptions'),
@@ -230,7 +230,7 @@ function asiFixedTile(row) {
   }
   if (!parts.length) return null;
   return {
-    key: `${row.advancementId}-${row.level}-asi-fixed`,
+    key: `${row.advancementKey}-${row.level}-asi-fixed`,
     foot: { label: _loc('HEROMANCER.App.Advancements.Ribbon.ability'), kind: 'ability' },
     state: 'granted',
     label: parts.join(', '),
@@ -249,7 +249,7 @@ function asiFixedTile(row) {
 function autoItemTile(row, g) {
   const kind = g.type === 'feat' ? (g.featureValue === 'feat' ? 'feat' : 'feature') : g.type || 'feature';
   return {
-    key: `${row.advancementId}-${row.level}-grant-${g.uuid}`,
+    key: `${row.advancementKey}-${row.level}-grant-${g.uuid}`,
     foot: { label: g.typeLabel || _loc('HEROMANCER.App.Advancements.Ribbon.feature'), kind },
     state: 'granted',
     label: stripNoiseParenthetical(g.name),
@@ -272,10 +272,10 @@ function itemChoiceTile(row) {
   const pickerOptions = allOptions.filter((o) => ownSelected.has(o.value) || !externalItems.has(o.value));
   const selected = (spec.selected ?? []).filter(Boolean);
   const pickedOpts = spec.open ? selected.map((uuid) => poolOption(uuid)).filter(Boolean) : selected.map((v) => allOptions.find((o) => o.value === v)).filter(Boolean);
-  const inputName = `adv-combo.${row.advancementId}.${row.level}`;
+  const inputName = `adv-combo.${row.advancementKey}.${row.level}`;
   const sampleType = pickedOpts[0] ? fromUuidSync(pickedOpts[0].value)?.type : null;
   const tile = {
-    key: `${row.advancementId}-${row.level}-pick`,
+    key: `${row.advancementKey}-${row.level}-pick`,
     foot: { label: row.title || _loc('HEROMANCER.App.Advancements.Ribbon.pick'), kind: sampleType || 'pick' },
     state: 'choice',
     label: pickedOpts.length
@@ -307,7 +307,7 @@ function itemChoiceTile(row) {
   } else {
     tile.picker = {
       name: inputName,
-      label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
+      label: row.title || _loc('ATLAS.Common.Choice'),
       max: spec.effectiveCount,
       optionsJson: JSON.stringify(
         pickerOptions.map((o) => ({
@@ -332,12 +332,12 @@ function itemChoiceTile(row) {
 function itemChoiceReplaceTile(row) {
   const spec = row.spec;
   const selected = spec.replaceableItems.find((i) => i.id === spec.replaceTarget) ?? null;
-  const inputName = `adv-replace.${row.advancementId}.${row.level}`;
+  const inputName = `adv-replace.${row.advancementKey}.${row.level}`;
   return {
-    key: `${row.advancementId}-${row.level}-replace`,
+    key: `${row.advancementKey}-${row.level}-replace`,
     foot: { label: _loc('HEROMANCER.App.Advancements.ReplaceFoot'), kind: 'replace' },
     state: 'choice',
-    label: selected ? selected.name : _loc('HEROMANCER.App.Advancements.ReplaceNone'),
+    label: selected ? selected.name : _loc('ATLAS.Common.None'),
     icon: selected?.img ?? row.icon,
     selected: !!selected,
     isPlaceholder: !selected,
@@ -347,10 +347,7 @@ function itemChoiceReplaceTile(row) {
       name: inputName,
       label: _loc('HEROMANCER.App.Advancements.ReplaceLabel'),
       max: 1,
-      optionsJson: JSON.stringify([
-        { value: '', label: _loc('HEROMANCER.App.Advancements.ReplaceNone'), icon: null },
-        ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))
-      ]),
+      optionsJson: JSON.stringify([{ value: '', label: _loc('ATLAS.Common.None'), icon: null }, ...spec.replaceableItems.map((i) => ({ value: i.id, label: i.name, icon: i.img ?? null }))]),
       originsJson: ''
     }
   };
@@ -366,7 +363,7 @@ function buildTraitGrantedTiles(row) {
   for (const g of row.spec.granted ?? []) {
     const kind = ribbonForTraitKey(g.key)?.kind ?? 'pick';
     tiles.push({
-      key: `${row.advancementId}-${row.level}-trait-grant-${g.key}`,
+      key: `${row.advancementKey}-${row.level}-trait-grant-${g.key}`,
       foot: traitGrantFoot(kind, ribbonForLevel(row.level), row.spec.mode),
       state: 'granted',
       label: g.label,
@@ -434,7 +431,7 @@ function traitGrantFoot(kind, fallback, mode = 'default') {
  */
 function traitSlotTile(row, slot) {
   return {
-    key: `${row.advancementId}-${row.level}-trait-locked-${slot.idx}`,
+    key: `${row.advancementKey}-${row.level}-trait-locked-${slot.idx}`,
     foot: traitGrantFoot(ribbonForTraitKey(slot.value)?.kind ?? 'pick', ribbonForLevel(row.level), row.spec.mode),
     state: 'granted',
     label: slot.lockedLabel,
@@ -459,9 +456,9 @@ function traitChoiceTile(row, lockedCount) {
   const { keyLabel } = dnd5e.documents.Trait;
   const labels = chosen.map((k) => keyLabel(k) ?? k).sort((a, b) => a.localeCompare(b));
   const max = Math.max(0, spec.count - lockedCount);
-  const inputName = `adv-trait.${row.advancementId}.${row.level}`;
+  const inputName = `adv-trait.${row.advancementKey}.${row.level}`;
   return {
-    key: `${row.advancementId}-${row.level}-trait-pick`,
+    key: `${row.advancementKey}-${row.level}-trait-pick`,
     foot: traitGrantFoot(ribbonForTraitKey(spec.pool?.[0] ?? chosen[0])?.kind ?? 'pick', { label: _loc('HEROMANCER.App.Advancements.Ribbon.pick'), kind: 'pick' }, spec.mode),
     state: 'choice',
     label: labels.length ? labels.join(', ') : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: max }),
@@ -473,7 +470,7 @@ function traitChoiceTile(row, lockedCount) {
     inputValue: chosen.join(','),
     picker: {
       name: inputName,
-      label: row.title || _loc('HEROMANCER.App.Advancements.ChoosePrompt'),
+      label: row.title || _loc('ATLAS.Common.Choice'),
       max,
       optionsJson: JSON.stringify(flatOptions.filter((o) => !o.disabled).map((o) => ({ value: o.value, label: o.label, group: o.group, uuid: o.uuid })))
     }
@@ -508,7 +505,7 @@ function asiTile(row) {
     if (spec.featOption?.img) icon = spec.featOption.img;
   }
   return {
-    key: `${row.advancementId}-${row.level}-asi`,
+    key: `${row.advancementKey}-${row.level}-asi`,
     foot: {
       label: row.source
         ? `${_loc('HEROMANCER.App.Advancements.ASIFootOnlyLabel')} - ${row.source}`
@@ -599,7 +596,7 @@ function groupRowsByOrigin(rows, { roster, speciesName, backgroundName }) {
     const legend = isMulticlass ? _loc('HEROMANCER.App.Advancements.ClassLegend', { className, level: bucket.slot.level }) : className;
     groups.push({ id: `class-${slotId}`, legend, rows: sortRowsByLevel(bucket.rows) });
   }
-  if (buckets.feature.length) groups.push({ id: 'feature', legend: _loc('HEROMANCER.App.Advancements.FeaturesLegend'), rows: sortRowsByLevel(buckets.feature) });
+  if (buckets.feature.length) groups.push({ id: 'feature', legend: _loc('ATLAS.Common.Features'), rows: sortRowsByLevel(buckets.feature) });
   return groups;
 }
 
@@ -886,8 +883,8 @@ function buildItemChoiceSlots(row) {
       idx: i,
       displayIdx: i + 1,
       combo: {
-        id: `adv-item-${row.advancementId}-${row.level}-${i}`,
-        name: `adv-combo.${row.advancementId}.${row.level}.${i}`,
+        id: `adv-item-${row.advancementKey}-${row.level}-${i}`,
+        name: `adv-combo.${row.advancementKey}.${row.level}.${i}`,
         value: selected,
         placeholder: _loc('HEROMANCER.App.Advancements.ItemChoicePlaceholder'),
         searchable: true,
@@ -941,7 +938,7 @@ async function decorateTraitSpec(row) {
   const links = row.equipmentTraitLinks ?? {};
   spec.count = Math.max(0, spec.count);
   for (let i = 0; i < spec.count; i++) {
-    const linkVal = links[`${row.advancementId}.${row.level}.${i}`];
+    const linkVal = links[`${row.advancementKey}.${row.level}.${i}`];
     if (linkVal) {
       chosenList[i] = linkVal;
       lockedSlots.add(i);
@@ -949,7 +946,7 @@ async function decorateTraitSpec(row) {
   }
   spec.lockedSlots = lockedSlots;
   spec.granted = [...grantedSet].map((k) => ({ key: k, label: keyLabel(k) ?? k }));
-  spec.fieldName = `adv-trait.${row.advancementId}.${row.level}`;
+  spec.fieldName = `adv-trait.${row.advancementKey}.${row.level}`;
   const poolSet = new Set(spec.pool);
   const baseChoices = poolSet.size ? await mixedChoices(poolSet) : null;
   let excludeKeys = grantedSet;
@@ -1000,7 +997,7 @@ async function decorateTraitSpec(row) {
       idx: i,
       displayIdx: i + 1,
       value,
-      name: `adv-trait.${row.advancementId}.${row.level}.${i}`,
+      name: `adv-trait.${row.advancementKey}.${row.level}.${i}`,
       groups: groupAsOptions(flatOptions),
       locked,
       lockedLabel: locked ? (keyLabel(value) ?? value) : null
@@ -1069,7 +1066,7 @@ async function restrictByActorProficiency(choices, mode, actor, draftProficient 
 }
 
 /**
- * Collect every pick across the advancement context so sibling choices can dedupe: trait keys grouped by mode (a weapon can't be mastered twice; a proficiency can't be taken twice), and chosen ItemChoice uuids (a feat/fighting style can't be picked twice).
+ * Collect every pick across the advancement context so sibling choices can dedupe.
  * @param {Array<{spec:?object}>} rows Built advancement rows.
  * @returns {{traitByMode: Object<string, Set<string>>, itemUuids: Set<string>}} Picks indexed for dedup.
  */
@@ -1150,9 +1147,9 @@ function decorateAsiSpec(row) {
     };
   });
   spec.remaining = remaining;
-  spec.modeFieldName = `adv-asi-mode.${row.advancementId}.${row.level}`;
-  spec.assignFieldPrefix = `adv-asi-assign.${row.advancementId}.${row.level}`;
-  spec.featFieldName = `adv-asi-feat.${row.advancementId}.${row.level}`;
+  spec.modeFieldName = `adv-asi-mode.${row.advancementKey}.${row.level}`;
+  spec.assignFieldPrefix = `adv-asi-assign.${row.advancementKey}.${row.level}`;
+  spec.featFieldName = `adv-asi-feat.${row.advancementKey}.${row.level}`;
   spec.featOption = resolveFeatOption(spec.feat);
 }
 
@@ -1195,13 +1192,13 @@ function poolOption(entry) {
 /**
  * Stamp a transient error on an advancement row (e.g. `Advancement#apply` threw at submit time).
  * @param {HTMLElement} root Wizard root.
- * @param {string} advancementId Advancement id.
+ * @param {string} advancementKey Draft key from `advancementKey`.
  * @param {number} level Pick level.
  * @param {string} reason Localized reason text.
  * @returns {void}
  */
-export function markAdvancementRowError(root, advancementId, level, reason) {
-  const row = root.querySelector(`[data-advancement-row][data-advancement-id="${advancementId}"][data-level="${level}"]`);
+export function markAdvancementRowError(root, advancementKey, level, reason) {
+  const row = root.querySelector(`[data-advancement-row][data-advancement-key="${CSS.escape(advancementKey)}"][data-level="${level}"]`);
   if (!row) return;
   row.dataset.error = 'apply';
   row.setAttribute('data-error-reason', reason);
@@ -1213,15 +1210,15 @@ export function markAdvancementRowError(root, advancementId, level, reason) {
  * Surface a loud, actionable error when an ASI feat pick applied but no feat item landed (its uuid failed to resolve).
  * @param {object} adv Advancement just applied.
  * @param {object} data HM draft pick data.
- * @param {string} advancementId Advancement id.
+ * @param {string} advancementKey Draft key from `advancementKey`.
  * @param {number} level Class level applied.
  * @param {?HTMLElement} root Wizard root for row error stamping; absent on the socket-replay path.
  * @returns {void}
  */
-export function reportFeatGrantFailure(adv, data, advancementId, level, root) {
+export function reportFeatGrantFailure(adv, data, advancementKey, level, root) {
   if (!featGrantMissing(adv, data)) return;
   const reason = _loc('HEROMANCER.App.Advancements.FeatGrantFailed', { uuid: data.feat });
-  if (root) markAdvancementRowError(root, advancementId, level, reason);
+  if (root) markAdvancementRowError(root, advancementKey, level, reason);
   else ui.notifications.error(reason, { permanent: true });
   ATLAS.log(1, `ASI feat grant failed: ${data.feat} did not resolve to an item`);
 }

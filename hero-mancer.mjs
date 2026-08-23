@@ -17,9 +17,10 @@ import { registerSpellHandoff } from './scripts/domain/spell-handoff.mjs';
 import { registerSubmissionLock } from './scripts/domain/submission-lock.mjs';
 import { registerComponentPartials, registerHooks } from './scripts/hooks.mjs';
 import './scripts/integrations/_module.mjs';
+import { registerHistoryNoteSocket } from './scripts/integrations/calendaria.mjs';
 import { checkAdvancementAutomation, mergeCustomFocusItems, registerAdvancementConsentListener } from './scripts/integrations/dnd5e.mjs';
+import { registerDontForgetReminders } from './scripts/integrations/dont-forget.mjs';
 import './scripts/macros/_module.mjs';
-import { migrateLegacySettings } from './scripts/migrations.mjs';
 import { registerSettings } from './scripts/settings.mjs';
 import { registerSocket } from './scripts/sockets.mjs';
 import './scripts/utils/_module.mjs';
@@ -29,7 +30,6 @@ import './styles/apps/background-builder-dialog.css';
 import './styles/apps/hero-mancer.css';
 import './styles/apps/pending-approvals.css';
 import './styles/apps/settings-panel.css';
-import './styles/apps/troubleshooter.css';
 import './styles/apps/welcome.css';
 import './styles/components/ability-block.css';
 import './styles/components/banner.css';
@@ -59,7 +59,7 @@ import './styles/hero-mancer.css';
 /**
  * ATLAS troubleshooter debug lines: enabled dnd5e sources, plus the open wizard's build on export opt-in.
  * @param {{mode: string}} ctx  ATLAS report context (`display`, `copy`, or `export`).
- * @returns {Promise<string[]>}
+ * @returns {Promise<string[]>} Logging lines
  */
 async function troubleshooterDebug({ mode } = {}) {
   const L = ATLAS.diagnostics.dnd5eSourceLines();
@@ -95,11 +95,12 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', () => {
-  migrateLegacySettings();
   computeCompatibility();
   registerSocket();
   registerSpellHandoff();
   registerApprovalSockets();
+  registerDontForgetReminders();
+  registerHistoryNoteSocket();
   registerApprovalChat();
   registerApprovalDocumentHooks();
   registerApprovalReplay();

@@ -45,17 +45,15 @@ function entrySourceGroup(entry) {
 }
 
 /**
- * List subclass entries that match a class's identifier, optionally filtered to a locked ruleset.
+ * List subclass entries that match a class's identifier.
  * @param {object} classDoc Full class Document.
- * @param {?string} [locked] Locked ruleset (`2014`/`2024`), or null for no filter.
  * @returns {Array<{value:string,label:string,group:?string,icon:?string}>} Eligible subclass options.
  */
-export function getEligibleSubclasses(classDoc, locked = null) {
+export function getEligibleSubclasses(classDoc) {
   const classIdent = classDoc?.system?.identifier;
   if (!classIdent) return [];
   return documentLoader
     .getEntries('subclass')
     .filter((e) => e.system?.classIdentifier === classIdent)
-    .filter((e) => !locked || !e.system?.source?.rules || e.system.source.rules === locked)
     .map((e) => ({ value: e.uuid, label: e.name, icon: e.img, description: shortDescription(e.system), group: entrySourceGroup(e) }));
 }

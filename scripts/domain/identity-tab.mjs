@@ -29,38 +29,6 @@ export async function preloadIdentityDocs(onProgress) {
 }
 
 /**
- * Resolve the ruleset that locks identity choices, taken from the first selected identity item carrying a 2014/2024 ruleset. Returns null when the lock setting is off or nothing constrains it yet.
- * @param {object} draft Identity draft state.
- * @returns {?string} `2014`, `2024`, or null.
- */
-function identityLockRuleset(draft) {
-  if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.LOCK_IDENTITY_RULESET)) return null;
-  const picks = [
-    ['background', draft.background],
-    ['race', draft.species],
-    ['class', draft.classes?.[0]?.uuid]
-  ];
-  for (const [type, uuid] of picks) {
-    if (!uuid) continue;
-    const rules = documentLoader.getEntries(type).find((e) => e.uuid === uuid)?.system?.source?.rules;
-    if (rules === '2014' || rules === '2024') return rules;
-  }
-  return null;
-}
-
-/**
- * Whether an entry is selectable under a locked ruleset; options with no ruleset stay available to all.
- * @param {object} entry Slim DocEntry.
- * @param {?string} locked Locked ruleset, or null for no lock.
- * @returns {boolean} True when allowed.
- */
-function allowedByRuleset(entry, locked) {
-  if (!locked) return true;
-  const rules = entry.system?.source?.rules;
-  return !rules || rules === locked;
-}
-
-/**
  * Build the identity-tab context: one sub-tab per advancementOrder entry plus subclass.
  * @param {object} [draft] Identity draft state.
  * @param {object} [opts] Build options.
@@ -74,11 +42,10 @@ export function buildIdentityContext(draft = {}, { effectiveLevel = 1, abilitySc
   const order = [...game.settings.get(MODULE.ID, MODULE.SETTINGS.ADVANCEMENT_ORDER)].sort((a, b) => a.order - b.order);
   const roster = normalizeRoster(draft, effectiveLevel);
   const isMulticlassMode = effectiveLevel > 1 && !game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_MULTICLASS);
-  const locked = identityLockRuleset(draft);
   const sections = order.map((entry) => {
     const base = { id: entry.id, label: _loc(entry.label), icon: `fas ${SECTION_ICONS[entry.id]}` };
     if (entry.id === 'class') {
-      const classRoster = buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMulticlassMode, activeClassSlotId, locked });
+      const classRoster = buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMulticlassMode, activeClassSlotId });
       const picked = roster.filter((r) => r.uuid);
       const unselected = roster.filter((r) => !r.uuid).length;
       const prereqFails = classRoster.rows.filter((r) => r.prereqChip).length;
@@ -86,9 +53,9 @@ export function buildIdentityContext(draft = {}, { effectiveLevel = 1, abilitySc
     }
     const type = SECTION_TO_TYPE[entry.id];
     const value = draft[entry.id] ?? '';
-    return { ...base, combo: buildSectionCombo(entry.id, type, value, locked), selectedLabel: value ? (lookupSelectionName(value) ?? '') : '', badge: value ? 0 : 1 };
+    return { ...base, combo: buildSectionCombo(entry.id, type, value), selectedLabel: value ? (lookupSelectionName(value) ?? '') : '', badge: value ? 0 : 1 };
   });
-  const subclassSection = buildSubclassSection(roster, activeSubclassSlotId, locked);
+  const subclassSection = buildSubclassSection(roster, activeSubclassSlotId);
   if (subclassSection.subclassPickers.length) {
     const classIdx = sections.findIndex((s) => s.id === 'class');
     sections.splice(classIdx >= 0 ? classIdx + 1 : sections.length, 0, subclassSection);
@@ -138,17 +105,16 @@ function resolveActiveSlot(picked, preferred) {
  * @param {?Object<string, number>} opts.abilityScores Ability scores.
  * @param {boolean} opts.isMulticlassMode Multiclass UI active.
  * @param {?string} opts.activeClassSlotId Selected class slot.
- * @param {?string} [opts.locked] Locked ruleset filter, or null.
  * @returns {object} Roster context.
  */
-function buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMulticlassMode, activeClassSlotId, locked = null }) {
+function buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMulticlassMode, activeClassSlotId }) {
   const totalAssigned = roster.reduce((sum, r) => sum + (Number(r.level) || 0), 0);
   const primaryLevel = Number(roster[0]?.level) || 0;
   const secondaryHasSpare = roster.slice(1).some((r) => (Number(r.level) || 0) > 1);
   const pickedUuids = new Set(roster.map((s) => s.uuid).filter(Boolean));
   const rows = roster.map((slot, idx) => {
     const isPrimary = idx === 0;
-    const combo = buildClassRosterCombo(slot, idx, pickedUuids, locked);
+    const combo = buildClassRosterCombo(slot, idx, pickedUuids);
     const prereqChip = !isPrimary ? buildPrereqChip(slot.uuid, abilityScores) : null;
     const level = Number(slot.level) || 0;
     const canIncrement = totalAssigned < effectiveLevel || (isPrimary ? secondaryHasSpare : primaryLevel > 1);
@@ -184,11 +150,10 @@ function buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMult
  * @param {{slotId: string, uuid: string}} slot Roster slot.
  * @param {number} idx Row index.
  * @param {Set<string>} [pickedUuids] Already-picked uuids.
- * @param {?string} [locked] Locked ruleset filter, or null.
  * @returns {object} Combobox context.
  */
-function buildClassRosterCombo(slot, idx, pickedUuids = new Set(), locked = null) {
-  const entries = (documentLoader.getEntries('class') ?? []).filter((d) => d.uuid === slot.uuid || allowedByRuleset(d, locked));
+function buildClassRosterCombo(slot, idx, pickedUuids = new Set()) {
+  const entries = documentLoader.getEntries('class') ?? [];
   const options = entries.map((d) => ({
     value: d.uuid,
     label: d.name,
@@ -240,10 +205,9 @@ function computeBalance(total, effectiveLevel) {
  * Subclass sub-tab section: one combobox per qualifying class row.
  * @param {Array<{slotId: string, uuid: string, level: number, subclassUuid: string}>} roster Class roster.
  * @param {?string} [activeSubclassSlotId] Selected subclass slot.
- * @param {?string} [locked] Locked ruleset filter, or null.
  * @returns {object} Sub-tab context.
  */
-function buildSubclassSection(roster, activeSubclassSlotId = null, locked = null) {
+function buildSubclassSection(roster, activeSubclassSlotId = null) {
   const pickers = [];
   for (const slot of roster) {
     if (!slot.uuid) continue;
@@ -251,7 +215,7 @@ function buildSubclassSection(roster, activeSubclassSlotId = null, locked = null
     if (!classEntry) continue;
     const threshold = getSubclassThreshold(classEntry);
     if (!threshold || threshold > slot.level) continue;
-    const options = getEligibleSubclasses(classEntry, locked);
+    const options = getEligibleSubclasses(classEntry);
     if (!options.length) continue;
     pickers.push({
       slotId: slot.slotId,
@@ -330,11 +294,10 @@ function joinSelectionNames(uuids) {
  * @param {string} sectionId Identity sub-tab id.
  * @param {string} type Foundry Item subtype.
  * @param {string} selected Selected uuid.
- * @param {?string} [locked] Locked ruleset filter, or null.
  * @returns {object} Combobox context.
  */
-function buildSectionCombo(sectionId, type, selected, locked = null) {
-  const entries = (documentLoader.getEntries(type) ?? []).filter((d) => d.uuid === selected || allowedByRuleset(d, locked));
+function buildSectionCombo(sectionId, type, selected) {
+  const entries = documentLoader.getEntries(type) ?? [];
   const options = entries.map((d) => ({ value: d.uuid, label: d.name, icon: d.img, description: shortDescription(d.system), ...buildIdentityTags(d, type) }));
   decoratePinnedOptions(options, sectionId);
   if (type === 'background' && !game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_CUSTOM_BACKGROUND))

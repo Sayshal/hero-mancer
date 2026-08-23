@@ -1,15 +1,6 @@
 {
-  "extends": [
-    "stylelint-config-standard"
-  ],
-  "ignoreFiles": [
-    "coverage/**",
-    "dist/**",
-    "dnd5e/**",
-    "foundry/**",
-    "_source/**",
-    "todo/**"
-  ],
+  "extends": ["stylelint-config-standard"],
+  "ignoreFiles": ["coverage/**", "dist/**", "dnd5e/**", "foundry/**", "_source/**", "todo/**"],
   "rules": {
     "color-function-notation": "modern",
     "color-named": "never",
@@ -17,45 +8,18 @@
     "comment-empty-line-before": null,
     "custom-property-pattern": null,
     "declaration-property-unit-allowed-list": {
-      "/^padding|^gap|^margin|^border-radius|^inset$|^top$|^right$|^bottom$|^left$/": [
-        "rem",
-        "%"
-      ],
-      "font-size": [
-        "rem",
-        "em"
-      ],
-      "line-height": [
-        "rem",
-        "em"
-      ],
-      "letter-spacing": [
-        "rem",
-        "em"
-      ]
+      "/^padding|^gap|^margin|^border-radius|^inset$|^top$|^right$|^bottom$|^left$/": ["rem", "%"],
+      "font-size": ["rem", "em"],
+      "line-height": ["rem", "em"],
+      "letter-spacing": ["rem", "em"]
     },
-    "function-disallowed-list": [
-      "hex"
-    ],
+    "function-disallowed-list": ["hex"],
     "function-url-quotes": "always",
     "max-nesting-depth": null,
     "no-descending-specificity": null,
     "property-no-vendor-prefix": null,
     "selector-class-pattern": "^[a-z][a-zA-Z0-9]+$|^[a-z][a-z0-9\\-]+[a-z0-9]$",
     "selector-max-compound-selectors": null,
-    "unit-allowed-list": [
-      "%",
-      "deg",
-      "rem",
-      "em",
-      "ms",
-      "vh",
-      "vw",
-      "cqi",
-      "fr",
-      "s",
-      "ch",
-      "turn"
-    ]
+    "unit-allowed-list": ["%", "deg", "rem", "em", "ms", "vh", "vw", "cqi", "fr", "s", "ch", "turn"]
   }
 }
