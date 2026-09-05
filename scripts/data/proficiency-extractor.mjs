@@ -15,9 +15,9 @@ const PREFIX_TO_BUCKET = { saves: 'savingThrows', skills: 'skills', languages: '
 
 /** @type {Array<{bucket: string, labelKey: string, icon: string}>} */
 const CATEGORY_META = [
-  { bucket: 'armor', labelKey: 'DND5E.TraitArmorProf', icon: 'fa-solid fa-shield-halved' },
-  { bucket: 'weapons', labelKey: 'DND5E.TraitWeaponProf', icon: 'fa-solid fa-hand-fist' },
-  { bucket: 'tools', labelKey: 'DND5E.TraitToolProf', icon: 'fa-solid fa-screwdriver-wrench' },
+  { bucket: 'armor', labelKey: 'DND5E.TRAIT.Armor.other', icon: 'fa-solid fa-shield-halved' },
+  { bucket: 'weapons', labelKey: 'DND5E.TRAIT.Weapon.other', icon: 'fa-solid fa-hand-fist' },
+  { bucket: 'tools', labelKey: 'DND5E.TRAIT.Tool.other', icon: 'fa-solid fa-screwdriver-wrench' },
   { bucket: 'savingThrows', labelKey: 'DND5E.ClassSaves', icon: 'fa-solid fa-dice-d20' },
   { bucket: 'skills', labelKey: 'DND5E.Skills', icon: 'fa-solid fa-star' },
   { bucket: 'languages', labelKey: 'DND5E.Languages', icon: 'fa-solid fa-language' }

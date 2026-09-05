@@ -141,8 +141,8 @@ async function buildBackgroundRows(docs) {
   const rows = [
     htmlRow('HEROMANCER.Compare.Field.BackgroundASI', 'fa-arrow-trend-up', asiCells),
     htmlRow('HEROMANCER.Compare.Field.FeatsGranted', 'fa-award', featureCells),
-    htmlRow('DND5E.TraitSkillsPlural.other', 'fa-star', skillCells),
-    htmlRow('DND5E.TraitToolProf', 'fa-screwdriver-wrench', toolCells),
+    htmlRow('DND5E.TRAIT.Skill.other', 'fa-star', skillCells),
+    htmlRow('DND5E.TRAIT.Tool.other', 'fa-screwdriver-wrench', toolCells),
     textRow('DND5E.Languages', 'fa-language', langCells)
   ];
   return rows.filter(rowHasContent);
@@ -194,16 +194,16 @@ async function buildSpeciesRows(docs) {
       docs.map((d) => d.system?.senses?.special || null)
     ),
     htmlRow('HEROMANCER.Compare.Field.BackgroundASI', 'fa-arrow-trend-up', asiCells),
-    htmlRow('DND5E.TraitSkillsPlural.other', 'fa-star', skillCells),
-    htmlRow('DND5E.TraitToolProf', 'fa-screwdriver-wrench', toolCells),
+    htmlRow('DND5E.TRAIT.Skill.other', 'fa-star', skillCells),
+    htmlRow('DND5E.TRAIT.Tool.other', 'fa-screwdriver-wrench', toolCells),
     textRow(
       'DND5E.Languages',
       'fa-language',
       docs.map((d, i) => withLanguageChoice(profs[i].joined.languages, d))
     ),
-    htmlRow('DND5E.DamRes', 'fa-shield', damResCells),
-    htmlRow('DND5E.DamImm', 'fa-shield-heart', damImmCells),
-    htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
+    htmlRow('DND5E.TRAIT.Damage.Resistance.other', 'fa-shield', damResCells),
+    htmlRow('DND5E.TRAIT.Damage.Immunity.other', 'fa-shield-heart', damImmCells),
+    htmlRow('DND5E.TRAIT.Condition.Immunity.other', 'fa-face-meh-blank', conImmCells),
     htmlRow('DND5E.Traits', 'fa-sparkles', featuresCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
     htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
@@ -240,21 +240,21 @@ async function buildClassRows(docs) {
     htmlRow('HEROMANCER.Compare.Field.PrimaryAbility', 'fa-bolt', primaryAbilityCells),
     htmlRow('DND5E.ClassSaves', 'fa-dice-d20', savesCells),
     textRow(
-      'DND5E.TraitArmorProf',
+      'DND5E.TRAIT.Armor.other',
       'fa-shield-halved',
       profsDeep.map((p) => p.joined.armor)
     ),
     textRow(
-      'DND5E.TraitWeaponProf',
+      'DND5E.TRAIT.Weapon.other',
       'fa-hand-fist',
       profsDeep.map((p) => p.joined.weapons)
     ),
-    htmlRow('DND5E.TraitToolProf', 'fa-screwdriver-wrench', toolCells),
-    htmlRow('DND5E.TraitSkillsPlural.other', 'fa-star', skillCells),
+    htmlRow('DND5E.TRAIT.Tool.other', 'fa-screwdriver-wrench', toolCells),
+    htmlRow('DND5E.TRAIT.Skill.other', 'fa-star', skillCells),
     textRow('DND5E.Languages', 'fa-language', langCells),
-    htmlRow('DND5E.DamRes', 'fa-shield', damResCells),
-    htmlRow('DND5E.DamImm', 'fa-shield-heart', damImmCells),
-    htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
+    htmlRow('DND5E.TRAIT.Damage.Resistance.other', 'fa-shield', damResCells),
+    htmlRow('DND5E.TRAIT.Damage.Immunity.other', 'fa-shield-heart', damImmCells),
+    htmlRow('DND5E.TRAIT.Condition.Immunity.other', 'fa-face-meh-blank', conImmCells),
     textRow('DND5E.Spellcasting', 'fa-wand-magic-sparkles', docs.map(formatSpellcasting)),
     textRow(
       'HEROMANCER.Compare.Field.StartingWealth',
@@ -298,12 +298,12 @@ async function buildSubclassRows(docs) {
       })
     ),
     textRow('DND5E.Spellcasting', 'fa-wand-magic-sparkles', docs.map(formatSpellcasting)),
-    htmlRow('DND5E.TraitSkillsPlural.other', 'fa-star', skillCells),
-    htmlRow('DND5E.TraitToolProf', 'fa-screwdriver-wrench', toolCells),
+    htmlRow('DND5E.TRAIT.Skill.other', 'fa-star', skillCells),
+    htmlRow('DND5E.TRAIT.Tool.other', 'fa-screwdriver-wrench', toolCells),
     textRow('DND5E.Languages', 'fa-language', langCells),
-    htmlRow('DND5E.DamRes', 'fa-shield', damResCells),
-    htmlRow('DND5E.DamImm', 'fa-shield-heart', damImmCells),
-    htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
+    htmlRow('DND5E.TRAIT.Damage.Resistance.other', 'fa-shield', damResCells),
+    htmlRow('DND5E.TRAIT.Damage.Immunity.other', 'fa-shield-heart', damImmCells),
+    htmlRow('DND5E.TRAIT.Condition.Immunity.other', 'fa-face-meh-blank', conImmCells),
     htmlRow('HEROMANCER.Compare.Field.FeaturesByLevel', 'fa-sparkles', featuresCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
     htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
@@ -348,12 +348,12 @@ async function buildFeatRows(docs) {
     htmlRow('HEROMANCER.Compare.Field.GrantsASI', 'fa-arrow-trend-up', grantsAsiCells),
     textRow('DND5E.Action', 'fa-bolt', actionCells),
     htmlRow('DND5E.Damage', 'fa-burst', damageCells),
-    htmlRow('DND5E.TraitSkillsPlural.other', 'fa-star', skillCells),
-    htmlRow('DND5E.TraitToolProf', 'fa-screwdriver-wrench', toolCells),
+    htmlRow('DND5E.TRAIT.Skill.other', 'fa-star', skillCells),
+    htmlRow('DND5E.TRAIT.Tool.other', 'fa-screwdriver-wrench', toolCells),
     textRow('DND5E.Languages', 'fa-language', langCells),
-    htmlRow('DND5E.DamRes', 'fa-shield', damResCells),
-    htmlRow('DND5E.DamImm', 'fa-shield-heart', damImmCells),
-    htmlRow('DND5E.ConImm', 'fa-face-meh-blank', conImmCells),
+    htmlRow('DND5E.TRAIT.Damage.Resistance.other', 'fa-shield', damResCells),
+    htmlRow('DND5E.TRAIT.Damage.Immunity.other', 'fa-shield-heart', damImmCells),
+    htmlRow('DND5E.TRAIT.Condition.Immunity.other', 'fa-face-meh-blank', conImmCells),
     htmlRow('HEROMANCER.Compare.Field.GrantedSpells', 'fa-wand-sparkles', spellsCells),
     htmlRow('ATLAS.Common.Choices', 'fa-list-check', choicesCells),
     textRow('HEROMANCER.Compare.Field.Scales', 'fa-chart-line', docs.map(formatScaleValues)),
@@ -827,7 +827,7 @@ async function enrichItemChoicesCell(doc) {
     const pool = adv.configuration?.pool ?? [];
     if (!totalCount || !pool.length) continue;
     const items = pool.map((p) => `@UUID[${p.uuid}]`).join('<br>');
-    const title = foundry.utils.escapeHTML(adv.title || _loc('DND5E.ADVANCEMENT.ItemChoice.Title'));
+    const title = foundry.utils.escapeHTML(adv.name || _loc('DND5E.ADVANCEMENT.ItemChoice.Title'));
     groups.push(`<strong>${title}</strong> — ${_loc('HEROMANCER.Compare.Value.PickN', { count: totalCount })}:<br>${items}`);
   }
   if (!groups.length) return null;

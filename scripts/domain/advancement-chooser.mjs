@@ -123,7 +123,7 @@ export function buildOwnedItemRows(actor, characterLevel, draft) {
       if (!advancementLevels(adv).includes(characterLevel)) continue;
       const row = advancementRow(adv, characterLevel, { origin: 'feature', draft });
       row.title = nestedTitle(item.name, adv, characterLevel);
-      row.icon = adv.icon ?? item.img ?? row.icon;
+      row.icon = adv.img ?? item.img ?? row.icon;
       rows.push(row);
     }
   }
@@ -145,7 +145,7 @@ function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
   const id = adv.id ?? adv._id;
   const sourceUuid = adv.item?.uuid ?? null;
   const key = advancementKey(sourceUuid, id);
-  const title = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.title ?? type));
+  const title = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.name ?? type));
   const auto = AUTO.has(type) || !RENDERERS[type];
   const value = draft[key]?.[lvl] ?? {};
   const spec = auto ? null : RENDERERS[type](adv, lvl, value, context);
@@ -157,7 +157,7 @@ function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
     level: lvl,
     type,
     title,
-    icon: adv.icon ?? null,
+    icon: adv.img ?? null,
     spec,
     auto,
     origin,
@@ -229,7 +229,7 @@ function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
       const row = advancementRow(adv, lvl, { origin: parentRow.origin, draft });
       row.classKey = parentRow.classKey ?? null;
       row.displayLevel = parentRow.displayLevel ?? parentRow.level;
-      row.icon = adv.icon ?? doc.img ?? parentRow.icon ?? null;
+      row.icon = adv.img ?? doc.img ?? parentRow.icon ?? null;
       row.title = nestedTitle(doc.name, adv, lvl);
       rows.push(row);
     }
@@ -245,7 +245,7 @@ function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
  * @returns {string} Display title.
  */
 function nestedTitle(itemName, adv, lvl) {
-  const inner = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.title ?? ''));
+  const inner = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.name ?? ''));
   return inner ? `${itemName}: ${inner}` : itemName;
 }
 
