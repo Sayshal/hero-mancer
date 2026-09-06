@@ -194,7 +194,7 @@ export class SettingsPanel extends HMDialog {
       submitOnChange: false
     },
     window: { title: 'HEROMANCER.Settings.SettingsPanel.Menu.Name', icon: 'fa-solid fa-cog' },
-    position: { width: 720, height: 720 },
+    position: { width: 820, height: 720 },
     actions: {
       resetTab: SettingsPanel.#onResetTab,
       reorderUp: SettingsPanel.#onReorderUp,
