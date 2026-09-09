@@ -19,6 +19,7 @@ const INDEX_FIELDS = new Set([
   'system.price.value',
   'system.price.denomination',
   'system.rarity',
+  'system.rarities',
   'system.damage.base.number',
   'system.damage.base.denomination',
   'system.damage.base.types',
@@ -480,7 +481,7 @@ const RARITY_ORDER = ['common', 'uncommon', 'rare', 'veryRare', 'legendary', 'ar
  */
 function magicItemAllowed(entry) {
   if (!game.settings.get(MODULE.ID, MODULE.SETTINGS.SHOP_INCLUDE_MAGIC_ITEMS)) return false;
-  const rarity = entry.system?.rarity || 'common';
+  const rarity = entry.system?.rarities?.[0] ?? entry.system?.rarity ?? 'common';
   const max = game.settings.get(MODULE.ID, MODULE.SETTINGS.SHOP_MAX_MAGIC_RARITY) || 'uncommon';
   const rarityRank = RARITY_ORDER.indexOf(rarity);
   return rarityRank >= 0 && rarityRank <= RARITY_ORDER.indexOf(max);

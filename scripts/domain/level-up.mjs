@@ -48,7 +48,7 @@ export function openLevelUp(actor) {
 }
 
 /** @type {Set<string>} Advancement types whose grants/values dnd5e can populate from configuration alone (no user data). */
-const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait']);
+const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'ModifyItem', 'Size', 'Trait']);
 
 /** @type {string[]} Scale-value identifiers dnd5e classes use for cantrips known, in preference order. */
 const CANTRIP_SCALE_KEYS = ['cantrips-known', 'cantrips'];

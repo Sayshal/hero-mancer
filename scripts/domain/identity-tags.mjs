@@ -57,7 +57,7 @@ function advancementArray(entry) {
 function speciesTags(entry, tags) {
   const sizes = [...(advancementArray(entry).find((a) => a.type === 'Size')?.configuration?.sizes ?? [])];
   if (sizes.length) tags.push(sizes.map((s) => _loc(CONFIG.DND5E.actorSizes[s]?.label ?? s)).join('/'));
-  const walk = entry.system?.movement?.walk;
+  const walk = entry.system?.movement?.speeds?.walk ?? entry.system?.movement?.walk;
   if (walk) tags.push(`${walk} ${entry.system.movement.units || 'ft'}`);
   const creatureType = entry.system?.type?.value;
   if (creatureType) tags.push(_loc(CONFIG.DND5E.creatureTypes[creatureType]?.label ?? creatureType));

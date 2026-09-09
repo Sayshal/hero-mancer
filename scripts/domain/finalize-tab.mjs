@@ -30,10 +30,11 @@ function formatMovement(movement) {
 function formatSenses(senses) {
   if (!senses) return '—';
   const units = senses.units ?? 'ft';
+  const ranges = senses.ranges ?? senses;
   const parts = [];
-  for (const [key, label] of Object.entries(CONFIG.DND5E.senses ?? {})) {
-    const v = senses[key];
-    if (v) parts.push(`${label} ${v} ${units}`);
+  for (const [key, cfg] of Object.entries(CONFIG.DND5E.senses ?? {})) {
+    const v = ranges[key];
+    if (v) parts.push(`${_loc(cfg?.label ?? cfg)} ${v} ${units}`);
   }
   if (senses.special) parts.push(senses.special);
   return parts.length ? parts.join(', ') : '—';

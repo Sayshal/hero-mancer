@@ -77,9 +77,9 @@ function buildFeatureRows(advs) {
     if (!type) continue;
     if (type === 'ItemGrant') {
       const items = resolveGrantItems(adv);
-      rows.push({ type, title: stripHtml(adv.title ?? type), items });
+      rows.push({ type, title: stripHtml(adv.name ?? type), items });
     } else if (type === 'ScaleValue') {
-      rows.push({ type, title: stripHtml(adv.title ?? type), items: [] });
+      rows.push({ type, title: stripHtml(adv.name ?? type), items: [] });
     }
   }
   return rows;
