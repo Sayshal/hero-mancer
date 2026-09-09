@@ -1,0 +1,17 @@
+## Breaking Changes
+
+- Hero Mancer's own Troubleshooter is removed. The diagnostic report is now generated from the 3DS:ATLAS settings menu.
+- The lock identity ruleset setting is removed. Species, class, subclass and background lists are no longer filtered to the 2014 or 2024 ruleset of your first pick.
+- The one-time cleanup of leftover 2.x settings is removed. Worlds still on pre-3.0 settings should load a 3.0 or 3.1 build once before updating.
+
+## New Features
+
+- A per-client setting opens the Spell Book on a qualifying level-up, and the level-up chat card gains an Open Spell Book button when spellcasting, slot levels or cantrips were gained.
+- Don't Forget integration: every GM gets a reminder when a character submission arrives for review, marked done on approval or rejection and deleted if the pending page is removed.
+- Tenacity integration: two world settings control how many motes a character is granted on creation and on each completed level-up, shown only when Tenacity is active.
+- A Calendaria note is written on character creation and each completed level-up under a character-history category, controlled by a new "Write Calendar Notes" world setting that also covers birthdays.
+- The level-up card now lists hit points gained, ability score changes and every feature granted, and a new "Publish Ability Rolls" setting posts manual-formula ability rolls as one chat card.
+
+## Bug Fixes
+
+- 7 bugs squashed
