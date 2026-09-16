@@ -93,10 +93,7 @@ export async function buildShopContext({ draft = {}, classDoc, backgroundDoc, se
   const cart = cartLines.map((line) => ({ ...line, lineGp: round2(line.qty * line.costGp), lineFormatted: formatCurrency(line.qty * line.costGp) }));
   const spent = round2(cart.reduce((s, l) => s + l.lineGp, 0));
   const remaining = round2(pool.total - spent);
-  for (const line of cart) {
-    const headroom = line.costGp > 0 ? Math.max(line.qty, line.qty + Math.floor((remaining + 0.0001) / line.costGp)) : line.qty + 99;
-    line.qtyOptions = Array.from({ length: headroom + 1 }, (_, i) => ({ value: i, selected: i === line.qty }));
-  }
+  for (const line of cart) line.maxQty = Math.max(line.qty, line.qty + Math.floor((remaining + 0.0001) / line.costGp));
   const { items, filters } = buildShopItems(remaining, new Map(cart.map((c) => [c.uuid, c.qty])));
   return {
     hasShop: pool.total > 0 || cart.length > 0,

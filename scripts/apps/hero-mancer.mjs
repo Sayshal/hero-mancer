@@ -1625,7 +1625,7 @@ export class HeroMancer extends HMDialog {
       const remove = event.target.closest('[data-eq-cart-remove]');
       if (remove) return this.#mutateCart(remove.dataset.uuid, 0);
       const tile = event.target.closest('[data-eq-shop-tile]');
-      if (tile && !event.target.closest('[data-item-link]') && !event.target.closest('[data-eq-cart-qty-select]')) {
+      if (tile && !event.target.closest('[data-item-link]')) {
         if (tile.getAttribute('aria-disabled') === 'true') return;
         const inCart = tile.hasAttribute('data-selected');
         return this.#mutateCart(tile.dataset.uuid, inCart ? 0 : 1);
@@ -1646,9 +1646,13 @@ export class HeroMancer extends HMDialog {
       }
     });
     shop.addEventListener('change', (event) => {
-      const select = event.target.closest('[data-eq-cart-qty-select]');
-      if (!select) return;
-      this.#mutateCart(select.dataset.uuid, Number(select.value) || 0);
+      const input = event.target.closest('[data-eq-cart-qty-input]');
+      if (!input) return;
+      const committed = Number(input.defaultValue);
+      const raw = Math.floor(input.valueAsNumber);
+      const qty = Number.isNaN(raw) ? committed : Math.clamp(raw, 0, Number(input.max));
+      input.value = String(qty);
+      if (qty !== committed) this.#mutateCart(input.dataset.uuid, qty);
     });
     shop.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') return;

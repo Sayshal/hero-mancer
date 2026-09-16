@@ -106,12 +106,9 @@
                   <span class="hm-eq-shop-line-gp" data-eq-line-gp aria-hidden="true"><i class="fas fa-coins"></i>
                     {{this.lineFormatted}}</span>
                 </span>
-                <select class="hm-eq-shop-qty-select" data-eq-cart-qty-select data-uuid="{{this.uuid}}"
-                  aria-label="{{localize 'DND5E.Quantity'}}">
-                  {{#each this.qtyOptions}}
-                    <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.value}}</option>
-                  {{/each}}
-                </select>
+                <input type="number" class="hm-eq-shop-qty-input" data-eq-cart-qty-input data-uuid="{{this.uuid}}"
+                  id="hm-cart-qty-{{this.uuid}}" min="0" max="{{this.maxQty}}" value="{{this.qty}}"
+                  inputmode="numeric" aria-label="{{localize 'DND5E.Quantity'}}" />
                 <button type="button" class="hm-eq-shop-remove" data-eq-cart-remove data-uuid="{{this.uuid}}"
                   data-tooltip aria-label="{{localize 'ATLAS.Common.Remove'}}">
                   <i class="fas fa-xmark"></i>

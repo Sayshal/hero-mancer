@@ -344,29 +344,15 @@
   opacity: 1;
 }
 
-.hm-eq-shop-qty-select {
-  appearance: none;
+.hm-eq-shop-qty-input {
   font-variant-numeric: tabular-nums;
-  box-sizing: border-box;
-  width: 2.7rem;
-  min-width: 2.7rem;
+  width: 4.5rem;
+  min-width: 4.5rem;
   height: 1.6rem;
   padding: 0 0.3rem;
-  border: 0.0625rem solid var(--hero-mancer-border);
-  border-radius: var(--hero-mancer-radius-sm);
-  color: var(--hero-mancer-fg);
   font-size: 0.85em;
   line-height: 1;
   text-align: center;
-  text-align-last: center;
-  cursor: pointer;
-  background: var(--hero-mancer-bg-elev);
-}
-
-.hm-eq-shop-qty-select:hover,
-.hm-eq-shop-qty-select:focus-visible {
-  border-color: var(--hero-mancer-accent);
-  outline: none;
 }
 
 .hm-eq-shop-cart-line img {
