@@ -20,10 +20,11 @@ export class JournalPageEmbed {
    * @param {?string} [opts.itemName] Document name for page matching.
    * @param {?string} [opts.baseSpecies] Lower-cased fallback species.
    * @param {?string} [opts.docType] Source-doc type.
+   * @param {boolean} [opts.descriptionOnly] Render subclass pages as their description without the feature list.
    * @returns {Promise<?JournalPageEmbed>} Self when rendered.
    */
   async render(pageId, opts = {}) {
-    const { itemName = null, baseSpecies = null, docType = null } = opts;
+    const { itemName = null, baseSpecies = null, docType = null, descriptionOnly = false } = opts;
     this.pageId = pageId;
     this.#showLoadingIndicator();
     try {
@@ -40,7 +41,7 @@ export class JournalPageEmbed {
         section.className = 'journal-page-content';
         section.dataset.pageId = p.id;
         section.dataset.pageType = p.type;
-        await this.#renderPageInto(section, p);
+        await this.#renderPageInto(section, p, descriptionOnly);
         this.container.appendChild(section);
       }
       this.pageId = page.id;
@@ -55,13 +56,14 @@ export class JournalPageEmbed {
   /**
    * Render a synthesized page document (one with no compendium entry, e.g. a subclass page built from an item) via its sheet.
    * @param {object} page Transient JournalEntryPage document.
+   * @param {boolean} [descriptionOnly] Render a subclass page's description without the feature list.
    * @returns {Promise<boolean>} True when the sheet rendered; container untouched on failure.
    */
-  async renderSyntheticPage(page) {
+  async renderSyntheticPage(page, descriptionOnly = false) {
     const section = document.createElement('div');
     section.className = 'journal-page-content';
     section.dataset.pageType = page.type;
-    if (!(await this.#renderSheetInto(section, page))) return false;
+    if (!(await this.#renderDescriptionInto(section, page, descriptionOnly)) && !(await this.#renderSheetInto(section, page))) return false;
     this.#prepareContainer();
     this.container.replaceChildren(section);
     return true;
@@ -116,15 +118,31 @@ export class JournalPageEmbed {
    * Render a single page into a section: text-enrich, then sheet-template, then direct fallback.
    * @param {HTMLElement} target Section element.
    * @param {object} page Journal page.
+   * @param {boolean} [descriptionOnly] Render a subclass page's description without the feature list.
    * @returns {Promise<void>} Resolves when rendered.
    */
-  async #renderPageInto(target, page) {
+  async #renderPageInto(target, page, descriptionOnly = false) {
     if (page.type === 'text' && page.text?.content) {
       target.innerHTML = await safeEnrichHTML(page.text.content, { secrets: false, relativeTo: page });
       return;
     }
+    if (await this.#renderDescriptionInto(target, page, descriptionOnly)) return;
     if (await this.#renderSheetInto(target, page)) return;
     await this.#renderDirectInto(target, page);
+  }
+
+  /**
+   * Render a subclass page's enriched description in place of its sheet when requested.
+   * @param {HTMLElement} target Section element.
+   * @param {object} page Journal page.
+   * @param {boolean} descriptionOnly Whether description-only rendering is enabled.
+   * @returns {Promise<boolean>} True when a non-empty description rendered.
+   */
+  async #renderDescriptionInto(target, page, descriptionOnly) {
+    const description = descriptionOnly && page.type === 'subclass' ? page.system?.description?.value : null;
+    if (!description?.trim()) return false;
+    target.innerHTML = await safeEnrichHTML(description, { secrets: false, relativeTo: page });
+    return true;
   }
 
   /**

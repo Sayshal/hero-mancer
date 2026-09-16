@@ -96,6 +96,7 @@ const SETTING_PARTS = {
   [MODULE.SETTINGS.HP_L1_MAX_DIE]: ['hp'],
   [MODULE.SETTINGS.HP_REROLL_ONES]: ['hp'],
   [MODULE.SETTINGS.ADVANCEMENT_ORDER]: ['identity'],
+  [MODULE.SETTINGS.DISABLE_SUBCLASS_FEATURE_LIST]: ['identity'],
   [MODULE.SETTINGS.MULTICLASS_THRESHOLD]: ['identity'],
   [MODULE.SETTINGS.BONUS_GOLD_FORMULA]: ['equipment'],
   [MODULE.SETTINGS.REFUND_UNCHOSEN_GOLD]: ['equipment'],
@@ -2272,14 +2273,15 @@ export class HeroMancer extends HMDialog {
       if (!isCurrent() || !doc) return;
       const pageUuid = doc.pack === MODULE.CUSTOM_PACK ? null : await findRelatedJournalPage(doc);
       if (!isCurrent()) return;
+      const descriptionOnly = doc.type === 'subclass' && game.settings.get(MODULE.ID, MODULE.SETTINGS.DISABLE_SUBCLASS_FEATURE_LIST);
       if (pageUuid) {
         const embed = new JournalPageEmbed(descContainer);
-        await embed.render(pageUuid, { itemName: doc.name, docType: doc.type });
+        await embed.render(pageUuid, { itemName: doc.name, docType: doc.type, descriptionOnly });
         return;
       }
       if (doc.type === 'subclass') {
         const synthPage = new JournalEntryPage({ name: doc.name, type: 'subclass', system: { item: doc.uuid, description: { value: doc.system?.description?.value ?? '' } } });
-        const rendered = await new JournalPageEmbed(descContainer).renderSyntheticPage(synthPage);
+        const rendered = await new JournalPageEmbed(descContainer).renderSyntheticPage(synthPage, descriptionOnly);
         if (!isCurrent()) return;
         if (rendered) return;
       }

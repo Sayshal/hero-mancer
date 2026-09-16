@@ -82,7 +82,10 @@ const TAB_SETTINGS = {
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.Identity',
-      settings: [{ key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' }]
+      settings: [
+        { key: 'ADVANCEMENT_ORDER', type: 'advancementOrder' },
+        { key: 'DISABLE_SUBCLASS_FEATURE_LIST', type: 'boolean' }
+      ]
     },
     {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',

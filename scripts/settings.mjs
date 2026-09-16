@@ -91,6 +91,13 @@ export function registerSettings() {
     config: false,
     type: new BooleanField({ initial: false })
   });
+  r(MODULE.ID, MODULE.SETTINGS.DISABLE_SUBCLASS_FEATURE_LIST, {
+    name: 'HEROMANCER.Settings.DisableSubclassFeatureList.Name',
+    hint: 'HEROMANCER.Settings.DisableSubclassFeatureList.Hint',
+    scope: 'world',
+    config: false,
+    type: new BooleanField({ initial: false })
+  });
   r(MODULE.ID, MODULE.SETTINGS.HIDE_OTHER_CREATE_ACTOR_OPTIONS, {
     name: 'HEROMANCER.Settings.HideOtherCreateActorOptions.Name',
     hint: 'HEROMANCER.Settings.HideOtherCreateActorOptions.Hint',

@@ -36,6 +36,7 @@ const SETTINGS = {
   DICE_ROLLING_MENU: 'diceRollingMenu',
   DICE_ROLLING_METHOD: 'diceRollingMethod',
   DISABLE_MULTICLASS: 'disableMulticlass',
+  DISABLE_SUBCLASS_FEATURE_LIST: 'disableSubclassFeatureList',
   ENABLE_CALENDAR_NOTES: 'enableCalendarNotes',
   ENABLE_DICE_SO_NICE: 'enableDiceSoNice',
   ENABLE_PLAYER_CUSTOMIZATION: 'enablePlayerCustomization',
