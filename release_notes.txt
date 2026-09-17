@@ -1,13 +1,8 @@
-## Breaking Changes
+## New Features
 
-- Requires dnd5e 6.0.0 or newer.
+- Advancements that grant or offer spells with more than one allowed spellcasting ability show a required Spellcasting Ability picker in the Advancements tab, and the chosen ability is applied to those spells. Spell choice advancements show the picker only at their first choice level.
+- New Hide Subclass Feature List world setting in the Identity group of the Wizard Flow settings tab shows only a subclass's own description in the Identity tab, without the feature list built from its advancements. Subclasses with an empty description still show the full subclass page.
 
-## Bug Fixes
+## Changes
 
-- Item tooltips use the system's tooltip styling again.
-- Level-up applies Modify Items advancements automatically.
-- Proficiency, resistance and immunity labels in the Compare window and Finalize tab no longer show raw localization keys.
-- Species options on the Identity tab show their walking speed tag again.
-- Species senses on the Finalize tab show their sense names.
-- The Hero Mancer 2 Settings window opens wide enough to fit every tab on one row, and tab labels no longer break mid-label.
-- The Purchase Equipment tab respects the Maximum Magic Item Rarity setting again.
+- The Purchase Equipment cart quantity is a number input instead of a dropdown, capped at what the remaining gold can afford. Blank or invalid entries revert to the previous value, and a quantity of 0 removes the item from the cart.

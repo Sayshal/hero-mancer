@@ -1,7 +1,4 @@
-## Breaking Changes
+## New Features
 
-- Requires dnd5e 6.0.0 or newer.
-
-## Bug Fixes
-
-- 7 bugs squashed
+- Advancements that grant or offer spells with multiple spellcasting abilities now ask which ability to use.
+- New world setting hides the auto-generated feature list from subclass descriptions in the wizard.
