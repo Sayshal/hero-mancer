@@ -5,10 +5,10 @@ import { advancementKey } from './advancement-draft.mjs';
 const HM_OWNED = new Set(['HitPoints', 'Subclass']);
 
 /** @type {Set<string>} Advancement types that auto-apply (no UI). */
-const AUTO = new Set(['ItemGrant', 'ScaleValue']);
+const AUTO = new Set(['ScaleValue']);
 
 /** @type {Object<string, Function>} Per-type renderer registry; each entry returns a chooser spec or null. */
-const RENDERERS = { AbilityScoreImprovement: asiSpec, ItemChoice: itemChoiceSpec, Trait: traitSpec, Size: sizeSpec };
+const RENDERERS = { AbilityScoreImprovement: asiSpec, ItemChoice: itemChoiceSpec, ItemGrant: itemGrantSpec, Trait: traitSpec, Size: sizeSpec };
 
 /** @type {Object<string, number>} Display sort weight per origin */
 const ORIGIN_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
@@ -52,7 +52,14 @@ export function advancementLevels(adv) {
  */
 export function advancementApplyData(adv, data) {
   const type = adv?.constructor?.typeName;
-  if (type === 'ItemChoice' && Array.isArray(data?.added)) return data.replace ? { selected: data.added, replace: data.replace } : { selected: data.added };
+  if (type === 'ItemChoice' && (Array.isArray(data?.added) || data?.ability)) {
+    const out = {};
+    if (Array.isArray(data.added)) out.selected = data.added;
+    if (data.replace) out.replace = data.replace;
+    if (data.ability) out.ability = data.ability;
+    return out;
+  }
+  if (type === 'ItemGrant') return data?.ability ? { ability: data.ability } : {};
   if (type === 'AbilityScoreImprovement' && data?.type === 'feat' && data.feat) return { ...data, uuid: data.feat };
   if (type === 'Size') return { size: data?.size };
   return data;
@@ -118,7 +125,7 @@ export function buildOwnedItemRows(actor, characterLevel, draft) {
     if (item.system?.advancementClassLinked !== false) continue;
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
       const type = adv.constructor?.typeName;
-      if (!type || HM_OWNED.has(type) || !RENDERERS[type]) continue;
+      if (!type || HM_OWNED.has(type) || !RENDERERS[type] || type === 'ItemGrant') continue;
       if (!classAdvApplies(adv.classRestriction, true)) continue;
       if (!advancementLevels(adv).includes(characterLevel)) continue;
       const row = advancementRow(adv, characterLevel, { origin: 'feature', draft });
@@ -393,7 +400,10 @@ function itemChoiceSpec(adv, level, value, _context) {
     effectiveCount: count + (replaceTarget ? 1 : 0),
     pool,
     allowDrops: cfg.allowDrops !== false,
-    selected: Object.values(value.added ?? {})
+    selected: Object.values(value.added ?? {}),
+    abilities: spellAbilities(adv),
+    ability: value.ability ?? '',
+    abilityLocked: level > Math.min(...Object.keys(cfg.choices ?? {}).map(Number))
   };
   if (!pool.length && (cfg.type || spec.allowDrops)) {
     const restriction = cfg.restriction ?? {};
@@ -453,6 +463,29 @@ function maxSpellSlotLevelFor(item, level) {
   Actor5e.computeClassProgression(progression, item, { spellcasting });
   Actor5e.prepareSpellcastingSlots(spells, sc.type, progression);
   return Object.values(spells).reduce((slot, s) => (s.max ? Math.max(slot, s.level || -1) : slot), 0) || maxSpellLevel;
+}
+
+/**
+ * Spellcasting abilities an ItemGrant/ItemChoice lets the player pick for its spells.
+ * @param {object} adv Advancement instance.
+ * @returns {string[]} Ability keys.
+ */
+function spellAbilities(adv) {
+  return [...(adv.configuration?.spell?.ability ?? [])];
+}
+
+/**
+ * Build an ItemGrant chooser spec. Returns null unless the grant offers a spellcasting ability choice.
+ * @param {object} adv Advancement instance.
+ * @param {number} _level Level being applied.
+ * @param {object} value Stored selection.
+ * @param {object} _context Renderer context (unused).
+ * @returns {?object} Chooser spec, or null when there's no ability choice.
+ */
+function itemGrantSpec(adv, _level, value, _context) {
+  const abilities = spellAbilities(adv);
+  if (abilities.length < 2) return null;
+  return { kind: 'spell-ability', abilities, ability: value.ability ?? '' };
 }
 
 /**

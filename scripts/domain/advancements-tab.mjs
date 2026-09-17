@@ -132,8 +132,13 @@ function buildPickTiles(row) {
   const out = [];
   const spec = row.spec;
   if (spec.kind === 'item-choice') {
+    if (needsItemChoiceAbility(spec)) out.push(spellAbilityTile(row));
     if (spec.replacement && spec.replaceableItems.length) out.push(itemChoiceReplaceTile(row));
     if (spec.effectiveCount > 0) out.push(itemChoiceTile(row));
+    return out;
+  }
+  if (spec.kind === 'spell-ability') {
+    out.push(spellAbilityTile(row), ...buildAutoTiles(row));
     return out;
   }
   if (spec.kind === 'trait') {
@@ -166,15 +171,27 @@ function buildPickTiles(row) {
  * @returns {object} Tile context.
  */
 function sizeTile(row) {
-  const spec = row.spec;
-  const title = row.title || _loc('DND5E.ADVANCEMENT.Size.Title');
-  const options = spec.sizes.map((key) => ({ value: key, label: _loc(CONFIG.DND5E.actorSizes[key]?.label ?? key) }));
-  const selected = spec.selected || '';
+  const options = row.spec.sizes.map((key) => ({ value: key, label: _loc(CONFIG.DND5E.actorSizes[key]?.label ?? key) }));
+  return singlePickTile(row, { suffix: 'size', footKind: 'size', title: row.title || _loc('DND5E.ADVANCEMENT.Size.Title'), options, selected: row.spec.selected || '' });
+}
+
+/**
+ * Build a single-pick tile backed by the generic picker drawer.
+ * @param {object} row Parent row.
+ * @param {object} args Tile inputs.
+ * @param {string} args.suffix Input-name prefix and tile key suffix.
+ * @param {string} args.footKind Tile foot kind.
+ * @param {string} args.title Picker and foot label.
+ * @param {Array<{value:string, label:string}>} args.options Picker options.
+ * @param {string} args.selected Current value, or empty.
+ * @returns {object} Tile context.
+ */
+function singlePickTile(row, { suffix, footKind, title, options, selected }) {
   const picked = options.find((o) => o.value === selected) ?? null;
-  const inputName = `adv-size.${row.advancementKey}.${row.level}`;
+  const inputName = `adv-${suffix}.${row.advancementKey}.${row.level}`;
   return {
-    key: `${row.advancementKey}-${row.level}-size`,
-    foot: { label: title, kind: 'size' },
+    key: `${row.advancementKey}-${row.level}-${suffix}`,
+    foot: { label: title, kind: footKind },
     state: 'choice',
     label: picked ? picked.label : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: 1 }),
     icon: row.icon,
@@ -184,6 +201,25 @@ function sizeTile(row) {
     inputValue: selected,
     picker: { name: inputName, label: title, max: 1, optionsJson: JSON.stringify(options), originsJson: '' }
   };
+}
+
+/**
+ * Build a required single-pick tile for a spellcasting ability choice, reusing the generic picker drawer.
+ * @param {object} row Parent row.
+ * @returns {object} Tile context.
+ */
+function spellAbilityTile(row) {
+  const options = row.spec.abilities.map((key) => ({ value: key, label: _loc(CONFIG.DND5E.abilities[key]?.label ?? key) }));
+  return singlePickTile(row, { suffix: 'ability', footKind: 'ability', title: _loc('DND5E.SpellAbility'), options, selected: row.spec.ability });
+}
+
+/**
+ * Whether an ItemChoice row must also collect a spellcasting ability at this level.
+ * @param {object} spec Item-choice chooser spec.
+ * @returns {boolean} True when an ability pick is required.
+ */
+function needsItemChoiceAbility(spec) {
+  return spec.abilities.length > 1 && !spec.abilityLocked;
 }
 
 /**
@@ -712,6 +748,7 @@ function requiredCountFor(spec) {
     case 'asi':
       return spec.mode === 'feat' ? 1 : spec.points;
     case 'size':
+    case 'spell-ability':
       return 1;
     default:
       return 0;
@@ -746,6 +783,8 @@ function filledCount(spec) {
       return Object.values(spec.assignments).reduce((s, v) => s + (Number(v) || 0), 0);
     case 'size':
       return spec.selected ? 1 : 0;
+    case 'spell-ability':
+      return spec.ability ? 1 : 0;
     default:
       return 0;
   }
@@ -759,7 +798,7 @@ function filledCount(spec) {
 function isRowDone(spec) {
   switch (spec.kind) {
     case 'item-choice':
-      return spec.selected.length === spec.effectiveCount && spec.selected.every(Boolean);
+      return spec.selected.length === spec.effectiveCount && spec.selected.every(Boolean) && (!needsItemChoiceAbility(spec) || Boolean(spec.ability));
     case 'trait':
       return spec.chosen.filter(Boolean).length === spec.count;
     case 'asi':
@@ -768,6 +807,8 @@ function isRowDone(spec) {
       return false;
     case 'size':
       return Boolean(spec.selected);
+    case 'spell-ability':
+      return Boolean(spec.ability);
     default:
       return false;
   }
@@ -1239,8 +1280,13 @@ export function picksFromRow(row, kind) {
         for (const v of i.value.split(',')) if (v) added.push(v);
       }
       const replace = body.querySelector('input[type="hidden"][name^="adv-replace."]')?.value || null;
-      if (!added.length && !replace) return null;
-      return replace ? { added, replace } : { added };
+      const ability = body.querySelector('input[type="hidden"][name^="adv-ability."]')?.value || null;
+      if (!added.length && !replace && !ability) return null;
+      return { added, ...(replace && { replace }), ...(ability && { ability }) };
+    }
+    case 'spell-ability': {
+      const ability = body.querySelector('input[type="hidden"][name^="adv-ability."]')?.value;
+      return ability ? { ability } : null;
     }
     case 'trait': {
       const chosen = [];
@@ -1271,8 +1317,10 @@ function serializePick(spec) {
     case 'asi':
       return spec.mode ? JSON.stringify({ type: spec.mode, assignments: spec.assignments, feat: spec.feat }) : '';
     case 'item-choice':
-      if (!spec.selected?.length && !spec.replaceTarget) return '';
-      return JSON.stringify(spec.replaceTarget ? { added: spec.selected ?? [], replace: spec.replaceTarget } : { added: spec.selected });
+      if (!spec.selected?.length && !spec.replaceTarget && !spec.ability) return '';
+      return JSON.stringify({ added: spec.selected ?? [], ...(spec.replaceTarget && { replace: spec.replaceTarget }), ...(spec.ability && { ability: spec.ability }) });
+    case 'spell-ability':
+      return spec.ability ? JSON.stringify({ ability: spec.ability }) : '';
     case 'trait':
       return spec.chosen?.length ? JSON.stringify({ chosen: spec.chosen }) : '';
     case 'size':
