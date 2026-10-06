@@ -20,6 +20,7 @@ const state = { cache: new Map(), ready: false, promise: null };
  * @property {string} rules `2014`/`2024`/`unknown`.
  * @property {?number} prereqLevel Minimum character level.
  * @property {boolean} repeatable True when repeatable.
+ * @property {string[]} reqItems Item identifiers, any one of which satisfies the prerequisite.
  * @property {Set<string>} actionBuckets Combat-action buckets (`action`/`bonus`/`reaction`/`passive`).
  * @property {boolean} hasASI True when any AbilityScoreImprovement advancement exists.
  * @property {Set<string>} abilityIncreases Ability keys this feat's ASI advancements can raise.
@@ -76,6 +77,7 @@ function normalizeEntry(entry) {
     rules: entry.system?.source?.rules ?? 'unknown',
     prereqLevel: entry.system?.prerequisites?.level ?? null,
     repeatable: entry.system?.prerequisites?.repeatable === true,
+    reqItems: [],
     actionBuckets: new Set(['passive']),
     hasASI: false,
     abilityIncreases: new Set(),
@@ -99,6 +101,7 @@ async function hydrateEntry(entry, normalized) {
   normalized.hasASI = advancement.some((a) => a?.type === 'AbilityScoreImprovement');
   normalized.abilityIncreases = deriveAbilityIncreases(advancement);
   normalized.grantsSpell = deriveGrantsSpell(advancement, activities);
+  normalized.reqItems = readItemPrereqs(doc);
   const raw = doc?.system?.description?.value ?? '';
   if (raw) normalized.descriptionHtml = await safeEnrichHTML(raw, { secrets: false });
 }
@@ -164,9 +167,10 @@ function deriveGrantsSpell(advancement, activities) {
  * @param {?{advKey:string, level:number, label:string}} [args.scope] Active ASI scope.
  * @param {?string} [args.pickedUuid] Currently picked feat uuid.
  * @param {?object} [args.filters] Persisted filter state.
+ * @param {?Set<string>} [args.identifiers] Projected item identifiers; item prerequisites are only checked when provided.
  * @returns {object} Sub-tab context.
  */
-export function buildFeatBrowserContext({ actor = null, classDoc = null, characterLevel = 1, scope = null, pickedUuid = null, filters = null } = {}) {
+export function buildFeatBrowserContext({ actor = null, classDoc = null, characterLevel = 1, scope = null, pickedUuid = null, filters = null, identifiers = null } = {}) {
   void classDoc;
   const subtypeMap = CONFIG.DND5E.featureTypes?.feat?.subtypes ?? {};
   const activeSubtype = filters?.subtype ?? 'all';
@@ -181,8 +185,12 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
   const actionSet = new Set();
   const abilitySet = new Set();
   for (const entry of state.cache.values()) {
-    const qualifies = qualifiesForFeat(entry, { actor, characterLevel });
+    const qualifies = qualifiesForFeat(entry, { actor, characterLevel, identifiers });
     const levelGated = (entry.prereqLevel ?? 0) > characterLevel;
+    const itemGated = !!identifiers && !itemPrereqsMet(entry.reqItems, identifiers);
+    const prereqWarnings = [];
+    if (levelGated) prereqWarnings.push(_loc('HEROMANCER.App.Advancements.FeatBrowser.PrereqLevelWarning', { level: entry.prereqLevel }));
+    if (itemGated) prereqWarnings.push(_loc('HEROMANCER.App.Advancements.FeatBrowser.PrereqItemWarning', { items: formatItemPrereqs(entry.reqItems) }));
     const subtypeLabel = entry.subtype && subtypeMap[entry.subtype] ? _loc(subtypeMap[entry.subtype]) : '';
     const isPinned = compare.hasPin('feat', entry.uuid);
     feats.push({
@@ -190,9 +198,11 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
       actionBucketsStr: [...entry.actionBuckets].join(' '),
       subtypeLabel,
       prereqLabel: formatPrereqLabel(entry),
-      prereqLevelWarning: levelGated ? _loc('HEROMANCER.App.Advancements.FeatBrowser.PrereqLevelWarning', { level: entry.prereqLevel }) : null,
+      prereqWarning: prereqWarnings.length ? game.i18n.getListFormatter().format(prereqWarnings) : null,
       qualifies,
       levelGated,
+      itemGated,
+      locked: levelGated || itemGated,
       isPicked: pickedUuid && entry.uuid === pickedUuid,
       isPinned,
       pinTooltip: _loc(isPinned ? 'HEROMANCER.Compare.Unpin' : 'HEROMANCER.Compare.Pin'),
@@ -241,27 +251,29 @@ export function buildFeatBrowserContext({ actor = null, classDoc = null, charact
 }
 
 /**
- * Indexed-fields only (level + repeatable); item prereqs skipped — dnd5e enforces at apply time.
+ * Check level, item (when identifiers are supplied), and repeatable prerequisites.
  * @param {FeatEntry} entry Feat entry.
- * @param {{actor:?object, characterLevel:number}} ctx Qualification context.
+ * @param {{actor:?object, characterLevel:number, identifiers:?Set<string>}} ctx Qualification context.
  * @returns {boolean} True when qualifies.
  */
-function qualifiesForFeat(entry, { actor, characterLevel }) {
+function qualifiesForFeat(entry, { actor, characterLevel, identifiers }) {
   const level = entry.prereqLevel ?? 0;
   if (level > characterLevel) return false;
+  if (identifiers && !itemPrereqsMet(entry.reqItems, identifiers)) return false;
   if (!actor) return true;
   if (!entry.repeatable && actor.sourcedItems?.get(entry.uuid)?.size) return false;
   return true;
 }
 
 /**
- * Format a feat's prereq line combining level and repeatable flags.
+ * Format a feat's prereq line combining level, item, and repeatable flags.
  * @param {FeatEntry} entry Feat entry.
  * @returns {?string} Prereq summary line.
  */
 function formatPrereqLabel(entry) {
   const parts = [];
   if (entry.prereqLevel) parts.push(_loc('DND5E.LevelNumber', { level: entry.prereqLevel }));
+  if (entry.reqItems.length) parts.push(formatItemPrereqs(entry.reqItems));
   if (entry.repeatable) parts.push(_loc('HEROMANCER.App.Advancements.FeatBrowser.PrereqRepeatable'));
   return parts.length ? parts.join(' · ') : null;
 }
@@ -283,4 +295,34 @@ function rulesLabel(rules) {
  */
 function bookLabel(book) {
   return CONFIG.DND5E.sourceBooks?.[book] ?? book;
+}
+
+/**
+ * Read a feat document's item prerequisites as leaf identifiers (any `type:` prefix stripped).
+ * @param {?object} doc Feat document.
+ * @returns {string[]} Required item identifiers; empty when ungated.
+ */
+export function readItemPrereqs(doc) {
+  const items = doc?.system?.prerequisites?.items;
+  if (!items?.size) return [];
+  return [...items].map((id) => (typeof id === 'string' && id.includes(':') ? id.slice(id.lastIndexOf(':') + 1) : id));
+}
+
+/**
+ * True when no item prerequisite exists or any required identifier is present (disjunction, matching dnd5e).
+ * @param {string[]} reqItems Required item identifiers.
+ * @param {Set<string>} identifiers Owned or projected identifiers.
+ * @returns {boolean} True when satisfied.
+ */
+export function itemPrereqsMet(reqItems, identifiers) {
+  return !reqItems.length || reqItems.some((id) => identifiers.has(id));
+}
+
+/**
+ * Join required item names as a localized "or" list via the dnd5e item registry.
+ * @param {string[]} reqItems Required item identifiers.
+ * @returns {string} Display list.
+ */
+export function formatItemPrereqs(reqItems) {
+  return game.i18n.getListFormatter({ type: 'disjunction' }).format(reqItems.map((id) => dnd5e.registry.items.get(id)?.name ?? id));
 }

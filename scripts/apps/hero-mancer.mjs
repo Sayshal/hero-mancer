@@ -197,6 +197,9 @@ export class HeroMancer extends HMDialog {
   /** @type {object} Per-render cache of shared docs/state. */
   #shared = {};
 
+  /** @type {?{characterLevel:number, identifiers:Set<string>}} Last advancements-part projection, kept across partial renders for the feat browser. */
+  #featProjection = null;
+
   /** @type {boolean} Defer the advancements re-render until the picker drawer closes. */
   #pendingAdvancementRerender = false;
 
@@ -516,7 +519,6 @@ export class HeroMancer extends HMDialog {
         const characterLevel = isCreation ? effectiveLevel : this.#actor.system.details.level + 1;
         const advancementRoster = await this.#buildAdvancementsRoster();
         const totalCharLevel = characterLevel ?? (advancementRoster.reduce((sum, s) => sum + (Number(s.level) || 0), 0) || effectiveLevel);
-        this.#shared.totalCharLevel = totalCharLevel;
         const advancementsContext = await buildAdvancementsContext({
           classRoster: advancementRoster,
           effectiveLevel,
@@ -529,6 +531,7 @@ export class HeroMancer extends HMDialog {
           characterLevel,
           equipmentTraitLinks: extractEquipmentTraitLinks(this.#readEquipmentDraft())
         });
+        this.#featProjection = { characterLevel: totalCharLevel, identifiers: advancementsContext.projected?.identifiers ?? null };
         return Object.assign(context, advancementsContext);
       }
       case 'finalize': {
@@ -1513,9 +1516,11 @@ export class HeroMancer extends HMDialog {
     } catch {}
     const advKey = row.dataset.advancementKey;
     const level = Number(row.dataset.level) || 0;
-    const totalCharLevel = this.#shared?.totalCharLevel ?? 1;
+    const totalCharLevel = this.#featProjection?.characterLevel ?? 1;
+    const identifiers = this.#featProjection?.identifiers ?? null;
     const dialog = new AdvancementFeatDialog({
-      buildContext: () => buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advKey, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters }),
+      buildContext: () =>
+        buildFeatBrowserContext({ actor: this.#actor, characterLevel: totalCharLevel, scope: { advKey, level, label: '' }, pickedUuid, filters: this.#featBrowserFilters, identifiers }),
       filters: this.#featBrowserFilters,
       hiddenInput: hidden,
       onCommit: () => {
@@ -3128,6 +3133,7 @@ export class HeroMancer extends HMDialog {
       ui.notifications.warn('HEROMANCER.App.Advancements.BrowseMax', { localize: true });
       return;
     }
+    const featureLevel = cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped());
     const filters = { locked: { additional: {}, documentClass: 'Item' } };
     filters.locked.types = cfg.type ? new Set([cfg.type]) : CONFIG.DND5E.advancementTypes.ItemChoice.documentClass.VALID_TYPES;
     switch (cfg.type) {
@@ -3138,10 +3144,11 @@ export class HeroMancer extends HMDialog {
       case 'feat':
         if (cfg.category) filters.locked.additional.category = { [cfg.category]: 1 };
         if (cfg.subtype) filters.locked.additional.subtype = { [cfg.subtype]: 1 };
-        filters.locked.arbitrary = [{ o: 'NOT', v: { k: 'system.prerequisites.level', o: 'gt', v: cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped()) } }];
+        filters.locked.arbitrary = [{ o: 'NOT', v: { k: 'system.prerequisites.level', o: 'gt', v: featureLevel } }];
         break;
     }
-    const result = await dnd5e.applications.CompendiumBrowser.select({ filters, selection: { min: 1, max: cfg.max - current.length } });
+    const prerequisites = { enforce: true, fullDocuments: true, validate: (item) => item.system.validatePrerequisites?.({ actor: this.#actor, level: featureLevel }) };
+    const result = await dnd5e.applications.CompendiumBrowser.select({ filters, prerequisites, selection: { min: 1, max: cfg.max - current.length } });
     if (!result?.size) return;
     const merged = [...new Set([...current, ...result])].slice(0, cfg.max);
     input.value = merged.join(',');

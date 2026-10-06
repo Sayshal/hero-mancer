@@ -104,6 +104,10 @@ export class AdvancementFeatDialog extends HMDialog {
   static async #onSelectFeat(_event, target) {
     const uuid = target.dataset.uuid;
     if (!uuid) return;
+    if (target.dataset.gated !== undefined) {
+      ui.notifications.warn('HEROMANCER.App.Advancements.FeatBrowser.PrereqBlocked', { localize: true, format: { name: target.dataset.name, requirements: target.dataset.gated } });
+      return;
+    }
     this.hiddenInput.value = JSON.stringify({ type: 'feat', assignments: {}, feat: uuid });
     this.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
     this.onCommit?.();

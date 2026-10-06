@@ -1,6 +1,7 @@
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
 import { buildAdvancementRows, buildOwnedItemRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
 import { advancementFieldName } from './advancement-draft.mjs';
+import { formatItemPrereqs, itemPrereqsMet, readItemPrereqs } from './feat-browser.mjs';
 
 /**
  * Build the template context for the wizard's advancements tab.
@@ -88,7 +89,7 @@ export async function buildAdvancementsContext({
     }
     row.requiredCount = requiredCountFor(row.spec);
     row.state = isRowDone(row.spec) ? 'done' : 'pending';
-    row.error = row.state === 'pending' ? partialError(row.spec, row.requiredCount) : null;
+    row.error = row.state === 'pending' ? (partialError(row.spec, row.requiredCount) ?? featPrereqError(row.spec)) : null;
     row.displayTitle = row.spec.kind === 'trait' && row.spec.grantedDisplay ? `${foundry.utils.escapeHTML(row.title)}: ${row.spec.grantedDisplay}` : foundry.utils.escapeHTML(row.title);
     row.tiles = buildPickTiles(row);
     const ribbonLabel =
@@ -97,7 +98,7 @@ export async function buildAdvancementsContext({
         : row.spec.kind === 'asi'
           ? _loc('HEROMANCER.App.Advancements.Chip.choose')
           : _loc('HEROMANCER.App.Advancements.Chip.choose-count', { count: row.requiredCount });
-    for (const tile of row.tiles) if (tile.state === 'choice') tile.ribbonLabel = ribbonLabel;
+    for (const tile of row.tiles) if (tile.state === 'choice') tile.ribbonLabel = row.spec.featPrereqMissing ? _loc('HEROMANCER.App.Advancements.Chip.prereq-missing') : ribbonLabel;
     if (row.spec.kind === 'asi') {
       const add = (map) => {
         for (const [k, v] of Object.entries(map ?? {})) priorAsiBonus[k] = (priorAsiBonus[k] ?? 0) + (Number(v) || 0);
@@ -109,7 +110,7 @@ export async function buildAdvancementsContext({
   const remaining = rows.filter((r) => r.state === 'pending').length;
   const groups = structureGroups(groupRowsByOrigin(rows, { roster: classRoster, speciesName: speciesDoc?.name ?? null, backgroundName: backgroundDoc?.name ?? null }));
   const primaryName = classRoster[0]?.classDoc?.name ?? null;
-  return { className: primaryName, effectiveLevel, mode, rows, groups, hasRows: rows.length > 0, remaining };
+  return { className: primaryName, effectiveLevel, mode, rows, groups, hasRows: rows.length > 0, remaining, projected };
 }
 
 /**
@@ -768,6 +769,16 @@ function partialError(spec, required) {
 }
 
 /**
+ * Flag an ASI feat pick whose item prerequisites are no longer met.
+ * @param {object} spec Chooser spec post-decorate.
+ * @returns {?{label:string, tooltip:string}} Error descriptor, or null when the pick is valid.
+ */
+function featPrereqError(spec) {
+  if (!spec.featPrereqMissing) return null;
+  return { label: _loc('HEROMANCER.App.Advancements.Chip.prereq-missing'), tooltip: spec.featPrereqMissing };
+}
+
+/**
  * Count picks made for a chooser spec, regardless of completeness.
  * @param {object} spec Chooser spec post-decorate.
  * @returns {number} Picks made (slots filled / boxes checked / points spent / 0|1 for subclass).
@@ -803,7 +814,7 @@ function isRowDone(spec) {
       return spec.chosen.filter(Boolean).length === spec.count;
     case 'asi':
       if (spec.mode === 'asi') return spec.remaining === 0;
-      if (spec.mode === 'feat') return Boolean(spec.feat);
+      if (spec.mode === 'feat') return Boolean(spec.feat) && !spec.featPrereqMissing;
       return false;
     case 'size':
       return Boolean(spec.selected);
@@ -825,10 +836,7 @@ async function filterItemChoicePool(row) {
   const { identifiers, owned } = row.projected ?? { identifiers: new Set(), owned: new Set() };
   const docs = await Promise.all(spec.pool.map((uuid) => fromUuid(uuid)));
   const indexByUuid = new Map(spec.pool.map((uuid, i) => [uuid, i]));
-  const reqItemsAt = (i) => {
-    const items = docs[i]?.system?.prerequisites?.items;
-    return items?.size ? [...items].map(leafIdentifier) : [];
-  };
+  const reqItemsAt = (i) => readItemPrereqs(docs[i]);
   const meetsStatic = (i) => {
     const lvl = docs[i]?.system?.prerequisites?.level;
     return !(Number.isFinite(Number(lvl)) && Number(lvl) > row.level);
@@ -876,15 +884,6 @@ async function collectProjectedItems(rows, actor) {
 }
 
 /**
- * Strip an optional `type:` prefix from a dnd5e identifier.
- * @param {string} id Identifier, optionally `type:leaf`.
- * @returns {string} Leaf identifier.
- */
-function leafIdentifier(id) {
-  return typeof id === 'string' && id.includes(':') ? id.slice(id.lastIndexOf(':') + 1) : id;
-}
-
-/**
  * Dispatch to the per-kind decorator that augments `row.spec` with template-ready view data.
  * @param {object} row Row record from `buildAdvancementRows`.
  * @returns {Promise<void>}
@@ -900,8 +899,23 @@ async function decorateSpec(row) {
       break;
     case 'asi':
       decorateAsiSpec(row);
+      await flagFeatPrereqs(row);
       break;
   }
+}
+
+/**
+ * Set `spec.featPrereqMissing` to a localized warning when an ASI feat pick's item prerequisites are absent from the projected identifiers.
+ * @param {object} row Row record with `spec.kind === 'asi'`.
+ * @returns {Promise<void>}
+ */
+async function flagFeatPrereqs(row) {
+  const spec = row.spec;
+  spec.featPrereqMissing = null;
+  if (spec.mode !== 'feat' || !spec.feat) return;
+  const reqItems = readItemPrereqs(await fromUuid(spec.feat));
+  if (itemPrereqsMet(reqItems, row.projected?.identifiers ?? new Set())) return;
+  spec.featPrereqMissing = _loc('HEROMANCER.App.Advancements.FeatBrowser.PrereqItemWarning', { items: formatItemPrereqs(reqItems) });
 }
 
 /**

@@ -235,12 +235,18 @@
 }
 
 .hm-feat-browser-tile.is-disqualified,
-.hm-feat-browser-tile.is-level-gated {
+.hm-feat-browser-tile.is-locked {
   opacity: 0.6;
 }
 
-.hm-feat-browser-tile.is-level-gated:hover {
-  opacity: 0.85;
+.hm-feat-browser-tile.is-locked {
+  cursor: not-allowed;
+}
+
+.hm-feat-browser-tile.is-locked:hover {
+  border-color: var(--hero-mancer-border);
+  background: var(--hero-mancer-bg-elev);
+  opacity: 0.75;
 }
 
 .hm-feat-browser-tile-picked-chip {
