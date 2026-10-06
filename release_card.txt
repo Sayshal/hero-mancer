@@ -1,4 +1,4 @@
 ## New Features
 
-- Advancements that grant or offer spells with multiple spellcasting abilities now ask which ability to use.
-- New world setting hides the auto-generated feature list from subclass descriptions in the wizard.
+- ASI feat picks whose item prerequisites are not met by the character's owned or planned items are flagged and left incomplete.
+- The ASI feat browser locks feats whose level or item prerequisites the character does not meet.

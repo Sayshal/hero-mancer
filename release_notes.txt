@@ -1,8 +1,8 @@
 ## New Features
 
-- Advancements that grant or offer spells with more than one allowed spellcasting ability show a required Spellcasting Ability picker in the Advancements tab, and the chosen ability is applied to those spells. Spell choice advancements show the picker only at their first choice level.
-- New Hide Subclass Feature List world setting in the Identity group of the Wizard Flow settings tab shows only a subclass's own description in the Identity tab, without the feature list built from its advancements. Subclasses with an empty description still show the full subclass page.
+- An ASI feat pick whose item prerequisites are not met by the character's owned or planned items is flagged with a prerequisite-missing error, and the row stays incomplete.
+- The ASI feat browser locks feats whose level or item prerequisites the character does not meet and lists required items on the tile. Clicking a locked feat shows a warning instead of selecting it.
 
 ## Changes
 
-- The Purchase Equipment cart quantity is a number input instead of a dropdown, capped at what the remaining gold can afford. Blank or invalid entries revert to the previous value, and a quantity of 0 removes the item from the cart.
+- During level-up, the compendium browser for item choice advancements disables feats whose prerequisites the character does not meet.
