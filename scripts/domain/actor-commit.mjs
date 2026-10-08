@@ -9,10 +9,12 @@ export async function commitClone(actor, clone) {
   const items = updates.items ?? [];
   delete updates.items;
   const existingIds = new Set(actor.items.map((i) => i.id));
+  const invalidIds = actor.items.invalidDocumentIds;
   const toCreate = [];
   const toUpdate = [];
   const seen = new Set();
   for (const item of items) {
+    if (invalidIds.has(item._id)) continue;
     seen.add(item._id);
     if (existingIds.has(item._id)) toUpdate.push(item);
     else toCreate.push(item);
