@@ -1,3 +1,5 @@
+import { advancementKey } from '../domain/advancement-draft.mjs';
+
 /** @typedef {{name: string, source: string, key: string}} GrantEntry */
 
 /**
@@ -12,6 +14,9 @@
 
 /** @type {Object<string, string>} */
 const PREFIX_TO_BUCKET = { saves: 'savingThrows', skills: 'skills', languages: 'languages', armor: 'armor', weapon: 'weapons', tool: 'tools' };
+
+/** @type {Set<string>} Trait advancement modes that grant plain proficiency. */
+const PROFICIENCY_MODES = new Set(['default', 'upgrade']);
 
 /** @type {Array<{bucket: string, labelKey: string, icon: string}>} */
 const CATEGORY_META = [
@@ -46,15 +51,17 @@ function categorizeGrant(grant, source, data) {
  * Walk doc's Trait advancements, categorizing both auto-grants and chosen picks from the draft.
  * @param {object} doc Source doc.
  * @param {ProficiencyData} data Accumulator.
- * @param {object} [draft] Advancement pick map keyed by advancement id then level.
+ * @param {object} [draft] Advancement pick map keyed by `advancementKey` then level.
  */
 function extractFromDoc(doc, data, draft = {}) {
   if (!doc) return;
   const traits = doc.advancement?.byType?.Trait;
   if (!traits) return;
   for (const trait of traits) {
+    if (!PROFICIENCY_MODES.has(trait.configuration?.mode ?? 'default')) continue;
     for (const grant of trait.configuration?.grants ?? []) categorizeGrant(grant, doc.name, data);
-    for (const entry of Object.values(draft[trait.id] ?? {})) for (const key of entry?.chosen ?? []) categorizeGrant(key, doc.name, data);
+    const byLevel = draft[advancementKey(trait.item?.uuid ?? doc.uuid ?? null, trait.id)] ?? draft[trait.id] ?? {};
+    for (const entry of Object.values(byLevel)) for (const key of entry?.chosen ?? []) categorizeGrant(key, doc.name, data);
   }
 }
 
