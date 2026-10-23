@@ -19,7 +19,6 @@ Because rolling up a character shouldn't eat the whole first session.
 
 **Guided creation wizard.** One window walks Start, Identity (Species / Class / Background), Ability Scores, Hit Points, Equipment, Advancements, Biography, and Finalize, top to bottom. A live preview tracks hit points, proficiencies, movement, and saves as you go, and every tab carries a badge for the choices still left. Progress auto-saves as a draft, so closing mid-build picks up right where you left off.
 
-
 **Ability scores your way.** Standard Array, Point Buy, or Manual rolls. The GM decides which methods are on the table and sets the limits for each. Every ability shows what it governs and which skills it covers, and your class's primary stats are flagged so you know where to put the good numbers.
 
 ![Ability Scores tab](https://wiki.3deathsaves.com/hero-mancer/ability-scores.png)
@@ -41,7 +40,6 @@ Because rolling up a character shouldn't eat the whole first session.
 ![Pending approvals queue](https://wiki.3deathsaves.com/hero-mancer/pending-approvals.png)
 
 **A settings dashboard, not a wall of toggles.** Everything the GM controls lives in one tabbed panel: allowed roll methods and limits, starting level and gold, required fields, content exclusions, player customization, chat publishing, and diagnostics.
-
 
 ---
 

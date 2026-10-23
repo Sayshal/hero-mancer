@@ -1563,6 +1563,14 @@ export class HeroMancer extends HMDialog {
   #wireAdvancementChoosers() {
     if (this.element.dataset.advChoosersWired === '1') return;
     this.element.dataset.advChoosersWired = '1';
+    this.element.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      const browse = ev.target.closest?.('.hm-advancement-tile [role="button"][data-action="browseAdvancementItems"]');
+      if (!browse) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      browse.click();
+    });
     this.element.addEventListener('change', (ev) => {
       const t = ev.target;
       if (!t || t.matches?.('[data-advancement-hidden]')) return;
@@ -3118,15 +3126,16 @@ export class HeroMancer extends HMDialog {
   }
 
   /**
-   * Open the dnd5e CompendiumBrowser for an open-pool ItemChoice.
+   * Open the dnd5e CompendiumBrowser for an ItemChoice that allows drops.
    * @this {HeroMancer}
-   * @param {PointerEvent} _event Pointer event.
-   * @param {HTMLElement} target Tile button carrying `data-browse`.
+   * @param {PointerEvent} event Pointer event.
+   * @param {HTMLElement} target Element carrying `data-browse` (the tile, or a browse button inside a pool picker tile).
    * @returns {Promise<void>}
    */
-  static async #onBrowseAdvancementItems(_event, target) {
+  static async #onBrowseAdvancementItems(event, target) {
+    event.stopImmediatePropagation();
     const cfg = JSON.parse(target.dataset.browse || '{}');
-    const input = target.querySelector(`input[name="${CSS.escape(cfg.name)}"]`);
+    const input = target.closest('.hm-advancement-tile')?.querySelector(`input[name="${CSS.escape(cfg.name)}"]`);
     if (!input) return;
     const current = input.value.split(',').filter(Boolean);
     if (cfg.max && current.length >= cfg.max) {
@@ -3134,12 +3143,13 @@ export class HeroMancer extends HMDialog {
       return;
     }
     const featureLevel = cfg.featureLevel || getEffectiveStartingLevel(this.#readStartDraftMapped());
-    const filters = { locked: { additional: {}, documentClass: 'Item' } };
+    const filters = { locked: { additional: {}, documentClass: 'Item', exclusive: true } };
     filters.locked.types = cfg.type ? new Set([cfg.type]) : CONFIG.DND5E.advancementTypes.ItemChoice.documentClass.VALID_TYPES;
     switch (cfg.type) {
       case 'spell':
         if (cfg.level !== '') filters.locked.additional.level = cfg.level === 'available' ? { max: cfg.maxSpellLevel } : { min: Number(cfg.level), max: Number(cfg.level) };
         if (cfg.list?.length) filters.locked.additional.spelllist = cfg.list.reduce((obj, list) => ({ ...obj, [list]: 1 }), {});
+        if (cfg.school?.length) filters.locked.additional.school = cfg.school.reduce((obj, school) => ({ ...obj, [school]: 1 }), {});
         break;
       case 'feat':
         if (cfg.category) filters.locked.additional.category = { [cfg.category]: 1 };

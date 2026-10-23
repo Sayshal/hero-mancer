@@ -71,7 +71,7 @@ export class EquipmentDetailPanel {
    */
   #onScopeClick(e) {
     const trig = e.target.closest('[data-picker-trigger]');
-    if (trig && this.scope.contains(trig)) {
+    if (trig && this.scope.contains(trig) && !this.#isNestedAction(e.target, trig)) {
       e.preventDefault();
       this.#openForTrigger(trig);
       return;
@@ -86,9 +86,20 @@ export class EquipmentDetailPanel {
   #onScopeKey(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const trig = e.target.closest('[data-picker-trigger]');
-    if (!trig || !this.scope.contains(trig)) return;
+    if (!trig || !this.scope.contains(trig) || this.#isNestedAction(e.target, trig)) return;
     e.preventDefault();
     this.#openForTrigger(trig);
+  }
+
+  /**
+   * Whether the event came from an action control nested inside a picker trigger.
+   * @param {HTMLElement} target Event target.
+   * @param {HTMLElement} trig Picker trigger containing the target.
+   * @returns {boolean} True when a nested `[data-action]` should handle the event instead.
+   */
+  #isNestedAction(target, trig) {
+    const action = target.closest('[data-action]');
+    return !!action && action !== trig && trig.contains(action);
   }
 
   /**

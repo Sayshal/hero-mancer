@@ -405,14 +405,16 @@ function itemChoiceSpec(adv, level, value, _context) {
     ability: value.ability ?? '',
     abilityLocked: level > Math.min(...Object.keys(cfg.choices ?? {}).map(Number))
   };
-  if (!pool.length && (cfg.type || spec.allowDrops)) {
+  spec.open = !pool.length && !!(cfg.type || spec.allowDrops);
+  spec.canBrowse = spec.allowDrops && pool.length > 0;
+  if (spec.open || spec.canBrowse) {
     const restriction = cfg.restriction ?? {};
-    spec.open = true;
     spec.restrictionType = cfg.type ?? null;
     spec.restrictionCategory = restriction.type || '';
     spec.restrictionSubtype = restriction.subtype || '';
     spec.restrictionLevel = restriction.level ?? '';
     spec.restrictionList = [...(restriction.list ?? [])];
+    spec.restrictionSchool = [...(restriction.school ?? [])];
     spec.featureLevel = level;
     spec.maxSpellLevel = cfg.type === 'spell' ? maxSpellSlotLevelFor(adv.item, level) : null;
   }

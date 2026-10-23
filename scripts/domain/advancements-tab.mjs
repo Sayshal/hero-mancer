@@ -229,7 +229,7 @@ function needsItemChoiceAbility(spec) {
  * @returns {boolean} True when the row is unsatisfiable.
  */
 function specHasNoOptions(spec) {
-  if (spec.kind === 'item-choice') return !spec.open && spec.count > 0 && (spec.slots ?? []).every((slot) => !slot.combo.options.length);
+  if (spec.kind === 'item-choice') return !spec.open && !spec.canBrowse && spec.count > 0 && (spec.slots ?? []).every((slot) => !slot.combo.options.length);
   if (spec.kind === 'trait') return spec.count > 0 && !(spec.fullOptions ?? []).length;
   return false;
 }
@@ -297,18 +297,18 @@ function autoItemTile(row, g) {
 }
 
 /**
- * Build an ItemChoice tile: an inline picker for a fixed pool, or a CompendiumBrowser browse trigger for an open choice.
+ * Build an ItemChoice tile: an inline picker for a fixed pool (plus a browse button when drops are allowed), or a CompendiumBrowser browse trigger for an open choice.
  * @param {object} row Parent row.
  * @returns {object} Tile context.
  */
 function itemChoiceTile(row) {
   const spec = row.spec;
-  const allOptions = spec.pool.map(poolOption).filter(Boolean);
+  const allOptions = itemChoiceOptions(spec);
   const ownSelected = new Set(spec.selected ?? []);
   const externalItems = new Set([...(row.draftPicks?.itemUuids ?? [])].filter((uuid) => !ownSelected.has(uuid)));
   const pickerOptions = allOptions.filter((o) => ownSelected.has(o.value) || !externalItems.has(o.value));
   const selected = (spec.selected ?? []).filter(Boolean);
-  const pickedOpts = spec.open ? selected.map((uuid) => poolOption(uuid)).filter(Boolean) : selected.map((v) => allOptions.find((o) => o.value === v)).filter(Boolean);
+  const pickedOpts = selected.map((v) => allOptions.find((o) => o.value === v)).filter(Boolean);
   const inputName = `adv-combo.${row.advancementKey}.${row.level}`;
   const sampleType = pickedOpts[0] ? fromUuidSync(pickedOpts[0].value)?.type : null;
   const tile = {
@@ -328,8 +328,9 @@ function itemChoiceTile(row) {
     inputName,
     inputValue: selected.join(',')
   };
-  if (spec.open) {
-    tile.browseDone = selected.length >= spec.effectiveCount;
+  if (spec.open || spec.canBrowse) {
+    tile.browseDone = spec.open && selected.length >= spec.effectiveCount;
+    tile.browseFull = selected.length >= spec.effectiveCount;
     tile.browse = JSON.stringify({
       name: inputName,
       max: spec.effectiveCount,
@@ -338,10 +339,12 @@ function itemChoiceTile(row) {
       subtype: spec.restrictionSubtype,
       level: spec.restrictionLevel,
       list: spec.restrictionList,
+      school: spec.restrictionSchool,
       maxSpellLevel: spec.maxSpellLevel,
       featureLevel: spec.featureLevel
     });
-  } else {
+  }
+  if (!spec.open) {
     tile.picker = {
       name: inputName,
       label: row.title || _loc('ATLAS.Common.Choice'),
@@ -925,7 +928,7 @@ async function flagFeatPrereqs(row) {
  */
 function buildItemChoiceSlots(row) {
   const spec = row.spec;
-  const allOptions = spec.pool.map(poolOption).filter(Boolean);
+  const allOptions = itemChoiceOptions(spec);
   const ownSelected = new Set(spec.selected ?? []);
   const externalItems = new Set([...(row.draftPicks?.itemUuids ?? [])].filter((uuid) => !ownSelected.has(uuid)));
   const slots = [];
@@ -1242,6 +1245,16 @@ function poolOption(entry) {
   const doc = fromUuidSync(uuid);
   if (!doc) return null;
   return { value: uuid, label: doc.name ? stripNoiseParenthetical(doc.name, { sourceBook: doc.system?.source?.book }) : uuid, icon: doc.img ?? null };
+}
+
+/**
+ * Combobox options for an ItemChoice: pool entries plus any selected items picked outside the pool.
+ * @param {object} spec Chooser spec with `spec.kind === 'item-choice'`.
+ * @returns {Array<{value:string, label:string, icon:?string}>} Resolved options.
+ */
+function itemChoiceOptions(spec) {
+  const uuids = new Set([...spec.pool, ...(spec.selected ?? []).filter(Boolean)]);
+  return [...uuids].map(poolOption).filter(Boolean);
 }
 
 /**

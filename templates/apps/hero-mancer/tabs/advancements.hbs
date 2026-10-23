@@ -118,7 +118,7 @@
                       data-uuid="{{tile.uuid}}" {{/if}} {{#if tile.picker}} data-picker-trigger
                       data-picker-name="{{tile.picker.name}}" data-picker-label="{{tile.picker.label}}"
                       data-picker-options="{{tile.picker.optionsJson}}" data-picker-max="{{tile.picker.max}}"
-                      data-picker-origins="{{tile.picker.originsJson}}" {{/if}} {{#if tile.browse}}
+                      data-picker-origins="{{tile.picker.originsJson}}" {{else if tile.browse}}
                       data-action="browseAdvancementItems" data-browse="{{tile.browse}}" {{/if}}
                       {{#if tile.selected}}data-selected{{/if}}>
                       {{#if tile.inputName}}
@@ -137,6 +137,17 @@
                           <span class="hm-tile-name-text{{#if tile.isPlaceholder}} is-placeholder{{/if}}"
                             {{#if tile.picker}}data-trigger-label{{/if}}>{{tile.label}}</span>
                         </span>
+                        {{#if tile.picker}}
+                          {{#if tile.browse}}
+                            {{#unless tile.browseFull}}
+                              <span class="hm-advancement-asi-undo" role="button" tabindex="0" data-action="browseAdvancementItems"
+                                data-browse="{{tile.browse}}" data-tooltip
+                                aria-label="{{localize 'DND5E.CompendiumBrowser.Action.Open'}}">
+                                <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                              </span>
+                            {{/unless}}
+                          {{/if}}
+                        {{/if}}
                       </span>
                       <span class="hm-tile-foot">
                         <span class="hm-tile-foot-text">{{tile.foot.label}}</span>

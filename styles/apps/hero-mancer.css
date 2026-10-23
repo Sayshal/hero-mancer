@@ -484,6 +484,12 @@
   color: var(--hero-mancer-accent);
 }
 
+.hm-tile-head > [data-action='browseAdvancementItems'] {
+  z-index: 1;
+  position: relative;
+  pointer-events: auto;
+}
+
 .hm-advancement-asi-modes {
   gap: 0.5rem;
   grid-template-columns: 1fr 1fr;
