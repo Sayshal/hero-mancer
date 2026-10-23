@@ -1,8 +1,5 @@
-## New Features
+## Bug Fixes
 
-- An ASI feat pick whose item prerequisites are not met by the character's owned or planned items is flagged with a prerequisite-missing error, and the row stays incomplete.
-- The ASI feat browser locks feats whose level or item prerequisites the character does not meet and lists required items on the tile. Clicking a locked feat shows a warning instead of selecting it.
-
-## Changes
-
-- During level-up, the compendium browser for item choice advancements disables feats whose prerequisites the character does not meet.
+- Fixed level-up failing with a duplicate _id error when the actor has a hidden invalid embedded item. Invalid items are now skipped when changes are committed to the actor.
+- Fixed the Finalize tab not listing chosen trait proficiencies (skills, tools, languages) picked in advancement. Trait advancements in expertise or mastery modes are no longer listed as proficiencies.
+- Item choice advancements with a fixed pool that allow drops now show a compendium Browse button for picking items outside the pool. Browsing is locked to the advancement's restrictions, including spell school. Items picked outside the pool show on the tile and survive a re-render. The button works with Enter or Space, and clicking it no longer opens the pool picker.

@@ -1,4 +1,3 @@
-## New Features
+## Bug Fixes
 
-- ASI feat picks whose item prerequisites are not met by the character's owned or planned items are flagged and left incomplete.
-- The ASI feat browser locks feats whose level or item prerequisites the character does not meet.
+- 3 bugs squashed
