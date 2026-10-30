@@ -254,6 +254,9 @@ export class HeroMancer extends HMDialog {
   /** @type {?number} Debounce handle for HUD updates. */
   #hudTimer = null;
 
+  /** @type {Function|null} Document click handler that closes open shop popovers, removed on close. */
+  #shopPopoverDismiss = null;
+
   /** @type {?Map<string, number>} ManualFormula pool: value->count multiset, or null. */
   #mfPool = null;
 
@@ -1138,6 +1141,8 @@ export class HeroMancer extends HMDialog {
     if (this.#hudTimer) clearTimeout(this.#hudTimer);
     this.#hudTimer = null;
     this.#hud.destroy();
+    document.removeEventListener('click', this.#shopPopoverDismiss);
+    this.#shopPopoverDismiss = null;
     return super._onClose(options);
   }
 
@@ -1732,7 +1737,7 @@ export class HeroMancer extends HMDialog {
   #wireShopPopoverDismiss() {
     if (this.element.dataset.shopPopoverWired === '1') return;
     this.element.dataset.shopPopoverWired = '1';
-    document.addEventListener('click', (event) => {
+    this.#shopPopoverDismiss = (event) => {
       if (!this.element?.isConnected) return;
       const menus = this.element.querySelectorAll('[data-eq-shop-filter-menu][open], [data-eq-shop-sort-menu][open]');
       if (!menus.length) return;
@@ -1741,7 +1746,8 @@ export class HeroMancer extends HMDialog {
         if (menu === inside) continue;
         menu.removeAttribute('open');
       }
-    });
+    };
+    document.addEventListener('click', this.#shopPopoverDismiss);
   }
 
   /**

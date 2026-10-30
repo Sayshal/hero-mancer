@@ -39,6 +39,9 @@ export class AdvancementFeatDialog extends HMDialog {
     this.keepOpen = keepOpen;
   }
 
+  /** @type {Function|null} Document pointerdown handler that closes the filter popover, removed on close. */
+  #popoverOutsideClose = null;
+
   /** @inheritdoc */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
@@ -58,12 +61,20 @@ export class AdvancementFeatDialog extends HMDialog {
   #wirePopoverOutsideClose() {
     if (this.element.dataset.popoverOutsideWired === '1') return;
     this.element.dataset.popoverOutsideWired = '1';
-    document.addEventListener('pointerdown', (event) => {
+    this.#popoverOutsideClose = (event) => {
       const live = this.element?.querySelector?.('[data-feat-browser-filter-menu]');
       if (!live?.open) return;
       if (event.target === live || live.contains(event.target)) return;
       live.open = false;
-    });
+    };
+    document.addEventListener('pointerdown', this.#popoverOutsideClose);
+  }
+
+  /** @inheritdoc */
+  _onClose(options) {
+    super._onClose(options);
+    document.removeEventListener('pointerdown', this.#popoverOutsideClose);
+    this.#popoverOutsideClose = null;
   }
 
   /** Persist filter changes to the shared state. */
