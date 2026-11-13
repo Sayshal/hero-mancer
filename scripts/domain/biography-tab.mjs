@@ -1,4 +1,5 @@
 import { computeAge, getCurrentCalendarDate } from '../integrations/calendaria.mjs';
+import { buildFactionContext } from './factions.mjs';
 
 /**
  * Build the biography-tab context.
@@ -24,30 +25,9 @@ export function buildBiographyContext(draft = {}, startDraft = {}) {
       flaw: draft.flaw ?? '',
       appearance: draft.appearance ?? '',
       backstory: draft.backstory ?? ''
-    }
+    },
+    factions: buildFactionContext(draft.factions)
   };
-}
-
-/**
- * @type {Object<string, string>} Pre-3.1.1 plural personality draft keys mapped onto their current singular names.
- * @deprecated since 3.1.1 — remove in 3.3.0
- */
-const LEGACY_PERSONALITY_KEYS = { traits: 'trait', ideals: 'ideal', bonds: 'bond', flaws: 'flaw' };
-
-/**
- * Rename pre-3.1.1 plural personality keys on a persisted biography draft, leaving current-shape drafts untouched.
- * @param {object} [draft] Biography draft from a stored payload (approval queue, resume seed, submitted-payload flag).
- * @returns {object} Draft using the current singular key names.
- */
-export function migrateBiographyDraft(draft = {}) {
-  const legacy = Object.entries(LEGACY_PERSONALITY_KEYS).filter(([plural]) => draft[plural] !== undefined);
-  if (!legacy.length) return draft;
-  const out = { ...draft };
-  for (const [plural, singular] of legacy) {
-    if (out[singular] === undefined || out[singular] === '') out[singular] = out[plural];
-    delete out[plural];
-  }
-  return out;
 }
 
 /**

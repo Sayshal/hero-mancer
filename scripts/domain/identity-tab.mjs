@@ -4,7 +4,7 @@ import { shortDescription } from '../utils/html-text.mjs';
 import * as compare from './compare.mjs';
 import { buildIdentityTags } from './identity-tags.mjs';
 import { checkMulticlassPrereq, formatPrereqChipLabel, formatPrereqLabel } from './multiclass-prereqs.mjs';
-import { getEligibleSubclasses, getSubclassThreshold } from './subclass.mjs';
+import { getEligibleSubclasses, getSubclassThreshold, getSuggestedSubclass } from './subclass.mjs';
 
 /** @type {Object<string, string>} */
 const SECTION_TO_TYPE = { background: 'background', species: 'race', class: 'class' };
@@ -217,12 +217,13 @@ function buildSubclassSection(roster, activeSubclassSlotId = null) {
     if (!threshold || threshold > slot.level) continue;
     const options = getEligibleSubclasses(classEntry);
     if (!options.length) continue;
+    const subclassUuid = slot.subclassUuid || getSuggestedSubclass(classEntry)?.uuid || '';
     pickers.push({
       slotId: slot.slotId,
       className: classEntry.name,
       threshold,
-      subclassUuid: slot.subclassUuid ?? '',
-      combo: buildSubclassCombo(slot.subclassUuid ?? '', options, { id: `identity-subclass-${slot.slotId}`, name: `identity.classes.${slot.slotId}.subclassUuid` })
+      subclassUuid,
+      combo: buildSubclassCombo(subclassUuid, options, { id: `identity-subclass-${slot.slotId}`, name: `identity.classes.${slot.slotId}.subclassUuid` })
     });
   }
   const pickedSubclasses = pickers.filter((p) => p.subclassUuid);

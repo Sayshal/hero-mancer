@@ -4,6 +4,7 @@ import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
 import { clearFeatIndex } from './domain/feat-browser.mjs';
+import { clearLookup } from './domain/quartermaster.mjs';
 import { clearAllPending } from './domain/submission-lock.mjs';
 import { mergeCustomFocusItems } from './integrations/dnd5e.mjs';
 
@@ -14,6 +15,7 @@ function onExclusionListChange() {
   clearCaches();
   clearShopIndex();
   clearFeatIndex();
+  clearLookup();
 }
 
 /** Register all module game settings. Submenus are registered by their own apps. */
@@ -377,6 +379,27 @@ export function registerSettings() {
     scope: 'world',
     config: false,
     type: new NumberField({ initial: 15, min: 10, max: 20, step: 1, integer: true })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.FACTION_ALLOWLIST, {
+    name: 'HEROMANCER.Settings.FactionAllowlist.Name',
+    hint: 'HEROMANCER.Settings.FactionAllowlist.Hint',
+    scope: 'world',
+    config: false,
+    type: new ArrayField(new StringField())
+  });
+  r(MODULE.ID, MODULE.SETTINGS.MAX_STARTING_FACTIONS, {
+    name: 'HEROMANCER.Settings.MaxStartingFactions.Name',
+    hint: 'HEROMANCER.Settings.MaxStartingFactions.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 1, min: 0, step: 1, integer: true })
+  });
+  r(MODULE.ID, MODULE.SETTINGS.STARTING_RENOWN, {
+    name: 'HEROMANCER.Settings.StartingRenown.Name',
+    hint: 'HEROMANCER.Settings.StartingRenown.Hint',
+    scope: 'world',
+    config: false,
+    type: new NumberField({ initial: 0, step: 1, integer: true })
   });
   r(MODULE.ID, MODULE.SETTINGS.STARTING_LEVEL, {
     name: 'HEROMANCER.Settings.StartingLevel.Name',

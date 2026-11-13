@@ -1,5 +1,5 @@
 import { stripHtml, stripNoiseParenthetical } from '../utils/html-text.mjs';
-import { advancementKey } from './advancement-draft.mjs';
+import { advancementKey, splitAdvancementKey } from './advancement-draft.mjs';
 
 /** @type {Set<string>} Advancement types handled by HM directly; never rendered as choosers. */
 const HM_OWNED = new Set(['HitPoints', 'Subclass']);
@@ -145,13 +145,14 @@ export function buildOwnedItemRows(actor, characterLevel, draft) {
  * @param {string} args.origin Row origin (`class`/`subclass`/`race`/`background`).
  * @param {Object<string, Object<number, object>>} [args.draft] Stored picks keyed by `[draftKey][level]`.
  * @param {object} [args.context] Renderer context.
+ * @param {?string} [args.originId] Id of the advancement that granted this row's item, for nested rows.
  * @returns {object} Row record.
  */
-function advancementRow(adv, lvl, { origin, draft = {}, context = {} }) {
+function advancementRow(adv, lvl, { origin, draft = {}, context = {}, originId = null }) {
   const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
   const id = adv.id ?? adv._id;
   const sourceUuid = adv.item?.uuid ?? null;
-  const key = advancementKey(sourceUuid, id);
+  const key = advancementKey(sourceUuid, id, originId);
   const title = stripNoiseParenthetical(stripHtml(adv.titleForLevel?.(lvl) ?? adv.name ?? type));
   const auto = AUTO.has(type) || !RENDERERS[type];
   const value = draft[key]?.[lvl] ?? {};
@@ -233,7 +234,7 @@ function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
     const levels = advancementLevels(adv);
     for (const lvl of levels) {
       if (lvl < 0 || lvl > characterLevel) continue;
-      const row = advancementRow(adv, lvl, { origin: parentRow.origin, draft });
+      const row = advancementRow(adv, lvl, { origin: parentRow.origin, draft, originId: splitAdvancementKey(parentRow.advancementKey).advancementId });
       row.classKey = parentRow.classKey ?? null;
       row.displayLevel = parentRow.displayLevel ?? parentRow.level;
       row.icon = adv.img ?? doc.img ?? parentRow.icon ?? null;
@@ -301,7 +302,7 @@ export async function computeAsiBonus({
   const add = (map) => {
     for (const [k, v] of Object.entries(map ?? {})) totals[k] += Number(v) || 0;
   };
-  const accumulate = async (doc, levelCap, depth, isOriginalClass = true) => {
+  const accumulate = async (doc, levelCap, depth, isOriginalClass = true, originId = null) => {
     if (!doc) return;
     for (const adv of advancementList(doc)) {
       if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
@@ -309,16 +310,16 @@ export async function computeAsiBonus({
       const id = adv.id ?? adv._id;
       const levels = advancementLevels(adv).filter((lvl) => lvl >= 0 && lvl <= levelCap);
       if (!levels.length) continue;
-      const byLevel = advancementDraft[advancementKey(adv.item?.uuid ?? null, id)] ?? advancementDraft[id];
+      const byLevel = advancementDraft[advancementKey(adv.item?.uuid ?? null, id, originId)] ?? advancementDraft[id];
       if (type === 'AbilityScoreImprovement') {
         for (const lvl of levels) {
           add(adv.configuration?.fixed);
           const pick = byLevel?.[lvl];
           if (pick?.type === 'asi') add(pick.assignments);
-          else if (pick?.type === 'feat' && pick.feat && depth < NESTED_DEPTH_CAP) await accumulate(await fromUuid(pick.feat), levelCap, depth + 1);
+          else if (pick?.type === 'feat' && pick.feat && depth < NESTED_DEPTH_CAP) await accumulate(await fromUuid(pick.feat), levelCap, depth + 1, true, id);
         }
       } else if (depth < NESTED_DEPTH_CAP) {
-        for (const uuid of grantedAsiSources(adv, levels, byLevel)) await accumulate(await fromUuid(uuid), levelCap, depth + 1);
+        for (const uuid of grantedAsiSources(adv, levels, byLevel)) await accumulate(await fromUuid(uuid), levelCap, depth + 1, true, id);
       }
     }
   };

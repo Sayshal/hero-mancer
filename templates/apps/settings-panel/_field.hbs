@@ -101,6 +101,17 @@
             </label>
           {{/each}}
         </div>
+      {{else if (eq type "factions")}}
+        <div class="hm-sp-checkgroup">
+          {{#each factions}}
+            <label class="hm-sp-check">
+              <input type="checkbox" value="{{value}}" {{checked checked}}>
+              {{label}}
+            </label>
+          {{else}}
+            <span class="hint">{{localize 'HEROMANCER.Settings.FactionAllowlist.None'}}</span>
+          {{/each}}
+        </div>
       {{else if (eq type "allowedHpMethods")}}
         <div class="hm-sp-checkgroup" role="group" aria-labelledby="hm-sp-{{key}}-label">
           {{#each methods}}

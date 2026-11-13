@@ -4,7 +4,7 @@ import { buildSubclassCombo } from './identity-tab.mjs';
 import { buildLevelUpPreview } from './level-up-preview.mjs';
 import { buildMulticlassImpact } from './multiclass-impact.mjs';
 import { checkMulticlassPrereq, formatPrereqChipLabel, formatPrereqLabel } from './multiclass-prereqs.mjs';
-import { getEligibleSubclasses, getSubclassThreshold } from './subclass.mjs';
+import { getEligibleSubclasses, getSubclassThreshold, getSuggestedSubclass } from './subclass.mjs';
 
 /**
  * Build the level-up tab context: existing-class tiles + multiclass-eligible-class tiles grouped by source ruleset.
@@ -80,7 +80,7 @@ async function buildSubclassPicker({ pickResult, roster, pickedSubclass }) {
   const sourceDoc = await resolveClassSourceDoc(classDoc);
   const options = getEligibleSubclasses(sourceDoc);
   if (!options.length) return null;
-  const combo = buildSubclassCombo(pickedSubclass ?? '', options, { id: 'level-up-subclass', name: 'levelUp.pickedSubclass' });
+  const combo = buildSubclassCombo(pickedSubclass || getSuggestedSubclass(sourceDoc)?.uuid || '', options, { id: 'level-up-subclass', name: 'levelUp.pickedSubclass' });
   return { combo, className: classDoc.name, threshold };
 }
 

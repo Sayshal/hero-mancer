@@ -1,28 +1,41 @@
 /** @type {string} Prefix shared by every advancement-pick hidden input's `name`. */
 export const ADVANCEMENT_FIELD_PREFIX = 'advancements.';
 
-/** @type {string} Separator joining the parent item's source uuid to the advancement id. Never occurs in either half. */
+/** @type {string} Separator joining the parent item's source uuid, the advancement id, and the granting advancement id. Never occurs in any part. */
 export const ADVANCEMENT_KEY_SEPARATOR = '|';
 
 /**
  * Compose the draft key identifying one advancement.
  * @param {?string} sourceUuid Parent item's uuid, or null when unresolvable (legacy shape).
  * @param {string} advancementId Advancement id from `Advancement#id`.
+ * @param {?string} [originId] Id of the advancement that granted the parent item, separating repeat grants of the same item.
  * @returns {string} Composite draft key.
  */
-export function advancementKey(sourceUuid, advancementId) {
-  return sourceUuid ? `${sourceUuid}${ADVANCEMENT_KEY_SEPARATOR}${advancementId}` : advancementId;
+export function advancementKey(sourceUuid, advancementId, originId = null) {
+  if (!sourceUuid) return advancementId;
+  const key = `${sourceUuid}${ADVANCEMENT_KEY_SEPARATOR}${advancementId}`;
+  return originId ? `${key}${ADVANCEMENT_KEY_SEPARATOR}${originId}` : key;
 }
 
 /**
  * Split a draft key back into its parts.
  * @param {string} key Draft key from `advancementKey`.
- * @returns {{sourceUuid:?string, advancementId:string}} Parts; `sourceUuid` null for legacy keys.
+ * @returns {{sourceUuid:?string, advancementId:string, originId:?string}} Parts; `sourceUuid` null for legacy keys.
  */
 export function splitAdvancementKey(key) {
-  const sep = key?.indexOf(ADVANCEMENT_KEY_SEPARATOR) ?? -1;
-  if (sep < 1) return { sourceUuid: null, advancementId: key ?? '' };
-  return { sourceUuid: key.slice(0, sep), advancementId: key.slice(sep + 1) };
+  const [sourceUuid, advancementId, originId = null] = (key ?? '').split(ADVANCEMENT_KEY_SEPARATOR);
+  if (advancementId === undefined || !sourceUuid) return { sourceUuid: null, advancementId: key ?? '', originId: null };
+  return { sourceUuid, advancementId, originId };
+}
+
+/**
+ * Whether an embedded item was granted by the advancement with the given id.
+ * @param {object} item Embedded item.
+ * @param {?string} originId Granting advancement id from `splitAdvancementKey`.
+ * @returns {boolean} True when no origin is required or the item's `advancementOrigin` names it.
+ */
+export function grantedByAdvancement(item, originId) {
+  return !originId || !!item.flags?.dnd5e?.advancementOrigin?.endsWith(`.${originId}`);
 }
 
 /**

@@ -15,7 +15,8 @@ import { computeAsiBonus, isOriginalClassItem } from '../domain/advancement-choo
 import { ADVANCEMENT_FIELD_PREFIX, advancementDraftFromFlat, readAdvancementDraft } from '../domain/advancement-draft.mjs';
 import { buildAdvancementsContext, picksFromRow } from '../domain/advancements-tab.mjs';
 import { approveSubmissionAfterEdit, promptRejectionReason, rejectSubmission, submitForApproval } from '../domain/approval.mjs';
-import { buildBiographyContext, migrateBiographyDraft } from '../domain/biography-tab.mjs';
+import { buildBiographyContext } from '../domain/biography-tab.mjs';
+import { syncFactionLimit } from '../domain/factions.mjs';
 import { pickArt } from '../domain/character-art.mjs';
 import { createCharacter } from '../domain/character.mjs';
 import * as compare from '../domain/compare.mjs';
@@ -218,6 +219,9 @@ export class HeroMancer extends HMDialog {
   /** @type {?object} Submitted-payload seed for rebuilding a fresh wizard. */
   #resumeSeed = null;
 
+  /** @type {?User} Player whose saved draft is shown read-only. */
+  #draftViewUser = null;
+
   /** @type {'creation'|'level_up'} Wizard mode axis. */
   #mode = 'creation';
 
@@ -308,6 +312,7 @@ export class HeroMancer extends HMDialog {
     if (options.seed) this.#seed = options.seed;
     if (options.reviewMode) this.#reviewMode = options.reviewMode;
     if (options.resumeSeed) this.#resumeSeed = options.resumeSeed;
+    if (options.draftViewUser) this.#draftViewUser = options.draftViewUser;
     if (options.mode === 'level_up') {
       this.#mode = 'level_up';
       this.#actor = options.actor ?? null;
@@ -434,15 +439,19 @@ export class HeroMancer extends HMDialog {
     const pendingSubmission = getPendingSubmission();
     const reviewMode = !!this.#reviewMode;
     const reviewCharacterName = this.#reviewMode?.payload?.characterName ?? this.#reviewMode?.payload?.startDraft?.characterName ?? '';
-    const title = reviewMode ? _loc('HEROMANCER.Wizard.Review.Title', { name: reviewCharacterName || _loc('HEROMANCER.Approval.Unnamed') }) : _loc('HEROMANCER.Wizard.Title');
+    const draftView = !!this.#draftViewUser;
+    let title = _loc('HEROMANCER.Wizard.Title');
+    if (reviewMode) title = _loc('HEROMANCER.Wizard.Review.Title', { name: reviewCharacterName || _loc('HEROMANCER.Approval.Unnamed') });
+    else if (draftView) title = _loc('HEROMANCER.Wizard.Draft.ViewTitle', { name: this.#draftViewUser.name });
     return {
       ...context,
       title,
       requireApproval: false,
       reviewMode,
-      pendingSubmission: reviewMode ? null : pendingSubmission,
+      draftView,
+      pendingSubmission: reviewMode || draftView ? null : pendingSubmission,
       canSubmit: reviewMode || !pendingSubmission,
-      canRandomize: !reviewMode && this.#mode === 'creation' && game.settings.get(MODULE.ID, MODULE.SETTINGS.ENABLE_RANDOMIZE),
+      canRandomize: !reviewMode && !draftView && this.#mode === 'creation' && game.settings.get(MODULE.ID, MODULE.SETTINGS.ENABLE_RANDOMIZE),
       portraitImg: null,
       globalProgress: { id: `${this.id}-global-pb`, value: 0, max: 1, state: 'incomplete', variant: 'global', showPercent: true },
       isGM: game.user.isGM,
@@ -860,13 +869,14 @@ export class HeroMancer extends HMDialog {
    */
   #readBiographyDraft() {
     const seed = this.#reviewSeed('biographyDraft') ?? this.#pendingBiographyDraft;
-    if (seed) return migrateBiographyDraft(seed);
+    if (seed) return seed;
     if (!this.element) return {};
     const out = {};
-    for (const el of this.element.querySelectorAll('[data-tab="biography"] [name^="biography."]')) {
+    for (const el of this.element.querySelectorAll('[data-tab="biography"] [name^="biography."]:not([type="checkbox"])')) {
       const key = el.name.split('.')[1];
       out[key] = el.value;
     }
+    out.factions = [...this.element.querySelectorAll('[data-tab="biography"] input[name="biography.factions"]:checked')].map((el) => el.value);
     return out;
   }
 
@@ -926,8 +936,21 @@ export class HeroMancer extends HMDialog {
     Hooks.callAll(MODULE.HOOKS.WIZARD_OPENED, { app: this, fsm: this.fsm });
     initFeatIndex();
     this.#hud.attach(this.element).then(() => this.#refreshHud());
+    if (this.#draftViewUser) this.#blockEditing();
     if (this.#reviewMode || this.#resumeSeed) this.#restoreFromReviewPayload();
-    else this.#restoreDraft();
+    else this.#restoreDraft(this.#draftViewUser ?? game.user);
+  }
+
+  /** Swallow every click and keystroke that would edit the form, leaving tab navigation, links, and scrolling. */
+  #blockEditing() {
+    const allowed = '[data-action="tab"], [data-action="navBack"], [data-action="navNext"], [data-action="close"], .window-header, a.content-link';
+    const block = (event) => {
+      if (event.type === 'keydown' && event.key === 'Tab') return;
+      if (event.target.closest(allowed)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    for (const type of ['pointerdown', 'mousedown', 'click', 'keydown', 'submit']) this.element.addEventListener(type, block, { capture: true });
   }
 
   /** Push the latest snapshot to the HUD, debounced so rapid keystrokes coalesce. */
@@ -1059,9 +1082,12 @@ export class HeroMancer extends HMDialog {
     return out;
   }
 
-  /** Load a saved draft (if any) and apply it to the live form. */
-  async #restoreDraft() {
-    const draft = await savedOptions.load();
+  /**
+   * Load a saved draft (if any) and apply it to the live form.
+   * @param {User} user Draft owner.
+   */
+  async #restoreDraft(user) {
+    const draft = await savedOptions.load(user);
     if (!draft) return;
     if (Array.isArray(draft.__mfPool)) this.#mfPool = new Map(draft.__mfPool.map(([k, n]) => [String(k), Number(n)]));
     if (Number.isFinite(Number(draft.__mfRerollsUsed))) this.#mfRerollsUsed = Number(draft.__mfRerollsUsed);
@@ -1124,7 +1150,7 @@ export class HeroMancer extends HMDialog {
     this.#pendingBiographyDraft = null;
     this.#pendingEquipmentDraft = null;
     this.#pendingAdvancementDraft = null;
-    if (applied) {
+    if (applied && !this.#draftViewUser) {
       ui.notifications.info('HEROMANCER.Wizard.Draft.Restored', { localize: true });
       this.#dirty = true;
     }
@@ -1143,12 +1169,13 @@ export class HeroMancer extends HMDialog {
     this.#hud.destroy();
     document.removeEventListener('click', this.#shopPopoverDismiss);
     this.#shopPopoverDismiss = null;
+    for (const app of foundry.applications.instances.values()) if (app instanceof CompareDialog) app.close();
     return super._onClose(options);
   }
 
   /** @inheritdoc */
   async close(options = {}) {
-    if (!this.#confirmCloseBypass && this.#dirty && this.#mode === 'creation' && !this.#reviewMode) {
+    if (!this.#confirmCloseBypass && this.#dirty && this.#mode === 'creation' && !this.#reviewMode && !this.#draftViewUser) {
       const choice = await HMPrompt.wait({
         window: { title: 'ATLAS.Common.UnsavedChanges' },
         body: _loc('HEROMANCER.Wizard.CloseConfirm.Content'),
@@ -1291,7 +1318,7 @@ export class HeroMancer extends HMDialog {
     state.accordions = {};
     if (partId === 'identity' && this.#identityRosterJustOverridden) state.skipIdentityClassRoster = true;
     for (const el of priorElement.querySelectorAll('input[name], select[name], textarea[name]')) {
-      if (el.name.startsWith('hp.')) continue;
+      if (el.name.startsWith('hp.') || el.closest('[data-combobox]')) continue;
       if (el.type === 'checkbox' || el.type === 'radio') state.checked[`${el.name}::${el.value}`] = el.checked;
       else state.values[el.name] = el.value;
     }
@@ -1373,6 +1400,8 @@ export class HeroMancer extends HMDialog {
     ProgressBar.attachAll(this.element);
     this.#wireLinkTokenArtToggle();
     this.#wireRingEnabledToggle();
+    syncFactionLimit(this.element);
+    this.element.querySelector('[data-faction-picker]')?.addEventListener('change', () => syncFactionLimit(this.element));
     this.#wireLevelField();
     this.#wireBirthday();
     this.#wireBiographyAge();

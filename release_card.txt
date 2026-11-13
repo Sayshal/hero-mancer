@@ -1,3 +1,15 @@
+## Breaking Changes
+
+- Drafts saved before 3.4.0 lose picks made inside granted items.
+- Drafts saved before 3.1.1 no longer convert old personality fields.
+- Requires dnd5e 6.1.0 or newer.
+
+## New Features
+
+- A class's suggested subclass is preselected in creation and level-up.
+- The Biography tab offers starting factions that grant renown and faction membership.
+- You can open a player's saved draft read-only from the Players list.
+
 ## Bug Fixes
 
-- 1 bug squashed
+- 5 bugs squashed

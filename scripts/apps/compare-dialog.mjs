@@ -621,15 +621,9 @@ async function enrichGrantedItems(doc) {
  * @returns {Promise<object[]>} `[doc, ...grantedItems]`.
  */
 async function resolveGrantedDocs(doc) {
-  const out = [doc];
-  for (const adv of doc.advancement?.byType?.ItemGrant ?? []) {
-    for (const item of adv.configuration?.items ?? []) {
-      if (!item.uuid) continue;
-      const child = await fromUuid(item.uuid);
-      if (child) out.push(child);
-    }
-  }
-  return out;
+  const uuids = (doc.advancement?.byType?.ItemGrant ?? []).flatMap((adv) => (adv.configuration?.items ?? []).map((item) => item.uuid)).filter(Boolean);
+  const children = await dnd5e.utils.bulkFromUuid(uuids);
+  return [doc, ...uuids.map((uuid) => children.get(uuid)).filter(Boolean)];
 }
 
 /**
@@ -757,11 +751,13 @@ async function partitionGrantedItems(doc) {
   const features = [];
   const featuresByLevel = new Map();
   const spellsByLevel = new Map();
-  for (const adv of doc.advancement?.byType?.ItemGrant ?? []) {
+  const grants = doc.advancement?.byType?.ItemGrant ?? [];
+  const children = await dnd5e.utils.bulkFromUuid(grants.flatMap((adv) => (adv.configuration?.items ?? []).map((item) => item.uuid)).filter(Boolean));
+  for (const adv of grants) {
     const lvl = Number(adv.level) || 0;
     for (const item of adv.configuration?.items ?? []) {
       if (!item.uuid) continue;
-      const child = await fromUuid(item.uuid);
+      const child = children.get(item.uuid);
       if (child?.type === 'spell') {
         if (!spellsByLevel.has(lvl)) spellsByLevel.set(lvl, []);
         spellsByLevel.get(lvl).push(item.uuid);
@@ -954,7 +950,7 @@ function formatScaleValues(doc) {
   const scales = doc.advancement?.byType?.ScaleValue ?? [];
   if (!scales.length) return null;
   const lines = scales.slice(0, 3).map((sv) => {
-    const id = sv.title || sv.configuration?.identifier || '?';
+    const id = sv.name || sv.configuration?.identifier || '?';
     const cfg = sv.configuration?.scale ?? {};
     const levels = Object.keys(cfg)
       .map(Number)
@@ -962,7 +958,7 @@ function formatScaleValues(doc) {
       .sort((a, b) => a - b);
     if (!levels.length) return id;
     const first = scaleValueAt(cfg[levels[0]]);
-    const last = scaleValueAt(cfg[levels[levels.length - 1]]);
+    const last = scaleValueAt(Object.assign({}, ...levels.map((level) => cfg[level])));
     return first === last ? `${id}: ${first}` : `${id}: ${first} → ${last}`;
   });
   if (scales.length > 3) lines.push(_loc('ATLAS.Common.PlusMore', { count: scales.length - 3 }));

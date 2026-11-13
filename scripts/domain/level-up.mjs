@@ -5,9 +5,8 @@ import { createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
-import { splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
-import { applySubclassFromIdentity } from './character.mjs';
+import { applySubclassFromIdentity, findAdvancement } from './character.mjs';
 import { parseHitDie } from './hp-tab.mjs';
 
 /**
@@ -325,24 +324,4 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
     appliedAny = true;
   }
   return { ok: true, applied: appliedAny };
-}
-
-/**
- * Locate an Advancement across every embedded item on the actor.
- * @param {object} actor Target actor.
- * @param {string} key Draft key from `advancementKey`.
- * @returns {?object} Matching advancement, or null when no item carries it.
- */
-function findAdvancement(actor, key) {
-  const { sourceUuid, advancementId } = splitAdvancementKey(key);
-  let fallback = null;
-  for (const item of actor.items) {
-    const adv = item.advancement?.byId?.[advancementId];
-    if (!adv) continue;
-    if (!sourceUuid) return adv;
-    if (item.uuid === sourceUuid) return adv;
-    if ((item.flags?.dnd5e?.sourceId ?? item._stats?.compendiumSource) === sourceUuid) return adv;
-    fallback ??= adv;
-  }
-  return fallback;
 }
