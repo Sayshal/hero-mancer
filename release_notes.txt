@@ -1,7 +1,23 @@
+## Breaking Changes
+
+- Drafts saved before 3.4.0 lose picks made inside granted items. These picks are now stored per granting advancement.
+- Personality fields in drafts saved before 3.1.1 are no longer converted from the old plural traits, ideals, bonds and flaws fields.
+- Requires dnd5e 6.1.0 or newer. dnd5e 6.0.x is no longer supported.
+
+## New Features
+
+- A class's suggested subclass is preselected in creation and level-up. A fixed suggestion is the only subclass offered.
+- The Biography tab has a Factions picker when the system's renown setting is on and you allow at least one faction. You choose the pickable factions, the maximum number of picks and the starting renown in the Factions group of the Wizard Flow settings tab. On creation, the character gets a renown item for each picked faction and joins that faction's members. The GM's client adds player-created characters to their factions.
+- You can right-click a player in the Players list and choose "View Hero Mancer Draft" to open that player's saved draft read-only.
+
 ## Bug Fixes
 
-- Fixed the equipment shop and feat filter menus leaving a listener running for the rest of the session each time the equipment shop or a feat picker window was opened.
+- Compare windows close when the wizard closes.
+- Equipment "choose an item" lists skip excluded items and items from disabled compendium sources. The lists refresh without a reload when the exclusion list or compendium sources change.
+- Feats granted more than once keep separate picks for each grant.
+- The compare dialog no longer logs the system's Advancement#title deprecation warning.
+- The compare dialog shows the correct die for scale values that only list a dice count at later levels.
 
 ## Changes
 
-- Report bugs and feature requests at https://3deathsaves.com/report?module=hero-mancer. The GitHub issue templates have been removed.
+- The compare dialog loads granted items with one fetch per compendium.
