@@ -28,19 +28,29 @@ export async function save(draft) {
 }
 
 /**
- * Read the active user's draft, re-keying any pre-composite advancement keys it still carries.
+ * Read a user's draft, re-keying any pre-composite advancement keys it still carries.
+ * @param {User} [user] Draft owner; only the current user's re-keyed draft is written back.
  * @returns {Promise<?Object<string, *>>} Stored draft, or null when unset.
  */
-export async function load() {
-  const stored = game.user.getFlag(MODULE.ID, FLAG);
+export async function load(user = game.user) {
+  const stored = user.getFlag(MODULE.ID, FLAG);
   if (!stored?.json) return null;
   const draft = JSON.parse(stored.json);
   ATLAS.log(3, `saved-options.load: ${draft ? Object.keys(draft).length : 0} field(s)`);
   if (!draft) return null;
   const rekeyed = await rekeyAdvancementDraft(draft);
   if (!rekeyed) return draft;
-  await save(rekeyed);
+  if (user.isSelf) await save(rekeyed);
   return rekeyed;
+}
+
+/**
+ * Whether a user has a saved wizard draft.
+ * @param {User} user User to check.
+ * @returns {boolean} True when the draft flag is set.
+ */
+export function hasDraft(user) {
+  return !!user.getFlag(MODULE.ID, FLAG)?.json;
 }
 
 /**

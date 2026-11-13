@@ -1,8 +1,11 @@
 import { HeroMancerAPI } from './api.mjs';
+import { HeroMancer } from './apps/hero-mancer.mjs';
 import { MODULE } from './constants.mjs';
 import { clearCaches } from './data/document-loader.mjs';
 import { clearShopIndex } from './domain/equipment-shop.mjs';
 import { clearFeatIndex } from './domain/feat-browser.mjs';
+import { clearLookup } from './domain/quartermaster.mjs';
+import { hasDraft } from './domain/saved-options.mjs';
 import { wireSpellHandoffButton } from './domain/spell-handoff.mjs';
 
 /** Settings that should not trigger a wizard re-render when they change. */
@@ -27,6 +30,29 @@ export function registerHooks() {
     if (user.id === game.user.id && 'character' in changes) refreshLaunchGlow();
   });
   Hooks.on('renderChatMessageHTML', wireSpellHandoffButton);
+  Hooks.on('getUserContextOptions', (_app, options) => options.push(viewDraftContextOption()));
+}
+
+/**
+ * Players-list context entry letting a GM open another user's saved wizard draft read-only.
+ * @returns {object} Context menu entry.
+ */
+function viewDraftContextOption() {
+  return {
+    label: 'HEROMANCER.Wizard.Draft.ViewMenu',
+    icon: 'fa-solid fa-egg',
+    visible: (li) => {
+      const user = game.users.get(li.dataset.userId);
+      return game.user.isGM && !!user && !user.isSelf && hasDraft(user);
+    },
+    onClick: (_event, li) => {
+      const user = game.users.get(li.dataset.userId);
+      if (!user) return;
+      const id = `${MODULE.ID}-wizard-draft-${user.id}`;
+      const app = foundry.applications.instances.get(id) ?? new HeroMancer({ id, draftViewUser: user });
+      app.render({ force: true });
+    }
+  };
 }
 
 /**
@@ -56,6 +82,7 @@ function onSourceConfigChange() {
   clearCaches();
   clearShopIndex();
   clearFeatIndex();
+  clearLookup();
   foundry.applications.instances.get(`${MODULE.ID}-wizard`)?.refreshForSourceChange();
 }
 

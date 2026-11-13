@@ -17,26 +17,36 @@ const ITEM_TYPES = new Set(['weapon', 'equipment', 'tool']);
  */
 export async function initLookup() {
   if (initialized) return;
+  const exclusionList = new Set((game.settings.get(MODULE.ID, MODULE.SETTINGS.EXCLUSION_LIST) ?? {}).equipment ?? []);
   const results = await CompendiumBrowser.fetch(Item, { types: ITEM_TYPES, indexFields: new Set(INDEX_FIELDS) });
   for (const entry of results) {
-    if (isMagicItem(entry) || isNaturalWeapon(entry) || isCreatureIntrinsic(entry)) continue;
+    if (exclusionList.has(entry.uuid) || isMagicItem(entry) || isNaturalWeapon(entry) || isCreatureIntrinsic(entry)) continue;
     indexEntry(entry);
   }
-  indexFocusItems();
+  indexFocusItems(exclusionList);
   for (const list of lookup.values()) list.sort((a, b) => a.name.localeCompare(b.name));
   initialized = true;
 }
 
+/** Drop the category index so the next `initLookup` rebuilds it against current exclusions and sources. */
+export function clearLookup() {
+  lookup.clear();
+  initialized = false;
+}
+
 /**
  * Populate `focus:{key}` buckets from `CONFIG.DND5E.focusTypes` — dnd5e maintains these by explicit uuid, not by item-type metadata.
+ * @param {Set<string>} exclusionList Excluded equipment uuids.
  */
-function indexFocusItems() {
+function indexFocusItems(exclusionList) {
   const types = CONFIG.DND5E?.focusTypes ?? {};
-  const exclusionList = new Set((game.settings.get(MODULE.ID, MODULE.SETTINGS.EXCLUSION_LIST) ?? {}).equipment ?? []);
+  const sources = dnd5e.applications.settings.CompendiumBrowserSettingsConfig.collateSources();
   for (const [focusKey, entry] of Object.entries(types)) {
     const itemIds = entry?.itemIds ?? {};
     for (const uuid of Object.values(itemIds)) {
       if (exclusionList.has(uuid)) continue;
+      const pack = foundry.utils.parseUuid(uuid)?.collection;
+      if (pack?.collection && !sources.has(pack.collection)) continue;
       const doc = fromUuidSync(uuid);
       if (!doc) continue;
       bucket(`focus:${focusKey}`, { uuid, name: doc.name, img: doc.img });

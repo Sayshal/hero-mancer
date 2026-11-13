@@ -3,10 +3,10 @@ import { createBirthdayNote, createHistoryNote } from '../integrations/calendari
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
-import { splitAdvancementKey } from './advancement-draft.mjs';
+import { grantedByAdvancement, splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
-import { migrateBiographyDraft } from './biography-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
+import { buildRenownItems, joinFactions } from './factions.mjs';
 import { buildEquipmentContext } from './equipment-tab.mjs';
 import { publishCharacterSummary } from './summary-message.mjs';
 
@@ -19,17 +19,7 @@ import { publishCharacterSummary } from './summary-message.mjs';
  * @returns {Promise<?Actor>} Created actor on success, null on failure (actor is rolled back).
  */
 export async function createCharacter({ payload, wizardElement = null, originalPayload = null }) {
-  const {
-    startDraft,
-    identityDraft,
-    abilitiesDraft,
-    advancementDraft = {},
-    biographyDraft: rawBiographyDraft = {},
-    equipmentDraft = {},
-    hpDraft = { rolls: {} },
-    skipSpellHandoff = false
-  } = payload ?? {};
-  const biographyDraft = migrateBiographyDraft(rawBiographyDraft);
+  const { startDraft, identityDraft, abilitiesDraft, advancementDraft = {}, biographyDraft = {}, equipmentDraft = {}, hpDraft = { rolls: {} }, skipSpellHandoff = false } = payload ?? {};
   const rosterInput = Array.isArray(identityDraft?.classes) ? identityDraft.classes : [];
   if (!rosterInput.length || !rosterInput[0]?.uuid) return null;
   const resolvedRoster = [];
@@ -72,6 +62,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
       itemsToInsert.push(backgroundData);
       details.background = backgroundData._id;
     }
+    itemsToInsert.push(...buildRenownItems(biographyDraft.factions));
     clone.updateSource({ items: itemsToInsert, system: { details } });
     for (const slot of resolvedRoster) {
       const itemId = classItemIdsBySlot.get(slot.slotId);
@@ -99,6 +90,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
     await actor.delete();
     return null;
   }
+  await joinFactions(actor);
   await publishCharacterSummary(actor);
   await applyPlayerCustomization(startDraft);
   await assignToPlayer(actor, startDraft);
@@ -436,12 +428,12 @@ async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = n
  * @param {string} key Draft key from `advancementKey`.
  * @returns {?object} The matching advancement, or null when no item carries it.
  */
-function findAdvancement(actor, key) {
-  const { sourceUuid, advancementId } = splitAdvancementKey(key);
+export function findAdvancement(actor, key) {
+  const { sourceUuid, advancementId, originId } = splitAdvancementKey(key);
   let fallback = null;
   for (const item of actor.items) {
     const adv = item.advancement?.byId?.[advancementId];
-    if (!adv) continue;
+    if (!adv || !grantedByAdvancement(item, originId)) continue;
     if (!sourceUuid) return adv;
     if (item.uuid === sourceUuid) return adv;
     if ((item.flags?.dnd5e?.sourceId ?? item._stats?.compendiumSource) === sourceUuid) return adv;

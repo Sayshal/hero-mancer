@@ -108,6 +108,21 @@
       </div>
     </div>
   </fieldset>
+  {{#if factions}}
+    <fieldset class="hm-fieldset hm-biography-factions" data-faction-picker data-max="{{factions.max}}">
+      <legend>{{localize 'HEROMANCER.App.Biography.Factions.Label'}}</legend>
+      <p class="hint">{{localize 'HEROMANCER.App.Biography.Factions.Hint' max=factions.max}}</p>
+      <div class="hm-biography-faction-list">
+        {{#each factions.options}}
+          <label class="hm-biography-faction">
+            <input type="checkbox" name="biography.factions" value="{{value}}" {{checked checked}}>
+            {{#if img}}<img src="{{img}}" alt="">{{/if}}
+            <span>{{label}}</span>
+          </label>
+        {{/each}}
+      </div>
+    </fieldset>
+  {{/if}}
   <fieldset class="hm-fieldset hm-biography-backstory">
     <legend>{{localize 'DND5E.Biography'}}</legend>
     <p class="hint">{{localize 'HEROMANCER.App.Biography.Hints.Backstory'}}</p>

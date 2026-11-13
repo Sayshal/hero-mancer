@@ -11,7 +11,8 @@ export const SOCKET_EVENTS = {
   SPELL_SETUP_REQUEST: 'spellSetupRequest',
   SPELL_SETUP_COMPLETE: 'spellSetupComplete',
   SPELL_SETUP_CANCELED: 'spellSetupCanceled',
-  HISTORY_NOTE: 'historyNote'
+  HISTORY_NOTE: 'historyNote',
+  JOIN_FACTIONS: 'joinFactions'
 };
 
 const handlers = new Map();

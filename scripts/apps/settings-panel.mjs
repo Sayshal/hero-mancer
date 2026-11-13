@@ -88,6 +88,14 @@ const TAB_SETTINGS = {
       ]
     },
     {
+      group: 'HEROMANCER.Settings.SettingsPanel.Group.Factions',
+      settings: [
+        { key: 'FACTION_ALLOWLIST', type: 'factions' },
+        { key: 'MAX_STARTING_FACTIONS', type: 'number' },
+        { key: 'STARTING_RENOWN', type: 'number' }
+      ]
+    },
+    {
       group: 'HEROMANCER.Settings.SettingsPanel.Group.CustomBackground',
       settings: [
         { key: 'DISABLE_CUSTOM_BACKGROUND', type: 'boolean' },
@@ -325,6 +333,10 @@ export class SettingsPanel extends HMDialog {
         { key: 'manualFormula', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.Manual', checked: v.manualFormula !== false },
         { key: 'manualEntry', label: 'HEROMANCER.Settings.SettingsPanel.AllowedMethods.ManualEntry', checked: v.manualEntry !== false }
       ];
+    }
+    if (row.type === 'factions') {
+      const allowed = new Set(value);
+      ctx.factions = dnd5e.registry.renown.factionOptions.map((option) => ({ ...option, checked: allowed.has(option.value) }));
     }
     if (row.type === 'allowedHpMethods') {
       const v = value || {};
@@ -651,6 +663,8 @@ export class SettingsPanel extends HMDialog {
         const input = form.querySelector(`input[name="allowedMethods.${m}"]`);
         if (input) input.checked = v[m] !== false;
       }
+    } else if (type === 'factions') {
+      for (const input of form.querySelectorAll(`[data-setting="${settingKey}"] input[type="checkbox"]`)) input.checked = false;
     } else if (type === 'allowedHpMethods') {
       const v = value || {};
       for (const m of ['average', 'max', 'manual']) {
@@ -727,6 +741,8 @@ export class SettingsPanel extends HMDialog {
     } else if (type === 'allowedMethods') {
       const flat = data.allowedMethods || {};
       value = { standardArray: !!flat.standardArray, pointBuy: !!flat.pointBuy, manualFormula: !!flat.manualFormula, manualEntry: !!flat.manualEntry };
+    } else if (type === 'factions') {
+      value = [...form.querySelectorAll(`[data-setting="${settingKey}"] input[type="checkbox"]:checked`)].map((input) => input.value);
     } else if (type === 'allowedHpMethods') {
       const flat = data.allowedHpMethods || {};
       value = { average: !!flat.average, max: !!flat.max, manual: !!flat.manual };

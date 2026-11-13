@@ -22,3 +22,28 @@
 .hm-biography-backstory > prose-mirror {
   --min-height: 24rem;
 }
+
+.hm-biography-faction-list {
+  gap: var(--spacer-8);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+}
+
+.hm-biography-faction {
+  gap: var(--spacer-8);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.hm-biography-faction img {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  object-fit: contain;
+}
+
+.hm-biography-faction:has(input:disabled) {
+  opacity: 0.5;
+  cursor: default;
+}
