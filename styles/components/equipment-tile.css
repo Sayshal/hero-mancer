@@ -225,8 +225,10 @@
   filter: brightness(0) invert(78%);
 }
 
-body.theme-light .hm-tile-icon img[src$='.svg'] {
-  filter: brightness(0) invert(32%);
+@container style(--atlas-scheme: light) {
+  .hm-tile-icon img[src$='.svg'] {
+    filter: brightness(0) invert(32%);
+  }
 }
 
 .hm-tile-name {

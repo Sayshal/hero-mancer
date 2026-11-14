@@ -118,23 +118,23 @@
 }
 
 .hm-hp-hd-group[data-die='4'] {
-  --hm-hp-hd-color: rgb(190 145 235);
+  --hm-hp-hd-color: light-dark(rgb(125 75 170), rgb(190 145 235));
 }
 
 .hm-hp-hd-group[data-die='6'] {
-  --hm-hp-hd-color: rgb(120 200 235);
+  --hm-hp-hd-color: light-dark(rgb(55 130 180), rgb(120 200 235));
 }
 
 .hm-hp-hd-group[data-die='8'] {
-  --hm-hp-hd-color: rgb(140 215 165);
+  --hm-hp-hd-color: light-dark(rgb(60 140 90), rgb(140 215 165));
 }
 
 .hm-hp-hd-group[data-die='10'] {
-  --hm-hp-hd-color: rgb(245 195 95);
+  --hm-hp-hd-color: light-dark(rgb(180 140 50), rgb(245 195 95));
 }
 
 .hm-hp-hd-group[data-die='12'] {
-  --hm-hp-hd-color: rgb(240 130 110);
+  --hm-hp-hd-color: light-dark(rgb(190 70 50), rgb(240 130 110));
 }
 
 .hm-hp-hd-icon {
@@ -146,26 +146,6 @@
   color: var(--hero-mancer-fg-muted);
   font-weight: 700;
   line-height: 1;
-}
-
-body.theme-light .hm-hp-hd-group[data-die='4'] {
-  --hm-hp-hd-color: rgb(125 75 170);
-}
-
-body.theme-light .hm-hp-hd-group[data-die='6'] {
-  --hm-hp-hd-color: rgb(55 130 180);
-}
-
-body.theme-light .hm-hp-hd-group[data-die='8'] {
-  --hm-hp-hd-color: rgb(60 140 90);
-}
-
-body.theme-light .hm-hp-hd-group[data-die='10'] {
-  --hm-hp-hd-color: rgb(180 140 50);
-}
-
-body.theme-light .hm-hp-hd-group[data-die='12'] {
-  --hm-hp-hd-color: rgb(190 70 50);
 }
 
 .hm-hp-grid {
@@ -359,7 +339,7 @@ body.theme-light .hm-hp-hd-group[data-die='12'] {
   display: inline-block;
   width: 1em;
   height: 1em;
-  color: var(--hero-mancer-bg-inset);
+  color: light-dark(rgb(0 0 0 / 12%), var(--hero-mancer-bg-inset));
   font-size: 1.2em;
   line-height: 1;
   text-shadow: 0 0 0.06em var(--hero-mancer-border);
@@ -370,7 +350,7 @@ body.theme-light .hm-hp-hd-group[data-die='12'] {
 
 .hm-hp-heart.is-filled {
   color: var(--hero-mancer-danger);
-  text-shadow: 0 0 0.4em rgb(240 90 80 / 55%);
+  text-shadow: 0 0 0.4em rgb(from var(--hero-mancer-danger) r g b / 55%);
 }
 
 .hm-hp-card.is-locked .hm-hp-heart.is-filled {
@@ -463,19 +443,4 @@ body.theme-light .hm-hp-hd-group[data-die='12'] {
   .hm-hp-heart {
     font-size: 0.85em;
   }
-}
-
-body.theme-light .hm-hp-heart {
-  color: rgb(0 0 0 / 12%);
-  text-shadow: none;
-}
-
-body.theme-light .hm-hp-heart.is-filled {
-  color: rgb(195 60 50);
-  text-shadow: 0 0 0.3em rgb(195 60 50 / 45%);
-}
-
-body.theme-light .hm-hp-card.is-locked .hm-hp-heart.is-filled {
-  color: var(--hero-mancer-fg-muted);
-  text-shadow: none;
 }

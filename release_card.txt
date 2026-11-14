@@ -12,4 +12,4 @@
 
 ## Bug Fixes
 
-- 6 bugs squashed
+- 9 bugs squashed
