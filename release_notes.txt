@@ -17,6 +17,7 @@
 - Feats granted more than once keep separate picks for each grant.
 - The compare dialog no longer logs the system's Advancement#title deprecation warning.
 - The compare dialog shows the correct die for scale values that only list a dice count at later levels.
+- Browsing for a spell choice set to "Any Available Level (Excluding Cantrips)" only shows spells from 1st level up to the highest available slot.
 
 ## Changes
 
