@@ -3182,7 +3182,9 @@ export class HeroMancer extends HMDialog {
     filters.locked.types = cfg.type ? new Set([cfg.type]) : CONFIG.DND5E.advancementTypes.ItemChoice.documentClass.VALID_TYPES;
     switch (cfg.type) {
       case 'spell':
-        if (cfg.level !== '') filters.locked.additional.level = cfg.level === 'available' ? { max: cfg.maxSpellLevel } : { min: Number(cfg.level), max: Number(cfg.level) };
+        if (cfg.level === 'available') filters.locked.additional.level = { max: cfg.maxSpellLevel };
+        else if (cfg.level === 'availableNoCantrips') filters.locked.additional.level = { min: 1, max: cfg.maxSpellLevel };
+        else if (cfg.level !== '') filters.locked.additional.level = { min: Number(cfg.level), max: Number(cfg.level) };
         if (cfg.list?.length) filters.locked.additional.spelllist = cfg.list.reduce((obj, list) => ({ ...obj, [list]: 1 }), {});
         if (cfg.school?.length) filters.locked.additional.school = cfg.school.reduce((obj, school) => ({ ...obj, [school]: 1 }), {});
         break;
