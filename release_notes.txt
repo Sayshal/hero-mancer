@@ -1,27 +1,9 @@
-## Breaking Changes
-
-- Drafts saved before 3.4.0 lose picks made inside granted items. These picks are now stored per granting advancement.
-- Personality fields in drafts saved before 3.1.1 are no longer converted from the old plural traits, ideals, bonds and flaws fields.
-- Requires dnd5e 6.1.0 or newer. dnd5e 6.0.x is no longer supported.
-
-## New Features
-
-- A class's suggested subclass is preselected in creation and level-up. A fixed suggestion is the only subclass offered.
-- The Biography tab has a Factions picker when the system's renown setting is on and you allow at least one faction. You choose the pickable factions, the maximum number of picks and the starting renown in the Factions group of the Wizard Flow settings tab. On creation, the character gets a renown item for each picked faction and joins that faction's members. The GM's client adds player-created characters to their factions.
-- You can right-click a player in the Players list and choose "View Hero Mancer Draft" to open that player's saved draft read-only.
-
 ## Bug Fixes
 
-- Buttons, selection, focus rings and the window frame use the 3DS theme's primary color instead of its accent, matching the other 3DS modules.
-- Compare windows close when the wizard closes.
-- Equipment "choose an item" lists skip excluded items and items from disabled compendium sources. The lists refresh without a reload when the exclusion list or compendium sources change.
-- Feats granted more than once keep separate picks for each grant.
-- Hit die colors, HP hearts and equipment tile icons follow the 3DS theme's light or dark look instead of Foundry's interface theme.
-- Labels on primary-colored buttons stay readable on every 3DS theme.
-- The compare dialog no longer logs the system's Advancement#title deprecation warning.
-- The compare dialog shows the correct die for scale values that only list a dice count at later levels.
-- Browsing for a spell choice set to "Any Available Level (Excluding Cantrips)" only shows spells from 1st level up to the highest available slot.
-
-## Changes
-
-- The compare dialog loads granted items with one fetch per compendium.
+- A player with a pending submission sees the submitted character in the read-only wizard.
+- Reopening a saved draft keeps the class, HP rolls and advancement picks.
+- The Custom Background Builder shows each chosen language once.
+- The Pending Approvals archive view is titled "Approval Archive", and neither view has an empty band above the table.
+- The level-up preview gives the first level of a new multiclass average hit points instead of the maximum.
+- The level-up preview shows each new feature's icon next to its name and no longer repeats a feature as a scale value.
+- The sidebar preview stays filled when the wizard re-renders, such as after a world setting change.
