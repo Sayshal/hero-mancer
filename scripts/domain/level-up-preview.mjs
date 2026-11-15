@@ -23,7 +23,7 @@ export function buildLevelUpPreview({ actor, classDoc, newLevel, isMulticlass })
     className: classDoc.name,
     classImg: classDoc.img ?? null,
     newLevel,
-    hp: buildHpRow(die, conMod, newLevel === 1),
+    hp: buildHpRow(die, conMod, !actor?.system?.details?.level),
     features: buildFeatureRows(newLevelAdvs),
     spellcasting: buildSpellcastingRow(classDoc, newLevel),
     asi: hasType(newLevelAdvs, 'AbilityScoreImprovement'),
@@ -53,10 +53,10 @@ function hasType(advs, type) {
 }
 
 /**
- * Build the HP gain row. Level 1 of a class always shows the max die (PHB rule for first character level; treated the same here for any first level of a new class). Level 2+ shows the average.
+ * Build the HP gain row: the max die for the first character level, the average otherwise.
  * @param {number} die Hit-die size.
  * @param {number} conMod Constitution modifier.
- * @param {boolean} isFirstLevel `true` when the picked class is being taken at its first level.
+ * @param {boolean} isFirstLevel `true` when the actor has no levels yet.
  * @returns {object} HP row.
  */
 function buildHpRow(die, conMod, isFirstLevel) {
@@ -66,23 +66,20 @@ function buildHpRow(die, conMod, isFirstLevel) {
 }
 
 /**
- * Map ItemGrant + ScaleValue advancement rows at the new level into preview chips.
+ * Map ItemGrant + ScaleValue advancement rows at the new level into preview chips, skipping scale values named after a granted item.
  * @param {Array<object>} advs Advancements that fire at the new level.
  * @returns {Array<{type: string, title: string, items: Array<{uuid: string, name: string, img: ?string}>}>} Feature rows.
  */
 function buildFeatureRows(advs) {
   const rows = [];
+  const scaleRows = [];
   for (const adv of advs) {
     const type = adv.type ?? adv.constructor?.typeName;
-    if (!type) continue;
-    if (type === 'ItemGrant') {
-      const items = resolveGrantItems(adv);
-      rows.push({ type, title: stripHtml(adv.name ?? type), items });
-    } else if (type === 'ScaleValue') {
-      rows.push({ type, title: stripHtml(adv.name ?? type), items: [] });
-    }
+    if (type === 'ItemGrant') rows.push({ type, title: stripHtml(adv.name ?? type), items: resolveGrantItems(adv) });
+    else if (type === 'ScaleValue') scaleRows.push({ type, title: stripHtml(adv.name ?? type), items: [] });
   }
-  return rows;
+  const grantedNames = new Set(rows.flatMap((row) => row.items.map((item) => item.name)));
+  return [...rows, ...scaleRows.filter((row) => !grantedNames.has(row.title))];
 }
 
 /**

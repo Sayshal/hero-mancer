@@ -4,6 +4,7 @@
 
 .hm-pending-approvals-table {
   width: 100%;
+  margin: 0;
   font-size: 0.875rem;
 }
 

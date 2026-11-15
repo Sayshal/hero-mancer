@@ -56,6 +56,7 @@ export class PendingApprovals extends HMDialog {
     const showArchive = this.#showArchive && archiveEnabled;
     return {
       ...context,
+      title: _loc(showArchive ? 'HEROMANCER.Approval.Queue.ArchiveTitle' : 'HEROMANCER.Approval.Queue.Title'),
       rows: showArchive ? this.#buildArchiveRows() : this.#buildPendingRows(),
       showArchive,
       archiveEnabled,

@@ -14,7 +14,7 @@ import { buildAbilitiesContext, buildStandardArrayPool, pointBuyCost, rollAbilit
 import { computeAsiBonus, isOriginalClassItem } from '../domain/advancement-chooser.mjs';
 import { ADVANCEMENT_FIELD_PREFIX, advancementDraftFromFlat, readAdvancementDraft } from '../domain/advancement-draft.mjs';
 import { buildAdvancementsContext, picksFromRow } from '../domain/advancements-tab.mjs';
-import { approveSubmissionAfterEdit, promptRejectionReason, rejectSubmission, submitForApproval } from '../domain/approval.mjs';
+import { approveSubmissionAfterEdit, decodePayload, promptRejectionReason, rejectSubmission, submitForApproval } from '../domain/approval.mjs';
 import { buildBiographyContext } from '../domain/biography-tab.mjs';
 import { syncFactionLimit } from '../domain/factions.mjs';
 import { pickArt } from '../domain/character-art.mjs';
@@ -311,7 +311,9 @@ export class HeroMancer extends HMDialog {
     super(merged);
     if (options.seed) this.#seed = options.seed;
     if (options.reviewMode) this.#reviewMode = options.reviewMode;
+    const pendingPayload = getPendingSubmission()?.payload;
     if (options.resumeSeed) this.#resumeSeed = options.resumeSeed;
+    else if (pendingPayload && !options.reviewMode && !options.draftViewUser && options.mode !== 'level_up') this.#resumeSeed = decodePayload(pendingPayload);
     if (options.draftViewUser) this.#draftViewUser = options.draftViewUser;
     if (options.mode === 'level_up') {
       this.#mode = 'level_up';
@@ -935,7 +937,6 @@ export class HeroMancer extends HMDialog {
     if (this.fsm.can(MODULE.WIZARD.EVENTS.OPEN)) this.fsm.send(MODULE.WIZARD.EVENTS.OPEN);
     Hooks.callAll(MODULE.HOOKS.WIZARD_OPENED, { app: this, fsm: this.fsm });
     initFeatIndex();
-    this.#hud.attach(this.element).then(() => this.#refreshHud());
     if (this.#draftViewUser) this.#blockEditing();
     if (this.#reviewMode || this.#resumeSeed) this.#restoreFromReviewPayload();
     else this.#restoreDraft(this.#draftViewUser ?? game.user);
@@ -951,6 +952,13 @@ export class HeroMancer extends HMDialog {
       event.stopImmediatePropagation();
     };
     for (const type of ['pointerdown', 'mousedown', 'click', 'keydown', 'submit']) this.element.addEventListener(type, block, { capture: true });
+  }
+
+  /** Mount a fresh HUD onto the newly rendered sidebar part. */
+  #attachHud() {
+    this.#hud.destroy();
+    this.#hud = new SidebarHud();
+    this.#hud.attach(this.element).then(() => this.#refreshHud());
   }
 
   /** Push the latest snapshot to the HUD, debounced so rapid keystrokes coalesce. */
@@ -1106,6 +1114,7 @@ export class HeroMancer extends HMDialog {
     const identitySeed = HeroMancer.#extractIdentityDraft(draft);
     const hasIdentity = identitySeed.background || identitySeed.species || identitySeed.classes.length > 0;
     if (hasIdentity) {
+      this.#identityRosterOverride = null;
       this.#pendingIdentityDraft = identitySeed;
       await this.render({ parts: ['identity'] });
       this.#pendingIdentityDraft = null;
@@ -1391,6 +1400,7 @@ export class HeroMancer extends HMDialog {
     this.#identityRosterJustOverridden = false;
     this.element.classList.toggle('is-locked', !!context.pendingSubmission);
     this.element.classList.toggle('is-review', !!context.reviewMode);
+    if (options.parts.includes('sidebar')) this.#attachHud();
     Combobox.attachAll(this.element);
     EquipmentTile.attachAll(this.element);
     this.#seedEquipmentGroupValues();

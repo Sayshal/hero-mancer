@@ -40,7 +40,8 @@
   margin-top: 0.35rem;
 }
 
-.hm-bg-tool multi-select > .tags {
+.hm-bg-tool multi-select > .tags,
+.hm-bg-language multi-select > .tags {
   display: none;
 }
 

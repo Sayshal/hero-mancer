@@ -1209,7 +1209,7 @@
   list-style: none;
 }
 
-.hm-level-up-preview-grants li a {
+.hm-level-up-preview-grants li .content-link {
   gap: 0.3rem;
   display: inline-flex;
   align-items: center;
