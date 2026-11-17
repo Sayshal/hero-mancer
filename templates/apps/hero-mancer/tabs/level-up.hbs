@@ -43,13 +43,8 @@
       {{#if preview.hp.available}}
         <div class="hm-level-up-preview-row hm-level-up-preview-hp">
           <span class="hm-level-up-preview-label">{{localize 'DND5E.HitPoints'}}</span>
-          {{#if preview.hp.isFirstLevel}}
-            <span
-              class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.HPFirst' total=preview.hp.total base=preview.hp.base die=preview.hp.dieLabel mod=preview.hp.conMod}}</span>
-          {{else}}
-            <span
-              class="hm-level-up-preview-value">{{localize 'HEROMANCER.LevelUp.Preview.HPAvg' total=preview.hp.total base=preview.hp.base die=preview.hp.dieLabel mod=preview.hp.conMod}}</span>
-          {{/if}}
+          <span
+            class="hm-level-up-preview-value">{{localize preview.hp.labelKey total=preview.hp.total base=preview.hp.base die=preview.hp.dieLabel mod=preview.hp.conMod bonus=preview.hp.bonus}}</span>
         </div>
       {{/if}}
 

@@ -37,6 +37,55 @@ export function parseHitDie(classDoc) {
   return m ? Number(m[1]) : 0;
 }
 
+/** @type {Object<string, string>} Active Effect keys dnd5e folds into max HP, mapped to their bonus bucket. */
+const HP_BONUS_KEYS = { 'system.attributes.hp.bonuses.level': 'level', 'system.attributes.hp.bonuses.overall': 'overall' };
+
+/**
+ * Roll data for resolving HP bonus formulas at the projected class and character levels.
+ * @param {object} args Inputs.
+ * @param {?object} args.actor Level-up actor; null at creation.
+ * @param {Array<{classDoc:?object, level:number}>} args.classRoster Per-class levels after this run.
+ * @param {number} args.characterLevel Character level after this run.
+ * @returns {object} Roll data.
+ */
+export function hpBonusRollData({ actor, classRoster, characterLevel }) {
+  const rollData = actor?.getRollData() ?? {};
+  const classes = { ...rollData.classes };
+  for (const slot of classRoster) {
+    const identifier = slot.classDoc?.system?.identifier;
+    if (identifier) classes[identifier] = { ...classes[identifier], levels: slot.level };
+  }
+  return { ...rollData, classes, details: { ...rollData.details, level: characterLevel } };
+}
+
+/**
+ * Sum the per-level and flat max-HP bonuses dnd5e will apply after this run: the actor's own (level-up) plus transfer effects on newly granted items.
+ * @param {object} args Inputs.
+ * @param {string[]} args.uuids Items this run grants or picks.
+ * @param {?object} args.actor Level-up actor; null at creation.
+ * @param {object} args.rollData Roll data from `hpBonusRollData`.
+ * @returns {Promise<{level: number, overall: number}>} Bonus per level and flat bonus.
+ */
+export async function computeHpBonus({ uuids, actor, rollData }) {
+  const bonus = { level: 0, overall: 0 };
+  if (actor && actor._source.system.attributes.hp.max !== null) return bonus;
+  const { simplifyBonus } = dnd5e.utils;
+  if (actor) {
+    bonus.level += simplifyBonus(actor.system.attributes.hp.bonuses.level, rollData);
+    bonus.overall += simplifyBonus(actor.system.attributes.hp.bonuses.overall, rollData);
+  }
+  for (const doc of await Promise.all(uuids.map((uuid) => fromUuid(uuid)))) {
+    for (const effect of doc?.effects ?? []) {
+      if (!effect.transfer || effect.disabled) continue;
+      for (const change of effect.system.changes ?? []) {
+        const bucket = HP_BONUS_KEYS[change.key];
+        if (bucket && change.type === 'add') bonus[bucket] += simplifyBonus(change.value, rollData);
+      }
+    }
+  }
+  return bonus;
+}
+
 /**
  * 5e average roll for a hit die: `floor(die / 2) + 1`.
  * @param {number} die Die size.
@@ -64,9 +113,10 @@ function abilityMod(score) {
  * @param {'creation'|'level_up'} [args.mode] Render mode axis.
  * @param {object} [args.rerollPolicy] Reroll gating policy (`{allowRerolls?, maxRerollAttempts?}`).
  * @param {boolean} [args.l1MaxDie] When true (RAW), the primary class's level 1 is locked to max die regardless of method.
+ * @param {{level: number, overall: number}} [args.hpBonus] Per-level and flat max-HP bonuses from `computeHpBonus`.
  * @returns {object} Render context with `cards` + header data.
  */
-export function buildHpContext({ draft = {}, roster = [], conScore, mode = 'creation', rerollPolicy = {}, l1MaxDie = true }) {
+export function buildHpContext({ draft = {}, roster = [], conScore, mode = 'creation', rerollPolicy = {}, l1MaxDie = true, hpBonus = { level: 0, overall: 0 } }) {
   const allowed = game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOWED_HP_METHODS) ?? { average: true, max: true, manual: true };
   const enabledMethods = HP_METHODS.filter((m) => allowed[m] !== false);
   const method = enabledMethods.includes(draft.method) ? draft.method : (enabledMethods[0] ?? 'average');
@@ -89,7 +139,7 @@ export function buildHpContext({ draft = {}, roster = [], conScore, mode = 'crea
     let classSubtotal = 0;
     let classLevels = 0;
     for (let lvl = startLevel; lvl <= endLevel; lvl++) {
-      const card = buildCard({ slot, die, conMod, method, lvl, slotRolls, slotAttempts, lockedRolls, allowRerolls, maxAttempts, l1MaxDie });
+      const card = buildCard({ slot, die, conMod, levelBonus: hpBonus.level, method, lvl, slotRolls, slotAttempts, lockedRolls, allowRerolls, maxAttempts, l1MaxDie });
       card.characterLevel = cards.length + 1;
       cards.push(card);
       classLevels++;
@@ -115,10 +165,11 @@ export function buildHpContext({ draft = {}, roster = [], conScore, mode = 'crea
       return { className: c.className, die, dieLabel: c.dieLabel, count: c.count, icons: Array.from({ length: c.count }, () => ({ die, dieLabel: c.dieLabel })) };
     })
     .sort((a, b) => b.die - a.die || a.className.localeCompare(b.className));
+  if (cards.length) total += hpBonus.overall;
   const available = cards.length > 0;
   const cols = cards.length > 16 ? 5 : Math.min(4, Math.max(1, cards.length));
   const methodOptions = enabledMethods.map((m) => ({ value: m, label: _loc(`HEROMANCER.Settings.HPMethod.Choices.${m}`), active: m === method }));
-  return { available, cards, total, conMod, method, methodOptions, isManual: method === 'manual', allFilled, mode, perClassChips, hitDieGroups, gridCols: cols };
+  return { available, cards, total, conMod, overallBonus: hpBonus.overall, method, methodOptions, isManual: method === 'manual', allFilled, mode, perClassChips, hitDieGroups, gridCols: cols };
 }
 
 /**
@@ -144,6 +195,7 @@ function sortRoster(roster) {
  * @param {object} args.slot Roster slot.
  * @param {number} args.die Hit-die size (4/6/8/10/12).
  * @param {number} args.conMod Constitution modifier.
+ * @param {number} args.levelBonus Per-level max-HP bonus.
  * @param {string} args.method HP method (`max`/`average`/`manual`).
  * @param {number} args.lvl Character level for this card.
  * @param {Object<string, number>} args.slotRolls Existing manual rolls keyed by level.
@@ -154,7 +206,7 @@ function sortRoster(roster) {
  * @param {boolean} args.l1MaxDie When true, primary class L1 is locked to max die.
  * @returns {object} Card context.
  */
-function buildCard({ slot, die, conMod, method, lvl, slotRolls, slotAttempts, lockedRolls, allowRerolls, maxAttempts, l1MaxDie }) {
+function buildCard({ slot, die, conMod, levelBonus, method, lvl, slotRolls, slotAttempts, lockedRolls, allowRerolls, maxAttempts, l1MaxDie }) {
   const isPrimaryL1 = slot.isPrimary !== false && lvl === 1 && l1MaxDie;
   const isLocked = Boolean(slot.locked);
   let value;
@@ -179,7 +231,7 @@ function buildCard({ slot, die, conMod, method, lvl, slotRolls, slotAttempts, lo
     label = 'average';
   }
   const hasValue = value > 0;
-  const total = hasValue ? Math.max(1, value + conMod) : 0;
+  const total = hasValue ? Math.max(1, value + conMod) + levelBonus : 0;
   const hearts = Array.from({ length: die }, (_, i) => ({ idx: i + 1, filled: i + 1 <= value }));
   const rowSize = Math.ceil(die / 2);
   const heartRows = [];
@@ -203,6 +255,7 @@ function buildCard({ slot, die, conMod, method, lvl, slotRolls, slotAttempts, lo
     conMod,
     conSign: conMod < 0 ? '-' : '+',
     conAbs: Math.abs(conMod),
+    levelBonus,
     hasValue,
     hearts,
     heartRows,

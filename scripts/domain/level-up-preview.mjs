@@ -23,7 +23,7 @@ export function buildLevelUpPreview({ actor, classDoc, newLevel, isMulticlass })
     className: classDoc.name,
     classImg: classDoc.img ?? null,
     newLevel,
-    hp: buildHpRow(die, conMod, !actor?.system?.details?.level),
+    hp: buildHpRow(die, conMod, !actor?.system?.details?.level, levelHpBonus(actor)),
     features: buildFeatureRows(newLevelAdvs),
     spellcasting: buildSpellcastingRow(classDoc, newLevel),
     asi: hasType(newLevelAdvs, 'AbilityScoreImprovement'),
@@ -53,16 +53,28 @@ function hasType(advs, type) {
 }
 
 /**
+ * Per-level max-HP bonus the actor already carries, as dnd5e adds it to each new level.
+ * @param {?object} actor Target actor.
+ * @returns {number} Bonus per level, or 0 when max HP is overridden.
+ */
+function levelHpBonus(actor) {
+  if (!actor || actor._source.system.attributes.hp.max !== null) return 0;
+  return dnd5e.utils.simplifyBonus(actor.system.attributes.hp.bonuses.level, actor.getRollData());
+}
+
+/**
  * Build the HP gain row: the max die for the first character level, the average otherwise.
  * @param {number} die Hit-die size.
  * @param {number} conMod Constitution modifier.
  * @param {boolean} isFirstLevel `true` when the actor has no levels yet.
+ * @param {number} bonus Per-level max-HP bonus.
  * @returns {object} HP row.
  */
-function buildHpRow(die, conMod, isFirstLevel) {
+function buildHpRow(die, conMod, isFirstLevel, bonus) {
   if (!die) return { available: false };
-  const avg = averageRoll(die);
-  return { available: true, die, dieLabel: `d${die}`, conMod, isFirstLevel, base: isFirstLevel ? die : avg, total: Math.max(1, (isFirstLevel ? die : avg) + conMod) };
+  const base = isFirstLevel ? die : averageRoll(die);
+  const labelKey = `HEROMANCER.LevelUp.Preview.${isFirstLevel ? 'HPFirst' : 'HPAvg'}${bonus ? 'Bonus' : ''}`;
+  return { available: true, die, dieLabel: `d${die}`, conMod, isFirstLevel, base, bonus, labelKey, total: Math.max(1, base + conMod) + bonus };
 }
 
 /**

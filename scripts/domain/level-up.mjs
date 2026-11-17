@@ -4,9 +4,9 @@ import * as documentLoader from '../data/document-loader.mjs';
 import { createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
-import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
+import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem, ownedItemScopeLevel } from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
-import { applySubclassFromIdentity, findAdvancement } from './character.mjs';
+import { applySubclassFromIdentity, findAdvancement, isFixedAsi } from './character.mjs';
 import { parseHitDie } from './hp-tab.mjs';
 
 /**
@@ -117,13 +117,14 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     if (pickedSubclass) await applySubclassFromIdentity(classItem, pickedSubclass, newLevel);
     await applySubclassPicks(clone, advancementDraft, newLevel, wizardElement);
     const autoProcessed = new Set(clone.items.map((i) => i.id));
-    await applyAutoAdvancementsAtLevel(clone, newLevel, characterLevel, classItem);
+    const scope = { classItem, classLevel: newLevel, characterLevel };
+    await applyAutoAdvancementsAtLevel(clone, scope, autoProcessed);
     await applyHitPoints(classItem, newLevel, hpDraft);
     const appliedPicks = new Set();
     for (let round = 0; round < 10; round++) {
       const picks = await applyNonSubclassPicks(clone, advancementDraft, wizardElement, appliedPicks);
       if (!picks.ok) throw new Error('advancement application aborted');
-      const autoApplied = await applyGrantedItemAutoAdvancements(clone, characterLevel, autoProcessed);
+      const autoApplied = await applyGrantedItemAutoAdvancements(clone, scope, autoProcessed);
       if (!picks.applied && !autoApplied) break;
     }
     await commitClone(actor, clone);
@@ -213,31 +214,34 @@ async function applySubclassPicks(actor, draft, newLevel, wizardElement) {
 }
 
 /**
- * Fire auto-applying advancements for the level just gained.
+ * Fire auto-applying advancements for the level just gained on every pre-existing item, mirroring dnd5e `createLevelChangeSteps`.
  * @param {object} actor Target actor.
- * @param {number} newLevel Class level being applied.
- * @param {number} characterLevel Character level being gained.
- * @param {object} classItem Class item being levelled (its subclass is matched by identifier).
+ * @param {{classItem: object, classLevel: number, characterLevel: number}} scope Class being levelled and the levels gained.
+ * @param {Set<string>} preexisting Item ids present before this pass; items granted during it are left to `applyGrantedItemAutoAdvancements`.
  * @returns {Promise<void>}
  */
-async function applyAutoAdvancementsAtLevel(actor, newLevel, characterLevel, classItem) {
-  const classId = classItem?.id ?? null;
+async function applyAutoAdvancementsAtLevel(actor, scope, preexisting) {
+  const { classItem, classLevel, characterLevel } = scope;
   const classIdentifier = classItem?.system?.identifier ?? null;
   const classIsOriginal = isOriginalClassItem(classItem);
   for (const item of actor.items) {
+    if (!preexisting.has(item.id)) continue;
     let scopeLevel;
     let isOriginalClass = true;
     if (item.type === 'race' || item.type === 'background') scopeLevel = characterLevel;
-    else if (item.id === classId) {
-      scopeLevel = newLevel;
+    else if (item.id === classItem?.id) {
+      scopeLevel = classLevel;
       isOriginalClass = classIsOriginal;
-    } else if (item.type === 'subclass' && (!item.system?.classIdentifier || item.system?.classIdentifier === classIdentifier)) {
-      scopeLevel = newLevel;
+    } else if (item.type === 'subclass') {
+      if (item.system?.classIdentifier && item.system.classIdentifier !== classIdentifier) continue;
+      scopeLevel = classLevel;
       isOriginalClass = classIsOriginal;
-    } else continue;
+    } else if (item.type === 'class') continue;
+    else scopeLevel = ownedItemScopeLevel(item, scope);
+    if (scopeLevel === null) continue;
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
       const type = adv.constructor?.typeName;
-      if (!AUTO_APPLY_TYPES.has(type)) continue;
+      if (!AUTO_APPLY_TYPES.has(type) && !isFixedAsi(adv)) continue;
       if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
       if (!advancementLevels(adv).includes(scopeLevel)) continue;
       await adv.apply(scopeLevel, {}, { initial: true });
@@ -248,20 +252,21 @@ async function applyAutoAdvancementsAtLevel(actor, newLevel, characterLevel, cla
 /**
  * Apply auto-type advancements on items granted mid-run (e.g. a feat chosen via an ASI or ItemChoice pick) that the level-scoped pass never saw.
  * @param {object} actor Target actor.
- * @param {number} characterLevel Character level being gained; caps the granted item's advancement levels.
+ * @param {{classItem: object, classLevel: number, characterLevel: number}} scope Class being levelled and the levels gained; caps each item's advancement levels.
  * @param {Set<string>} processed Item ids already handled; freshly granted items are the only ones left.
  * @returns {Promise<boolean>} True when at least one advancement applied this call.
  */
-async function applyGrantedItemAutoAdvancements(actor, characterLevel, processed) {
+async function applyGrantedItemAutoAdvancements(actor, scope, processed) {
   let appliedAny = false;
   const pending = actor.items.filter((item) => !processed.has(item.id));
   for (const item of pending) {
     processed.add(item.id);
+    const cap = ownedItemScopeLevel(item, scope) ?? scope.characterLevel;
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
-      if (!AUTO_APPLY_TYPES.has(adv.constructor?.typeName)) continue;
+      if (!AUTO_APPLY_TYPES.has(adv.constructor?.typeName) && !isFixedAsi(adv)) continue;
       if (!classAdvApplies(adv.classRestriction, true)) continue;
       for (const level of advancementLevels(adv)) {
-        if (level < 0 || level > characterLevel) continue;
+        if (level < 0 || level > cap) continue;
         await adv.apply(level, {}, { initial: true });
         appliedAny = true;
       }

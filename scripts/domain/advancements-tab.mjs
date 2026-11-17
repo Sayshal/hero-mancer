@@ -1,7 +1,60 @@
 import { safeEnrichHTML, stripNoiseParenthetical } from '../utils/html-text.mjs';
-import { buildAdvancementRows, buildOwnedItemRows, expandNestedRows, featGrantMissing } from './advancement-chooser.mjs';
+import { buildAdvancementRows, buildOwnedItemRows, expandNestedRows, featGrantMissing, grantedUuids } from './advancement-chooser.mjs';
 import { advancementFieldName } from './advancement-draft.mjs';
 import { formatItemPrereqs, itemPrereqsMet, readItemPrereqs } from './feat-browser.mjs';
+
+/**
+ * Build every advancement row in scope for the wizard (class, subclass, origins, owned features in level-up), with granted items' nested rows expanded.
+ * @param {object} args Row inputs.
+ * @param {Array<{slotId:string, classDoc:?object, subclassDoc:?object, level:number, isPrimary:boolean}>} args.classRoster Per-class inputs.
+ * @param {Object<string, Object<number, object>>} [args.draft] Stored picks keyed by `[advancementId][level]`.
+ * @param {'creation'|'level_up'} [args.mode] Render mode axis.
+ * @param {?object} [args.actor] Target actor (level-up mode).
+ * @param {?object} [args.speciesDoc] Full species Document.
+ * @param {?object} [args.backgroundDoc] Full background Document.
+ * @param {number} args.characterLevel Character-level scope.
+ * @returns {Promise<Array<object>>} Rows in display order.
+ */
+export async function collectAdvancementRows({ classRoster, draft = {}, mode = 'creation', actor = null, speciesDoc = null, backgroundDoc = null, characterLevel }) {
+  const rows = [];
+  for (let i = 0; i < classRoster.length; i++) {
+    const slot = classRoster[i];
+    if (!slot.classDoc) continue;
+    const extras = i === 0 ? [speciesDoc && { doc: speciesDoc, origin: 'race' }, backgroundDoc && { doc: backgroundDoc, origin: 'background' }].filter(Boolean) : [];
+    const slotRows = buildAdvancementRows(
+      slot.classDoc,
+      slot.level,
+      { classDoc: slot.classDoc, subclassDoc: slot.subclassDoc, extraDocs: extras, characterLevel, draft: { advancements: draft }, isOriginalClass: slot.isPrimary !== false },
+      mode
+    );
+    for (const row of slotRows) {
+      row.classKey = slot.slotId;
+      if (row.origin === 'class' || row.origin === 'subclass') row.classLevelCap = slot.level;
+      row.className = slot.classDoc.name ?? null;
+      row.subclassName = slot.subclassDoc?.name ?? null;
+      rows.push(row);
+    }
+  }
+  if (mode === 'level_up' && actor && classRoster[0]?.classDoc) {
+    const slot = classRoster[0];
+    for (const row of buildOwnedItemRows(actor, { classItem: slot.classDoc, classLevel: slot.level, characterLevel }, draft)) {
+      if (row.origin === 'class') row.classKey = slot.slotId;
+      rows.push(row);
+    }
+  }
+  return expandNestedRows(rows, { draft, characterLevel });
+}
+
+/**
+ * Uuids of every item the in-scope advancement rows grant or pick (ItemGrant grants, ItemChoice picks, ASI feat picks).
+ * @param {Array<object>} rows Rows from `collectAdvancementRows`.
+ * @returns {string[]} Unique item uuids.
+ */
+export function rowGrantUuids(rows) {
+  const uuids = new Set();
+  for (const row of rows) for (const uuid of grantedUuids(row)) uuids.add(uuid);
+  return [...uuids];
+}
 
 /**
  * Build the template context for the wizard's advancements tab.
@@ -32,31 +85,11 @@ export async function buildAdvancementsContext({
 } = {}) {
   if (!classRoster.length) return { className: null, effectiveLevel, mode, rows: [], groups: [], hasRows: false, remaining: 0 };
   const totalCharLevel = characterLevel ?? (classRoster.reduce((sum, s) => sum + (Number(s.level) || 0), 0) || effectiveLevel);
-  let rows = [];
-  for (let i = 0; i < classRoster.length; i++) {
-    const slot = classRoster[i];
-    if (!slot.classDoc) continue;
-    const extras = i === 0 ? [speciesDoc && { doc: speciesDoc, origin: 'race' }, backgroundDoc && { doc: backgroundDoc, origin: 'background' }].filter(Boolean) : [];
-    const slotRows = buildAdvancementRows(
-      slot.classDoc,
-      slot.level,
-      { classDoc: slot.classDoc, subclassDoc: slot.subclassDoc, extraDocs: extras, characterLevel: totalCharLevel, draft: { advancements: draft }, isOriginalClass: slot.isPrimary !== false },
-      mode
-    );
-    for (const row of slotRows) {
-      row.classKey = slot.slotId;
-      row.className = slot.classDoc.name ?? null;
-      row.subclassName = slot.subclassDoc?.name ?? null;
-      rows.push(row);
-    }
-  }
-  if (mode === 'level_up' && actor) rows.push(...buildOwnedItemRows(actor, totalCharLevel, draft));
-  rows = await expandNestedRows(rows, { draft, characterLevel: totalCharLevel });
+  const rows = await collectAdvancementRows({ classRoster, draft, mode, actor, speciesDoc, backgroundDoc, characterLevel: totalCharLevel });
   const draftPicks = collectDraftPicks(rows);
   const projected = await collectProjectedItems(rows, actor);
   const priorAsiBonus = {};
   for (const row of rows) {
-    row.levelLabel = row.level > 0 ? _loc('DND5E.LevelNumber', { level: row.level }) : _loc('HEROMANCER.App.Advancements.MiscLabel');
     if (row.auto || !row.spec) {
       row.state = 'granted';
       row.displayTitle = foundry.utils.escapeHTML(row.title);

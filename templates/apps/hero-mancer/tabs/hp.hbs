@@ -17,6 +17,12 @@
         <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.con-mod'}}</span>
         <strong>{{#if (gte conMod 0)}}+{{/if}}{{conMod}}</strong>
       </span>
+      {{#if overallBonus}}
+        <span class="hm-hp-summary-chip hm-hp-summary-con">
+          <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.bonus-short'}}</span>
+          <strong>+{{overallBonus}}</strong>
+        </span>
+      {{/if}}
       <span class="hm-hp-summary-chip hm-hp-summary-total" data-hp-total>
         <span class="hm-hp-summary-label">{{localize 'HEROMANCER.App.HP.total'}}</span>
         <strong>{{total}}</strong>
@@ -85,6 +91,11 @@
                 <span class="hm-hp-card-op">{{card.conSign}}</span>
                 <span class="hm-hp-card-conmod">{{card.conAbs}}</span>
                 <span class="hm-hp-card-source">({{localize 'HEROMANCER.App.HP.con-short'}})</span>
+                {{#if card.levelBonus}}
+                  <span class="hm-hp-card-op">+</span>
+                  <span class="hm-hp-card-conmod">{{card.levelBonus}}</span>
+                  <span class="hm-hp-card-source">({{localize 'HEROMANCER.App.HP.bonus-short'}})</span>
+                {{/if}}
                 <span class="hm-hp-card-eq">=</span>
                 <strong class="hm-hp-card-total">{{card.total}}</strong>
               </span>

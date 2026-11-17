@@ -35,6 +35,32 @@ export function isOriginalClassItem(item) {
 }
 
 /**
+ * Level at which an owned non-class item's advancements fire during a class level-up, mirroring dnd5e `createLevelChangeSteps`.
+ * @param {object} item Embedded item.
+ * @param {object} scope Level scope.
+ * @param {?object} scope.classItem Class item being levelled.
+ * @param {number} scope.classLevel Class level being gained.
+ * @param {number} scope.characterLevel Character level being gained.
+ * @returns {?number} Scope level, or null when the item is linked to a different class.
+ */
+export function ownedItemScopeLevel(item, { classItem, classLevel, characterLevel }) {
+  const rootClass = classLinkedRoot(item);
+  if (!rootClass) return characterLevel;
+  return rootClass.id === classItem?.id ? classLevel : null;
+}
+
+/**
+ * Class item an embedded item's advancements are linked to, via its dnd5e advancement root.
+ * @param {object} item Embedded item.
+ * @returns {?object} Root class item (a subclass root resolves to its class), or null when the item keys to character level.
+ */
+export function classLinkedRoot(item) {
+  const root = item.system?.advancementRootItem;
+  if (!['class', 'subclass'].includes(root?.type) || !item.system?.advancementClassLinked) return null;
+  return root.class ?? root;
+}
+
+/**
  * Numeric level list for an advancement.
  * @param {object} adv Advancement instance.
  * @returns {number[]} Levels the advancement applies at.
@@ -112,24 +138,30 @@ export function buildAdvancementRows(classDoc, targetLevel, context = {}, mode =
 }
 
 /**
- * Chooser rows from the actor's already-owned items whose advancements key to character level.
+ * Chooser rows from the actor's already-owned items, scoped to the levelled class's level when class-linked and to character level otherwise.
  * @param {object} actor Level-up actor.
- * @param {number} characterLevel Character level being gained.
+ * @param {object} scope Level scope.
+ * @param {?object} scope.classItem Class item being levelled.
+ * @param {number} scope.classLevel Class level being gained.
+ * @param {number} scope.characterLevel Character level being gained.
  * @param {Object<string, Object<number, object>>} draft Advancement-pick map.
- * @returns {Array<object>} Chooser rows tagged with origin `feature`.
+ * @returns {Array<object>} Chooser rows; class-linked rows carry origin `class`, the rest `feature`.
  */
-export function buildOwnedItemRows(actor, characterLevel, draft) {
+export function buildOwnedItemRows(actor, scope, draft) {
   const rows = [];
   for (const item of actor.items) {
     if (item.type === 'class' || item.type === 'subclass' || item.type === 'race' || item.type === 'background') continue;
-    if (item.system?.advancementClassLinked !== false) continue;
+    const scopeLevel = ownedItemScopeLevel(item, scope);
+    if (scopeLevel === null) continue;
+    const classLinked = !!classLinkedRoot(item);
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
       const type = adv.constructor?.typeName;
-      if (!type || HM_OWNED.has(type) || !RENDERERS[type] || type === 'ItemGrant') continue;
-      if (!classAdvApplies(adv.classRestriction, true)) continue;
-      if (!advancementLevels(adv).includes(characterLevel)) continue;
-      const row = advancementRow(adv, characterLevel, { origin: 'feature', draft });
-      row.title = nestedTitle(item.name, adv, characterLevel);
+      if (!type || HM_OWNED.has(type)) continue;
+      if (adv.appliesToClass === false) continue;
+      if (!advancementLevels(adv).includes(scopeLevel)) continue;
+      const row = advancementRow(adv, scopeLevel, { origin: classLinked ? 'class' : 'feature', draft });
+      row.classLevelCap = classLinked ? scope.classLevel : null;
+      row.title = nestedTitle(item.name, adv, scopeLevel);
       row.icon = adv.img ?? item.img ?? row.icon;
       rows.push(row);
     }
@@ -210,7 +242,7 @@ export async function expandNestedRows(rows, { draft = {}, characterLevel = 1 } 
  * @param {object} row Built advancement row.
  * @returns {string[]} Granted/selected item uuids.
  */
-function grantedUuids(row) {
+export function grantedUuids(row) {
   if (row.type === 'ItemGrant') return (row.grants ?? []).map((g) => g.uuid).filter(Boolean);
   if (row.spec?.kind === 'item-choice') return (row.spec.selected ?? []).filter(Boolean);
   if (row.spec?.kind === 'asi' && row.spec.feat) return [row.spec.feat];
@@ -226,6 +258,7 @@ function grantedUuids(row) {
  */
 function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
   const rows = [];
+  const cap = parentRow.classLevelCap && doc.system?.advancementClassLinked ? parentRow.classLevelCap : characterLevel;
   for (const adv of advancementList(doc)) {
     const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
     if (!type || HM_OWNED.has(type)) continue;
@@ -233,9 +266,10 @@ function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
     if (!RENDERERS[type] && !AUTO.has(type)) continue;
     const levels = advancementLevels(adv);
     for (const lvl of levels) {
-      if (lvl < 0 || lvl > characterLevel) continue;
+      if (lvl < 0 || lvl > cap) continue;
       const row = advancementRow(adv, lvl, { origin: parentRow.origin, draft, originId: splitAdvancementKey(parentRow.advancementKey).advancementId });
       row.classKey = parentRow.classKey ?? null;
+      row.classLevelCap = parentRow.classLevelCap ?? null;
       row.displayLevel = parentRow.displayLevel ?? parentRow.level;
       row.icon = adv.img ?? doc.img ?? parentRow.icon ?? null;
       row.title = nestedTitle(doc.name, adv, lvl);

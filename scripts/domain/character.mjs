@@ -2,7 +2,7 @@ import { MODULE } from '../constants.mjs';
 import { createBirthdayNote, createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
-import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem } from './advancement-chooser.mjs';
+import { advancementApplyData, advancementLevels, classAdvApplies, classLinkedRoot, isOriginalClassItem } from './advancement-chooser.mjs';
 import { grantedByAdvancement, splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
@@ -80,6 +80,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
       if (!picks.ok) throw new Error('advancement application aborted');
       if (!autoApplied && !picks.applied) break;
     }
+    clone.updateSource({ 'system.attributes.hp.value': clone.system.attributes.hp.max });
     await commitClone(actor, clone);
     const equipmentContext = await buildEquipmentContext({ classDoc: primary.classDoc, backgroundDoc, draft: equipmentDraft });
     const picks = collectEquipmentPicks({ equipmentContext, draft: equipmentDraft });
@@ -306,7 +307,7 @@ const AUTO_APPLY_TYPES = new Set(['ItemGrant', 'Size', 'Trait', 'ScaleValue', 'M
  * @param {object} adv Advancement instance.
  * @returns {boolean} True for a fixed ASI.
  */
-function isFixedAsi(adv) {
+export function isFixedAsi(adv) {
   return adv?.constructor?.typeName === 'AbilityScoreImprovement' && Object.values(adv.configuration?.fixed ?? {}).some((v) => v);
 }
 
@@ -363,7 +364,7 @@ async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, pr
       } else if (item.type === 'subclass') {
         cap = classLevelByIdentifier[item.system?.classIdentifier] ?? totalLevel;
         isOriginalClass = originalByIdentifier[item.system?.classIdentifier] ?? false;
-      } else cap = totalLevel;
+      } else cap = Number(classLinkedRoot(item)?.system?.levels) || totalLevel;
       for (const adv of Object.values(item.advancement?.byId ?? {})) {
         const type = adv.constructor?.typeName;
         if (!AUTO_APPLY_TYPES.has(type) && !isFixedAsi(adv)) continue;

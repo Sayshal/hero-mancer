@@ -13,7 +13,7 @@ import { findRelatedJournalPage } from '../data/journal-finder.mjs';
 import { buildAbilitiesContext, buildStandardArrayPool, pointBuyCost, rollAbilityFormula } from '../domain/ability-scores.mjs';
 import { computeAsiBonus, isOriginalClassItem } from '../domain/advancement-chooser.mjs';
 import { ADVANCEMENT_FIELD_PREFIX, advancementDraftFromFlat, readAdvancementDraft } from '../domain/advancement-draft.mjs';
-import { buildAdvancementsContext, picksFromRow } from '../domain/advancements-tab.mjs';
+import { buildAdvancementsContext, collectAdvancementRows, picksFromRow, rowGrantUuids } from '../domain/advancements-tab.mjs';
 import { approveSubmissionAfterEdit, decodePayload, promptRejectionReason, rejectSubmission, submitForApproval } from '../domain/approval.mjs';
 import { buildBiographyContext } from '../domain/biography-tab.mjs';
 import { syncFactionLimit } from '../domain/factions.mjs';
@@ -24,7 +24,7 @@ import { buildEquipmentReview } from '../domain/equipment-review.mjs';
 import { buildEquipmentContext, extractEquipmentTraitLinks } from '../domain/equipment-tab.mjs';
 import { buildFeatBrowserContext, initFeatIndex } from '../domain/feat-browser.mjs';
 import { buildFinalizeContext } from '../domain/finalize-tab.mjs';
-import { buildHpContext, parseHitDie, readLockedRolls } from '../domain/hp-tab.mjs';
+import { buildHpContext, computeHpBonus, hpBonusRollData, parseHitDie, readLockedRolls } from '../domain/hp-tab.mjs';
 import { buildIdentityContext, lookupSelectionName, preloadIdentityDocs, rosterSlotId } from '../domain/identity-tab.mjs';
 import { buildLevelUpContext } from '../domain/level-up-tab.mjs';
 import { applyLevelUp } from '../domain/level-up.mjs';
@@ -492,6 +492,7 @@ export class HeroMancer extends HMDialog {
       case 'hp': {
         const hpRoster = await this.#buildHpRoster({ classDoc, effectiveLevel });
         const hpDraft = this.#readHpDraft();
+        const hpBonus = await this.#computeHpBonus(effectiveLevel);
         if (this.#hpMethodReset) {
           if (!this.#pendingHpDraft) {
             hpDraft.rolls = {};
@@ -507,7 +508,8 @@ export class HeroMancer extends HMDialog {
             conScore: this.#mode === 'level_up' ? this.#actor.system.abilities.con.value : (Number(this.#readAbilitiesDraft().abilities?.con?.value) || 0) + (Number(this.#shared?.asiBonus?.con) || 0),
             mode: this.#mode,
             rerollPolicy: { allowRerolls: game.settings.get(MODULE.ID, MODULE.SETTINGS.ALLOW_REROLLS), maxRerollAttempts: game.settings.get(MODULE.ID, MODULE.SETTINGS.MAX_REROLL_ATTEMPTS) },
-            l1MaxDie: game.settings.get(MODULE.ID, MODULE.SETTINGS.HP_L1_MAX_DIE)
+            l1MaxDie: game.settings.get(MODULE.ID, MODULE.SETTINGS.HP_L1_MAX_DIE),
+            hpBonus
           })
         );
       }
@@ -527,10 +529,8 @@ export class HeroMancer extends HMDialog {
       case 'advancements': {
         const advDraft = this.#readAdvancementDraft();
         const abilityScores = this.#resolveAbilityScores();
-        const isCreation = this.#mode === 'creation';
-        const speciesDoc = isCreation ? await this.#identityDoc('species') : (this.#actor.items.find((i) => i.type === 'race') ?? null);
-        const backgroundDoc = isCreation ? await this.#identityDoc('background') : (this.#actor.items.find((i) => i.type === 'background') ?? null);
-        const characterLevel = isCreation ? effectiveLevel : this.#actor.system.details.level + 1;
+        const { speciesDoc, backgroundDoc } = await this.#originDocs();
+        const characterLevel = this.#mode === 'creation' ? effectiveLevel : this.#actor.system.details.level + 1;
         const advancementRoster = await this.#buildAdvancementsRoster();
         const totalCharLevel = characterLevel ?? (advancementRoster.reduce((sum, s) => sum + (Number(s.level) || 0), 0) || effectiveLevel);
         const advancementsContext = await buildAdvancementsContext({
@@ -741,6 +741,29 @@ export class HeroMancer extends HMDialog {
       out.push({ slotId: slot.slotId, level: slot.level, classDoc, subclassDoc });
     }
     return out;
+  }
+
+  /**
+   * Resolve the species and background Documents whose advancements feed the wizard: identity picks at creation, the actor's own items in level-up.
+   * @returns {Promise<{speciesDoc: ?object, backgroundDoc: ?object}>} Origin documents.
+   */
+  async #originDocs() {
+    if (this.#mode === 'creation') return { speciesDoc: await this.#identityDoc('species'), backgroundDoc: await this.#identityDoc('background') };
+    return { speciesDoc: this.#actor.items.find((i) => i.type === 'race') ?? null, backgroundDoc: this.#actor.items.find((i) => i.type === 'background') ?? null };
+  }
+
+  /**
+   * Max-HP bonuses dnd5e will apply after this run, from the actor's effects (level-up) and every item the in-scope advancements grant.
+   * @param {number} effectiveLevel Character level at creation.
+   * @returns {Promise<{level: number, overall: number}>} Per-level and flat bonus.
+   */
+  async #computeHpBonus(effectiveLevel) {
+    const isCreation = this.#mode === 'creation';
+    const classRoster = await this.#buildAdvancementsRoster();
+    const characterLevel = isCreation ? effectiveLevel : this.#actor.system.details.level + 1;
+    const actor = isCreation ? null : this.#actor;
+    const rows = await collectAdvancementRows({ classRoster, draft: this.#readAdvancementDraft(), mode: this.#mode, actor, ...(await this.#originDocs()), characterLevel });
+    return computeHpBonus({ uuids: rowGrantUuids(rows), actor, rollData: hpBonusRollData({ actor, classRoster, characterLevel }) });
   }
 
   /**
