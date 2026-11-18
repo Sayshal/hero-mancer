@@ -36,6 +36,7 @@ import { getEffectiveStartingLevel } from '../domain/subclass.mjs';
 import { getPendingSubmission } from '../domain/submission-lock.mjs';
 import { computeAge } from '../integrations/calendaria.mjs';
 import { openTokenizer } from '../integrations/tokenizer.mjs';
+import { applyHeroClass, applyHeroSubclass } from '../integrations/world-warcraft.mjs';
 import { evaluateRoll } from '../utils/dice.mjs';
 import { safeEnrichHTML } from '../utils/html-text.mjs';
 import { applyItemLinks } from '../utils/item-link.mjs';
@@ -350,7 +351,7 @@ export class HeroMancer extends HMDialog {
     const classSlots = await this.#identityClassDocs();
     for (const slot of classSlots) {
       add('class', slot.classDoc);
-      if (slot.subclassUuid) add('subclass', await documentLoader.getFullDocument(slot.subclassUuid));
+      add('subclass', await this.#slotSubclassDoc(slot, slot.classDoc));
     }
     const draft = this.#readEquipmentDraft();
     const equipmentContext = await buildEquipmentContext({ classDoc: classSlots[0]?.classDoc ?? null, backgroundDoc: background, speciesDoc: species, draft });
@@ -670,8 +671,7 @@ export class HeroMancer extends HMDialog {
       if (!roster.length) roster = [{ slotId: rosterSlotId(), uuid: '', level: effectiveLevel, subclassUuid: '' }];
       else if (effectiveLevel <= 1 && roster.length > 1) roster = [{ ...roster[0], level: effectiveLevel }];
       else if (roster[0]) roster[0].level = Math.max(0, Math.min(effectiveLevel, Number(roster[0].level) || effectiveLevel));
-      const primaryUuid = roster[0]?.uuid ?? null;
-      const classDoc = primaryUuid ? await documentLoader.getFullDocument(primaryUuid) : null;
+      const classDoc = roster[0]?.uuid ? await this.#slotClassDoc(roster[0]) : null;
       return { classDoc, effectiveLevel, subclassDocFromPick: null, roster };
     }
     const draft = this.#readLevelUpDraft();
@@ -693,20 +693,36 @@ export class HeroMancer extends HMDialog {
    * @returns {Promise<?object>} Full Document, or null when nothing picked.
    */
   async #identityDoc(sectionId) {
-    const seedIdentity = this.#reviewSeed('identityDraft');
     if (sectionId === 'class' || sectionId === 'subclass') {
-      const seedClasses = seedIdentity?.classes;
-      const seedRoster = Array.isArray(seedClasses) && seedClasses.length ? seedClasses[0] : null;
-      const fromSeed = seedRoster ? (sectionId === 'class' ? seedRoster.uuid : seedRoster.subclassUuid) : null;
-      const fromDom = this.element?.querySelector(`[data-tab="identity"] [data-mc-row][data-primary="true"] [data-combobox][data-name$="${sectionId === 'class' ? '.uuid' : '.subclassUuid'}"]`)
-        ?.dataset.value;
-      const uuid = fromSeed ?? fromDom ?? null;
-      return uuid ? documentLoader.getFullDocument(uuid) : null;
+      const primary = this.#readIdentityRoster()[0];
+      if (!primary?.uuid) return null;
+      const classDoc = await this.#slotClassDoc(primary);
+      return sectionId === 'class' ? classDoc : this.#slotSubclassDoc(primary, classDoc);
     }
-    const seedUuid = seedIdentity?.[sectionId];
+    const seedUuid = this.#reviewSeed('identityDraft')?.[sectionId];
     const uuid = seedUuid ?? this.element?.querySelector(`[data-combobox][data-name="identity.${sectionId}"]`)?.dataset.value;
     if (!uuid) return null;
     return documentLoader.getFullDocument(uuid);
+  }
+
+  /**
+   * Resolve a roster slot's class Document with its hero-class customization applied.
+   * @param {{uuid:string, heroClass:?string}} slot Roster slot.
+   * @returns {Promise<?object>} Class Document.
+   */
+  async #slotClassDoc(slot) {
+    return applyHeroClass(await documentLoader.getFullDocument(slot.uuid), slot.heroClass);
+  }
+
+  /**
+   * Resolve a roster slot's subclass Document with its hero-class feature swaps applied.
+   * @param {{subclassUuid:string}} slot Roster slot.
+   * @param {?object} classDoc Class Document resolved by `#slotClassDoc`.
+   * @returns {Promise<?object>} Subclass Document, or null when none picked.
+   */
+  async #slotSubclassDoc(slot, classDoc) {
+    if (!slot.subclassUuid) return null;
+    return applyHeroSubclass(await documentLoader.getFullDocument(slot.subclassUuid), classDoc);
   }
 
   /**
@@ -717,7 +733,7 @@ export class HeroMancer extends HMDialog {
     const roster = this.#shared?.roster ?? this.#readIdentityRoster();
     const out = [];
     for (const slot of roster) {
-      const classDoc = slot.uuid ? await documentLoader.getFullDocument(slot.uuid) : null;
+      const classDoc = slot.uuid ? await this.#slotClassDoc(slot) : null;
       out.push({ slotId: slot.slotId, level: slot.level, classDoc, subclassUuid: slot.subclassUuid });
     }
     return out;
@@ -736,8 +752,8 @@ export class HeroMancer extends HMDialog {
     for (const slot of roster) {
       let classDoc = null;
       if (slot.uuid === primaryUuid && primaryClassDoc) classDoc = primaryClassDoc;
-      else if (slot.uuid) classDoc = await documentLoader.getFullDocument(slot.uuid);
-      const subclassDoc = slot.subclassUuid ? await documentLoader.getFullDocument(slot.subclassUuid) : null;
+      else if (slot.uuid) classDoc = await this.#slotClassDoc(slot);
+      const subclassDoc = await this.#slotSubclassDoc(slot, classDoc);
       out.push({ slotId: slot.slotId, level: slot.level, classDoc, subclassDoc });
     }
     return out;
@@ -781,7 +797,7 @@ export class HeroMancer extends HMDialog {
     for (let i = 0; i < docs.length; i++) {
       const d = docs[i];
       if (!d.classDoc) continue;
-      const subclassDoc = d.subclassUuid ? await documentLoader.getFullDocument(d.subclassUuid) : null;
+      const subclassDoc = await this.#slotSubclassDoc(d, d.classDoc);
       out.push({ slotId: d.slotId, classDoc: d.classDoc, subclassDoc, level: d.level, isPrimary: i === 0 });
     }
     return out;
@@ -868,7 +884,7 @@ export class HeroMancer extends HMDialog {
 
   /**
    * Read the multiclass roster from DOM: walks every `[data-mc-row]` in the identity tab in document order, pulling each row's class uuid + level + (cross-section) subclass uuid.
-   * @returns {Array<{slotId:string, uuid:string, level:number, subclassUuid:string}>} Roster in primary-first display order.
+   * @returns {Array<{slotId:string, uuid:string, level:number, subclassUuid:string, heroClass:string}>} Roster in primary-first display order.
    */
   #readIdentityRoster() {
     if (this.#pendingIdentityDraft) return Array.isArray(this.#pendingIdentityDraft.classes) ? this.#pendingIdentityDraft.classes : [];
@@ -883,7 +899,8 @@ export class HeroMancer extends HMDialog {
       const level = Number(row.querySelector('[data-mc-level]')?.value) || 0;
       const subclassCb = this.element.querySelector(`[data-tab="identity"] [data-combobox][data-name="identity.classes.${slotId}.subclassUuid"]`);
       const subclassUuid = subclassCb?.dataset.value ?? '';
-      rows.push({ slotId, uuid, level, subclassUuid });
+      const heroClass = row.querySelector('[data-hero-class]')?.value ?? '';
+      rows.push({ slotId, uuid, level, subclassUuid, heroClass });
     }
     return rows;
   }
@@ -1060,7 +1077,7 @@ export class HeroMancer extends HMDialog {
         const parts = key.split('.');
         const slotId = parts[2];
         const field = parts.slice(3).join('.');
-        if (!slots.has(slotId)) slots.set(slotId, { slotId, uuid: '', level: 0, subclassUuid: '' });
+        if (!slots.has(slotId)) slots.set(slotId, { slotId, uuid: '', level: 0, subclassUuid: '', heroClass: '' });
         slots.get(slotId)[field] = value;
       } else {
         const field = key.slice('identity.'.length);
@@ -2254,8 +2271,10 @@ export class HeroMancer extends HMDialog {
         const row = t.closest?.('[data-mc-row]');
         if (!row) return;
         const isPrimary = row.dataset.primary === 'true';
-        if (t.matches?.('input[type="hidden"][name^="identity.classes."][name$=".uuid"]')) {
+        if (t.matches?.('input[type="hidden"][name^="identity.classes."][name$=".uuid"], select[data-hero-class]')) {
           if (!this.#applyingDraft) {
+            const heroClassSelect = row.querySelector('[data-hero-class]');
+            if (heroClassSelect && t !== heroClassSelect) heroClassSelect.value = '';
             this.#clearRosterSubclassDom(row.dataset.slotId);
             this.#flushSlotAdvancementDraft(row.dataset.slotId);
           }

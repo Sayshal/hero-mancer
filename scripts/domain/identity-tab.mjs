@@ -1,10 +1,11 @@
 import { MODULE } from '../constants.mjs';
 import * as documentLoader from '../data/document-loader.mjs';
+import { buildHeroClassSelect, getHeroClass } from '../integrations/world-warcraft.mjs';
 import { shortDescription } from '../utils/html-text.mjs';
 import * as compare from './compare.mjs';
 import { buildIdentityTags } from './identity-tags.mjs';
 import { checkMulticlassPrereq, formatPrereqChipLabel, formatPrereqLabel } from './multiclass-prereqs.mjs';
-import { getEligibleSubclasses, getSubclassThreshold, getSuggestedSubclass } from './subclass.mjs';
+import { getEligibleSubclasses, getFixedSubclassOption, getSubclassThreshold, getSuggestedSubclass } from './subclass.mjs';
 
 /** @type {Object<string, string>} */
 const SECTION_TO_TYPE = { background: 'background', species: 'race', class: 'class' };
@@ -46,10 +47,9 @@ export function buildIdentityContext(draft = {}, { effectiveLevel = 1, abilitySc
     const base = { id: entry.id, label: _loc(entry.label), icon: `fas ${SECTION_ICONS[entry.id]}` };
     if (entry.id === 'class') {
       const classRoster = buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMulticlassMode, activeClassSlotId });
-      const picked = roster.filter((r) => r.uuid);
       const unselected = roster.filter((r) => !r.uuid).length;
       const prereqFails = classRoster.rows.filter((r) => r.prereqChip).length;
-      return { ...base, classRoster, selectedLabel: joinSelectionNames(picked.map((r) => r.uuid)), badge: unselected + prereqFails + (classRoster.balance.state === 'ok' ? 0 : 1) };
+      return { ...base, classRoster, selectedLabel: classRoster.pills.map((p) => p.label).join(' / '), badge: unselected + prereqFails + (classRoster.balance.state === 'ok' ? 0 : 1) };
     }
     const type = SECTION_TO_TYPE[entry.id];
     const value = draft[entry.id] ?? '';
@@ -67,7 +67,7 @@ export function buildIdentityContext(draft = {}, { effectiveLevel = 1, abilitySc
  * Coerce identity draft to roster shape; falls back to a single placeholder slot.
  * @param {object} draft Identity draft state.
  * @param {number} effectiveLevel Effective character level.
- * @returns {Array<{slotId: string, uuid: string, level: number, subclassUuid: string}>} Roster rows.
+ * @returns {Array<{slotId: string, uuid: string, level: number, subclassUuid: string, heroClass: string}>} Roster rows.
  */
 function normalizeRoster(draft, effectiveLevel) {
   if (Array.isArray(draft.classes) && draft.classes.length) {
@@ -75,10 +75,11 @@ function normalizeRoster(draft, effectiveLevel) {
       slotId: c.slotId || rosterSlotId(),
       uuid: c.uuid ?? '',
       level: idx === 0 ? Number(c.level) || effectiveLevel : Number(c.level) || 0,
-      subclassUuid: c.subclassUuid ?? ''
+      subclassUuid: c.subclassUuid ?? '',
+      heroClass: c.heroClass ?? ''
     }));
   }
-  return [{ slotId: rosterSlotId(), uuid: '', level: effectiveLevel, subclassUuid: '' }];
+  return [{ slotId: rosterSlotId(), uuid: '', level: effectiveLevel, subclassUuid: '', heroClass: '' }];
 }
 
 /** @returns {string} Stable 4-char slot id. */
@@ -119,7 +120,9 @@ function buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMult
     const level = Number(slot.level) || 0;
     const canIncrement = totalAssigned < effectiveLevel || (isPrimary ? secondaryHasSpare : primaryLevel > 1);
     const canDecrement = level > 0;
-    return { slotId: slot.slotId, idx, primary: isPrimary, level, uuid: slot.uuid, combo, prereqChip, removable: !isPrimary, canIncrement, canDecrement };
+    const { classEntry, label } = slotClassInfo(slot);
+    const heroClassSelect = classEntry ? buildHeroClassSelect(classEntry, slot.slotId, slot.heroClass) : null;
+    return { slotId: slot.slotId, idx, primary: isPrimary, level, uuid: slot.uuid, label, combo, heroClassSelect, prereqChip, removable: !isPrimary, canIncrement, canDecrement };
   });
   const remaining = effectiveLevel - totalAssigned;
   const balance = computeBalance(totalAssigned, effectiveLevel);
@@ -127,7 +130,7 @@ function buildClassRosterContext(roster, { effectiveLevel, abilityScores, isMult
   const primary = rows[0];
   const pickedRows = rows.filter((r) => r.uuid);
   const activeSlotId = resolveActiveSlot(pickedRows, activeClassSlotId);
-  const pills = pickedRows.map((r) => ({ slotId: r.slotId, label: lookupSelectionName(r.uuid) ?? '', active: r.slotId === activeSlotId }));
+  const pills = pickedRows.map((r) => ({ slotId: r.slotId, label: r.label, active: r.slotId === activeSlotId }));
   const activeRow = pickedRows.find((r) => r.slotId === activeSlotId) ?? null;
   return {
     showSteppers: isMulticlassMode,
@@ -211,16 +214,16 @@ function buildSubclassSection(roster, activeSubclassSlotId = null) {
   const pickers = [];
   for (const slot of roster) {
     if (!slot.uuid) continue;
-    const classEntry = documentLoader.getEntries('class').find((e) => e.uuid === slot.uuid);
+    const { classEntry, heroClass, label } = slotClassInfo(slot);
     if (!classEntry) continue;
     const threshold = getSubclassThreshold(classEntry);
     if (!threshold || threshold > slot.level) continue;
-    const options = getEligibleSubclasses(classEntry);
+    const options = heroClass?.subclass ? getFixedSubclassOption(heroClass.subclass) : getEligibleSubclasses(classEntry);
     if (!options.length) continue;
-    const subclassUuid = slot.subclassUuid || getSuggestedSubclass(classEntry)?.uuid || '';
+    const subclassUuid = heroClass?.subclass || slot.subclassUuid || getSuggestedSubclass(classEntry)?.uuid || '';
     pickers.push({
       slotId: slot.slotId,
-      className: classEntry.name,
+      className: label,
       threshold,
       subclassUuid,
       combo: buildSubclassCombo(subclassUuid, options, { id: `identity-subclass-${slot.slotId}`, name: `identity.classes.${slot.slotId}.subclassUuid` })
@@ -276,6 +279,18 @@ export function lookupSelectionName(uuid) {
     if (found) return found.name;
   }
   return null;
+}
+
+/**
+ * Resolve a roster slot's cached class entry, picked hero class, and display name.
+ * @param {{uuid: string, heroClass: string}} slot Roster slot.
+ * @returns {{classEntry: ?object, heroClass: ?object, label: string}} Class entry, hero-class definition, and hero-class or class name.
+ */
+function slotClassInfo(slot) {
+  const classEntry = slot.uuid ? documentLoader.getEntries('class').find((e) => e.uuid === slot.uuid) : null;
+  const heroClass = classEntry ? getHeroClass(classEntry.system.identifier, slot.heroClass) : null;
+  const label = heroClass ? _loc(heroClass.name) : (classEntry?.name ?? '');
+  return { classEntry, heroClass, label };
 }
 
 /**

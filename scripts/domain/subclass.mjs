@@ -67,14 +67,31 @@ function entrySourceGroup(entry) {
 export function getEligibleSubclasses(classDoc) {
   const classIdent = classDoc?.system?.identifier;
   if (!classIdent) return [];
-  const toOption = (e) => ({ value: e.uuid, label: e.name, icon: e.img, description: shortDescription(e.system), group: entrySourceGroup(e) });
-  const entries = documentLoader.getEntries('subclass');
   const suggested = getSuggestedSubclass(classDoc);
-  if (suggested?.fixed) {
-    const entry = entries.find((e) => e.uuid === suggested.uuid);
-    if (entry) return [toOption(entry)];
-    const index = fromUuidSync(suggested.uuid);
-    return index ? [{ value: suggested.uuid, label: index.name, icon: index.img, description: '', group: null }] : [];
-  }
-  return entries.filter((e) => e.system?.classIdentifier === classIdent).map(toOption);
+  if (suggested?.fixed) return getFixedSubclassOption(suggested.uuid);
+  return documentLoader
+    .getEntries('subclass')
+    .filter((e) => e.system?.classIdentifier === classIdent)
+    .map(toSubclassOption);
+}
+
+/**
+ * Single-entry subclass option list for a subclass the class fixes.
+ * @param {string} uuid Fixed subclass uuid.
+ * @returns {Array<{value:string,label:string,group:?string,icon:?string}>} One option, or empty when unresolvable.
+ */
+export function getFixedSubclassOption(uuid) {
+  const entry = documentLoader.getEntries('subclass').find((e) => e.uuid === uuid);
+  if (entry) return [toSubclassOption(entry)];
+  const index = fromUuidSync(uuid);
+  return index ? [{ value: uuid, label: index.name, icon: index.img, description: '', group: null }] : [];
+}
+
+/**
+ * Map a cached subclass entry to a combobox option.
+ * @param {object} entry Cached subclass entry.
+ * @returns {{value:string,label:string,icon:?string,description:string,group:?string}} Combobox option.
+ */
+function toSubclassOption(entry) {
+  return { value: entry.uuid, label: entry.name, icon: entry.img, description: shortDescription(entry.system), group: entrySourceGroup(entry) };
 }

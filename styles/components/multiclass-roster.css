@@ -36,7 +36,20 @@
 }
 
 .hm-mc-row-combo {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
   min-width: 0;
+}
+
+.hm-mc-row-combo > .hm-combobox {
+  flex: 1;
+  min-width: 0;
+}
+
+.hm-mc-row-combo > .hm-mc-row-hero-class {
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .hm-mc-row-level {

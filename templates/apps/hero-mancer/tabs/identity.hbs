@@ -78,6 +78,14 @@
         data-primary="{{row.primary}}">
         <div class="hm-mc-row-combo">
           {{> hmCombobox row.combo}}
+          {{#if row.heroClassSelect}}
+            <select class="hm-mc-row-hero-class" name="{{row.heroClassSelect.name}}" data-hero-class
+              data-tooltip aria-label="{{localize 'HEROMANCER.App.Identity.HeroClass'}}">
+              {{#each row.heroClassSelect.options as |option|}}
+                <option value="{{option.value}}" {{#if option.selected}}selected{{/if}}>{{option.label}}</option>
+              {{/each}}
+            </select>
+          {{/if}}
         </div>
         {{#if ../classRoster.showSteppers}}
           <div class="hm-mc-row-level">

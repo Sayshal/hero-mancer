@@ -1,6 +1,7 @@
 import { MODULE } from '../constants.mjs';
 import { createBirthdayNote, createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
+import { applyHeroClass } from '../integrations/world-warcraft.mjs';
 import { commitClone } from './actor-commit.mjs';
 import { advancementApplyData, advancementLevels, classAdvApplies, classLinkedRoot, isOriginalClassItem } from './advancement-chooser.mjs';
 import { grantedByAdvancement, splitAdvancementKey } from './advancement-draft.mjs';
@@ -26,7 +27,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
   for (let i = 0; i < rosterInput.length; i++) {
     const slot = rosterInput[i];
     if (!slot.uuid) continue;
-    const classDoc = await fromUuid(slot.uuid);
+    const classDoc = applyHeroClass(await fromUuid(slot.uuid), slot.heroClass);
     if (!classDoc) continue;
     resolvedRoster.push({ slotId: slot.slotId ?? `slot-${i}`, classDoc, level: Math.max(0, Number(slot.level) || 0), subclassUuid: slot.subclassUuid ?? '', isPrimary: i === 0 });
   }
