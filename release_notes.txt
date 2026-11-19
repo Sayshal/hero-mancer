@@ -1,6 +1,6 @@
-## Bug Fixes
+## New Features
 
-- A feat picked during level-up applies its fixed ability score increase.
-- HP bonuses from active effects show in the HP tab, the level-up preview and the HUD.
-- Level-up runs the advancements on features a character already owns that are tied to the class being leveled, at that class's level. Multiclass creation does the same.
-- New characters start at full HP after all advancements apply.
+- Hero classes with a fixed subclass lock the subclass picker to that subclass.
+- Picking a hero class renames the class, uses the hero-class art, and swaps in the class and subclass features the book replaces.
+- Standard classes use the WoW class badge art when the WoW Customize Classes setting is on.
+- With the World of Warcraft module active, class rows on the Identity tab show a Hero class dropdown for classes that have WoW hero-class variants.

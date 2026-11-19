@@ -1,3 +1,4 @@
-## Bug Fixes
+## New Features
 
-- 4 bugs squashed
+- World of Warcraft hero classes can be picked on the Identity tab, with their own name, art and features.
+- Standard classes use WoW class badge art when the WoW Customize Classes setting is on.
