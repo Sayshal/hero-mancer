@@ -22,7 +22,7 @@ import { createCharacter } from '../domain/character.mjs';
 import * as compare from '../domain/compare.mjs';
 import { buildEquipmentReview } from '../domain/equipment-review.mjs';
 import { buildEquipmentContext, extractEquipmentTraitLinks } from '../domain/equipment-tab.mjs';
-import { buildFeatBrowserContext, initFeatIndex } from '../domain/feat-browser.mjs';
+import { buildFeatBrowserContext, initFeatIndex, itemPrereqsMet, readItemPrereqs } from '../domain/feat-browser.mjs';
 import { buildFinalizeContext } from '../domain/finalize-tab.mjs';
 import { buildHpContext, computeHpBonus, hpBonusRollData, parseHitDie, readLockedRolls } from '../domain/hp-tab.mjs';
 import { buildIdentityContext, lookupSelectionName, preloadIdentityDocs, rosterSlotId } from '../domain/identity-tab.mjs';
@@ -3246,7 +3246,14 @@ export class HeroMancer extends HMDialog {
         filters.locked.arbitrary = [{ o: 'NOT', v: { k: 'system.prerequisites.level', o: 'gt', v: featureLevel } }];
         break;
     }
-    const prerequisites = { enforce: true, fullDocuments: true, validate: (item) => item.system.validatePrerequisites?.({ actor: this.#actor, level: featureLevel }) };
+    const projectedIdentifiers = new Set(cfg.identifiers ?? []);
+    const validate = (item) => {
+      const results = item.system.validatePrerequisites?.({ actor: this.#actor, level: featureLevel });
+      const itemsResult = results?.get('items');
+      if (itemsResult?.valid === false && itemPrereqsMet(readItemPrereqs(item), projectedIdentifiers)) itemsResult.valid = true;
+      return results;
+    };
+    const prerequisites = { enforce: true, fullDocuments: true, validate };
     const result = await dnd5e.applications.CompendiumBrowser.select({ filters, prerequisites, selection: { min: 1, max: cfg.max - current.length } });
     if (!result?.size) return;
     const merged = [...new Set([...current, ...result])].slice(0, cfg.max);

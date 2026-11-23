@@ -4,10 +4,21 @@ import * as documentLoader from '../data/document-loader.mjs';
 import { createHistoryNote } from '../integrations/calendaria.mjs';
 import { grantMilestoneMotes } from '../integrations/tenacity.mjs';
 import { commitClone } from './actor-commit.mjs';
-import { advancementApplyData, advancementLevels, classAdvApplies, isOriginalClassItem, ownedItemScopeLevel } from './advancement-chooser.mjs';
+import {
+  advancementApplyData,
+  advancementLevels,
+  advancementType,
+  applyAdvancement,
+  applyAutomatic,
+  draftedAdvancementIds,
+  moduleSuppressedAdvancements,
+  classAdvApplies,
+  isOriginalClassItem,
+  ownedItemScopeLevel
+} from './advancement-chooser.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { applySubclassFromIdentity, findAdvancement, isFixedAsi } from './character.mjs';
-import { parseHitDie } from './hp-tab.mjs';
+import { hpAdvancementValue, parseHitDie } from './hp-tab.mjs';
 
 /**
  * Snapshot an actor's current class roster as a level-up seed.
@@ -93,16 +104,18 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
   const clone = actor.clone({}, { keepId: true });
   let classItem = null;
   let newLevel = 0;
+  let manager = null;
   try {
     if (isMulticlass) {
       const classDoc = await documentLoader.getFullDocument(pickedUuid);
       if (!classDoc) throw new Error('multiclass class doc not resolvable');
-      const classData = classDoc.toObject();
+      const classData = game.items.fromCompendium(classDoc);
       classData._id = foundry.utils.randomID();
       classData.system = { ...classData.system, levels: 1 };
       clone.updateSource({ items: [classData] });
       classItem = clone.items.get(classData._id);
       newLevel = 1;
+      manager = dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, classData);
     } else {
       classItem = clone.items.find((i) => i.type === 'class' && i.uuid === pickedUuid) ?? clone.items.find((i) => i.type === 'class' && i.flags?.core?.sourceId === pickedUuid);
       if (!classItem) {
@@ -111,13 +124,21 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
       }
       if (!classItem) throw new Error('existing class item not found on clone');
       newLevel = (Number(classItem.system?.levels) || 0) + 1;
+      manager = dnd5e.applications.advancement.AdvancementManager.forLevelChange(actor, classItem.id, 1);
       classItem.updateSource({ 'system.levels': newLevel });
     }
     const characterLevel = (actor.system?.details?.level ?? 0) + 1;
     if (pickedSubclass) await applySubclassFromIdentity(classItem, pickedSubclass, newLevel);
     await applySubclassPicks(clone, advancementDraft, newLevel, wizardElement);
     const autoProcessed = new Set(clone.items.map((i) => i.id));
-    const scope = { classItem, classLevel: newLevel, characterLevel };
+    const scope = {
+      classItem,
+      classLevel: newLevel,
+      characterLevel,
+      existingItemIds: beforeItemIds,
+      drafted: draftedAdvancementIds(advancementDraft),
+      suppressed: isMulticlass ? new Set() : moduleSuppressedAdvancements(manager)
+    };
     await applyAutoAdvancementsAtLevel(clone, scope, autoProcessed);
     await applyHitPoints(classItem, newLevel, hpDraft);
     const appliedPicks = new Set();
@@ -127,7 +148,7 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
       const autoApplied = await applyGrantedItemAutoAdvancements(clone, scope, autoProcessed);
       if (!picks.applied && !autoApplied) break;
     }
-    await commitClone(actor, clone);
+    if (!(await commitClone(actor, clone, manager))) return null;
   } catch (err) {
     ATLAS.log(1, 'applyLevelUp aborted (no actor mutation):', err);
     return null;
@@ -205,7 +226,7 @@ async function applySubclassPicks(actor, draft, newLevel, wizardElement) {
     const data = byLevel?.[newLevel] ?? byLevel?.[String(newLevel)];
     if (!data) continue;
     try {
-      await adv.apply(newLevel, data);
+      await applyAdvancement(actor, adv, newLevel, data);
     } catch (err) {
       if (wizardElement) markAdvancementRowError(wizardElement, key, newLevel, err?.message ?? String(err));
       throw err;
@@ -216,7 +237,7 @@ async function applySubclassPicks(actor, draft, newLevel, wizardElement) {
 /**
  * Fire auto-applying advancements for the level just gained on every pre-existing item, mirroring dnd5e `createLevelChangeSteps`.
  * @param {object} actor Target actor.
- * @param {{classItem: object, classLevel: number, characterLevel: number}} scope Class being levelled and the levels gained.
+ * @param {{classItem: object, classLevel: number, characterLevel: number, existingItemIds: Set<string>, drafted: Set<string>, suppressed: Set<string>}} scope Class being levelled, the levels gained, item ids the actor already had, drafted advancement ids, and advancement ids modules suppress.
  * @param {Set<string>} preexisting Item ids present before this pass; items granted during it are left to `applyGrantedItemAutoAdvancements`.
  * @returns {Promise<void>}
  */
@@ -240,11 +261,13 @@ async function applyAutoAdvancementsAtLevel(actor, scope, preexisting) {
     else scopeLevel = ownedItemScopeLevel(item, scope);
     if (scopeLevel === null) continue;
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
-      const type = adv.constructor?.typeName;
+      const type = advancementType(adv);
       if (!AUTO_APPLY_TYPES.has(type) && !isFixedAsi(adv)) continue;
       if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
-      if (!advancementLevels(adv).includes(scopeLevel)) continue;
-      await adv.apply(scopeLevel, {}, { initial: true });
+      if (scope.suppressed.has(adv.id)) continue;
+      const freshSubclass = item.type === 'subclass' && !scope.existingItemIds.has(item.id);
+      const levels = advancementLevels(adv).filter((lvl) => (freshSubclass ? lvl >= 1 && lvl <= scopeLevel : lvl === scopeLevel));
+      for (const lvl of levels) await applyAutomatic(actor, adv, lvl, scope.drafted);
     }
   }
 }
@@ -263,12 +286,11 @@ async function applyGrantedItemAutoAdvancements(actor, scope, processed) {
     processed.add(item.id);
     const cap = ownedItemScopeLevel(item, scope) ?? scope.characterLevel;
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
-      if (!AUTO_APPLY_TYPES.has(adv.constructor?.typeName) && !isFixedAsi(adv)) continue;
+      if (!AUTO_APPLY_TYPES.has(advancementType(adv)) && !isFixedAsi(adv)) continue;
       if (!classAdvApplies(adv.classRestriction, true)) continue;
       for (const level of advancementLevels(adv)) {
         if (level < 0 || level > cap) continue;
-        await adv.apply(level, {}, { initial: true });
-        appliedAny = true;
+        if (await applyAutomatic(actor, adv, level, scope.drafted)) appliedAny = true;
       }
     }
   }
@@ -289,7 +311,7 @@ async function applyHitPoints(classItem, newLevel, hpDraft) {
   const raw = bucket[newLevel] ?? bucket[String(newLevel)];
   const value = Number(raw);
   if (!Number.isFinite(value) || value <= 0) return;
-  await hpAdv.apply(newLevel, { [newLevel]: value });
+  await applyAdvancement(classItem.actor, hpAdv, newLevel, { [newLevel]: hpAdvancementValue(hpAdv, value, hpDraft.method, newLevel) });
 }
 
 /**
@@ -316,15 +338,16 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
     claimed.add(adv.uuid);
     for (const [levelStr, data] of Object.entries(byLevel)) {
       const level = Number(levelStr);
+      let applied = adv;
       try {
-        await adv.apply(level, advancementApplyData(adv, data));
+        applied = await applyAdvancement(actor, adv, level, advancementApplyData(adv, data));
       } catch (err) {
         const reason = err?.message ?? String(err);
         if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
         ATLAS.log(1, `Advancement ${key} L${level} apply failed:`, err);
         return { ok: false, applied: appliedAny };
       }
-      reportFeatGrantFailure(adv, data, key, level, wizardElement);
+      reportFeatGrantFailure(applied, data, key, level, wizardElement);
     }
     appliedAny = true;
   }

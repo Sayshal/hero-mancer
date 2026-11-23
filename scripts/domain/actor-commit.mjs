@@ -1,10 +1,11 @@
 /**
- * Commit a fully-applied actor clone to its live counterpart.
+ * Commit a fully-applied actor clone to its live counterpart, firing dnd5e's advancement-completion hooks around the write.
  * @param {object} actor Live actor.
  * @param {object} clone Fully-applied clone (`actor.clone({}, {keepId: true})`).
- * @returns {Promise<void>}
+ * @param {object} manager dnd5e AdvancementManager describing the same advancement run, handed to hook listeners.
+ * @returns {Promise<boolean>} False when a `dnd5e.preAdvancementManagerComplete` listener vetoed the commit.
  */
-export async function commitClone(actor, clone) {
+export async function commitClone(actor, clone, manager) {
   const updates = clone.toObject();
   const items = updates.items ?? [];
   delete updates.items;
@@ -20,6 +21,7 @@ export async function commitClone(actor, clone) {
     else toCreate.push(item);
   }
   const toDelete = [...existingIds].filter((id) => !seen.has(id));
+  if (Hooks.call('dnd5e.preAdvancementManagerComplete', manager, updates, toCreate, toUpdate, toDelete) === false) return false;
   const opts = { isAdvancement: true };
   if (toCreate.length) await actor.createEmbeddedDocuments('Item', toCreate, { keepId: true, ...opts });
   await actor.update(updates, opts);
@@ -28,4 +30,6 @@ export async function commitClone(actor, clone) {
     const present = toDelete.filter((id) => actor.items.has(id));
     if (present.length) await actor.deleteEmbeddedDocuments('Item', present, opts);
   }
+  Hooks.callAll('dnd5e.advancementManagerComplete', manager);
+  return true;
 }

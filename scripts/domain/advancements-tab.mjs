@@ -131,7 +131,12 @@ export async function buildAdvancementsContext({
         : row.spec.kind === 'asi'
           ? _loc('HEROMANCER.App.Advancements.Chip.choose')
           : _loc('HEROMANCER.App.Advancements.Chip.choose-count', { count: row.requiredCount });
-    for (const tile of row.tiles) if (tile.state === 'choice') tile.ribbonLabel = row.spec.featPrereqMissing ? _loc('HEROMANCER.App.Advancements.Chip.prereq-missing') : ribbonLabel;
+    for (const tile of row.tiles) {
+      if (tile.state !== 'choice' || tile.ribbonLabel) continue;
+      if (row.spec.featPrereqMissing) tile.ribbonLabel = _loc('HEROMANCER.App.Advancements.Chip.prereq-missing');
+      else if (tile.groupCount !== undefined && row.state !== 'done') tile.ribbonLabel = _loc('HEROMANCER.App.Advancements.Chip.choose-count', { count: tile.groupCount });
+      else tile.ribbonLabel = ribbonLabel;
+    }
     if (row.spec.kind === 'asi') {
       const add = (map) => {
         for (const [k, v] of Object.entries(map ?? {})) priorAsiBonus[k] = (priorAsiBonus[k] ?? 0) + (Number(v) || 0);
@@ -175,10 +180,24 @@ function buildPickTiles(row) {
     out.push(spellAbilityTile(row), ...buildAutoTiles(row));
     return out;
   }
+  if (spec.kind === 'grant-choice') {
+    for (const grant of row.grants ?? []) if (spec.fixed.includes(grant.uuid)) out.push(autoItemTile(row, grant));
+    for (const [index, group] of spec.groups.entries()) out.push(grantPickTile(row, `g${index}`, [group.base, group.replacement], 1));
+    if (spec.optional.length) out.push(grantPickTile(row, 'opt', spec.optional, spec.optional.length));
+    return out;
+  }
   if (spec.kind === 'trait') {
     out.push(...buildTraitGrantedTiles(row));
     const lockedSlots = (spec.slots ?? []).filter((s) => s.locked);
     for (const slot of lockedSlots) out.push(traitSlotTile(row, slot));
+    if ((spec.groups?.length ?? 0) > 1) {
+      const picks = assignTraitPicksToGroups(spec.groups, [...lockedSlots.map((s) => s.value), ...(spec.chosen ?? []).filter((v, i) => v && !spec.slots?.[i]?.locked)]);
+      for (const [index, group] of spec.groups.entries()) {
+        const lockedInGroup = picks[index].filter((v) => lockedSlots.some((s) => s.value === v)).length;
+        if (group.count - lockedInGroup > 0) out.push(traitChoiceTile(row, lockedInGroup, { ...group, index, chosen: picks[index].filter((v) => !lockedSlots.some((s) => s.value === v)) }));
+      }
+      return out;
+    }
     const lockedCount = lockedSlots.length;
     if (spec.count - lockedCount > 0) out.push(traitChoiceTile(row, lockedCount));
     return out;
@@ -330,6 +349,35 @@ function autoItemTile(row, g) {
 }
 
 /**
+ * Build a picker tile for one grant-choice group: a base/replacement pair or the optional extras.
+ * @param {object} row Parent row with `spec.kind === 'grant-choice'`.
+ * @param {string} suffix Input-name suffix identifying the group.
+ * @param {string[]} uuids Item uuids offered by this tile.
+ * @param {number} max Maximum picks.
+ * @returns {object} Tile context.
+ */
+function grantPickTile(row, suffix, uuids, max) {
+  const options = uuids.map(poolOption).filter(Boolean);
+  const picked = options.filter((o) => row.spec.selected.includes(o.value));
+  const optional = suffix === 'opt';
+  const inputName = `adv-grant.${row.advancementKey}.${row.level}.${suffix}`;
+  return {
+    key: `${row.advancementKey}-${row.level}-grant-${suffix}`,
+    foot: { label: row.title || _loc('HEROMANCER.App.Advancements.Ribbon.feature'), kind: 'feature' },
+    state: 'choice',
+    ribbonLabel: optional ? _loc('HEROMANCER.App.Advancements.Chip.optional') : null,
+    label: picked.length ? picked.map((o) => o.label).join(', ') : _loc(optional ? 'HEROMANCER.App.Advancements.Chip.optional' : 'HEROMANCER.App.Advancements.ChooseCount', { count: max }),
+    icon: picked[0]?.icon ?? row.icon,
+    uuid: picked[0]?.value ?? null,
+    selected: picked.length > 0,
+    isPlaceholder: !picked.length,
+    inputName,
+    inputValue: picked.map((o) => o.value).join(','),
+    picker: { name: inputName, label: row.title || _loc('ATLAS.Common.Choice'), max, optionsJson: JSON.stringify(options) }
+  };
+}
+
+/**
  * Build an ItemChoice tile: an inline picker for a fixed pool (plus a browse button when drops are allowed), or a CompendiumBrowser browse trigger for an open choice.
  * @param {object} row Parent row.
  * @returns {object} Tile context.
@@ -374,7 +422,8 @@ function itemChoiceTile(row) {
       list: spec.restrictionList,
       school: spec.restrictionSchool,
       maxSpellLevel: spec.maxSpellLevel,
-      featureLevel: spec.featureLevel
+      featureLevel: spec.featureLevel,
+      identifiers: [...(row.projected?.identifiers ?? [])]
     });
   }
   if (!spec.open) {
@@ -517,22 +566,40 @@ function traitSlotTile(row, slot) {
 }
 
 /**
- * Build a single multi-pick tile for a Trait advancement's choices group.
+ * Distribute trait picks across choice groups, filling each group in order with values its options allow.
+ * @param {Array<{count: number, options: Array<{value: string}>}>} groups Choice groups.
+ * @param {string[]} picks Picked trait keys.
+ * @returns {string[][]} Picks per group, index-aligned with `groups`.
+ */
+function assignTraitPicksToGroups(groups, picks) {
+  const out = groups.map(() => []);
+  for (const value of picks) {
+    const index = groups.findIndex((g, i) => out[i].length < g.count && g.options.some((o) => o.value === value));
+    if (index >= 0) out[index].push(value);
+  }
+  return out;
+}
+
+/**
+ * Build a single multi-pick tile for a Trait advancement's choices, or for one of its choice groups.
  * @param {object} row Parent row.
  * @param {number} lockedCount Number of slots already filled by equipment-tab locks.
+ * @param {?{index: number, count: number, options: Array<object>, pool: string[], chosen: string[]}} [group] Choice group this tile covers; null for the whole advancement.
  * @returns {object} Tile context.
  */
-function traitChoiceTile(row, lockedCount) {
+function traitChoiceTile(row, lockedCount, group = null) {
   const spec = row.spec;
-  const flatOptions = (spec.fullOptions ?? []).map((o) => ({ value: o.value, label: o.label, group: o.group ?? null, uuid: traitReference(o.value), disabled: !!o.disabled }));
-  const chosen = (spec.chosen ?? []).filter((v, i) => v && !spec.slots?.[i]?.locked);
+  const flatOptions = (group?.options ?? spec.fullOptions ?? []).map((o) => ({ value: o.value, label: o.label, group: o.group ?? null, uuid: traitReference(o.value), disabled: !!o.disabled }));
+  const chosen = group ? group.chosen : (spec.chosen ?? []).filter((v, i) => v && !spec.slots?.[i]?.locked);
   const { keyLabel } = dnd5e.documents.Trait;
   const labels = chosen.map((k) => keyLabel(k) ?? k).sort((a, b) => a.localeCompare(b));
-  const max = Math.max(0, spec.count - lockedCount);
-  const inputName = `adv-trait.${row.advancementKey}.${row.level}`;
+  const max = Math.max(0, (group?.count ?? spec.count) - lockedCount);
+  const suffix = group ? `.g${group.index}` : '';
+  const inputName = `adv-trait.${row.advancementKey}.${row.level}${suffix}`;
   return {
-    key: `${row.advancementKey}-${row.level}-trait-pick`,
-    foot: traitGrantFoot(ribbonForTraitKey(spec.pool?.[0] ?? chosen[0])?.kind ?? 'pick', { label: _loc('HEROMANCER.App.Advancements.Ribbon.pick'), kind: 'pick' }, spec.mode),
+    key: `${row.advancementKey}-${row.level}-trait-pick${suffix}`,
+    ...(group && { groupCount: max }),
+    foot: traitGrantFoot(ribbonForTraitKey((group?.pool ?? spec.pool)?.[0] ?? chosen[0])?.kind ?? 'pick', { label: _loc('HEROMANCER.App.Advancements.Ribbon.pick'), kind: 'pick' }, spec.mode),
     state: 'choice',
     label: labels.length ? labels.join(', ') : _loc('HEROMANCER.App.Advancements.ChooseCount', { count: max }),
     icon: row.icon,
@@ -782,6 +849,8 @@ function requiredCountFor(spec) {
       return spec.effectiveCount;
     case 'trait':
       return spec.count;
+    case 'grant-choice':
+      return spec.groups.length;
     case 'asi':
       return spec.mode === 'feat' ? 1 : spec.points;
     case 'size':
@@ -825,6 +894,8 @@ function filledCount(spec) {
       return spec.selected.filter(Boolean).length;
     case 'trait':
       return spec.chosen.length;
+    case 'grant-choice':
+      return spec.groups.filter((g) => spec.selected.includes(g.base) || spec.selected.includes(g.replacement)).length;
     case 'asi':
       if (spec.mode !== 'asi') return 0;
       return Object.values(spec.assignments).reduce((s, v) => s + (Number(v) || 0), 0);
@@ -848,6 +919,8 @@ function isRowDone(spec) {
       return spec.selected.length === spec.effectiveCount && spec.selected.every(Boolean) && (!needsItemChoiceAbility(spec) || Boolean(spec.ability));
     case 'trait':
       return spec.chosen.filter(Boolean).length === spec.count;
+    case 'grant-choice':
+      return spec.groups.every((g) => spec.selected.includes(g.base) || spec.selected.includes(g.replacement));
     case 'asi':
       if (spec.mode === 'asi') return spec.remaining === 0;
       if (spec.mode === 'feat') return Boolean(spec.feat) && !spec.featPrereqMissing;
@@ -906,7 +979,7 @@ async function collectProjectedItems(rows, actor) {
   const identifiers = new Set();
   for (const row of rows) {
     if (row.parentIdentifier) identifiers.add(row.parentIdentifier);
-    if (row.type === 'ItemGrant') for (const g of row.grants ?? []) if (g.uuid) uuids.add(g.uuid);
+    if (row.type === 'ItemGrant') for (const uuid of grantedUuids(row)) uuids.add(uuid);
     if (row.spec?.kind === 'item-choice') for (const u of row.spec.selected ?? []) if (u) uuids.add(u);
   }
   const owned = new Set(uuids);
@@ -1069,12 +1142,31 @@ async function decorateTraitSpec(row) {
       }
     }
   }
+  const groups = spec.groups?.length ? spec.groups.map((g) => ({ ...g })) : [{ count: spec.count, pool: spec.pool }];
+  if (baseChoices) {
+    const optionSource = pickerChoices ?? baseChoices;
+    const fullPool = optionSource.clone();
+    fullPool.exclude(new Set([...excludeKeys]));
+    spec.fullOptions = fullPool.asOptions();
+    for (const group of groups) {
+      group.options = optionSource
+        .filter(new Set(group.pool), { inplace: false })
+        .exclude(new Set([...excludeKeys]))
+        .asOptions();
+      if (group.options.length) group.count = Math.min(group.count, group.options.length);
+    }
+    spec.count = groups.reduce((sum, g) => sum + g.count, 0);
+    spec.groups = groups;
+  } else {
+    spec.fullOptions = [];
+  }
+  const slotPools = groups.flatMap((g) => Array.from({ length: g.count }, () => new Set(g.pool)));
   const slots = [];
   for (let i = 0; i < spec.count; i++) {
     let value = chosenList[i] ?? '';
     let locked = lockedSlots.has(i);
     const siblingPicks = new Set(chosenList.filter((v, j) => v && j !== i));
-    let opts = baseChoices?.clone() ?? null;
+    let opts = baseChoices?.filter(slotPools[i], { inplace: false }) ?? null;
     if (opts) opts.exclude(new Set([...excludeKeys, ...siblingPicks]));
     const flatOptions = opts ? opts.asOptions() : [];
     if (!locked && flatOptions.length === 1) {
@@ -1097,13 +1189,6 @@ async function decorateTraitSpec(row) {
   spec.slots = slots;
   spec.chosen = chosenList;
   spec.remaining = Math.max(0, spec.count - chosenList.filter(Boolean).length);
-  if (baseChoices) {
-    const fullPool = (pickerChoices ?? baseChoices).clone();
-    fullPool.exclude(new Set([...excludeKeys]));
-    spec.fullOptions = fullPool.asOptions();
-  } else {
-    spec.fullOptions = [];
-  }
   if (spec.granted.length) {
     const enriched = await Promise.all(spec.granted.map((g) => enrichTraitKeyLabel(g.key, g.label)));
     spec.grantedDisplay = joinOxford(enriched);
@@ -1356,6 +1441,11 @@ export function picksFromRow(row, kind) {
       }
       return chosen.length ? { chosen } : null;
     }
+    case 'grant-choice': {
+      const selected = [];
+      for (const el of body.querySelectorAll('input[type="hidden"][name^="adv-grant."]')) for (const v of el.value.split(',')) if (v) selected.push(v);
+      return { selected };
+    }
     case 'size': {
       const el = body.querySelector('input[type="hidden"][name^="adv-size."]');
       return el?.value ? { size: el.value } : null;
@@ -1381,6 +1471,8 @@ function serializePick(spec) {
       return JSON.stringify({ added: spec.selected ?? [], ...(spec.replaceTarget && { replace: spec.replaceTarget }), ...(spec.ability && { ability: spec.ability }) });
     case 'spell-ability':
       return spec.ability ? JSON.stringify({ ability: spec.ability }) : '';
+    case 'grant-choice':
+      return JSON.stringify({ selected: spec.selected });
     case 'trait':
       return spec.chosen?.length ? JSON.stringify({ chosen: spec.chosen }) : '';
     case 'size':

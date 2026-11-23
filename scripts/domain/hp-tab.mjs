@@ -96,6 +96,21 @@ export function averageRoll(die) {
 }
 
 /**
+ * Convert an HP-tab value into the form dnd5e stores on a HitPoints advancement (`"max"`, `"avg"`, or the rolled number).
+ * @param {object} hpAdv HitPoints advancement.
+ * @param {number} value Hit-die value from the HP tab.
+ * @param {?string} method HP-tab method (`average`, `max`, `manual`).
+ * @param {number} level Class level being applied.
+ * @returns {number|string} Advancement value.
+ */
+export function hpAdvancementValue(hpAdv, value, method, level) {
+  const die = hpAdv.hitDieValue;
+  if (value === die && (method !== 'manual' || level === 1)) return 'max';
+  if (method === 'average' && value === averageRoll(die)) return 'avg';
+  return value;
+}
+
+/**
  * @param {?(string|number)} score Ability score.
  * @returns {number} Standard 5e modifier.
  */

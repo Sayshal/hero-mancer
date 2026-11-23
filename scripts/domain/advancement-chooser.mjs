@@ -1,3 +1,4 @@
+import { replacementCompanions } from '../integrations/tashas-cauldron.mjs';
 import { stripHtml, stripNoiseParenthetical } from '../utils/html-text.mjs';
 import { advancementKey, splitAdvancementKey } from './advancement-draft.mjs';
 
@@ -12,6 +13,21 @@ const RENDERERS = { AbilityScoreImprovement: asiSpec, ItemChoice: itemChoiceSpec
 
 /** @type {Object<string, number>} Display sort weight per origin */
 const ORIGIN_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
+
+/** @type {string[]} Core dnd5e advancement types, subclasses before their parents so a module type resolves to its nearest core ancestor. */
+const CORE_ADVANCEMENT_TYPES = ['ItemChoice', 'ItemGrant', 'AbilityScoreImprovement', 'HitPoints', 'ModifyItem', 'ScaleValue', 'Size', 'Subclass', 'Trait'];
+
+/**
+ * Core dnd5e type of an advancement instance or source entry, resolving module-defined subclasses (e.g. an ItemGrant variant) to their core ancestor.
+ * @param {object} adv Advancement instance or source data.
+ * @returns {?string} Core type name, or the raw type when it extends no core type.
+ */
+export function advancementType(adv) {
+  const raw = adv?.type ?? adv?.constructor?.typeName ?? adv?.constructor?.metadata?.name;
+  if (!raw || CORE_ADVANCEMENT_TYPES.includes(raw)) return raw ?? null;
+  const cls = CONFIG.DND5E.advancementTypes[raw]?.documentClass ?? adv.constructor;
+  return CORE_ADVANCEMENT_TYPES.find((core) => cls?.prototype instanceof dnd5e.documents.advancement[`${core}Advancement`]) ?? raw;
+}
 
 /**
  * Whether a class/subclass advancement applies given the class's original-vs-multiclass status.
@@ -71,13 +87,29 @@ export function advancementLevels(adv) {
 }
 
 /**
+ * Apply an advancement through the actor's current instance of it, then reset the actor so later reads see the result.
+ * @param {object} actor Actor (or clone) that owns the advancement.
+ * @param {object} adv Advancement to apply; re-resolved by item and advancement id.
+ * @param {number} level Level to apply at.
+ * @param {object} data Apply data.
+ * @param {object} [options] Apply options.
+ * @returns {Promise<object>} The advancement instance that was applied.
+ */
+export async function applyAdvancement(actor, adv, level, data, options = {}) {
+  const current = actor.items.get(adv.item.id)?.advancement.byId[adv.id] ?? adv;
+  await current.apply(level, data, options);
+  actor.reset();
+  return current;
+}
+
+/**
  * Map an HM draft pick to the data shape `Advancement#apply` expects.
  * @param {object} adv Advancement instance.
  * @param {object} data HM draft pick data.
  * @returns {object} Apply-ready data.
  */
 export function advancementApplyData(adv, data) {
-  const type = adv?.constructor?.typeName;
+  const type = advancementType(adv);
   if (type === 'ItemChoice' && (Array.isArray(data?.added) || data?.ability)) {
     const out = {};
     if (Array.isArray(data.added)) out.selected = data.added;
@@ -85,9 +117,12 @@ export function advancementApplyData(adv, data) {
     if (data.ability) out.ability = data.ability;
     return out;
   }
-  if (type === 'ItemGrant') return data?.ability ? { ability: data.ability } : {};
+  if (type === 'ItemGrant') {
+    const selected = Array.isArray(data?.selected) ? (grantChoiceSpec(adv, data)?.selected ?? data.selected) : null;
+    return { ...(selected && { selected }), ...(data?.ability && { ability: data.ability }) };
+  }
   if (type === 'AbilityScoreImprovement' && data?.type === 'feat' && data.feat) return { ...data, uuid: data.feat };
-  if (type === 'Size') return { size: data?.size };
+  if (type === 'Size') return { size: data?.size || adv.configuration.sizes.first() || 'med' };
   return data;
 }
 
@@ -121,15 +156,16 @@ export function buildAdvancementRows(classDoc, targetLevel, context = {}, mode =
   const list = [...advancementList(classDoc).map((a) => ({ adv: a, origin: 'class' })), ...advancementList(context.subclassDoc).map((a) => ({ adv: a, origin: 'subclass' }))];
   for (const { doc, origin } of context.extraDocs ?? []) for (const adv of advancementList(doc)) list.push({ adv, origin });
   const isOriginalClass = context.isOriginalClass ?? true;
+  const freshSubclass = !!context.subclassDoc && !context.subclassDoc.isEmbedded;
   const rows = [];
   for (const { adv, origin } of list) {
-    const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
+    const type = advancementType(adv);
     if (!type || HM_OWNED.has(type)) continue;
     const classScoped = origin === 'class' || origin === 'subclass';
     if (!classAdvApplies(adv.classRestriction, classScoped ? isOriginalClass : true)) continue;
     const levels = advancementLevels(adv);
     for (const lvl of levels) {
-      if (!isRowInScope(origin, lvl, targetLevel, characterLevel, mode)) continue;
+      if (!isRowInScope(origin, lvl, targetLevel, characterLevel, mode, freshSubclass)) continue;
       rows.push(advancementRow(adv, lvl, { origin, draft, context }));
     }
   }
@@ -155,7 +191,7 @@ export function buildOwnedItemRows(actor, scope, draft) {
     if (scopeLevel === null) continue;
     const classLinked = !!classLinkedRoot(item);
     for (const adv of Object.values(item.advancement?.byId ?? {})) {
-      const type = adv.constructor?.typeName;
+      const type = advancementType(adv);
       if (!type || HM_OWNED.has(type)) continue;
       if (adv.appliesToClass === false) continue;
       if (!advancementLevels(adv).includes(scopeLevel)) continue;
@@ -181,7 +217,7 @@ export function buildOwnedItemRows(actor, scope, draft) {
  * @returns {object} Row record.
  */
 function advancementRow(adv, lvl, { origin, draft = {}, context = {}, originId = null }) {
-  const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
+  const type = advancementType(adv);
   const id = adv.id ?? adv._id;
   const sourceUuid = adv.item?.uuid ?? null;
   const key = advancementKey(sourceUuid, id, originId);
@@ -243,7 +279,7 @@ export async function expandNestedRows(rows, { draft = {}, characterLevel = 1 } 
  * @returns {string[]} Granted/selected item uuids.
  */
 export function grantedUuids(row) {
-  if (row.type === 'ItemGrant') return (row.grants ?? []).map((g) => g.uuid).filter(Boolean);
+  if (row.type === 'ItemGrant') return row.spec?.kind === 'grant-choice' ? [...row.spec.selected] : (row.grants ?? []).map((g) => g.uuid).filter(Boolean);
   if (row.spec?.kind === 'item-choice') return (row.spec.selected ?? []).filter(Boolean);
   if (row.spec?.kind === 'asi' && row.spec.feat) return [row.spec.feat];
   return [];
@@ -260,7 +296,7 @@ function nestedItemRows(doc, parentRow, { draft, characterLevel }) {
   const rows = [];
   const cap = parentRow.classLevelCap && doc.system?.advancementClassLinked ? parentRow.classLevelCap : characterLevel;
   for (const adv of advancementList(doc)) {
-    const type = adv.type ?? adv.constructor?.typeName ?? adv.constructor?.metadata?.name;
+    const type = advancementType(adv);
     if (!type || HM_OWNED.has(type)) continue;
     if (!classAdvApplies(adv.classRestriction, true)) continue;
     if (!RENDERERS[type] && !AUTO.has(type)) continue;
@@ -298,14 +334,15 @@ function nestedTitle(itemName, adv, lvl) {
  * @param {number} targetLevel Class level cap.
  * @param {number} characterLevel Character level cap.
  * @param {'creation'|'level_up'} mode Render mode axis.
+ * @param {boolean} [freshSubclass] True when the subclass is being picked this run, so its rows below the new level are in scope too.
  * @returns {boolean} True when the row should render.
  */
-function isRowInScope(origin, lvl, targetLevel, characterLevel, mode) {
+function isRowInScope(origin, lvl, targetLevel, characterLevel, mode, freshSubclass = false) {
   if (origin === 'race' || origin === 'background') {
     if (mode === 'level_up') return lvl === characterLevel;
     return lvl >= 0 && lvl <= characterLevel;
   }
-  if (mode === 'level_up') return lvl === targetLevel;
+  if (mode === 'level_up' && !(origin === 'subclass' && freshSubclass)) return lvl === targetLevel;
   return lvl >= 1 && lvl <= targetLevel;
 }
 
@@ -340,7 +377,7 @@ export async function computeAsiBonus({
     if (!doc) return;
     for (const adv of advancementList(doc)) {
       if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
-      const type = adv.type ?? adv.constructor?.typeName;
+      const type = advancementType(adv);
       const id = adv.id ?? adv._id;
       const levels = advancementLevels(adv).filter((lvl) => lvl >= 0 && lvl <= levelCap);
       if (!levels.length) continue;
@@ -376,7 +413,7 @@ export async function computeAsiBonus({
  * @returns {string[]} Granted/selected item uuids.
  */
 function grantedAsiSources(adv, levels, byLevel) {
-  const type = adv.type ?? adv.constructor?.typeName;
+  const type = advancementType(adv);
   if (type === 'ItemGrant') return (adv.configuration?.items ?? []).map((it) => it.uuid).filter(Boolean);
   if (type === 'ItemChoice') {
     const out = [];
@@ -520,9 +557,74 @@ function spellAbilities(adv) {
  * @returns {?object} Chooser spec, or null when there's no ability choice.
  */
 function itemGrantSpec(adv, _level, value, _context) {
+  const choice = grantChoiceSpec(adv, value);
+  if (choice) return choice;
   const abilities = spellAbilities(adv);
   if (abilities.length < 2) return null;
   return { kind: 'spell-ability', abilities, ability: value.ability ?? '' };
+}
+
+/**
+ * Build a grant-choice spec for an ItemGrant that swaps base features for replacements (Tasha's optional class features) or offers opt-in optional items.
+ * @param {object} adv Advancement instance.
+ * @param {object} value Stored selection.
+ * @returns {?object} Chooser spec, or null when every item is granted unconditionally.
+ */
+function grantChoiceSpec(adv, value) {
+  const cfg = adv.configuration ?? {};
+  const groups = Object.entries(foundry.utils.flattenObject(cfg.replacements ?? {})).map(([base, replacement]) => ({ base, replacement, companions: replacementCompanions(replacement) }));
+  const grouped = new Set(groups.flatMap((g) => [g.base, g.replacement, ...g.companions]));
+  const rest = [...(cfg.items ?? [])].filter((i) => !grouped.has(i.uuid));
+  const optional = cfg.optional ? rest.filter((i) => i.optional).map((i) => i.uuid) : [];
+  if (!groups.length && !optional.length) return null;
+  const fixed = rest.map((i) => i.uuid).filter((uuid) => !optional.includes(uuid));
+  const picked = new Set(Array.isArray(value.selected) ? value.selected : groups.map((g) => g.base));
+  const selected = [...fixed, ...optional.filter((uuid) => picked.has(uuid))];
+  for (const group of groups) {
+    if (picked.has(group.replacement)) selected.push(group.replacement, ...group.companions);
+    else if (picked.has(group.base)) selected.push(group.base);
+  }
+  return { kind: 'grant-choice', groups, optional, fixed, selected };
+}
+
+/**
+ * Advancement ids whose ItemGrant selection or Trait choices come from a draft pick, so the auto-apply pass only fills their fixed parts.
+ * @param {Object<string, Object<number, object>>} draft Advancement pick map.
+ * @returns {Set<string>} Advancement ids with an explicit `selected` or `chosen` pick.
+ */
+export function draftedAdvancementIds(draft) {
+  const out = new Set();
+  for (const [key, byLevel] of Object.entries(draft ?? {})) {
+    if (Object.values(byLevel ?? {}).some((data) => Array.isArray(data?.selected) || Array.isArray(data?.chosen))) out.add(splitAdvancementKey(key).advancementId);
+  }
+  return out;
+}
+
+/**
+ * Advancements that modules remove from dnd5e's own advancement flow through `dnd5e.preAdvancementManagerRender`.
+ * @param {object} manager dnd5e AdvancementManager prepared for the same advancement run.
+ * @returns {Set<string>} Advancement ids that hook listeners dropped.
+ */
+export function moduleSuppressedAdvancements(manager) {
+  const stepIds = () => manager.steps.filter((s) => s.flow).map((s) => s.flow.advancement.id);
+  const before = stepIds();
+  Hooks.call('dnd5e.preAdvancementManagerRender', manager);
+  const after = new Set(stepIds());
+  return new Set(before.filter((id) => !after.has(id)));
+}
+
+/**
+ * Apply the configuration-only value of an advancement; drafted ones get only their fixed Trait grants so the draft pick supplies the choices.
+ * @param {object} actor Actor (clone) owning the advancement.
+ * @param {object} adv Advancement instance.
+ * @param {number} level Level to apply at.
+ * @param {Set<string>} drafted Advancement ids with a draft pick.
+ * @returns {Promise<?object>} The applied advancement instance, or null when nothing applied.
+ */
+export async function applyAutomatic(actor, adv, level, drafted) {
+  if (!drafted.has(adv.id)) return applyAdvancement(actor, adv, level, advancementApplyData(adv, {}), { initial: true });
+  if (advancementType(adv) === 'Trait' && adv.configuration.grants?.size) return applyAdvancement(actor, adv, level, { chosen: [...adv.configuration.grants] });
+  return null;
 }
 
 /**
@@ -540,21 +642,22 @@ function sizeSpec(adv, _level, value, _context) {
 }
 
 /**
- * Build a Trait chooser spec for a single level slot.
+ * Build a Trait chooser spec covering every choice group (each slot keeps its own pool).
  * @param {object} adv Advancement instance.
- * @param {number} level Level being applied.
+ * @param {number} _level Level being applied (unused; Trait choices are not level-keyed).
  * @param {object} value Stored selection.
  * @param {object} _context Renderer context (unused).
  * @returns {object} Chooser spec.
  */
-function traitSpec(adv, level, value, _context) {
+function traitSpec(adv, _level, value, _context) {
   const cfg = adv.configuration ?? {};
-  const slot = cfg.choices?.[level] ?? cfg.choices?.[0] ?? { count: 0, pool: new Set() };
-  const pool = [...(slot.pool ?? [])];
+  const groups = [...(cfg.choices ?? [])].map((c) => ({ count: c.count ?? 0, pool: [...(c.pool ?? [])] })).filter((g) => g.pool.length && g.count);
+  const pool = [...new Set(groups.flatMap((g) => g.pool))];
   return {
     kind: 'trait',
     granted: [...(cfg.grants ?? [])],
-    count: pool.length ? (slot.count ?? 0) : 0,
+    count: groups.reduce((sum, g) => sum + g.count, 0),
+    groups,
     pool,
     mode: cfg.mode ?? 'default',
     allowReplacements: cfg.allowReplacements === true,

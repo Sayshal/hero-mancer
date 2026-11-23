@@ -3,12 +3,24 @@ import { createBirthdayNote, createHistoryNote } from '../integrations/calendari
 import { grantMilestoneMotes, grantsCreationMotes } from '../integrations/tenacity.mjs';
 import { applyHeroClass } from '../integrations/world-warcraft.mjs';
 import { commitClone } from './actor-commit.mjs';
-import { advancementApplyData, advancementLevels, classAdvApplies, classLinkedRoot, isOriginalClassItem } from './advancement-chooser.mjs';
+import {
+  advancementApplyData,
+  advancementLevels,
+  advancementType,
+  applyAdvancement,
+  applyAutomatic,
+  draftedAdvancementIds,
+  moduleSuppressedAdvancements,
+  classAdvApplies,
+  classLinkedRoot,
+  isOriginalClassItem
+} from './advancement-chooser.mjs';
 import { grantedByAdvancement, splitAdvancementKey } from './advancement-draft.mjs';
 import { markAdvancementRowError, reportFeatGrantFailure } from './advancements-tab.mjs';
 import { collectSectionPicks, collectShopPicks } from './equipment-selections.mjs';
 import { buildRenownItems, joinFactions } from './factions.mjs';
 import { buildEquipmentContext } from './equipment-tab.mjs';
+import { hpAdvancementValue } from './hp-tab.mjs';
 import { publishCharacterSummary } from './summary-message.mjs';
 
 /**
@@ -43,7 +55,7 @@ export async function createCharacter({ payload, wizardElement = null, originalP
     const itemsToInsert = [];
     const classItemIdsBySlot = new Map();
     for (const slot of resolvedRoster) {
-      const data = slot.classDoc.toObject();
+      const data = game.items.fromCompendium(slot.classDoc);
       data._id = foundry.utils.randomID();
       data.system = { ...data.system, levels: slot.level };
       itemsToInsert.push(data);
@@ -52,13 +64,13 @@ export async function createCharacter({ payload, wizardElement = null, originalP
     const details = { originalClass: classItemIdsBySlot.get(primary.slotId) };
     const speciesDoc = identityDraft?.species ? await fromUuid(identityDraft.species) : null;
     if (speciesDoc) {
-      const speciesData = speciesDoc.toObject();
+      const speciesData = game.items.fromCompendium(speciesDoc);
       speciesData._id = foundry.utils.randomID();
       itemsToInsert.push(speciesData);
       details.race = speciesData._id;
     }
     if (backgroundDoc) {
-      const backgroundData = backgroundDoc.toObject();
+      const backgroundData = game.items.fromCompendium(backgroundDoc);
       backgroundData._id = foundry.utils.randomID();
       itemsToInsert.push(backgroundData);
       details.background = backgroundData._id;
@@ -75,14 +87,23 @@ export async function createCharacter({ payload, wizardElement = null, originalP
     const classLevelByItemId = Object.fromEntries([...classItemIdsBySlot.values()].map((id, idx) => [id, resolvedRoster[idx].level]));
     const autoProcessed = new Set();
     const appliedPicks = new Set();
+    const managers = resolvedRoster.map((slot) => {
+      const data = game.items.fromCompendium(slot.classDoc);
+      data.system = { ...data.system, levels: slot.level };
+      return dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, data);
+    });
+    const suppressed = new Set(managers.flatMap((manager) => [...moduleSuppressedAdvancements(manager)]));
     for (let round = 0; round < 10; round++) {
-      const autoApplied = await applyAutoAdvancements(clone, { totalLevel, classLevelByItemId, processed: autoProcessed });
+      const autoApplied = await applyAutoAdvancements(clone, { totalLevel, classLevelByItemId, processed: autoProcessed, drafted: draftedAdvancementIds(advancementDraft), suppressed });
       const picks = await applyAdvancementPicks(clone, advancementDraft, wizardElement, appliedPicks);
       if (!picks.ok) throw new Error('advancement application aborted');
       if (!autoApplied && !picks.applied) break;
     }
     clone.updateSource({ 'system.attributes.hp.value': clone.system.attributes.hp.max });
-    await commitClone(actor, clone);
+    const primaryData = game.items.fromCompendium(primary.classDoc);
+    primaryData.system = { ...primaryData.system, levels: primary.level };
+    if (!(await commitClone(actor, clone, dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, primaryData))))
+      throw new Error('character creation vetoed by preAdvancementManagerComplete');
     const equipmentContext = await buildEquipmentContext({ classDoc: primary.classDoc, backgroundDoc, draft: equipmentDraft });
     const picks = collectEquipmentPicks({ equipmentContext, draft: equipmentDraft });
     if (picks.length) await createEquipmentItems(actor, picks);
@@ -296,7 +317,7 @@ export async function applySubclassFromIdentity(classItem, subclassUuid, effecti
     if (adv.constructor?.typeName !== 'Subclass') continue;
     const level = adv.levels?.[0] ?? adv.level ?? 1;
     if (level > effectiveLevel) continue;
-    await adv.apply(level, { uuid: subclassUuid });
+    await applyAdvancement(classItem.actor, adv, level, { uuid: subclassUuid });
   }
 }
 
@@ -328,7 +349,7 @@ async function applyHitPointsAcrossLevels(classItem, classLevel, hpDraft, slotId
     const raw = rolls[level] ?? rolls[String(level)];
     const value = Number(raw);
     if (!Number.isFinite(value) || value <= 0) continue;
-    await hpAdv.apply(level, { [level]: value });
+    await applyAdvancement(classItem.actor, hpAdv, level, { [level]: hpAdvancementValue(hpAdv, value, hpDraft.method, level) });
   }
 }
 
@@ -339,9 +360,11 @@ async function applyHitPointsAcrossLevels(classItem, classLevel, hpDraft, slotId
  * @param {number} scope.totalLevel Sum of all class levels (character level).
  * @param {Object<string, number>} scope.classLevelByItemId Map of class item id → class level.
  * @param {Set<string>} [scope.processed] Item ids already auto-applied; persisted across rounds so re-runs only touch items granted since.
+ * @param {Set<string>} [scope.drafted] Advancement ids with a draft pick.
+ * @param {Set<string>} [scope.suppressed] Advancement ids modules remove from dnd5e's own flow.
  * @returns {Promise<boolean>} True when at least one auto advancement applied this call.
  */
-async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, processed = new Set() }) {
+async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, processed = new Set(), drafted = new Set(), suppressed = new Set() }) {
   const classLevelByIdentifier = {};
   const originalByIdentifier = {};
   for (const item of actor.items) {
@@ -367,13 +390,12 @@ async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, pr
         isOriginalClass = originalByIdentifier[item.system?.classIdentifier] ?? false;
       } else cap = Number(classLinkedRoot(item)?.system?.levels) || totalLevel;
       for (const adv of Object.values(item.advancement?.byId ?? {})) {
-        const type = adv.constructor?.typeName;
+        const type = advancementType(adv);
         if (!AUTO_APPLY_TYPES.has(type) && !isFixedAsi(adv)) continue;
-        if (!classAdvApplies(adv.classRestriction, isOriginalClass)) continue;
+        if (!classAdvApplies(adv.classRestriction, isOriginalClass) || suppressed.has(adv.id)) continue;
         for (const level of advancementLevels(adv)) {
           if (level < 0 || level > cap) continue;
-          await adv.apply(level, {}, { initial: true });
-          appliedAny = true;
+          if (await applyAutomatic(actor, adv, level, drafted)) appliedAny = true;
         }
       }
     }
@@ -383,6 +405,15 @@ async function applyAutoAdvancements(actor, { totalLevel, classLevelByItemId, pr
 
 /** @type {Object<string, number>} Apply-order weight per parent-item type; advancements apply background-first so later origins see earlier grants. */
 const ORIGIN_APPLY_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
+
+/**
+ * Apply-order weight of an item, taken from the origin (background, species, class) that ultimately granted it.
+ * @param {Item} item Embedded item owning the advancement.
+ * @returns {number} Sort weight; lower applies first.
+ */
+function originApplyWeight(item) {
+  return ORIGIN_APPLY_ORDER[(item.system.advancementRootItem ?? item).type] ?? 9;
+}
 
 /**
  * Walk the advancement draft and dispatch `Advancement#apply(level, data)` for each pick.
@@ -395,28 +426,30 @@ const ORIGIN_APPLY_ORDER = { background: 0, race: 1, class: 2, subclass: 3 };
 async function applyAdvancementPicks(actor, draft, wizardElement, appliedSet = new Set()) {
   let appliedAny = false;
   const claimed = new Set();
-  for (let pass = 0; pass < 10; pass++) {
-    const ready = Object.entries(draft)
+  for (let pass = 0; pass < 20; pass++) {
+    const candidates = Object.entries(draft)
       .filter(([key]) => !appliedSet.has(key))
       .map(([key, byLevel]) => ({ key, byLevel, advancement: findAdvancement(actor, key) }))
       .filter((e) => e.advancement && !claimed.has(e.advancement.uuid))
-      .sort((a, b) => (ORIGIN_APPLY_ORDER[a.advancement.item.type] ?? 9) - (ORIGIN_APPLY_ORDER[b.advancement.item.type] ?? 9));
-    if (!ready.length) break;
+      .sort((a, b) => originApplyWeight(a.advancement.item) - originApplyWeight(b.advancement.item));
+    if (!candidates.length) break;
+    const ready = candidates.filter((e) => originApplyWeight(e.advancement.item) === originApplyWeight(candidates[0].advancement.item));
     for (const { key, byLevel, advancement } of ready) {
       appliedSet.add(key);
       if (claimed.has(advancement.uuid)) continue;
       claimed.add(advancement.uuid);
       for (const [levelStr, data] of Object.entries(byLevel)) {
         const level = Number(levelStr);
+        let applied = advancement;
         try {
-          await advancement.apply(level, advancementApplyData(advancement, data));
+          applied = await applyAdvancement(actor, advancement, level, advancementApplyData(advancement, data));
         } catch (err) {
           const reason = err?.message ?? String(err);
           if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
           ATLAS.log(1, `Advancement ${key} L${level} apply failed:`, err);
           return { ok: false, applied: appliedAny };
         }
-        reportFeatGrantFailure(advancement, data, key, level, wizardElement);
+        reportFeatGrantFailure(applied, data, key, level, wizardElement);
       }
       appliedAny = true;
     }
@@ -484,7 +517,7 @@ export async function expandContainerContents(sourceDoc, parentItemId) {
   const contents = await sourceDoc.system?.contents;
   if (!contents?.size) return [];
   return contents.map((child) => {
-    const data = child.toObject();
+    const data = game.items.fromCompendium(child);
     data.system.container = parentItemId;
     return data;
   });
@@ -551,7 +584,7 @@ export async function createEquipmentItems(actor, picks) {
  * @returns {object} Item data for `createEmbeddedDocuments`.
  */
 function buildItemData(doc, quantity, stack = false) {
-  const data = doc.toObject();
+  const data = game.items.fromCompendium(doc);
   data.system = { ...data.system, quantity: grantedQuantity(data.system?.quantity, { quantity, stack }) };
   return data;
 }
