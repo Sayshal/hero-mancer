@@ -139,6 +139,19 @@ export function featGrantMissing(adv, data) {
 }
 
 /**
+ * Uuids of an ItemChoice pick that the system reversed after apply because their prerequisites failed.
+ * @param {object} adv Advancement just applied.
+ * @param {object} data Apply-ready data.
+ * @param {number} level Level applied.
+ * @returns {string[]} Dropped uuids.
+ */
+export function droppedChoicePicks(adv, data, level) {
+  if (adv?.constructor?.typeName !== 'ItemChoice' || !Array.isArray(data?.selected)) return [];
+  const kept = new Set(Object.values(adv.value?.added?.[level] ?? {}));
+  return data.selected.filter((uuid) => !kept.has(uuid));
+}
+
+/**
  * Emit chooser rows across class, subclass, and optional extra docs.
  * @param {?object} classDoc Full class Document.
  * @param {number} targetLevel Class level cap.

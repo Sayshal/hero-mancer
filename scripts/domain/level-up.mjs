@@ -11,6 +11,7 @@ import {
   applyAdvancement,
   applyAutomatic,
   draftedAdvancementIds,
+  droppedChoicePicks,
   moduleSuppressedAdvancements,
   classAdvApplies,
   isOriginalClassItem,
@@ -142,11 +143,16 @@ export async function applyLevelUp({ actor, pickedUuid, isMulticlass, pickedSubc
     await applyAutoAdvancementsAtLevel(clone, scope, autoProcessed);
     await applyHitPoints(classItem, newLevel, hpDraft);
     const appliedPicks = new Set();
+    const retries = new Map();
     for (let round = 0; round < 10; round++) {
-      const picks = await applyNonSubclassPicks(clone, advancementDraft, wizardElement, appliedPicks);
+      const picks = await applyNonSubclassPicks(clone, advancementDraft, wizardElement, appliedPicks, retries);
       if (!picks.ok) throw new Error('advancement application aborted');
       const autoApplied = await applyGrantedItemAutoAdvancements(clone, scope, autoProcessed);
       if (!picks.applied && !autoApplied) break;
+    }
+    if (retries.size) {
+      await reportDroppedPicks(clone, retries, wizardElement);
+      throw new Error('advancement picks failed prerequisites');
     }
     if (!(await commitClone(actor, clone, manager))) return null;
   } catch (err) {
@@ -320,9 +326,10 @@ async function applyHitPoints(classItem, newLevel, hpDraft) {
  * @param {Object<string, Object<number, object>>} draft Advancement pick map.
  * @param {?HTMLElement} wizardElement Wizard root for error stamping.
  * @param {Set<string>} appliedSet Draft keys already applied; persisted across rounds so re-runs skip them.
+ * @param {Map<string, {key: string, level: number, data: object}>} retries ItemChoice picks the system dropped for unmet prerequisites, keyed `key|level`; retried next round.
  * @returns {Promise<{ok: boolean, applied: boolean}>} `ok` false on apply error; `applied` true when at least one pick applied this call.
  */
-async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
+async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet, retries) {
   let appliedAny = false;
   const claimed = new Set();
   for (const [key, byLevel] of Object.entries(draft ?? {})) {
@@ -338,18 +345,47 @@ async function applyNonSubclassPicks(actor, draft, wizardElement, appliedSet) {
     claimed.add(adv.uuid);
     for (const [levelStr, data] of Object.entries(byLevel)) {
       const level = Number(levelStr);
+      const retryKey = `${key}|${level}`;
+      if (appliedSet.has(retryKey)) continue;
+      const applyData = retries.get(retryKey)?.data ?? advancementApplyData(adv, data);
       let applied = adv;
       try {
-        applied = await applyAdvancement(actor, adv, level, advancementApplyData(adv, data));
+        applied = await applyAdvancement(actor, adv, level, applyData);
       } catch (err) {
         const reason = err?.message ?? String(err);
         if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
         ATLAS.log(1, `Advancement ${key} L${level} apply failed:`, err);
         return { ok: false, applied: appliedAny };
       }
+      const dropped = droppedChoicePicks(applied, applyData, level);
+      if (dropped.length < (applyData.selected?.length ?? 0)) appliedAny = true;
+      if (dropped.length) {
+        retries.set(retryKey, { key, level, data: { ...applyData, selected: dropped } });
+        appliedSet.delete(key);
+        continue;
+      }
+      retries.delete(retryKey);
+      appliedSet.add(retryKey);
+      appliedAny = true;
       reportFeatGrantFailure(applied, data, key, level, wizardElement);
     }
-    appliedAny = true;
   }
   return { ok: true, applied: appliedAny };
+}
+
+/**
+ * Stamp a row error for each ItemChoice pick still failing its prerequisites after every round.
+ * @param {object} actor Clone the picks were applied to.
+ * @param {Map<string, {key: string, level: number, data: object}>} retries Remaining dropped picks.
+ * @param {?HTMLElement} wizardElement Wizard root for error stamping.
+ * @returns {Promise<void>}
+ */
+async function reportDroppedPicks(actor, retries, wizardElement) {
+  for (const { key, level, data } of retries.values()) {
+    const docs = await Promise.all(data.selected.map((uuid) => fromUuid(uuid)));
+    const reason = docs.flatMap((doc) => doc?.system.assertPrerequisites?.(actor, { level }) ?? []).join(' ');
+    if (wizardElement) markAdvancementRowError(wizardElement, key, level, reason);
+    else ui.notifications.error(reason, { permanent: true });
+    ATLAS.log(1, `Advancement ${key} L${level} picks failed prerequisites:`, data.selected);
+  }
 }

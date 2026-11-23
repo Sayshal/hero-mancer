@@ -979,8 +979,7 @@ async function collectProjectedItems(rows, actor) {
   const identifiers = new Set();
   for (const row of rows) {
     if (row.parentIdentifier) identifiers.add(row.parentIdentifier);
-    if (row.type === 'ItemGrant') for (const uuid of grantedUuids(row)) uuids.add(uuid);
-    if (row.spec?.kind === 'item-choice') for (const u of row.spec.selected ?? []) if (u) uuids.add(u);
+    for (const uuid of grantedUuids(row)) uuids.add(uuid);
   }
   const owned = new Set(uuids);
   for (const item of actor?.items ?? []) {
@@ -1389,7 +1388,7 @@ export function markAdvancementRowError(root, advancementKey, level, reason) {
   row.dataset.error = 'apply';
   row.setAttribute('data-error-reason', reason);
   row.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  ui.notifications.error('HEROMANCER.App.Advancements.ApplyFailed', { localize: true, permanent: true, format: { title: row.querySelector('.hm-advancement-title')?.textContent ?? '', reason } });
+  ui.notifications.error('HEROMANCER.App.Advancements.ApplyFailed', { localize: true, permanent: true, format: { title: row.querySelector('.hm-tile-foot-text')?.textContent.trim() ?? '', reason } });
 }
 
 /**
