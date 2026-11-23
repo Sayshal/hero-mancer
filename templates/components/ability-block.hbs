@@ -46,6 +46,6 @@
         value="{{value}}" aria-labelledby="{{id}}-label">
     </div>
 
-    <p class="hm-ability-card-blurb">{{localize blurbKey}}</p>
+    {{#if blurb}}<p class="hm-ability-card-blurb">{{blurb}}</p>{{/if}}
   </div>
 </div>

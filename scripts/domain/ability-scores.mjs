@@ -104,6 +104,22 @@ export function buildStandardArrayPool(abilityCount) {
 }
 
 /**
+ * Build an ability's card blurb: its lang description followed by the skills keyed to it in `CONFIG.DND5E.skills`.
+ * @param {string} key Ability key.
+ * @returns {string} Localized blurb; empty when the ability has neither a description nor skills.
+ */
+function buildAbilityBlurb(key) {
+  const descriptionKey = `HEROMANCER.App.Abilities.Blurbs.${key}`;
+  const description = game.i18n.has(descriptionKey) ? _loc(descriptionKey) : '';
+  const skillLabels = Object.values(CONFIG.DND5E.skills)
+    .filter((skill) => skill.ability === key)
+    .map((skill) => _loc(skill.label))
+    .sort((a, b) => a.localeCompare(b, game.i18n.lang));
+  const skills = skillLabels.length ? _loc('HEROMANCER.App.Abilities.BlurbSkills', { skills: skillLabels.join(', ') }) : '';
+  return [description, skills].filter(Boolean).join(' ');
+}
+
+/**
  * Build the abilities-tab context.
  * @param {object} [draft] Saved draft values for the abilities tab.
  * @param {?object} [classDoc] Currently selected class Document, used to highlight primary abilities.
@@ -153,7 +169,7 @@ export function buildAbilitiesContext(draft = {}, classDoc = null) {
       ability: key,
       label: cfg.label,
       abbr: cfg.abbreviation,
-      blurbKey: `HEROMANCER.App.Abilities.Blurbs.${key}`,
+      blurb: buildAbilityBlurb(key),
       iconPath: cfg.icon ? `/${cfg.icon}` : null,
       iconClass: cfg.icon ? null : (ABILITY_ICON_FA_FALLBACKS[key] ?? 'fa-solid fa-star'),
       method,
