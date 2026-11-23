@@ -1,4 +1,9 @@
 ## New Features
 
-- World of Warcraft hero classes can be picked on the Identity tab, with their own name, art and features.
-- Standard classes use WoW class badge art when the WoW Customize Classes setting is on.
+- The Advancements tab offers the replacement and optional item picks of item-grant advancements, such as Tasha's optional features.
+- Creation and level-up fire the dnd5e advancement manager hooks and skip advancements that modules suppress.
+- Each ability card lists its skills from the system skill config.
+
+## Bug Fixes
+
+- 6 bugs squashed

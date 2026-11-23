@@ -1,6 +1,14 @@
 ## New Features
 
-- Hero classes with a fixed subclass lock the subclass picker to that subclass.
-- Picking a hero class renames the class, uses the hero-class art, and swaps in the class and subclass features the book replaces.
-- Standard classes use the WoW class badge art when the WoW Customize Classes setting is on.
-- With the World of Warcraft module active, class rows on the Identity tab show a Hero class dropdown for classes that have WoW hero-class variants.
+- Creation and level-up fire the dnd5e advancement manager hooks. Advancements that modules suppress are skipped, except on multiclass level-up.
+- Each ability card lists its skills from the system skill config.
+- The Advancements tab offers the replacement and optional item picks of item-grant advancements, such as Tasha's optional features.
+
+## Bug Fixes
+
+- A feat whose prerequisites are met by another pick at the same level-up applies correctly.
+- Average HP values, species with a single size, module-defined advancement types and missing compendium sources no longer break creation or level-up.
+- Features of a freshly picked subclass and multi-group trait choices apply correctly.
+- Level-up retries item picks dropped for unmet prerequisites. If they still fail, it stops and marks the row with an error.
+- Character creation applies picks background first, then species, then class. For drafted choices, the automatic pass applies only fixed trait grants.
+- The ability card blurb line is hidden when an ability has neither a description nor skills.
